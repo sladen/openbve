@@ -1,0 +1,58 @@
+#!/usr/bin/make -f
+export DH_VERBOSE=1
+BUILDDIRS = openBVE/OpenBve
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	touch configure-stamp
+
+build: build-stamp
+build-stamp: configure-stamp 
+	dh_testdir
+	for builddir in $(BUILDDIRS); do \
+	  (cd $$builddir && xbuild) || exit 1; \
+	done
+	mkdir -p $(CURDIR)/build/
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f debian/*.config
+	rm -f build-stamp configure-stamp
+	rm -rf $(CURDIR)/openbve
+	for builddir in $(BUILDDIRS); do \
+	  (cd $$builddir && xbuild /t:Clean); \
+	done
+	dh_clean 
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+
+binary-arch:
+	# Do nothing
+
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_install
+	dh_installcligac
+	dh_installchangelogs
+	dh_installdocs
+	dh_clifixperms
+	dh_installman
+	dh_link
+	dh_strip
+	dh_fixperms
+	dh_installdeb
+	dh_clideps -d
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep
+.PHONY: build clean binary-indep binary install configure
