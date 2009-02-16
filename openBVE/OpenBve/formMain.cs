@@ -41,15 +41,14 @@ namespace OpenBve {
         private void formMain_Load(object sender, EventArgs e) {
             labelVersion.Text = "v" + Application.ProductVersion;
             System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
-            // form icon on non-Mono
-            if (!Program.CurrentlyRunOnMono) {
-                try {
-                    string f = Interface.GetCombinedFileName(Interface.GetCombinedFolderName(Application.StartupPath, "Interface"), "icon.ico");
-                    if (System.IO.File.Exists(f)) {
-                        this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(f);
-                    }
-                } catch { }
-            }
+	    // nb. Might be better to use System.Drawing.Icon.ExtractAssociatedIcon('this.exe'); if icon embedding works
+	    try {
+		string f = Interface.GetCombinedFileName(Interface.GetCombinedFolderName(Application.StartupPath, "Interface"), "icon.ico");
+		this.Icon = new Icon(f);
+	    } catch (Exception exp) {
+		Console.Error.WriteLine(exp.Message);
+	    }
+	    
             // use button-style radio buttons on non-Mono
             if (!Program.CurrentlyRunOnMono) {
                 radiobuttonStart.Appearance = Appearance.Button;
