@@ -1071,7 +1071,7 @@ namespace OpenBve {
                         string File = Interface.GetCombinedFileName(Folders[i], "train.dat");
                         if(System.IO.File.Exists(File))
 			    Item.ImageKey = "train";
-                    }
+                    } catch (Exception e) { }
                     Item.Tag = Folders[i];
                 }
             }
