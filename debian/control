@@ -10,7 +10,7 @@ Standards-Version: 3.8.0
 
 Package: openbve
 Architecture: all
-Depends: ${cli:Depends}
+Depends: ${cli:Depends}, openbve-data
 Description: OpenBVE rail simulator, main program
  A railway/train simulator designed to be backwards
  compatible with existing 'BVE Trainsim' routes and cab
