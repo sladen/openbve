@@ -120,7 +120,8 @@ namespace OpenBve {
             CurrentOptions.RouteEncodings = new EncodingValue[] { };
             CurrentOptions.TrainEncodings = new EncodingValue[] { };
             System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
-            string Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
+            string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+            string Folder = Interface.GetCombinedFileName(configdir, "OpenBVE");
             string File = Interface.GetCombinedFileName(Folder, "settings.cfg");
             if (System.IO.File.Exists(File)) {
                 string[] Lines = System.IO.File.ReadAllLines(File, new System.Text.UTF8Encoding());
@@ -395,7 +396,11 @@ namespace OpenBve {
             for (int i = 0; i < CurrentOptions.TrainEncodings.Length; i++) {
                 Builder.AppendLine(CurrentOptions.TrainEncodings[i].Codepage.ToString(Culture) + " = " + CurrentOptions.TrainEncodings[i].Value);
             }
-            string Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
+            string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+            string Folder = Interface.GetCombinedFileName(configdir, "OpenBVE");
+            DirectoryInfo di = new DirectoryInfo (SettingsPath);
+            if (!di.Exists())
+                di.Create();
             string File = Interface.GetCombinedFileName(Folder, "settings.cfg");
             System.IO.File.WriteAllText(File, Builder.ToString(), new System.Text.UTF8Encoding(true));
         }
