@@ -1,0 +1,29 @@
+Known bugs/issues with running OpenBVE on Linux/Ubuntu/Debian.
+
+Fixed:
+
+1. The binary 'OpenBve.exe' compiled by Michelle for MS Windows
+will crash out of the box;  hopefully this recompiled binary
+will work.
+
+2. If you have texture flashing issues; this is because the C-based
+OpenGL code was receiving pointers to single integers from the
+OpenBVE.  Fixed by passing a array.
+
+3. Crashes out whilst trying to promisicously read non-accessible
+directories (eg. '/lost+found' or '~/.dbus').  It is hunting
+for directories containing a valid 'train.dat' description file.
+Kludged for the moment with try{}catch{} to not die.
+
+4. Trying to write the directory the executable is in; On Unix this is
+likely to be owned by route.  Modified to use the CLR SpecialFolder
+functions and save configuration data in the right places.
+
+Remaining:
+
+5. Non-existant audio; sound should work the first time, but after
+quitting OpenAL complains about unclened up buffered.  You will
+likely need to 'kill -9 pulseaudio' if you having that running.
+You may get the occasional sound afterwards on second/third attempts
+but not the full multi-channel surround experience.
+
