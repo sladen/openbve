@@ -634,8 +634,14 @@ namespace OpenBve {
                 Interface.CurrentOptions.TrainEncodings = a;
             }
             // finish
-            Interface.SaveOptions();
-            Interface.SaveControls(null);
+            // If saving the configuration doesn't work, it's a bit late now
+            // as previously OpenBVE would just crash at this point anyway
+            try {
+                Interface.SaveOptions();
+            } catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
+            try {
+                 Interface.SaveControls(null);
+            } catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
         }
 
         // resize
