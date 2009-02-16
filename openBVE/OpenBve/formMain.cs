@@ -149,12 +149,12 @@ namespace OpenBve {
             if (Interface.CurrentOptions.RouteFolder.Length != 0 && System.IO.Directory.Exists(Interface.CurrentOptions.RouteFolder)) {
                 textboxRouteFolder.Text = Interface.CurrentOptions.RouteFolder;
             } else {
-                textboxRouteFolder.Text = Application.StartupPath;
+                textboxRouteFolder.Text = Environment.GetFolderPath( Environment.SpecialFolder.Personal );
             }
             if (Interface.CurrentOptions.TrainFolder.Length != 0 && System.IO.Directory.Exists(Interface.CurrentOptions.TrainFolder)) {
                 textboxTrainFolder.Text = Interface.CurrentOptions.TrainFolder;
             } else {
-                textboxTrainFolder.Text = Application.StartupPath;
+                textboxTrainFolder.Text = Environment.GetFolderPath( Environment.SpecialFolder.Personal );
             }
             // encodings
             {
@@ -1637,7 +1637,7 @@ namespace OpenBve {
         private void buttonControlsExport_Click(object sender, EventArgs e) {
             SaveFileDialog Dialog = new SaveFileDialog();
             Dialog.OverwritePrompt = true;
-            Dialog.InitialDirectory = Interface.GetCombinedFolderName(Application.StartupPath, "Controls");
+            Dialog.InitialDirectory = Environment.GetFolderPath( Environment.SpecialFolder.Personal );
             Dialog.Filter = Interface.GetInterfaceString("dialog_controlsfiles") + "|*.controls|" + Interface.GetInterfaceString("dialog_allfiles") + "|*";
             if (Dialog.ShowDialog() == DialogResult.OK) {
                 try {
