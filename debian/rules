@@ -1,5 +1,5 @@
 #!/usr/bin/make -f
-export DH_VERBOSE=1
+export DH_VERBOSE=15
 BUILDDIRS = openBVE/OpenBve
 TARGET = debian/openbve
 
@@ -14,8 +14,11 @@ build-stamp: configure-stamp
 	for builddir in $(BUILDDIRS); do \
 	  (cd $$builddir && xbuild) || exit 1; \
 	done
+	mkdir -p $(TARGET)/usr/lib/openbve/
+	install -m 755 $(CURDIR)/openBVE/OpenBve/bin/Debug/OpenBve.exe $(TARGET)/usr/lib/openbve/
+	install -m 644 $(CURDIR)/openBVE/OpenBve/bin/Debug/OpenBve.exe.mdb $(TARGET)/usr/lib/openbve/
 	mkdir -p $(TARGET)/usr/games/
-	install -m 755 -s ../openBVE/OpenBve/bin/Debug/OpenBve.exe $(TARGET)/usr/games/openbve
+	install -m 755 -T $(CURDIR)/debian/openbve.wrapper $(TARGET)/usr/games/openbve
 	touch build-stamp
 
 clean:
@@ -24,8 +27,9 @@ clean:
 	rm -f build-stamp configure-stamp
 	rm -rf $(TARGET)
 	for builddir in $(BUILDDIRS); do \
-	  (cd $$builddir && xbuild /t:Clean); \
+	  (cd $$builddir && echo "**NOT doing" xbuild /t:Clean); \
 	done
+	rm -rf openBVE/OpenBve/bin/
 	dh_clean 
 
 install: build
@@ -46,10 +50,11 @@ binary-indep: build install
 	dh_installdocs
 	dh_clifixperms
 	dh_installman
-	dh_link
-	dh_strip
 	dh_fixperms
 	dh_installdeb
+	dh_makeclilibs -i -V
+	#dh_installcligac -i
+	dh_clideps -i
 	dh_clideps -d
 	dh_gencontrol
 	dh_md5sums

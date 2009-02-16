@@ -1,7 +1,6 @@
-openbve (0.9.5.0.v20090201-1953-0ubuntu1) unreleased; urgency=low
+openbve (0.9.5.0-0) unreleased; urgency=low
 
-  * Import 0.9.5.0 / v20090201-1953
-  * Debian packaging
+  * import 0.9.5.0, dated 20090201-1953
+  * Debianise
 
-  -- Paul Sladen <ubuntu@paul.sladen.org>  Fri, 15 Feb 2009 11:51:30 +0100
-
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Fri, 15 Feb 2009 11:51:30 +0100
