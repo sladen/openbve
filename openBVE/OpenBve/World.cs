@@ -19,6 +19,9 @@ namespace OpenBve {
                 this.X = X;
                 this.Y = Y;
             }
+	    public float[] Array() {
+	      return new float[] { this.X, this.Y };
+	    }
         }
         public struct Vector3D {
             public double X;
@@ -51,6 +54,9 @@ namespace OpenBve {
                 this.Y = Y;
                 this.Z = Z;
             }
+	    public float[] Array() {
+	      return new float[] { this.X, this.Y, this.Z };
+	    }
         }
 
         // colors

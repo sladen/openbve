@@ -493,20 +493,20 @@ namespace OpenBve {
             if (OpenGlDaytimeTextureIndex != 0) {
                 if (LightingEnabled) {
                     for (int j = 0; j < Face.Vertices.Length; j++) {
-                        Gl.glNormal3fv(ref Face.Vertices[j].Normal.X);
-                        Gl.glTexCoord2fv(ref Vertices[Face.Vertices[j].Index].TextureCoordinates.X);
+                        Gl.glNormal3fv(Face.Vertices[j].Normal.Array());
+                        Gl.glTexCoord2fv(Vertices[Face.Vertices[j].Index].TextureCoordinates.Array());
                         Gl.glVertex3d(Vertices[Face.Vertices[j].Index].Coordinates.X - CameraX, Vertices[Face.Vertices[j].Index].Coordinates.Y - CameraY, Vertices[Face.Vertices[j].Index].Coordinates.Z - CameraZ);
                     }
                 } else {
                     for (int j = 0; j < Face.Vertices.Length; j++) {
-                        Gl.glTexCoord2fv(ref Vertices[Face.Vertices[j].Index].TextureCoordinates.X);
+                        Gl.glTexCoord2fv(Vertices[Face.Vertices[j].Index].TextureCoordinates.Array());
                         Gl.glVertex3d(Vertices[Face.Vertices[j].Index].Coordinates.X - CameraX, Vertices[Face.Vertices[j].Index].Coordinates.Y - CameraY, Vertices[Face.Vertices[j].Index].Coordinates.Z - CameraZ);
                     }
                 }
             } else {
                 if (LightingEnabled) {
                     for (int j = 0; j < Face.Vertices.Length; j++) {
-                        Gl.glNormal3fv(ref Face.Vertices[j].Normal.X);
+                        Gl.glNormal3fv(Face.Vertices[j].Normal.Array());
                         Gl.glVertex3d(Vertices[Face.Vertices[j].Index].Coordinates.X - CameraX, Vertices[Face.Vertices[j].Index].Coordinates.Y - CameraY, Vertices[Face.Vertices[j].Index].Coordinates.Z - CameraZ);
                     }
                 } else {
@@ -548,7 +548,7 @@ namespace OpenBve {
                     EmissiveEnabled = false;
                 }
                 for (int j = 0; j < Face.Vertices.Length; j++) {
-                    Gl.glTexCoord2fv(ref Vertices[Face.Vertices[j].Index].TextureCoordinates.X);
+                    Gl.glTexCoord2fv(Vertices[Face.Vertices[j].Index].TextureCoordinates.Array());
                     Gl.glVertex3d(Vertices[Face.Vertices[j].Index].Coordinates.X - CameraX, Vertices[Face.Vertices[j].Index].Coordinates.Y - CameraY, Vertices[Face.Vertices[j].Index].Coordinates.Z - CameraZ);
                 }
                 Gl.glEnd();
