@@ -396,14 +396,14 @@ namespace OpenBve {
             for (int i = 0; i < CurrentOptions.TrainEncodings.Length; i++) {
                 Builder.AppendLine(CurrentOptions.TrainEncodings[i].Codepage.ToString(Culture) + " = " + CurrentOptions.TrainEncodings[i].Value);
             }
-	    try {
-		string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
-		string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
-		if (!System.IO.Directory.Exists(Folder))
-		    System.IO.Directory.CreateDirectory(Folder);
-		string File = Interface.GetCombinedFileName(Folder, "settings.cfg");
-		System.IO.File.WriteAllText(File, Builder.ToString(), new System.Text.UTF8Encoding(true));
-	    } catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
+            try {
+                string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+                string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
+                if (!System.IO.Directory.Exists(Folder))
+                    System.IO.Directory.CreateDirectory(Folder);
+                string File = Interface.GetCombinedFileName(Folder, "settings.cfg");
+                System.IO.File.WriteAllText(File, Builder.ToString(), new System.Text.UTF8Encoding(true));
+            } catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
         }
 
         // ================================
@@ -1439,8 +1439,8 @@ namespace OpenBve {
             if (FileOrNull == null) {
                 string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
                 string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
-		if (!System.IO.Directory.Exists(Folder))
-		    System.IO.Directory.CreateDirectory(Folder);
+                if (!System.IO.Directory.Exists(Folder))
+                    System.IO.Directory.CreateDirectory(Folder);
                 File = Interface.GetCombinedFileName(Folder, "controls.cfg");
             } else {
                 File = FileOrNull;
