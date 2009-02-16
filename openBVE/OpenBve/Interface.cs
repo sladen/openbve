@@ -410,7 +410,8 @@ namespace OpenBve {
 
         // load logs
         internal static void LoadLogs() {
-            string Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
+            string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+            string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
             string File = Interface.GetCombinedFileName(Folder, "logs.bin");
             try {
                 using (System.IO.FileStream Stream = new System.IO.FileStream(File, System.IO.FileMode.Open, System.IO.FileAccess.Read)) {
@@ -474,7 +475,10 @@ namespace OpenBve {
 
         // save logs
         internal static void SaveLogs() {
-            string Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
+            string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+            string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
+            if (!System.IO.Directory.Exists(Folder))
+                System.IO.Directory.CreateDirectory(Folder);
             string File = Interface.GetCombinedFileName(Folder, "logs.bin");
             using (System.IO.FileStream Stream = new System.IO.FileStream(File, System.IO.FileMode.Create, System.IO.FileAccess.Write)) {
                 using (System.IO.BinaryWriter Writer = new System.IO.BinaryWriter(Stream, System.Text.Encoding.UTF8)) {
