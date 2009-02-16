@@ -12,9 +12,9 @@ Package: openbve
 Architecture: all
 Depends: ${cli:Depends}
 Description: OpenBVE rail simulator, main program
- OpenBVE is a public domain railway/train simulator backwards
- compatible with existing 'BVE Trainsim' train and route
- datafiles.
+ A railway/train simulator designed to be backwards
+ compatible with existing 'BVE Trainsim' routes and cab
+ interiors.
  .
  Cross-platform using CLI and Mono.
  . 
