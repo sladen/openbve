@@ -121,7 +121,7 @@ namespace OpenBve {
             CurrentOptions.TrainEncodings = new EncodingValue[] { };
             System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
             string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
-            string Folder = Interface.GetCombinedFileName(configdir, "OpenBVE");
+            string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
             string File = Interface.GetCombinedFileName(Folder, "settings.cfg");
             if (System.IO.File.Exists(File)) {
                 string[] Lines = System.IO.File.ReadAllLines(File, new System.Text.UTF8Encoding());
@@ -396,13 +396,14 @@ namespace OpenBve {
             for (int i = 0; i < CurrentOptions.TrainEncodings.Length; i++) {
                 Builder.AppendLine(CurrentOptions.TrainEncodings[i].Codepage.ToString(Culture) + " = " + CurrentOptions.TrainEncodings[i].Value);
             }
-            string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
-            string Folder = Interface.GetCombinedFileName(configdir, "OpenBVE");
-            DirectoryInfo di = new DirectoryInfo (SettingsPath);
-            if (!di.Exists())
-                di.Create();
-            string File = Interface.GetCombinedFileName(Folder, "settings.cfg");
-            System.IO.File.WriteAllText(File, Builder.ToString(), new System.Text.UTF8Encoding(true));
+	    try {
+		string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+		string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
+		if (!System.IO.Directory.Exists(Folder))
+		    System.IO.Directory.CreateDirectory(Folder);
+		string File = Interface.GetCombinedFileName(Folder, "settings.cfg");
+		System.IO.File.WriteAllText(File, Builder.ToString(), new System.Text.UTF8Encoding(true));
+	    } catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
         }
 
         // ================================
