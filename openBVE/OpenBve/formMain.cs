@@ -1065,11 +1065,11 @@ namespace OpenBve {
                     string Name = System.IO.Path.GetFileName(Folders[i]);
                     if (Name.Length == 0) Name = Folders[i];
                     ListViewItem Item = listviewTrainFolders.Items.Add(Name);
-                    string File = Interface.GetCombinedFileName(Folders[i], "train.dat");
-                    if (System.IO.File.Exists(File)) {
-                        Item.ImageKey = "train";
-                    } else {
-                        Item.ImageKey = "folder";
+                    Item.ImageKey = "folder";
+                    try {
+                        string File = Interface.GetCombinedFileName(Folders[i], "train.dat");
+                        if(System.IO.File.Exists(File))
+			    Item.ImageKey = "train";
                     }
                     Item.Tag = Folders[i];
                 }
