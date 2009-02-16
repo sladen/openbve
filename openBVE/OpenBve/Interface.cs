@@ -1433,7 +1433,10 @@ namespace OpenBve {
             }
             string File;
             if (FileOrNull == null) {
-                string Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
+                string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+                string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
+		if (!System.IO.Directory.Exists(Folder))
+		    System.IO.Directory.CreateDirectory(Folder);
                 File = Interface.GetCombinedFileName(Folder, "controls.cfg");
             } else {
                 File = FileOrNull;
@@ -1447,7 +1450,8 @@ namespace OpenBve {
             Controls = new Control[] { };
             string File;
             if (FileOrNull == null) {
-                string Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
+                string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+                string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
                 File = Interface.GetCombinedFileName(Folder, "controls.cfg");
                 if (!System.IO.File.Exists(File)) {
                     Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Controls");
