@@ -42,4 +42,8 @@ does not work correctly in OpenBVE.  Each state on the combined
 power/brake index is a separate sprite in the same image, but the
 clipping is currently wrong.
 
+9. The preview images for trains and route in the file-manager screen
+display random binary data if the preview image isn't found (normally
+from being the incorrect case).
+
 
