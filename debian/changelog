@@ -1,4 +1,4 @@
-openbve (0.9.5.0-0) unreleased; urgency=low
+openbve (0.9.5.0-0ubuntu1) unreleased; urgency=low
 
   * import 0.9.5.0, dated 20090201-1953
   * Debianise
