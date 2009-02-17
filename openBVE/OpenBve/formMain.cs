@@ -902,50 +902,50 @@ namespace OpenBve {
         // route folder
         private void textboxRouteFolder_TextChanged(object sender, EventArgs e) {
             string Folder = textboxRouteFolder.Text;
-	    try {
-		if (System.IO.Directory.Exists(Folder)) {
-		    // list
-		    listviewRouteFiles.Items.Clear();
-		    // parent
-		    System.IO.DirectoryInfo Info = System.IO.Directory.GetParent(Folder);
-		    if (Info != null) {
-			ListViewItem Item = listviewRouteFiles.Items.Add("..");
-			Item.ImageKey = "parent";
-			Item.Tag = Info.FullName;
-			listviewRouteFiles.Tag = Info.FullName;
-		    } else {
-			listviewRouteFiles.Tag = null;
-		    }
-		    // folders
-		    string[] Folders = System.IO.Directory.GetDirectories(Folder);
-		    Array.Sort<string>(Folders);
-		    for (int i = 0; i < Folders.Length; i++) {
-		        try {
-			    string Name = System.IO.Path.GetFileName(Folders[i]);
-			    if (Name.Length == 0) Name = Folders[i];
-			    ListViewItem Item = listviewRouteFiles.Items.Add(Name);
-			    Item.ImageKey = "folder";
-			    Item.Tag = Folders[i];
- 			} catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
-		    }
-		    // files
-		    string[] Files = System.IO.Directory.GetFiles(Folder);
-		    Array.Sort<string>(Files);
-		    for (int i = 0; i < Files.Length; i++) {
-			string Extension = System.IO.Path.GetExtension(Files[i]);
-			switch (Extension.ToLowerInvariant()) {
-			    case ".rw":
-			    case ".csv":
-				string Name = System.IO.Path.GetFileName(Files[i]);
-				if (Name.Length == 0) Name = Files[i];
-				ListViewItem Item = listviewRouteFiles.Items.Add(Name);
-				Item.ImageKey = "file";
-				Item.Tag = Files[i];
-				break;
-			}
-		    }
-		}
-		listviewRouteFiles.Columns[0].AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+            try {
+                if (System.IO.Directory.Exists(Folder)) {
+                    // list
+                    listviewRouteFiles.Items.Clear();
+                    // parent
+                    System.IO.DirectoryInfo Info = System.IO.Directory.GetParent(Folder);
+                    if (Info != null) {
+                        ListViewItem Item = listviewRouteFiles.Items.Add("..");
+                        Item.ImageKey = "parent";
+                        Item.Tag = Info.FullName;
+                        listviewRouteFiles.Tag = Info.FullName;
+                    } else {
+                        listviewRouteFiles.Tag = null;
+                    }
+                    // folders
+                    string[] Folders = System.IO.Directory.GetDirectories(Folder);
+                    Array.Sort<string>(Folders);
+                    for (int i = 0; i < Folders.Length; i++) {
+                        try {
+                            string Name = System.IO.Path.GetFileName(Folders[i]);
+                            if (Name.Length == 0) Name = Folders[i];
+                            ListViewItem Item = listviewRouteFiles.Items.Add(Name);
+                            Item.ImageKey = "folder";
+                            Item.Tag = Folders[i];
+                        } catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
+                    }
+                    // files
+                    string[] Files = System.IO.Directory.GetFiles(Folder);
+                    Array.Sort<string>(Files);
+                    for (int i = 0; i < Files.Length; i++) {
+                        string Extension = System.IO.Path.GetExtension(Files[i]);
+                        switch (Extension.ToLowerInvariant()) {
+                            case ".rw":
+                            case ".csv":
+                                string Name = System.IO.Path.GetFileName(Files[i]);
+                                if (Name.Length == 0) Name = Files[i];
+                                ListViewItem Item = listviewRouteFiles.Items.Add(Name);
+                                Item.ImageKey = "file";
+                                Item.Tag = Files[i];
+                                break;
+                        }
+                    }
+                }
+                listviewRouteFiles.Columns[0].AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
             } catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
         }
 
@@ -1050,41 +1050,42 @@ namespace OpenBve {
         // train folder
         private void textboxTrainFolder_TextChanged(object sender, EventArgs e) {
             string Folder = textboxTrainFolder.Text;
-	    try { // this catches unreadable directories (eg. "/lost+found")
-		if (System.IO.Directory.Exists(Folder)) {
-		    // list
-		    listviewTrainFolders.Items.Clear();
-		    // parent
-		    System.IO.DirectoryInfo Info = System.IO.Directory.GetParent(Folder);
-		    if (Info != null) {
-			ListViewItem Item = listviewTrainFolders.Items.Add("..");
-			Item.ImageKey = "parent";
-			Item.Tag = Info.FullName;
-			listviewTrainFolders.Tag = Info.FullName;
-		    } else {
-			listviewTrainFolders.Tag = null;
-		    }
-		    // folders
-		    string[] Folders = System.IO.Directory.GetDirectories(Folder);
-		    Array.Sort<string>(Folders);
-		    for (int i = 0; i < Folders.Length; i++) {
-		        try { // this catches unreadable directories contents (eg. "~/.dbus) but still displays the rest of the list
-			    string Name = System.IO.Path.GetFileName(Folders[i]);
-			    if (Name.Length == 0) Name = Folders[i];
-			    ListViewItem Item = listviewTrainFolders.Items.Add(Name);
-			    string File = Interface.GetCombinedFileName(Folders[i], "train.dat");
-			    if(System.IO.File.Exists(File))
-			       Item.ImageKey = "train";
-			    else
-			       Item.ImageKey = "folder";
-			    Item.Tag = Folders[i];
-		        } catch (Exception exp) { Console.Error.WriteLine(exp.Message);}
-		    }
-		}
+            try { // this catches unreadable directories (eg. "/lost+found")
+                if (System.IO.Directory.Exists(Folder)) {
+                    // list
+                    listviewTrainFolders.Items.Clear();
+                    // parent
+                    System.IO.DirectoryInfo Info = System.IO.Directory.GetParent(Folder);
+                    if (Info != null) {
+                        ListViewItem Item = listviewTrainFolders.Items.Add("..");
+                        Item.ImageKey = "parent";
+                        Item.Tag = Info.FullName;
+                        listviewTrainFolders.Tag = Info.FullName;
+                    } else {
+                        listviewTrainFolders.Tag = null;
+                    }
+                    // folders
+                    string[] Folders = System.IO.Directory.GetDirectories(Folder);
+                    Array.Sort<string>(Folders);
+                    for (int i = 0; i < Folders.Length; i++) {
+                        try { // this catches unreadable directories contents (eg. "~/.dbus) but still displays the rest of the list
+                            string Name = System.IO.Path.GetFileName(Folders[i]);
+                            if (Name.Length == 0) Name = Folders[i];
+                            ListViewItem Item = listviewTrainFolders.Items.Add(Name);
+                            string File = Interface.GetCombinedFileName(Folders[i], "train.dat");
+                            if(System.IO.File.Exists(File)) {
+                               Item.ImageKey = "train";
+                            } else {
+                               Item.ImageKey = "folder";
+                            }
+                            Item.Tag = Folders[i];
+                        } catch (Exception exp) { Console.Error.WriteLine(exp.Message);}
+                    }
+                }
                 listviewTrainFolders.Columns[0].AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
             } catch (Exception exp) {
-		Console.Error.WriteLine(exp.Message);
-	    }
+                Console.Error.WriteLine(exp.Message);
+            }
         }
 
         // train folders
