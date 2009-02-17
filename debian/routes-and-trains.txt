@@ -14,7 +14,7 @@ in these two countries.
 Via the web
 ===========
 
-There are three main issues with finding expansion routes/trains:
+There are several main issues with finding expansion routes/trains:
 
 1.  Virtually all BVE routes are free-as-in-beer;  but come with
     restrictions preventing distribution, except via the original authors'
@@ -27,6 +27,9 @@ There are three main issues with finding expansion routes/trains:
     self-extracting '.exe', MS Windows Installer '.msi' or '.7z'...
     .msi files can normally be unpacked using Wine's 'msiexec' and
     then copying the files from ~/.wine/drive_c/somewhere.
+
+4.  Most routes were created on MS Windows, which has case-insensitive
+    filenames.  It may be necessary to rename them to lowercase.
 
 Websites
 ========
@@ -74,7 +77,6 @@ BTW, you can open the '.csv' file with a text-editor or spreadshet; See below.
 Where 'Abc123' is the directory that is loaded with OpenBVE.  The required files
 should be all inside this directory.
 
-
 Format
 ======
 The route file format can only follow a pre-defined journey.  This is
@@ -106,3 +108,10 @@ is available in English at:
 Some documentation of the formats is available in Japanese at:
 
   http://mackoy.cool.ne.jp/index4.html
+
+Author
+======
+This text document written by Paul Sladen <openbve@paul.sladen.org>
+for Debian/Ubuntu and released into the Public Domain.  List of
+suggested download addresses contributed by Anthony Bowden
+<anthony-b@railsimroutes.net>.
