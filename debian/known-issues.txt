@@ -46,4 +46,12 @@ clipping is currently wrong.
 display random binary data if the preview image isn't found (normally
 from being the incorrect case).
 
+10. Crashes if you provide correct  openbve /train=... /route=...
 
+11. Crashes if you provide incorrect openbve /train=... /route=...
+
+In-progress:
+
+12. Language Locale not automatically set by default;  patched to  use
+System.Globalization.CultureInfo.CurrentCulture.Name as default, but
+needs refining.
