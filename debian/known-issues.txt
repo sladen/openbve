@@ -27,3 +27,19 @@ likely need to 'kill -9 pulseaudio' if you having that running.
 You may get the occasional sound afterwards on second/third attempts
 but not the full multi-channel surround experience.
 
+6. Captialisation.  The routes have a combination of UPPER, lower, and
+MiXeD cAsE filenames which is a problem on Unix.  The file-loading
+routinues need modifying to search for alterntively cased files if
+the filename as spelt can't be found.
+
+7. The London Undergrond cab 'LT_C69_77' appears in the centre of
+the screen in OpenBVE, meaning that you can't see where you're going.
+As a work-around, you may able to unlock the cam and move yourself up
+a bit to look over the top of the console.
+
+8. The displayed controller in the London Underground 'LT_C69_77' cab
+does not work correctly in OpenBVE.  Each state on the combined
+power/brake index is a separate sprite in the same image, but the
+clipping is currently wrong.
+
+
