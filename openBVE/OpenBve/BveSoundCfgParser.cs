@@ -270,7 +270,7 @@ namespace OpenBve {
                                         }
                                         MotorFiles[k] = Interface.GetCombinedFileName(TrainPath, b);
                                         if (!System.IO.File.Exists(MotorFiles[k])) {
-                                            Interface.AddMessage(Interface.MessageType.Error, true,"File " + MotorFiles[k] + " does not exist at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+                                            Interface.AddMessage(Interface.MessageType.Error, true, "File " + MotorFiles[k] + " does not exist at line " + (i + 1).ToString(Culture) + " in file " + FileName);
                                             MotorFiles[k] = null;
                                         }
                                     } else {

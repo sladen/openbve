@@ -236,7 +236,8 @@ namespace OpenBve {
             ATS_VEHICLESTATE State = new ATS_VEHICLESTATE();
             State.Location = Math.Round(Train.Cars[0].FrontAxle.Follower.TrackPosition);
             State.Speed = (float)(3.6 * Train.Cars[0].Specs.CurrentPerceivedSpeed);
-            State.Time = (int)Math.Round(1000.0 * Game.SecondsSinceMidnight);
+            double t = 1000.0 * Game.SecondsSinceMidnight;
+            State.Time = (int)Math.Floor(t - 2073600000.0 * Math.Floor(t / 2073600000.0));
             State.BcPressure = (float)Train.Cars[Train.DriverCar].Specs.AirBrake.BrakeCylinderCurrentPressure;
             State.MrPressure = (float)Train.Cars[Train.DriverCar].Specs.AirBrake.MainReservoirCurrentPressure;
             State.ErPressure = (float)Train.Cars[Train.DriverCar].Specs.AirBrake.EqualizingReservoirCurrentPressure;

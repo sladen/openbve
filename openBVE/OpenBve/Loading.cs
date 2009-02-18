@@ -284,6 +284,8 @@ namespace OpenBve {
                 } else {
                     TrainManager.Trains[k].AI = new Game.SimplisticHumanDriverAI();
                     TrainManager.Trains[k].PretrainAheadTimetable = (double)(Game.PretrainsUsed - k) * Game.PretrainInterval;
+                    TrainManager.Trains[k].Specs.DoorOpenMode = TrainManager.DoorMode.Manual;
+                    TrainManager.Trains[k].Specs.DoorCloseMode = TrainManager.DoorMode.Manual;
                 }
             }
             TrainProgress = 1.0;

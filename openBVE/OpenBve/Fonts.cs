@@ -7,23 +7,29 @@ namespace OpenBve {
         // characters
         internal struct Character {
             internal float Width;
+            internal float Height;
             internal int Texture;
         }
         internal static Character[][] Characters = new Character[][] { };
+        internal static float ExtraSmallFontSize = 9.0f;
         internal static float SmallFontSize = 12.0f;
         internal static float MediumFontSize = 16.0f;
         internal static float LargeFontSize = 24.0f;
+        internal static float ExtraLargeFontSize = 36.0f;
         internal enum FontType {
-            Small = 0,
-            Medium = 1,
-            Large = 2
+            ExtraSmall = 0,
+            Small = 1,
+            Medium = 2,
+            Large = 3,
+            ExtraLarge = 4
         }
 
         // initialize
         internal static void Initialize() {
+            const int n = 5;
             UnregisterTextures();
-            Characters = new Character[3][];
-            for (int i = 0; i < 3; i++) {
+            Characters = new Character[n][];
+            for (int i = 0; i < n; i++) {
                 Characters[i] = new Character[] { };
             }
         }
@@ -58,9 +64,11 @@ namespace OpenBve {
                 }
                 float s1;
                 switch (Font) {
-                    case 0: s1 = SmallFontSize; break;
-                    case 1: s1 = MediumFontSize; break;
-                    case 2: s1 = LargeFontSize; break;
+                    case 0: s1 = ExtraSmallFontSize; break;
+                    case 1: s1 = SmallFontSize; break;
+                    case 2: s1 = MediumFontSize; break;
+                    case 3: s1 = LargeFontSize; break;
+                    case 4: s1 = ExtraLargeFontSize; break;
                     default: s1 = SmallFontSize; break;
                 }
                 int s0w = Interface.RoundToPowerOfTwo((int)Math.Ceiling((double)s1 * 1.25));
@@ -76,6 +84,7 @@ namespace OpenBve {
                 g.Dispose();
                 Characters[Font][i].Texture = TextureManager.RegisterTexture(b, false);
                 Characters[Font][i].Width = s.Width <= 0.05f ? 4.0f : (float)Math.Ceiling((double)s.Width);
+                Characters[Font][i].Height = s.Height <= 0.05f ? 4.0f : (float)Math.Ceiling((double)s.Height);
                 b.Dispose();
             }
             return Characters[Font][i].Texture;

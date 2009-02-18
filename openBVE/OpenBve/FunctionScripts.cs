@@ -380,7 +380,7 @@ namespace OpenBve {
                         } else {
                             Function.Stack[s - 1] = 0.0;
                         }
-                        s++; break;
+                        break;
                     case Instructions.DoorAllRightTarget:
                         if (Train != null) {
                             bool q = false;
@@ -394,7 +394,7 @@ namespace OpenBve {
                         } else {
                             Function.Stack[s - 1] = 0.0;
                         }
-                        s++; break;
+                        break;
                     // handles
                     case Instructions.HandleReverser:
                         if (Train != null) {
@@ -995,6 +995,12 @@ namespace OpenBve {
                 case "rightdoors":
                     if (n == 1) {
                         return a[0] + " rightdoorsofcar";
+                    } else {
+                        throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
+                    }
+                case "pluginstate":
+                    if (n == 1) {
+                        return a[0] + " pluginstate";
                     } else {
                         throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
                     }

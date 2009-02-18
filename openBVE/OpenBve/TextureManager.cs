@@ -302,7 +302,7 @@ namespace OpenBve {
                 Bitmap c = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
                 Graphics g = Graphics.FromImage(c);
                 ImageAttributes a = new ImageAttributes();
-                a.SetWrapMode(System.Drawing.Drawing2D.WrapMode.Clamp);
+                a.SetWrapMode(System.Drawing.Drawing2D.WrapMode.TileFlipXY );
                 Point[] p = new Point[] { new Point(0, 0), new Point(Width, 0), new Point(0, Height) };
                 g.DrawImage(Bitmap, p, new Rectangle(Textures[TextureIndex].ClipLeft, Textures[TextureIndex].ClipTop, Textures[TextureIndex].ClipWidth, Textures[TextureIndex].ClipHeight), GraphicsUnit.Pixel, a);
                 a.Dispose();
@@ -387,7 +387,7 @@ namespace OpenBve {
                 Bitmap c = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
                 Graphics g = Graphics.FromImage(c);
                 ImageAttributes a = new ImageAttributes();
-                a.SetWrapMode(System.Drawing.Drawing2D.WrapMode.Clamp);
+                a.SetWrapMode(System.Drawing.Drawing2D.WrapMode.TileFlipXY);
                 Point[] p = new Point[] { new Point(0, 0), new Point(Width, 0), new Point(0, Height) };
                 g.DrawImage(Bitmap, p, new Rectangle(Textures[TextureIndex].ClipLeft, Textures[TextureIndex].ClipTop, Textures[TextureIndex].ClipWidth, Textures[TextureIndex].ClipHeight), GraphicsUnit.Pixel, a);
                 a.Dispose();
@@ -560,7 +560,7 @@ namespace OpenBve {
                 Bitmap c = new Bitmap(TargetWidth, TargetHeight, PixelFormat.Format32bppArgb);
                 Graphics g = Graphics.FromImage(c);
                 ImageAttributes a = new ImageAttributes();
-                a.SetWrapMode(System.Drawing.Drawing2D.WrapMode.Clamp);
+                a.SetWrapMode(System.Drawing.Drawing2D.WrapMode.TileFlipXY);
                 Point[] p = new Point[] { new Point(0, 0), new Point(TargetWidth, 0), new Point(0, TargetHeight) };
                 g.DrawImage(b, p, new Rectangle(0, 0, Width, Height), GraphicsUnit.Pixel, a);
                 a.Dispose();

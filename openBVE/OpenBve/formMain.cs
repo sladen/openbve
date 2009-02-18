@@ -41,14 +41,11 @@ namespace OpenBve {
         private void formMain_Load(object sender, EventArgs e) {
             labelVersion.Text = "v" + Application.ProductVersion;
             System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
-	    // nb. Might be better to use System.Drawing.Icon.ExtractAssociatedIcon('this.exe'); if icon embedding works
-	    try {
-		string f = Interface.GetCombinedFileName(Interface.GetCombinedFolderName(Application.StartupPath, "Interface"), "icon.ico");
-		this.Icon = new Icon(f);
-	    } catch (Exception exp) {
-		Console.Error.WriteLine(exp.Message);
-	    }
-	    
+            // form icon on non-Mono
+            try {
+                string f = Interface.GetCombinedFileName(Interface.GetCombinedFolderName(Application.StartupPath, "Interface"), "icon.ico");
+                this.Icon = new Icon(f);
+            } catch { }
             // use button-style radio buttons on non-Mono
             if (!Program.CurrentlyRunOnMono) {
                 radiobuttonStart.Appearance = Appearance.Button;
@@ -160,8 +157,8 @@ namespace OpenBve {
                 System.Text.EncodingInfo[] Info = System.Text.Encoding.GetEncodings();
                 EncodingCodepages = new int[Info.Length + 1];
                 string[] EncodingDescriptions = new string[Info.Length + 1];
-                EncodingCodepages[0] = System.Text.Encoding.Default.CodePage;
-                EncodingDescriptions[0] = Interface.GetInterfaceString("start_encoding_default");
+                EncodingCodepages[0] = System.Text.Encoding.UTF8.CodePage;
+                EncodingDescriptions[0] = "(UTF-8)";
                 for (int i = 0; i < Info.Length; i++) {
                     EncodingCodepages[i + 1] = Info[i].CodePage;
                     EncodingDescriptions[i + 1] = Info[i].DisplayName + " - " + Info[i].CodePage.ToString(Culture);
@@ -401,7 +398,7 @@ namespace OpenBve {
             tabpageRouteGradient.Text = Interface.GetInterfaceString("start_route_gradient");
             tabpageRouteSettings.Text = Interface.GetInterfaceString("start_route_settings");
             labelRouteEncoding.Text = Interface.GetInterfaceString("start_route_settings_encoding");
-            comboboxRouteEncoding.Items[0] = Interface.GetInterfaceString("start_encoding_default");
+            comboboxRouteEncoding.Items[0] = Interface.GetInterfaceString("(UTF-8)");
             labelRouteEncodingPreview.Text = Interface.GetInterfaceString("start_route_settings_encoding_preview");
             labelTrain.Text = "▸ " + Interface.GetInterfaceString("start_train");
             groupboxTrainSelection.Text = Interface.GetInterfaceString("start_train_selection");
@@ -414,7 +411,7 @@ namespace OpenBve {
             ///tabpageTrainSpecs.Text = Interface.GetInterfaceString("start_train_specs");
             tabpageTrainSettings.Text = Interface.GetInterfaceString("start_train_settings");
             labelTrainEncoding.Text = Interface.GetInterfaceString("start_train_settings_encoding");
-            comboboxTrainEncoding.Items[0] = Interface.GetInterfaceString("start_encoding_default");
+            comboboxTrainEncoding.Items[0] = Interface.GetInterfaceString("(UTF-8)");
             labelTrainEncodingPreview.Text = Interface.GetInterfaceString("start_train_settings_encoding_preview");
             labelStart.Text = "▸ " + Interface.GetInterfaceString("start_start");
             labelMode.Text = Interface.GetInterfaceString("start_start_mode");
@@ -901,46 +898,53 @@ namespace OpenBve {
         // route folder
         private void textboxRouteFolder_TextChanged(object sender, EventArgs e) {
             string Folder = textboxRouteFolder.Text;
-            if (System.IO.Directory.Exists(Folder)) {
-                // list
-                listviewRouteFiles.Items.Clear();
-                // parent
-                System.IO.DirectoryInfo Info = System.IO.Directory.GetParent(Folder);
-                if (Info != null) {
-                    ListViewItem Item = listviewRouteFiles.Items.Add("..");
-                    Item.ImageKey = "parent";
-                    Item.Tag = Info.FullName;
-                    listviewRouteFiles.Tag = Info.FullName;
-                } else {
-                    listviewRouteFiles.Tag = null;
-                }
-                // folders
-                string[] Folders = System.IO.Directory.GetDirectories(Folder);
-                Array.Sort<string>(Folders);
-                for (int i = 0; i < Folders.Length; i++) {
-                    string Name = System.IO.Path.GetFileName(Folders[i]);
-                    if (Name.Length == 0) Name = Folders[i];
-                    ListViewItem Item = listviewRouteFiles.Items.Add(Name);
-                    Item.ImageKey = "folder";
-                    Item.Tag = Folders[i];
-                }
-                // files
-                string[] Files = System.IO.Directory.GetFiles(Folder);
-                Array.Sort<string>(Files);
-                for (int i = 0; i < Files.Length; i++) {
-                    string Extension = System.IO.Path.GetExtension(Files[i]);
-                    switch (Extension.ToLowerInvariant()) {
-                        case ".rw":
-                        case ".csv":
-                            string Name = System.IO.Path.GetFileName(Files[i]);
-                            if (Name.Length == 0) Name = Files[i];
+            try {
+                if (System.IO.Directory.Exists(Folder)) {
+                    listviewRouteFiles.Items.Clear();
+                    // parent
+                    try {
+                        System.IO.DirectoryInfo Info = System.IO.Directory.GetParent(Folder);
+                        if (Info != null) {
+                            ListViewItem Item = listviewRouteFiles.Items.Add("..");
+                            Item.ImageKey = "parent";
+                            Item.Tag = Info.FullName;
+                            listviewRouteFiles.Tag = Info.FullName;
+                        } else {
+                            listviewRouteFiles.Tag = null;
+                        }
+                    } catch { }
+                    // folders
+                    try {
+                        string[] Folders = System.IO.Directory.GetDirectories(Folder);
+                        Array.Sort<string>(Folders);
+                        for (int i = 0; i < Folders.Length; i++) {
+                            string Name = System.IO.Path.GetFileName(Folders[i]);
+                            if (Name.Length == 0) Name = Folders[i];
                             ListViewItem Item = listviewRouteFiles.Items.Add(Name);
-                            Item.ImageKey = "file";
-                            Item.Tag = Files[i];
-                            break;
-                    }
+                            Item.ImageKey = "folder";
+                            Item.Tag = Folders[i];
+                        }
+                    } catch { }
+                    // files
+                    try {
+                        string[] Files = System.IO.Directory.GetFiles(Folder);
+                        Array.Sort<string>(Files);
+                        for (int i = 0; i < Files.Length; i++) {
+                            string Extension = System.IO.Path.GetExtension(Files[i]);
+                            switch (Extension.ToLowerInvariant()) {
+                                case ".rw":
+                                case ".csv":
+                                    string Name = System.IO.Path.GetFileName(Files[i]);
+                                    if (Name.Length == 0) Name = Files[i];
+                                    ListViewItem Item = listviewRouteFiles.Items.Add(Name);
+                                    Item.ImageKey = "file";
+                                    Item.Tag = Files[i];
+                                    break;
+                            }
+                        }
+                    } catch { }
                 }
-            }
+            } catch { }
             listviewRouteFiles.Columns[0].AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
         }
 
@@ -1037,6 +1041,33 @@ namespace OpenBve {
                 }
             }
         }
+        private void buttonRouteEncodingLatin1_Click(object sender, EventArgs e) {
+                for (int i = 1; i < EncodingCodepages.Length; i++) {
+                    if (EncodingCodepages[i] == 1252) {
+                        comboboxRouteEncoding.SelectedIndex = i;
+                        return;
+                    }
+                }
+                System.Media.SystemSounds.Hand.Play();
+        }
+        private void buttonRouteEncodingShiftJis_Click(object sender, EventArgs e) {
+                for (int i = 1; i < EncodingCodepages.Length; i++) {
+                    if (EncodingCodepages[i] == 932) {
+                        comboboxRouteEncoding.SelectedIndex = i;
+                        return;
+                    }
+                }
+                System.Media.SystemSounds.Hand.Play();
+        }
+        private void buttonRouteEncodingBig5_Click(object sender, EventArgs e) {
+                for (int i = 1; i < EncodingCodepages.Length; i++) {
+                    if (EncodingCodepages[i] == 950) {
+                        comboboxRouteEncoding.SelectedIndex = i;
+                        return;
+                    }
+                }
+                System.Media.SystemSounds.Hand.Play();
+        }
 
         // ===============
         // train selection
@@ -1045,35 +1076,42 @@ namespace OpenBve {
         // train folder
         private void textboxTrainFolder_TextChanged(object sender, EventArgs e) {
             string Folder = textboxTrainFolder.Text;
-            if (System.IO.Directory.Exists(Folder)) {
-                // list
-                listviewTrainFolders.Items.Clear();
-                // parent
-                System.IO.DirectoryInfo Info = System.IO.Directory.GetParent(Folder);
-                if (Info != null) {
-                    ListViewItem Item = listviewTrainFolders.Items.Add("..");
-                    Item.ImageKey = "parent";
-                    Item.Tag = Info.FullName;
-                    listviewTrainFolders.Tag = Info.FullName;
-                } else {
-                    listviewTrainFolders.Tag = null;
+            try {
+                if (System.IO.Directory.Exists(Folder)) {
+                    listviewTrainFolders.Items.Clear();
+                    // parent
+                    try {
+                        System.IO.DirectoryInfo Info = System.IO.Directory.GetParent(Folder);
+                        if (Info != null) {
+                            ListViewItem Item = listviewTrainFolders.Items.Add("..");
+                            Item.ImageKey = "parent";
+                            Item.Tag = Info.FullName;
+                            listviewTrainFolders.Tag = Info.FullName;
+                        } else {
+                            listviewTrainFolders.Tag = null;
+                        }
+                    } catch { }
+                    // folders
+                    try {
+                        string[] Folders = System.IO.Directory.GetDirectories(Folder);
+                        Array.Sort<string>(Folders);
+                        for (int i = 0; i < Folders.Length; i++) {
+                            try {
+                                string File = Interface.GetCombinedFileName(Folders[i], "train.dat");
+                                string Name = System.IO.Path.GetFileName(Folders[i]);
+                                if (Name.Length == 0) Name = Folders[i];
+                                ListViewItem Item = listviewTrainFolders.Items.Add(Name);
+                                if (System.IO.File.Exists(File)) {
+                                    Item.ImageKey = "train";
+                                } else {
+                                    Item.ImageKey = "folder";
+                                }
+                                Item.Tag = Folders[i];
+                            } catch { }
+                        }
+                    } catch { }
                 }
-                // folders
-                string[] Folders = System.IO.Directory.GetDirectories(Folder);
-                Array.Sort<string>(Folders);
-                for (int i = 0; i < Folders.Length; i++) {
-                    string Name = System.IO.Path.GetFileName(Folders[i]);
-                    if (Name.Length == 0) Name = Folders[i];
-                    ListViewItem Item = listviewTrainFolders.Items.Add(Name);
-                    string File = Interface.GetCombinedFileName(Folders[i], "train.dat");
-                    if (System.IO.File.Exists(File)) {
-                        Item.ImageKey = "train";
-                    } else {
-                        Item.ImageKey = "folder";
-                    }
-                    Item.Tag = Folders[i];
-                }
-            }
+            } catch { }
             listviewTrainFolders.Columns[0].AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
         }
 
@@ -1083,7 +1121,7 @@ namespace OpenBve {
                 string t = listviewTrainFolders.SelectedItems[0].Tag as string;
                 if (t != null) {
                     if (System.IO.Directory.Exists(t)) {
-                        string File = Interface.GetCombinedFolderName(t, "train.dat");
+                        string File = Interface.GetCombinedFileName(t, "train.dat");
                         if (System.IO.File.Exists(File)) {
                             Result.TrainFolder = t;
                             ShowTrain(false);
@@ -1124,7 +1162,7 @@ namespace OpenBve {
                 string t = listviewTrainRecently.SelectedItems[0].Tag as string;
                 if (t != null) {
                     if (System.IO.Directory.Exists(t)) {
-                        string File = Interface.GetCombinedFolderName(t, "train.dat");
+                        string File = Interface.GetCombinedFileName(t, "train.dat");
                         if (System.IO.File.Exists(File)) {
                             Result.TrainFolder = t;
                             ShowTrain(false);
@@ -1190,6 +1228,33 @@ namespace OpenBve {
                     ShowTrain(true);
                 }
             }
+        }
+        private void buttonTrainEncodingLatin1_Click(object sender, EventArgs e) {
+                for (int i = 1; i < EncodingCodepages.Length; i++) {
+                    if (EncodingCodepages[i] == 1252) {
+                        comboboxTrainEncoding.SelectedIndex = i;
+                        return;
+                    }
+                }
+                System.Media.SystemSounds.Hand.Play();
+        }
+        private void buttonTrainEncodingShiftJis_Click(object sender, EventArgs e) {
+                for (int i = 1; i < EncodingCodepages.Length; i++) {
+                    if (EncodingCodepages[i] == 932) {
+                        comboboxTrainEncoding.SelectedIndex = i;
+                        return;
+                    }
+                }
+                System.Media.SystemSounds.Hand.Play();
+        }
+        private void buttonTrainEncodingBig5_Click(object sender, EventArgs e) {
+                for (int i = 1; i < EncodingCodepages.Length; i++) {
+                    if (EncodingCodepages[i] == 950) {
+                        comboboxTrainEncoding.SelectedIndex = i;
+                        return;
+                    }
+                }
+                System.Media.SystemSounds.Hand.Play();
         }
 
         // =======
@@ -1933,23 +1998,58 @@ namespace OpenBve {
                 } else {
                     this.Cursor = Cursors.AppStarting;
                     if (!UserSelectedEncoding) {
-                        comboboxRouteEncoding.Tag = new object();
-                        int i; for (i = 0; i < Interface.CurrentOptions.RouteEncodings.Length; i++) {
-                            if (Interface.CurrentOptions.RouteEncodings[i].Value == Result.RouteFile) {
-                                int j; for (j = 1; j < EncodingCodepages.Length; j++) {
-                                    if (EncodingCodepages[j] == Interface.CurrentOptions.RouteEncodings[i].Codepage) {
-                                        comboboxRouteEncoding.SelectedIndex = j;
-                                        Result.RouteEncoding = System.Text.Encoding.GetEncoding(EncodingCodepages[j]);
-                                        break;
+                        switch (Interface.GetEncodingFromFile(Result.RouteFile)) {
+                            case Interface.Encoding.Utf8:
+                                panelRouteEncoding.Enabled = false;
+                                comboboxRouteEncoding.SelectedIndex = 0;
+                                comboboxRouteEncoding.Items[0] = "(UTF-8)";
+                                Result.RouteEncoding = System.Text.Encoding.UTF8;
+                                break;
+                            case Interface.Encoding.Utf16Le:
+                                panelRouteEncoding.Enabled = false;
+                                comboboxRouteEncoding.SelectedIndex = 0;
+                                comboboxRouteEncoding.Items[0] = "(UTF-16 little endian)";
+                                Result.RouteEncoding = System.Text.Encoding.Unicode;
+                                break;
+                            case Interface.Encoding.Utf16Be:
+                                panelRouteEncoding.Enabled = false;
+                                comboboxRouteEncoding.SelectedIndex = 0;
+                                comboboxRouteEncoding.Items[0] = "(UTF-16 big endian)";
+                                Result.RouteEncoding = System.Text.Encoding.BigEndianUnicode;
+                                break;
+                            case Interface.Encoding.Utf32Le:
+                                panelRouteEncoding.Enabled = false;
+                                comboboxRouteEncoding.SelectedIndex = 0;
+                                comboboxRouteEncoding.Items[0] = "(UTF-32 little endian)";
+                                Result.RouteEncoding = System.Text.Encoding.UTF32;
+                                break;
+                            case Interface.Encoding.Utf32Be:
+                                panelRouteEncoding.Enabled = false;
+                                comboboxRouteEncoding.SelectedIndex = 0;
+                                comboboxRouteEncoding.Items[0] = "(UTF-32 big endian)";
+                                Result.RouteEncoding = System.Text.Encoding.GetEncoding(12001);
+                                break;
+                            default:
+                                panelRouteEncoding.Enabled = true;
+                                comboboxRouteEncoding.Tag = new object();
+                                int i; for (i = 0; i < Interface.CurrentOptions.RouteEncodings.Length; i++) {
+                                    if (Interface.CurrentOptions.RouteEncodings[i].Value == Result.RouteFile) {
+                                        int j; for (j = 1; j < EncodingCodepages.Length; j++) {
+                                            if (EncodingCodepages[j] == Interface.CurrentOptions.RouteEncodings[i].Codepage) {
+                                                comboboxRouteEncoding.SelectedIndex = j;
+                                                Result.RouteEncoding = System.Text.Encoding.GetEncoding(EncodingCodepages[j]);
+                                                break;
+                                            }
+                                        } if (j == EncodingCodepages.Length) {
+                                            comboboxRouteEncoding.SelectedIndex = 0;
+                                            Result.RouteEncoding = System.Text.Encoding.UTF8;
+                                        } break;
                                     }
-                                } if (j == EncodingCodepages.Length) {
+                                } if (i == Interface.CurrentOptions.RouteEncodings.Length) {
                                     comboboxRouteEncoding.SelectedIndex = 0;
-                                    Result.RouteEncoding = System.Text.Encoding.Default;
+                                    comboboxRouteEncoding.Items[0] = "(UTF-8)";
+                                    Result.RouteEncoding = System.Text.Encoding.UTF8;
                                 } break;
-                            }
-                        } if (i == Interface.CurrentOptions.RouteEncodings.Length) {
-                            comboboxRouteEncoding.SelectedIndex = 0;
-                            Result.RouteEncoding = System.Text.Encoding.Default;
                         }
                         comboboxRouteEncoding.Tag = null;
                     }
@@ -2039,29 +2139,63 @@ namespace OpenBve {
         private void ShowTrain(bool UserSelectedEncoding) {
             if (!UserSelectedEncoding) {
                 comboboxTrainEncoding.Tag = new object();
-                int i; for (i = 0; i < Interface.CurrentOptions.TrainEncodings.Length; i++) {
-                    if (Interface.CurrentOptions.TrainEncodings[i].Value == Result.TrainFolder) {
-                        int j; for (j = 1; j < EncodingCodepages.Length; j++) {
-                            if (EncodingCodepages[j] == Interface.CurrentOptions.TrainEncodings[i].Codepage) {
-                                comboboxTrainEncoding.SelectedIndex = j;
-                                Result.TrainEncoding = System.Text.Encoding.GetEncoding(EncodingCodepages[j]);
-                                break;
+                switch (Interface.GetEncodingFromFile(Result.TrainFolder, "train.txt")) {
+                    case Interface.Encoding.Utf8:
+                        panelTrainEncoding.Enabled = false;
+                        comboboxTrainEncoding.SelectedIndex = 0;
+                        comboboxTrainEncoding.Items[0] = "(UTF-8)";
+                        Result.TrainEncoding = System.Text.Encoding.UTF8;
+                        break;
+                    case Interface.Encoding.Utf16Le:
+                        panelTrainEncoding.Enabled = false;
+                        comboboxTrainEncoding.SelectedIndex = 0;
+                        comboboxTrainEncoding.Items[0] = "(UTF-16 little endian)";
+                        Result.TrainEncoding = System.Text.Encoding.Unicode;
+                        break;
+                    case Interface.Encoding.Utf16Be:
+                        panelTrainEncoding.Enabled = false;
+                        comboboxTrainEncoding.SelectedIndex = 0;
+                        comboboxTrainEncoding.Items[0] = "(UTF-16 big endian)";
+                        Result.TrainEncoding = System.Text.Encoding.BigEndianUnicode;
+                        break;
+                    case Interface.Encoding.Utf32Le:
+                        panelTrainEncoding.Enabled = false;
+                        comboboxTrainEncoding.SelectedIndex = 0;
+                        comboboxTrainEncoding.Items[0] = "(UTF-32 little endian)";
+                        Result.TrainEncoding = System.Text.Encoding.UTF32;
+                        break;
+                    case Interface.Encoding.Utf32Be:
+                        panelTrainEncoding.Enabled = false;
+                        comboboxTrainEncoding.SelectedIndex = 0;
+                        comboboxTrainEncoding.Items[0] = "(UTF-32 big endian)";
+                        Result.TrainEncoding = System.Text.Encoding.GetEncoding(12001);
+                        break;
+                    default:
+                        panelTrainEncoding.Enabled = true;
+                        int i; for (i = 0; i < Interface.CurrentOptions.TrainEncodings.Length; i++) {
+                            if (Interface.CurrentOptions.TrainEncodings[i].Value == Result.TrainFolder) {
+                                int j; for (j = 1; j < EncodingCodepages.Length; j++) {
+                                    if (EncodingCodepages[j] == Interface.CurrentOptions.TrainEncodings[i].Codepage) {
+                                        comboboxTrainEncoding.SelectedIndex = j;
+                                        Result.TrainEncoding = System.Text.Encoding.GetEncoding(EncodingCodepages[j]);
+                                        break;
+                                    }
+                                } if (j == EncodingCodepages.Length) {
+                                    comboboxTrainEncoding.SelectedIndex = 0;
+                                    Result.TrainEncoding = System.Text.Encoding.UTF8;
+                                } break;
                             }
-                        } if (j == EncodingCodepages.Length) {
+                        } if (i == Interface.CurrentOptions.TrainEncodings.Length) {
                             comboboxTrainEncoding.SelectedIndex = 0;
-                            Result.TrainEncoding = System.Text.Encoding.Default;
+                            Result.TrainEncoding = System.Text.Encoding.UTF8;
                         } break;
-                    }
-                } if (i == Interface.CurrentOptions.TrainEncodings.Length) {
-                    comboboxTrainEncoding.SelectedIndex = 0;
-                    Result.TrainEncoding = System.Text.Encoding.Default;
                 }
                 comboboxTrainEncoding.Tag = null;
             }
             { /// train image
-                string File = Interface.GetCombinedFolderName(Result.TrainFolder, "train.png");
+                string File = Interface.GetCombinedFileName(Result.TrainFolder, "train.png");
                 if (!System.IO.File.Exists(File)) {
-                    File = Interface.GetCombinedFolderName(Result.TrainFolder, "train.bmp");
+                    File = Interface.GetCombinedFileName(Result.TrainFolder, "train.bmp");
                 }
                 if (System.IO.File.Exists(File)) {
                     try {
@@ -2075,7 +2209,7 @@ namespace OpenBve {
                 }
             }
             { /// train description
-                string File = Interface.GetCombinedFolderName(Result.TrainFolder, "train.txt");
+                string File = Interface.GetCombinedFileName(Result.TrainFolder, "train.txt");
                 if (System.IO.File.Exists(File)) {
                     try {
                         string Text = System.IO.File.ReadAllText(File, Result.TrainEncoding);
@@ -2093,7 +2227,6 @@ namespace OpenBve {
             }
             groupboxTrainDetails.Visible = true;
             labelTrainEncoding.Enabled = true;
-            comboboxTrainEncoding.Enabled = true;
             labelTrainEncodingPreview.Enabled = true;
             textboxTrainEncodingPreview.Enabled = true;
             buttonStart.Enabled = Result.RouteFile != null & Result.TrainFolder != null;
@@ -2110,7 +2243,7 @@ namespace OpenBve {
                         if (System.IO.Directory.Exists(TrainFolder)) {
                             Folder = Interface.GetCombinedFolderName(TrainFolder, Name);
                             if (System.IO.Directory.Exists(Folder)) {
-                                string File = Interface.GetCombinedFolderName(Folder, "train.dat");
+                                string File = Interface.GetCombinedFileName(Folder, "train.dat");
                                 if (System.IO.File.Exists(File)) {
                                     /// train found
                                     Result.TrainFolder = Folder;
@@ -2137,7 +2270,7 @@ namespace OpenBve {
             comboboxTrainEncoding.SelectedIndex = 0;
             comboboxTrainEncoding.Tag = null;
             labelTrainEncoding.Enabled = false;
-            comboboxTrainEncoding.Enabled = false;
+            panelTrainEncoding.Enabled = false;
             labelTrainEncodingPreview.Enabled = false;
             textboxTrainEncodingPreview.Enabled = false;
             textboxTrainEncodingPreview.Text = "";

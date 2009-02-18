@@ -747,16 +747,13 @@ namespace OpenBve {
                                 // options
                                 case "options.unitoflength": {
                                         if (Arguments.Length == 0) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "At least 1 argument is expected in Options.UnitOfLength at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "At least 1 argument is expected in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         } else {
                                             UnitOfLength = new double[Arguments.Length];
                                             for (int i = 0; i < Arguments.Length; i++) {
                                                 UnitOfLength[i] = i == 0 ? 1.0 : 0.0;
                                                 if (Arguments[i].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[i], out UnitOfLength[i])) {
-                                                    Interface.AddMessage(Interface.MessageType.Error, false, "Factor" + i.ToString(Culture) + "InMeters is invalid in Options.UnitOfLength at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                                    UnitOfLength[i] = i == 0 ? 1.0 : 0.0;
-                                                } else if (UnitOfLength[i] <= 0.0) {
-                                                    Interface.AddMessage(Interface.MessageType.Error, false, "Factor" + i.ToString(Culture) + "InMeters is expected to be positive in Options.UnitOfLength at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                                    Interface.AddMessage(Interface.MessageType.Error, false, "FactorInMeters" + i.ToString(Culture) + " is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                                     UnitOfLength[i] = i == 0 ? 1.0 : 0.0;
                                                 }
                                             }
@@ -764,30 +761,33 @@ namespace OpenBve {
                                     } break;
                                 case "options.unitofspeed": {
                                         if (Arguments.Length < 1) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Exactly 1 argument is expected in Options.UnitOfSpeed at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "Exactly 1 argument is expected in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         } else {
+                                            if (Arguments.Length > 1) {
+                                                Interface.AddMessage(Interface.MessageType.Warning, false, "Exactly 1 argument is expected in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            }
                                             if (Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out Data.UnitOfSpeed)) {
-                                                Interface.AddMessage(Interface.MessageType.Error, false, "ValueInKmph is invalid in Options.UnitOfSpeed at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                                Interface.AddMessage(Interface.MessageType.Error, false, "FactorInKmph is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                                 Data.UnitOfSpeed = 0.277777777777778;
                                             } else if (Data.UnitOfSpeed <= 0.0) {
-                                                Interface.AddMessage(Interface.MessageType.Error, false, "FactorInKmph is expected to be positive in Options.UnitOfSpeed at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                                Interface.AddMessage(Interface.MessageType.Error, false, "FactorInKmph is expected to be positive in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                                 Data.UnitOfSpeed = 0.277777777777778;
                                             }
                                         }
                                     } break;
                                 case "options.objectvisibility": {
                                         if (Arguments.Length == 0) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Exactly 1 argument is expected in Options.ObjectVisibility at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "Exactly 1 argument is expected in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         } else {
-                                            if (Arguments.Length != 1) {
-                                                Interface.AddMessage(Interface.MessageType.Warning, false, "More than 1 argument was passed to Options.ObjectVisibility at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            if (Arguments.Length > 1) {
+                                                Interface.AddMessage(Interface.MessageType.Warning, false, "Exactly 1 argument is expected in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                             }
                                             int mode = 0;
                                             if (Arguments.Length >= 1 && Arguments[0].Length != 0 && !Interface.TryParseIntVb6(Arguments[0], out mode)) {
-                                                Interface.AddMessage(Interface.MessageType.Error, false, "Mode is invalid in Options.ObjectVisibility at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                                Interface.AddMessage(Interface.MessageType.Error, false, "Mode is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                                 mode = 0;
                                             } else if (mode != 0 & mode != 1) {
-                                                Interface.AddMessage(Interface.MessageType.Error, false, "The specified Mode is not supported in Options.ObjectVisibility at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                                Interface.AddMessage(Interface.MessageType.Error, false, "The specified Mode is not supported in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                                 mode = 0;
                                             }
                                             Data.AccurateObjectDisposal = mode == 1;
@@ -1209,19 +1209,99 @@ namespace OpenBve {
                                 // route
                                 case "route.comment":
                                     if (Arguments.Length < 1) {
-                                        Interface.AddMessage(Interface.MessageType.Error, false, "Route.Comment is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                        Interface.AddMessage(Interface.MessageType.Error, false, Command + " is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                     } else {
                                         Game.RouteComment = Arguments[0];
                                     } break;
                                 case "route.image":
                                     if (Arguments.Length < 1) {
-                                        Interface.AddMessage(Interface.MessageType.Error, false, "Route.Image is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                        Interface.AddMessage(Interface.MessageType.Error, false, Command + " is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                     } else {
                                         string f = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), Arguments[0]);
                                         if (!System.IO.File.Exists(f)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, true, "Image file " + f + " not found in Route.Image at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in "+Command+" at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         } else {
                                             Game.RouteImage = f;
+                                        }
+                                    } break;
+                                case "route.timetable":
+                                    if (!PreviewOnly) {
+                                        if (Arguments.Length < 1) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "" + Command + " is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                        } else {
+                                            Timetable.TimetableDescription = Arguments[0];
+                                        }
+                                    } break;
+                                case "route.change":
+                                    if (!PreviewOnly) {
+                                        int change = 0;
+                                        if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseIntVb6(Arguments[0], out change)) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "Mode is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            change = 0;
+                                        } else if (change < -1 | change > 1) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "Mode is expected to be -1, 0 or 1 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            change = 0;
+                                        }
+                                        Game.TrainStart = (Game.TrainStartMode)change;
+                                    } break;
+                                case "route.gauge":
+                                case "train.gauge":
+                                    if (Arguments.Length < 1) {
+                                        Interface.AddMessage(Interface.MessageType.Error, false, Command + " is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                    } else {
+                                        double a;
+                                        if (!Interface.TryParseDoubleVb6(Arguments[0], out a)) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "ValueInMillimeters is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                        } else if (a <= 0.0) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "ValueInMillimeters is expected to be positive in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                        } else {
+                                            Game.RouteRailGauge = 0.001 * a;
+                                        }
+                                    } break;
+                                case "route.signal":
+                                    if (!PreviewOnly) {
+                                        if (Arguments.Length < 1) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, Command + " is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                        } else {
+                                            double a; if (!Interface.TryParseDoubleVb6(Arguments[0], out a)) {
+                                                Interface.AddMessage(Interface.MessageType.Error, false, "Speed is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            } else {
+                                                if (CommandIndex1 < 0) {
+                                                    Interface.AddMessage(Interface.MessageType.Error, false, "AspectIndex is expected to be non-negative in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                                } else if (a < 0.0) {
+                                                    Interface.AddMessage(Interface.MessageType.Error, false, "Speed is expected to be non-negative in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                                } else {
+                                                    if (CommandIndex1 >= Data.SignalSpeeds.Length) {
+                                                        int n = Data.SignalSpeeds.Length;
+                                                        Array.Resize<double>(ref Data.SignalSpeeds, CommandIndex1 + 1);
+                                                        for (int i = n; i < CommandIndex1; i++) {
+                                                            Data.SignalSpeeds[i] = double.PositiveInfinity;
+                                                        }
+                                                    }
+                                                    Data.SignalSpeeds[CommandIndex1] = a * Data.UnitOfSpeed;
+                                                }
+                                            }
+                                        }
+                                    } break;
+                                case "route.runinterval":
+                                case "train.interval": {
+                                        if (!PreviewOnly) {
+                                            double val = 0.0;
+                                            if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out val)) {
+                                                Interface.AddMessage(Interface.MessageType.Error, false, "ValueInSeconds is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                                val = 0.0;
+                                            }
+                                            if (val < 0.0) {
+                                                Interface.AddMessage(Interface.MessageType.Error, false, "ValueInSeconds is expected to be non-negative in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                                val = 0.0;
+                                            }
+                                            if (val > 0.0) {
+                                                Game.PretrainInterval = val;
+                                                Game.PretrainsUsed = 1;
+                                            } else {
+                                                Game.PretrainInterval = 0.0;
+                                                Game.PretrainsUsed = 0;
+                                            }
                                         }
                                     } break;
                                 case "route.accelerationduetogravity":
@@ -1231,8 +1311,8 @@ namespace OpenBve {
                                         double a;
                                         if (!Interface.TryParseDoubleVb6(Arguments[0], out a)) {
                                             Interface.AddMessage(Interface.MessageType.Error, false, "Value is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        } else if (a <= 0.01) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Value is expected to be greater than or equal to 0.01 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                        } else if (a <= 0.0) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "Value is expected to be positive in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         } else {
                                             Game.RouteAccelerationDueToGravity = a;
                                         }
@@ -1254,9 +1334,9 @@ namespace OpenBve {
                                     } else {
                                         double a;
                                         if (!Interface.TryParseDoubleVb6(Arguments[0], out a)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Value is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        } else if (a < -272.15) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Value is expected to be greater than or equal to -272.15  in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "ValueInCelsius is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                        } else if (a <= -273.15) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "ValueInCelsius is expected to be greater than to -273.15 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         } else {
                                             Game.RouteInitialAirTemperature = a + 273.15;
                                         }
@@ -1267,102 +1347,47 @@ namespace OpenBve {
                                     } else {
                                         double a;
                                         if (!Interface.TryParseDoubleVb6(Arguments[0], out a)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Value is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        } else if (a < 0.001) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Value is expected to be greater than or equal to 0.001 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "ValueInKPa is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                        } else if (a <= 0.0) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "ValueInKPa is expected to be positive in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         } else {
                                             Game.RouteInitialAirPressure = 1000.0 * a;
                                         }
                                     } break;
-                                case "route.timetable":
-                                    if (!PreviewOnly) {
-                                        if (Arguments.Length < 1) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Route.Timetable is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        } else {
-                                            Timetable.TimetableDescription = Arguments[0];
+                                case "route.ambientlight": {
+                                        byte r = 255, g = 255, b = 255;
+                                        if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseByteVb6(Arguments[0], out r)) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "R is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         }
-                                    } break;
-                                case "route.change":
-                                    if (!PreviewOnly) {
-                                        int change = 0;
-                                        if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseIntVb6(Arguments[0], out change)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Value is invalid in Route.Change at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                            change = 0;
-                                        } else if (change < -1 | change > 1) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "The specified Value is not supported in Route.Change at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                            change = 0;
+                                        if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseByteVb6(Arguments[1], out g)) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "G is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         }
-                                        Game.TrainStart = (Game.TrainStartMode)change;
-                                    } break;
-                                case "route.gauge":
-                                case "train.gauge":
-                                    if (Arguments.Length < 1) {
-                                        Interface.AddMessage(Interface.MessageType.Error, false, Command + " is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                    } else {
-                                        double a;
-                                        if (!Interface.TryParseDoubleVb6(Arguments[0], out a)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Value is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        } else if (a <= 0.0) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Value is expected to be positive in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        } else {
-                                            Game.RouteRailGauge = 0.001 * a;
+                                        if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out b)) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "B is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         }
+                                        Renderer.OptionAmbientColor = new World.ColorRGB(r, g, b);
                                     } break;
-                                case "route.signal":
-                                    if (!PreviewOnly) {
-                                        if (Arguments.Length < 1) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Route.Signal is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        } else {
-                                            double a; if (!Interface.TryParseDoubleVb6(Arguments[0], out a)) {
-                                                Interface.AddMessage(Interface.MessageType.Error, false, "Value is invalid in Route.Signal at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                            } else {
-                                                if (CommandIndex1 < 0) {
-                                                    Interface.AddMessage(Interface.MessageType.Error, false, "Index is expected to be non-negative in Route.Signal at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                                } else if (a < 0.0) {
-                                                    Interface.AddMessage(Interface.MessageType.Error, false, "Value is expected to be non-negative in Route.Signal at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                                } else {
-                                                    if (CommandIndex1 >= Data.SignalSpeeds.Length) {
-                                                        int n = Data.SignalSpeeds.Length;
-                                                        Array.Resize<double>(ref Data.SignalSpeeds, CommandIndex1 + 1);
-                                                        for (int i = n; i < CommandIndex1; i++) {
-                                                            Data.SignalSpeeds[i] = double.PositiveInfinity;
-                                                        }
-                                                    }
-                                                    Data.SignalSpeeds[CommandIndex1] = a * Data.UnitOfSpeed;
-                                                }
-                                            }
+                                case "route.directionallight": {
+                                        byte r = 255, g = 255, b = 255;
+                                        if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseByteVb6(Arguments[0], out r)) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "R is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         }
-                                    } break;
-                                case "route.runinterval":
-                                case "train.interval": {
-                                        if (!PreviewOnly) {
-                                            double val = 0.0;
-                                            if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out val)) {
-                                                Interface.AddMessage(Interface.MessageType.Error, false, "Value is invalid in Route.RunInterval at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                                val = 0.0;
-                                            }
-                                            if (val < 0.0) {
-                                                Interface.AddMessage(Interface.MessageType.Error, false, "Value is expected to be non-negative in Route.RunInterval at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                                val = 0.0;
-                                            }
-                                            if (val > 0.0) {
-                                                Game.PretrainInterval = val;
-                                                Game.PretrainsUsed = 1;
-                                            } else {
-                                                Game.PretrainInterval = 0.0;
-                                                Game.PretrainsUsed = 0;
-                                            }
+                                        if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseByteVb6(Arguments[1], out g)) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "G is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         }
-                                    } break;
-                                case "route.developerid":
+                                        if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out b)) {
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "B is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                        }
+                                        Renderer.OptionDiffuseColor = new World.ColorRGB(r, g, b);
+                                    }
                                     break;
                                 case "route.lightdirection": {
-                                        double theta = 61.1307821718304, phi = -26.565051177078;
+                                        double theta = 60.0, phi = -26.565051177078;
                                         if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out theta)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Theta is invalid in Route.LightDirection at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "Theta is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         }
                                         if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out phi)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "Phi is invalid in Route.LightDirection at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+                                            Interface.AddMessage(Interface.MessageType.Error, false, "Phi is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                         }
                                         theta *= 0.0174532925199433;
                                         phi *= 0.0174532925199433;
@@ -1371,33 +1396,8 @@ namespace OpenBve {
                                         double dz = Math.Cos(theta) * Math.Cos(phi);
                                         Renderer.OptionLightPosition = new World.Vector3Df((float)-dx, (float)-dy, (float)-dz);
                                     } break;
-                                case "route.directionallight": {
-                                        byte r = 255, g = 255, b = 255;
-                                        if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseByteVb6(Arguments[0], out r)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "R is invalid in Route.DirectionalLight at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        }
-                                        if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseByteVb6(Arguments[1], out g)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "G is invalid in Route.DirectionalLight at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        }
-                                        if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out b)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "B is invalid in Route.DirectionalLight at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        }
-                                        Renderer.OptionDiffuseColor = new World.ColorRGB(r, g, b);
-                                    }
+                                case "route.developerid":
                                     break;
-                                case "route.ambientlight": {
-                                        byte r = 255, g = 255, b = 255;
-                                        if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseByteVb6(Arguments[0], out r)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "R is invalid in Route.AmbientLight at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        }
-                                        if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseByteVb6(Arguments[1], out g)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "G is invalid in Route.AmbientLight at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        }
-                                        if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out b)) {
-                                            Interface.AddMessage(Interface.MessageType.Error, false, "B is invalid in Route.AmbientLight at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-                                        }
-                                        Renderer.OptionAmbientColor = new World.ColorRGB(r, g, b);
-                                    } break;
                                 // train
                                 case "train.folder":
                                 case "train.file": {

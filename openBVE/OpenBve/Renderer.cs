@@ -4,6 +4,22 @@ using Tao.OpenGl;
 namespace OpenBve {
     internal static class Renderer {
 
+        // ### TO BE REMOVED SOON
+        private static double FadeDriver = 0.0;
+        private static double FadeLeftStopMarker = 0.0;
+        private static double FadeRightStopMarker = 0.0;
+        private static double FadeDoorIndicator = 0.0;
+        private enum OldLamp {
+            None,
+            Ats, AtsOperation,
+            AtsPPower, AtsPPattern, AtsPBrakeOverride, AtsPBrakeOperation, AtsP, AtsPFailure,
+            Atc, AtcPower, AtcUse, AtcEmergency,
+            Eb, ConstSpeed,
+            Plugin
+        }
+
+
+
         // screen (output window)
         internal static int ScreenWidth;
         internal static int ScreenHeight;
@@ -60,7 +76,7 @@ namespace OpenBve {
         internal static bool OptionLighting = true;
         internal static World.ColorRGB OptionAmbientColor = new World.ColorRGB(160, 160, 160);
         internal static World.ColorRGB OptionDiffuseColor = new World.ColorRGB(160, 160, 160);
-        internal static World.Vector3Df OptionLightPosition = new World.Vector3Df(0.215920077052065f, 0.875724044222352f, -0.431840154104129f);
+        internal static World.Vector3Df OptionLightPosition = new World.Vector3Df(0.223606797749979f, 0.86602540378444f, -0.447213595499958f);
         internal static float OptionLightingResultingAmount = 1.0f;
         internal static bool OptionNormals = false;
         internal static bool OptionWireframe = false;
@@ -72,6 +88,7 @@ namespace OpenBve {
         internal static bool OptionClock = false;
         internal enum SpeedDisplayMode { None, Kmph, Mph }
         internal static SpeedDisplayMode OptionSpeed = SpeedDisplayMode.None;
+        internal static bool OptionFrameRates = false;
         internal static bool OptionBrakeSystems = false;
 
         // textures
@@ -118,7 +135,7 @@ namespace OpenBve {
             OptionLighting = true;
             OptionAmbientColor = new World.ColorRGB(160, 160, 160);
             OptionDiffuseColor = new World.ColorRGB(160, 160, 160);
-            OptionLightPosition = new World.Vector3Df(0.215920077052065f, 0.875724044222352f, -0.431840154104129f);
+            OptionLightPosition = new World.Vector3Df(0.223606797749979f, 0.86602540378444f, -0.447213595499958f);
             OptionLightingResultingAmount = 1.0f;
             OptionTimetablePosition = 0.0;
             OptionClock = false;
@@ -135,7 +152,7 @@ namespace OpenBve {
             Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
             Gl.glDepthFunc(Gl.GL_LEQUAL);
             Gl.glHint(Gl.GL_FOG_HINT, Gl.GL_FASTEST);
-            Gl.glHint(Gl.GL_LINE_SMOOTH_HINT, Gl.GL_FASTEST); 
+            Gl.glHint(Gl.GL_LINE_SMOOTH_HINT, Gl.GL_FASTEST);
             Gl.glHint(Gl.GL_PERSPECTIVE_CORRECTION_HINT, Gl.GL_FASTEST);
             Gl.glHint(Gl.GL_POINT_SMOOTH_HINT, Gl.GL_FASTEST);
             Gl.glHint(Gl.GL_POLYGON_SMOOTH_HINT, Gl.GL_FASTEST);
@@ -145,7 +162,9 @@ namespace OpenBve {
             Gl.glEnable(Gl.GL_CULL_FACE); CullEnabled = true;
             Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
             Gl.glDisable(Gl.GL_TEXTURE_2D); TexturingEnabled = false;
-            // textures
+            // hud
+            Interface.LoadHUD(null);
+            // textures (OLD)
             string Path = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Graphics");
             TextureLogo = TextureManager.RegisterTexture(Interface.GetCombinedFileName(Path, "logo.png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, false);
             TexturePause = TextureManager.RegisterTexture(Interface.GetCombinedFileName(Path, FilePause), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, true);
@@ -493,20 +512,20 @@ namespace OpenBve {
             if (OpenGlDaytimeTextureIndex != 0) {
                 if (LightingEnabled) {
                     for (int j = 0; j < Face.Vertices.Length; j++) {
-                        Gl.glNormal3fv(ref Face.Vertices[j].Normal.X);
-                        Gl.glTexCoord2fv(ref Vertices[Face.Vertices[j].Index].TextureCoordinates.X);
+                        Gl.glNormal3f(Face.Vertices[j].Normal.X, Face.Vertices[j].Normal.Y, Face.Vertices[j].Normal.Z);
+                        Gl.glTexCoord2f(Vertices[Face.Vertices[j].Index].TextureCoordinates.X, Vertices[Face.Vertices[j].Index].TextureCoordinates.Y);
                         Gl.glVertex3d(Vertices[Face.Vertices[j].Index].Coordinates.X - CameraX, Vertices[Face.Vertices[j].Index].Coordinates.Y - CameraY, Vertices[Face.Vertices[j].Index].Coordinates.Z - CameraZ);
                     }
                 } else {
                     for (int j = 0; j < Face.Vertices.Length; j++) {
-                        Gl.glTexCoord2fv(ref Vertices[Face.Vertices[j].Index].TextureCoordinates.X);
+                        Gl.glTexCoord2f(Vertices[Face.Vertices[j].Index].TextureCoordinates.X, Vertices[Face.Vertices[j].Index].TextureCoordinates.Y);
                         Gl.glVertex3d(Vertices[Face.Vertices[j].Index].Coordinates.X - CameraX, Vertices[Face.Vertices[j].Index].Coordinates.Y - CameraY, Vertices[Face.Vertices[j].Index].Coordinates.Z - CameraZ);
                     }
                 }
             } else {
                 if (LightingEnabled) {
                     for (int j = 0; j < Face.Vertices.Length; j++) {
-                        Gl.glNormal3fv(ref Face.Vertices[j].Normal.X);
+                        Gl.glNormal3f(Face.Vertices[j].Normal.X, Face.Vertices[j].Normal.Y, Face.Vertices[j].Normal.Z);
                         Gl.glVertex3d(Vertices[Face.Vertices[j].Index].Coordinates.X - CameraX, Vertices[Face.Vertices[j].Index].Coordinates.Y - CameraY, Vertices[Face.Vertices[j].Index].Coordinates.Z - CameraZ);
                     }
                 } else {
@@ -548,7 +567,7 @@ namespace OpenBve {
                     EmissiveEnabled = false;
                 }
                 for (int j = 0; j < Face.Vertices.Length; j++) {
-                    Gl.glTexCoord2fv(ref Vertices[Face.Vertices[j].Index].TextureCoordinates.X);
+                    Gl.glTexCoord2f(Vertices[Face.Vertices[j].Index].TextureCoordinates.X, Vertices[Face.Vertices[j].Index].TextureCoordinates.Y);
                     Gl.glVertex3d(Vertices[Face.Vertices[j].Index].Coordinates.X - CameraX, Vertices[Face.Vertices[j].Index].Coordinates.Y - CameraY, Vertices[Face.Vertices[j].Index].Coordinates.Z - CameraZ);
                 }
                 Gl.glEnd();
@@ -785,20 +804,164 @@ namespace OpenBve {
             }
         }
 
-        // render overlays
-        private static double FadeDriver = 0.0;
-        private static double FadeLeftStopMarker = 0.0;
-        private static double FadeRightStopMarker = 0.0;
-        private static double FadeDoorIndicator = 0.0;
-        private static double FadeLogo = 8.0;
-        private enum Lamp {
+        // lamps
+        private enum LampType {
             None,
             Ats, AtsOperation,
             AtsPPower, AtsPPattern, AtsPBrakeOverride, AtsPBrakeOperation, AtsP, AtsPFailure,
             Atc, AtcPower, AtcUse, AtcEmergency,
-            Eb, ConstSpeed,
-            Plugin
+            Eb, ConstSpeed
         }
+        private struct Lamp {
+            internal LampType Type;
+            internal string Text;
+            internal float Width;
+            internal float Height;
+            internal Lamp(LampType Type) {
+                this.Type = Type;
+                switch (Type) {
+                    case LampType.None:
+                        this.Text = null;
+                        break;
+                    case LampType.Ats:
+                        this.Text = Interface.GetInterfaceString("lamps_ats");
+                        break;
+                    case LampType.AtsOperation:
+                        this.Text = Interface.GetInterfaceString("lamps_atsoperation");
+                        break;
+                    case LampType.AtsPPower:
+                        this.Text = Interface.GetInterfaceString("lamps_atsppower");
+                        break;
+                    case LampType.AtsPPattern:
+                        this.Text = Interface.GetInterfaceString("lamps_atsppattern");
+                        break;
+                    case LampType.AtsPBrakeOverride:
+                        this.Text = Interface.GetInterfaceString("lamps_atspbrakeoverride");
+                        break;
+                    case LampType.AtsPBrakeOperation:
+                        this.Text = Interface.GetInterfaceString("lamps_atspbrakeoperation");
+                        break;
+                    case LampType.AtsP:
+                        this.Text = Interface.GetInterfaceString("lamps_atsp");
+                        break;
+                    case LampType.AtsPFailure:
+                        this.Text = Interface.GetInterfaceString("lamps_atspfailure");
+                        break;
+                    case LampType.Atc:
+                        this.Text = Interface.GetInterfaceString("lamps_atc");
+                        break;
+                    case LampType.AtcPower:
+                        this.Text = Interface.GetInterfaceString("lamps_atcpower");
+                        break;
+                    case LampType.AtcUse:
+                        this.Text = Interface.GetInterfaceString("lamps_atcuse");
+                        break;
+                    case LampType.AtcEmergency:
+                        this.Text = Interface.GetInterfaceString("lamps_atcemergency");
+                        break;
+                    case LampType.Eb:
+                        this.Text = Interface.GetInterfaceString("lamps_eb");
+                        break;
+                    case LampType.ConstSpeed:
+                        this.Text = Interface.GetInterfaceString("lamps_constspeed");
+                        break;
+                    default:
+                        this.Text = "TEXT";
+                        break;
+                }
+                Fonts.FontType s = Fonts.FontType.Small;
+                for (int i = 0; i < Interface.CurrentHudElements.Length; i++) {
+                    if (Interface.CurrentHudElements[i].Subject.Equals("ats", StringComparison.OrdinalIgnoreCase)) {
+                        s = Interface.CurrentHudElements[i].TextSize;
+                        break;
+                    }
+                }
+                MeasureString(this.Text, s, out this.Width, out this.Height);
+            }
+        }
+        private struct LampCollection {
+            internal Lamp[] Lamps;
+            internal float Width;
+        }
+        private static LampCollection CurrentLampCollection;
+        private static void InitializeLamps() {
+            CurrentLampCollection.Width = 0.0f;
+            CurrentLampCollection.Lamps = new Lamp[17];
+            int Count;
+            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Bve4Plugin) {
+                Count = 0;
+            } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPAvailable & TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Atc.Available) {
+                CurrentLampCollection.Lamps[0] = new Lamp(LampType.Ats);
+                CurrentLampCollection.Lamps[1] = new Lamp(LampType.AtsOperation);
+                CurrentLampCollection.Lamps[2] = new Lamp(LampType.None);
+                CurrentLampCollection.Lamps[3] = new Lamp(LampType.AtsPPower);
+                CurrentLampCollection.Lamps[4] = new Lamp(LampType.AtsPPattern);
+                CurrentLampCollection.Lamps[5] = new Lamp(LampType.AtsPBrakeOverride);
+                CurrentLampCollection.Lamps[6] = new Lamp(LampType.AtsPBrakeOperation);
+                CurrentLampCollection.Lamps[7] = new Lamp(LampType.AtsP);
+                CurrentLampCollection.Lamps[8] = new Lamp(LampType.AtsPFailure);
+                CurrentLampCollection.Lamps[9] = new Lamp(LampType.None);
+                CurrentLampCollection.Lamps[10] = new Lamp(LampType.Atc);
+                CurrentLampCollection.Lamps[11] = new Lamp(LampType.AtcPower);
+                CurrentLampCollection.Lamps[12] = new Lamp(LampType.AtcUse);
+                CurrentLampCollection.Lamps[13] = new Lamp(LampType.AtcEmergency);
+                Count = 14;
+            } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPAvailable) {
+                CurrentLampCollection.Lamps[0] = new Lamp(LampType.Ats);
+                CurrentLampCollection.Lamps[1] = new Lamp(LampType.AtsOperation);
+                CurrentLampCollection.Lamps[2] = new Lamp(LampType.None);
+                CurrentLampCollection.Lamps[3] = new Lamp(LampType.AtsPPower);
+                CurrentLampCollection.Lamps[4] = new Lamp(LampType.AtsPPattern);
+                CurrentLampCollection.Lamps[5] = new Lamp(LampType.AtsPBrakeOverride);
+                CurrentLampCollection.Lamps[6] = new Lamp(LampType.AtsPBrakeOperation);
+                CurrentLampCollection.Lamps[7] = new Lamp(LampType.AtsP);
+                CurrentLampCollection.Lamps[8] = new Lamp(LampType.AtsPFailure);
+                Count = 9;
+            } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Atc.Available & TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsAvailable) {
+                CurrentLampCollection.Lamps[0] = new Lamp(LampType.Ats);
+                CurrentLampCollection.Lamps[1] = new Lamp(LampType.AtsOperation);
+                CurrentLampCollection.Lamps[2] = new Lamp(LampType.None);
+                CurrentLampCollection.Lamps[3] = new Lamp(LampType.Atc);
+                CurrentLampCollection.Lamps[4] = new Lamp(LampType.AtcPower);
+                CurrentLampCollection.Lamps[5] = new Lamp(LampType.AtcUse);
+                CurrentLampCollection.Lamps[6] = new Lamp(LampType.AtcEmergency);
+                Count = 7;
+            } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Atc.Available) {
+                CurrentLampCollection.Lamps[0] = new Lamp(LampType.Atc);
+                CurrentLampCollection.Lamps[1] = new Lamp(LampType.AtcPower);
+                CurrentLampCollection.Lamps[2] = new Lamp(LampType.AtcUse);
+                CurrentLampCollection.Lamps[3] = new Lamp(LampType.AtcEmergency);
+                Count = 4;
+            } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsAvailable) {
+                CurrentLampCollection.Lamps[0] = new Lamp(LampType.Ats);
+                CurrentLampCollection.Lamps[1] = new Lamp(LampType.AtsOperation);
+                Count = 2;
+            } else {
+                Count = 0;
+            }
+            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.Bve4Plugin) {
+                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Eb.Available | TrainManager.Trains[TrainManager.PlayerTrain].Specs.HasConstSpeed) {
+                    CurrentLampCollection.Lamps[Count] = new Lamp(LampType.None);
+                    Count++;
+                }
+                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Eb.Available) {
+                    CurrentLampCollection.Lamps[Count] = new Lamp(LampType.Eb);
+                    Count++;
+                }
+                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.HasConstSpeed) {
+                    CurrentLampCollection.Lamps[Count] = new Lamp(LampType.ConstSpeed);
+                    Count++;
+                }
+            }
+            Array.Resize<Lamp>(ref CurrentLampCollection.Lamps, Count);
+            for (int i = 0; i < Count; i++) {
+                if (CurrentLampCollection.Lamps[i].Width > CurrentLampCollection.Width) {
+                    CurrentLampCollection.Width = CurrentLampCollection.Lamps[i].Width;
+                }
+            }
+        }
+
+        // render overlays
         private static void RenderOverlays(double TimeElapsed) {
             // initialize
             Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
@@ -811,575 +974,1142 @@ namespace OpenBve {
             Gl.glPushMatrix();
             Gl.glLoadIdentity();
             System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
-            // messages
-            if (Game.InfoOutputMode == Game.OutputMode.Default) {
-                for (int i = Game.Messages.Length - 1; i >= 0; i--) {
-                    double p = Game.CurrentMode == Game.GameMode.Arcade ? (double)i + 1.0 : (double)i;
-                    if (Game.Messages[i].RendererPosition < p) {
-                        double d = p - Game.Messages[i].RendererPosition;
-                        Game.Messages[i].RendererPosition += 4.0 * (0.1 + d * d) * TimeElapsed;
-                        if (Game.Messages[i].RendererPosition > p) Game.Messages[i].RendererPosition = p;
-                    } else if (Game.Messages[i].RendererPosition > p) {
-                        double d = Game.Messages[i].RendererPosition - p;
-                        Game.Messages[i].RendererPosition -= 4.0 * (0.1 + d * d) * TimeElapsed;
-                        if (Game.Messages[i].RendererPosition < p) Game.Messages[i].RendererPosition = p;
-                    }
-                    double y = 8.0 + Game.Messages[i].RendererPosition * 22.0;
-                    float a; if (Game.SecondsSinceMidnight >= Game.Messages[i].Timeout) {
-                        a = 1.0f - (float)((Game.SecondsSinceMidnight - Game.Messages[i].Timeout) / Game.MessageFadeOutTime);
-                        if (a < 0.0f) a = 0.0f;
-                    } else {
-                        a = 1.0f;
-                    }
-                    RenderString(16.0, y, Fonts.FontType.Medium, Game.Messages[i].DisplayText, -1, inv255 * (float)Game.Messages[i].Color.R, inv255 * (float)Game.Messages[i].Color.G, inv255 * (float)Game.Messages[i].Color.B, a, true);
+#if false
+            // hud
+            for (int i = 0; i < Interface.CurrentHudElements.Length; i++) {
+                string Command = Interface.CurrentHudElements[i].Subject.ToLowerInvariant();
+                switch (Command) {
+                    case "ats": {
+                            // ats lamps
+                            if (CurrentLampCollection.Lamps == null) InitializeLamps();
+                            double lcrh = 0.0;
+                            double lw = 0.0;
+                            if (Interface.CurrentHudElements[i].TopLeft.BackgroundTextureIndex >= 0) {
+                                int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].TopLeft.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                if (OpenGlTextureIndex != 0) {
+                                    double u = (double)TextureManager.Textures[Interface.CurrentHudElements[i].TopLeft.BackgroundTextureIndex].ClipWidth;
+                                    double v = (double)TextureManager.Textures[Interface.CurrentHudElements[i].TopLeft.BackgroundTextureIndex].ClipHeight;
+                                    if (u > lw) lw = u;
+                                    if (v > lcrh) lcrh = v;
+                                }
+                            }
+                            if (Interface.CurrentHudElements[i].CenterLeft.BackgroundTextureIndex >= 0) {
+                                int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].CenterLeft.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                if (OpenGlTextureIndex != 0) {
+                                    double u = (double)TextureManager.Textures[Interface.CurrentHudElements[i].CenterLeft.BackgroundTextureIndex].ClipWidth;
+                                    double v = (double)TextureManager.Textures[Interface.CurrentHudElements[i].CenterLeft.BackgroundTextureIndex].ClipHeight;
+                                    if (u > lw) lw = u;
+                                    if (v > lcrh) lcrh = v;
+                                }
+                            }
+                            if (Interface.CurrentHudElements[i].BottomLeft.BackgroundTextureIndex >= 0) {
+                                int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].BottomLeft.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                if (OpenGlTextureIndex != 0) {
+                                    double u = (double)TextureManager.Textures[Interface.CurrentHudElements[i].BottomLeft.BackgroundTextureIndex].ClipWidth;
+                                    double v = (double)TextureManager.Textures[Interface.CurrentHudElements[i].BottomLeft.BackgroundTextureIndex].ClipHeight;
+                                    if (u > lw) lw = u;
+                                    if (v > lcrh) lcrh = v;
+                                }
+                            }
+                            /// center height
+                            if (Interface.CurrentHudElements[i].TopMiddle.BackgroundTextureIndex >= 0) {
+                                int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].TopMiddle.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                if (OpenGlTextureIndex != 0) {
+                                    double v = (double)TextureManager.Textures[Interface.CurrentHudElements[i].TopMiddle.BackgroundTextureIndex].ClipHeight;
+                                    if (v > lcrh) lcrh = v;
+                                }
+                            }
+                            if (Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex >= 0) {
+                                int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                if (OpenGlTextureIndex != 0) {
+                                    double v = (double)TextureManager.Textures[Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex].ClipHeight;
+                                    if (v > lcrh) lcrh = v;
+                                }
+                            }
+                            if (Interface.CurrentHudElements[i].BottomMiddle.BackgroundTextureIndex >= 0) {
+                                int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].BottomMiddle.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                if (OpenGlTextureIndex != 0) {
+                                    double v = (double)TextureManager.Textures[Interface.CurrentHudElements[i].BottomMiddle.BackgroundTextureIndex].ClipHeight;
+                                    if (v > lcrh) lcrh = v;
+                                }
+                            }
+                            /// right width/height
+                            double rw = 0.0;
+                            if (Interface.CurrentHudElements[i].TopRight.BackgroundTextureIndex >= 0) {
+                                int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].TopRight.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                if (OpenGlTextureIndex != 0) {
+                                    double u = (double)TextureManager.Textures[Interface.CurrentHudElements[i].TopRight.BackgroundTextureIndex].ClipWidth;
+                                    double v = (double)TextureManager.Textures[Interface.CurrentHudElements[i].TopRight.BackgroundTextureIndex].ClipHeight;
+                                    if (u > rw) rw = u;
+                                    if (v > lcrh) lcrh = v;
+                                }
+                            }
+                            if (Interface.CurrentHudElements[i].CenterRight.BackgroundTextureIndex >= 0) {
+                                int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].CenterRight.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                if (OpenGlTextureIndex != 0) {
+                                    double u = (double)TextureManager.Textures[Interface.CurrentHudElements[i].CenterRight.BackgroundTextureIndex].ClipWidth;
+                                    double v = (double)TextureManager.Textures[Interface.CurrentHudElements[i].CenterRight.BackgroundTextureIndex].ClipHeight;
+                                    if (u > rw) rw = u;
+                                    if (v > lcrh) lcrh = v;
+                                }
+                            }
+                            if (Interface.CurrentHudElements[i].BottomRight.BackgroundTextureIndex >= 0) {
+                                int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].BottomRight.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                if (OpenGlTextureIndex != 0) {
+                                    double u = (double)TextureManager.Textures[Interface.CurrentHudElements[i].BottomRight.BackgroundTextureIndex].ClipWidth;
+                                    double v = (double)TextureManager.Textures[Interface.CurrentHudElements[i].BottomRight.BackgroundTextureIndex].ClipHeight;
+                                    if (u > rw) rw = u;
+                                    if (v > lcrh) lcrh = v;
+                                }
+                            }
+                            /// start
+                            double w = (double)CurrentLampCollection.Width + lw + rw;
+                            double h = lcrh * CurrentLampCollection.Lamps.Length - Interface.CurrentHudElements[i].Value * (CurrentLampCollection.Lamps.Length - 1);
+                            double x = Interface.CurrentHudElements[i].Alignment.X < 0 ? 0.0 : Interface.CurrentHudElements[i].Alignment.X > 0 ? ScreenWidth - w : 0.5 * (ScreenWidth - w);
+                            double y = Interface.CurrentHudElements[i].Alignment.Y < 0 ? 0.0 : Interface.CurrentHudElements[i].Alignment.Y > 0 ? ScreenHeight - h : 0.5 * (ScreenHeight - h);
+                            x += Interface.CurrentHudElements[i].Position.X;
+                            y += Interface.CurrentHudElements[i].Position.Y;
+                            float ba = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.A;
+                            float or = inv255 * (float)Interface.CurrentHudElements[i].OverlayColor.R;
+                            float og = inv255 * (float)Interface.CurrentHudElements[i].OverlayColor.G;
+                            float ob = inv255 * (float)Interface.CurrentHudElements[i].OverlayColor.B;
+                            float oa = inv255 * (float)Interface.CurrentHudElements[i].OverlayColor.A;
+                            int n = CurrentLampCollection.Lamps.Length;
+                            for (int j = 0; j < n; j++) {
+                                if (CurrentLampCollection.Lamps[j].Type != LampType.None) {
+                                    int o;
+                                    if (j == 0) {
+                                        o = -1;
+                                    } else if (CurrentLampCollection.Lamps[j - 1].Type == LampType.None) {
+                                        o = -1;
+                                    } else if (j < n - 1 && CurrentLampCollection.Lamps[j + 1].Type == LampType.None) {
+                                        o = 1;
+                                    } else if (j == n - 1) {
+                                        o = 1;
+                                    } else {
+                                        o = 0;
+                                    }
+                                    Interface.HudImage Left = o < 0 ? Interface.CurrentHudElements[i].TopLeft : o == 0 ? Interface.CurrentHudElements[i].CenterLeft : Interface.CurrentHudElements[i].BottomLeft;
+                                    Interface.HudImage Middle = o < 0 ? Interface.CurrentHudElements[i].TopMiddle : o == 0 ? Interface.CurrentHudElements[i].CenterMiddle : Interface.CurrentHudElements[i].BottomMiddle;
+                                    Interface.HudImage Right = o < 0 ? Interface.CurrentHudElements[i].TopRight : o == 0 ? Interface.CurrentHudElements[i].CenterRight : Interface.CurrentHudElements[i].BottomRight;
+                                    float br = 0.4f, bg = 0.4f, bb = 0.4f;
+                                    switch (CurrentLampCollection.Lamps[j].Type) {
+                                        case LampType.Ats:
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
+                                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Normal | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Initialization) {
+                                                    br = 1.0f; bg = 0.7f; bb = 0.0f;
+                                                }
+                                            } break;
+                                        case LampType.AtsOperation:
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
+                                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Ringing) {
+                                                    br = 1.0f; bg = 0.0f; bb = 0.0f;
+                                                } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Emergency | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Pattern | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Service) {
+                                                    if (((int)Math.Floor(2.0 * Game.SecondsSinceMidnight) & 1) == 0) {
+                                                        br = 1.0f; bg = 0.0f; bb = 0.0f;
+                                                    }
+                                                }
+                                            } break;
+                                        case LampType.AtsPPower:
+                                            if ((TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) & TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPAvailable) {
+                                                br = 0.3f; bg = 1.0f; bb = 0.0f;
+                                            } break;
+                                        case LampType.AtsPPattern:
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+                                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Pattern | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Service) {
+                                                    br = 1.0f; bg = 0.7f; bb = 0.0f;
+                                                }
+                                            } break;
+                                        case LampType.AtsPBrakeOverride:
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+                                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPOverride) {
+                                                    br = 1.0f; bg = 0.7f; bb = 0.0f;
+                                                }
+                                            } break;
+                                        case LampType.AtsPBrakeOperation:
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+                                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Service & !TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPOverride) {
+                                                    br = 1.0f; bg = 0.7f; bb = 0.0f;
+                                                }
+                                            } break;
+                                        case LampType.AtsP:
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+                                                br = 0.3f; bg = 1.0f; bb = 0.0f;
+                                            } break;
+                                        case LampType.AtsPFailure:
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.None) {
+                                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Initialization) {
+                                                    br = 1.0f; bg = 0.0f; bb = 0.0f;
+                                                } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+                                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Ringing | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Emergency) {
+                                                        br = 1.0f; bg = 0.0f; bb = 0.0f;
+                                                    }
+                                                }
+                                            } break;
+                                        case LampType.Atc:
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
+                                                br = 1.0f; bg = 0.7f; bb = 0.0f;
+                                            } break;
+                                        case LampType.AtcPower:
+                                            if ((TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Atc | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.None & TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Atc.AutomaticSwitch)) {
+                                                br = 1.0f; bg = 0.7f; bb = 0.0f;
+                                            } break;
+                                        case LampType.AtcUse:
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
+                                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Service) {
+                                                    br = 1.0f; bg = 0.7f; bb = 0.0f;
+                                                }
+                                            } break;
+                                        case LampType.AtcEmergency:
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
+                                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Security != TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
+                                                    br = 1.0f; bg = 0.0f; bb = 0.0f;
+                                                }
+                                            } break;
+                                        case LampType.Eb:
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.None) {
+                                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Eb.BellState == TrainManager.SecurityState.Ringing) {
+                                                    br = 0.3f; bg = 1.0f; bb = 0.0f;
+                                                }
+                                            } break;
+                                        case LampType.ConstSpeed:
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.HasConstSpeed) {
+                                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentConstSpeed) {
+                                                    br = 1.0f; bg = 0.7f; bb = 0.0f;
+                                                }
+                                            } break;
+                                    }
+                                    /// left background
+                                    if (Left.BackgroundTextureIndex >= 0) {
+                                        int OpenGlTextureIndex = TextureManager.UseTexture(Left.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                        if (OpenGlTextureIndex != 0) {
+                                            double u = (double)TextureManager.Textures[Left.BackgroundTextureIndex].ClipWidth;
+                                            double v = (double)TextureManager.Textures[Left.BackgroundTextureIndex].ClipHeight;
+                                            Gl.glColor4f(br, bg, bb, ba);
+                                            RenderOverlayTexture(Left.BackgroundTextureIndex, x, y, x + u, y + v);
+                                        }
+                                    }
+                                    /// right background
+                                    if (Right.BackgroundTextureIndex >= 0) {
+                                        int OpenGlTextureIndex = TextureManager.UseTexture(Right.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                        if (OpenGlTextureIndex != 0) {
+                                            double u = (double)TextureManager.Textures[Right.BackgroundTextureIndex].ClipWidth;
+                                            double v = (double)TextureManager.Textures[Right.BackgroundTextureIndex].ClipHeight;
+                                            Gl.glColor4f(br, bg, bb, ba);
+                                            RenderOverlayTexture(Right.BackgroundTextureIndex, x + w - u, y, x + w, y + v);
+                                        }
+                                    }
+                                    /// middle background
+                                    if (Middle.BackgroundTextureIndex >= 0) {
+                                        int OpenGlTextureIndex = TextureManager.UseTexture(Middle.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                        if (OpenGlTextureIndex != 0) {
+                                            double v = (double)TextureManager.Textures[Middle.BackgroundTextureIndex].ClipHeight;
+                                            Gl.glColor4f(br, bg, bb, ba);
+                                            RenderOverlayTexture(Middle.BackgroundTextureIndex, x + lw, y, x + w - rw, y + v);
+                                        }
+                                    }
+                                    { /// text
+                                        string t = CurrentLampCollection.Lamps[j].Text;
+                                        float r = inv255 * (float)Interface.CurrentHudElements[i].TextColor.R;
+                                        float g = inv255 * (float)Interface.CurrentHudElements[i].TextColor.G;
+                                        float b = inv255 * (float)Interface.CurrentHudElements[i].TextColor.B;
+                                        float a = inv255 * (float)Interface.CurrentHudElements[i].TextColor.A;
+                                        double u = CurrentLampCollection.Lamps[j].Width;
+                                        double v = CurrentLampCollection.Lamps[j].Height;
+                                        double p = Interface.CurrentHudElements[i].TextAlignment.X < 0 ? x : Interface.CurrentHudElements[i].TextAlignment.X > 0 ? x + w - u : x + 0.5 * (w - u);
+                                        double q = Interface.CurrentHudElements[i].TextAlignment.Y < 0 ? y : Interface.CurrentHudElements[i].TextAlignment.Y > 0 ? y + lcrh - v : y + 0.5 * (lcrh - v);
+                                        p += Interface.CurrentHudElements[i].TextPosition.X;
+                                        q += Interface.CurrentHudElements[i].TextPosition.Y;
+                                        RenderString(p, q, Interface.CurrentHudElements[i].TextSize, t, -1, r, g, b, a, Interface.CurrentHudElements[i].TextShadow);
+                                    }
+                                    /// left overlay
+                                    if (Left.OverlayTextureIndex >= 0) {
+                                        int OpenGlTextureIndex = TextureManager.UseTexture(Left.OverlayTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                        if (OpenGlTextureIndex != 0) {
+                                            double u = (double)TextureManager.Textures[Left.OverlayTextureIndex].ClipWidth;
+                                            double v = (double)TextureManager.Textures[Left.OverlayTextureIndex].ClipHeight;
+                                            Gl.glColor4f(or, og, ob, oa);
+                                            RenderOverlayTexture(Left.OverlayTextureIndex, x, y, x + u, y + v);
+                                        }
+                                    }
+                                    /// right overlay
+                                    if (Right.OverlayTextureIndex >= 0) {
+                                        int OpenGlTextureIndex = TextureManager.UseTexture(Right.OverlayTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                        if (OpenGlTextureIndex != 0) {
+                                            double u = (double)TextureManager.Textures[Right.OverlayTextureIndex].ClipWidth;
+                                            double v = (double)TextureManager.Textures[Right.OverlayTextureIndex].ClipHeight;
+                                            Gl.glColor4f(or, og, ob, oa);
+                                            RenderOverlayTexture(Right.OverlayTextureIndex, x + w - u, y, x + w, y + v);
+                                        }
+                                    }
+                                    /// middle overlay
+                                    if (Middle.OverlayTextureIndex >= 0) {
+                                        int OpenGlTextureIndex = TextureManager.UseTexture(Middle.OverlayTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                        if (OpenGlTextureIndex != 0) {
+                                            double v = (double)TextureManager.Textures[Middle.OverlayTextureIndex].ClipHeight;
+                                            Gl.glColor4f(or, og, ob, oa);
+                                            RenderOverlayTexture(Middle.OverlayTextureIndex, x + lw, y, x + w - rw, y + v);
+                                        }
+                                    }
+                                }
+                                y += lcrh - (double)Interface.CurrentHudElements[i].Value;
+                            }
+                        } break;
+                    default: {
+                            // default
+                            double w, h;
+                            if (Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex >= 0) {
+                                int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                if (OpenGlTextureIndex != 0) {
+                                    w = (double)TextureManager.Textures[Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex].ClipWidth;
+                                    h = (double)TextureManager.Textures[Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex].ClipHeight;
+                                } else {
+                                    w = 0.0; h = 0.0;
+                                }
+                            } else {
+                                w = 0.0; h = 0.0;
+                            }
+                            double x = Interface.CurrentHudElements[i].Alignment.X < 0 ? 0.0 : Interface.CurrentHudElements[i].Alignment.X == 0 ? 0.5 * (ScreenWidth - w) : ScreenWidth - w;
+                            double y = Interface.CurrentHudElements[i].Alignment.Y < 0 ? 0.0 : Interface.CurrentHudElements[i].Alignment.Y == 0 ? 0.5 * (ScreenHeight - h) : ScreenHeight - h;
+                            x += Interface.CurrentHudElements[i].Position.X;
+                            y += Interface.CurrentHudElements[i].Position.Y;
+                            /// command
+                            const double speed = 1.0;
+                            float br, bg, bb, ba = 1.0f;
+                            string t;
+                            switch (Command) {
+                                case "reverser":
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentReverser.Driver < 0) {
+                                        br = 1.0f; bg = 0.7f; bb = 0.0f; t = Interface.QuickReferences.HandleBackward;
+                                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentReverser.Driver > 0) {
+                                        br = 0.0f; bg = 0.7f; bb = 1.0f; t = Interface.QuickReferences.HandleForward;
+                                    } else {
+                                        br = 0.4f; bg = 0.4f; bb = 0.4f; t = Interface.QuickReferences.HandleNeutral;
+                                    } break;
+                                case "power":
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.SingleHandle) {
+                                        continue;
+                                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentPowerNotch.Driver == 0) {
+                                        br = 0.4f; bg = 0.4f; bb = 0.4f; t = Interface.QuickReferences.HandlePowerNull;
+                                    } else {
+                                        br = 0.0f; bg = 0.7f; bb = 1.0f; t = Interface.QuickReferences.HandlePower + TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentPowerNotch.Driver.ToString(Culture);
+                                    } break;
+                                case "brake":
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.SingleHandle) {
+                                        continue;
+                                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[TrainManager.Trains[TrainManager.PlayerTrain].DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
+                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
+                                            br = 1.0f; bg = 0.0f; bb = 0.0f; t = Interface.QuickReferences.HandleEmergency;
+                                        } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Release) {
+                                            br = 0.4f; bg = 0.4f; bb = 0.4f; t = Interface.QuickReferences.HandleRelease;
+                                        } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Lap) {
+                                            br = 0.0f; bg = 0.7f; bb = 1.0f; t = Interface.QuickReferences.HandleLap;
+                                        } else {
+                                            br = 1.0f; bg = 0.7f; bb = 0.0f; t = Interface.QuickReferences.HandleService;
+                                        }
+                                    } else {
+                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
+                                            br = 1.0f; bg = 0.0f; bb = 0.0f; t = Interface.QuickReferences.HandleEmergency;
+                                        } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentHoldBrake.Driver) {
+                                            br = 1.0f; bg = 0.7f; bb = 0.0f; t = Interface.QuickReferences.HandleHoldBrake;
+                                        } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentBrakeNotch.Driver == 0) {
+                                            br = 0.4f; bg = 0.4f; bb = 0.4f; t = Interface.QuickReferences.HandleBrakeNull;
+                                        } else {
+                                            br = 0.0f; bg = 0.7f; bb = 1.0f; t = Interface.QuickReferences.HandleBrake + TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentBrakeNotch.Driver.ToString(Culture);
+                                        }
+                                    } break;
+                                case "single":
+                                    if (!TrainManager.Trains[TrainManager.PlayerTrain].Specs.SingleHandle) {
+                                        continue;
+                                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
+                                        br = 1.0f; bg = 0.0f; bb = 0.0f; t = Interface.QuickReferences.HandleEmergency;
+                                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentHoldBrake.Driver) {
+                                        br = 0.3f; bg = 1.0f; bb = 0.0f; t = Interface.QuickReferences.HandleHoldBrake;
+                                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentBrakeNotch.Driver > 0) {
+                                        br = 1.0f; bg = 0.7f; bb = 0.0f; t = Interface.QuickReferences.HandleBrake + TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentBrakeNotch.Driver.ToString(Culture);
+                                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentPowerNotch.Driver > 0) {
+                                        br = 0.0f; bg = 0.7f; bb = 1.0f; t = Interface.QuickReferences.HandlePower + TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentPowerNotch.Driver.ToString(Culture);
+                                    } else {
+                                        br = 0.4f; bg = 0.4f; bb = 0.4f; t = Interface.QuickReferences.HandlePowerNull;
+                                    } break;
+                                case "stopleft":
+                                case "stopright":
+                                case "stopnone": {
+                                        int s = TrainManager.Trains[TrainManager.PlayerTrain].Station;
+                                        if (s >= 0) {
+                                            bool cond;
+                                            if (Command == "stopleft") {
+                                                cond = Game.Stations[s].OpenLeftDoors;
+                                            } else if (Command == "stopright") {
+                                                cond = Game.Stations[s].OpenRightDoors;
+                                            } else {
+                                                cond = !Game.Stations[s].OpenLeftDoors & !Game.Stations[s].OpenRightDoors;
+                                            }
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].StationState == TrainManager.TrainStopState.Pending & cond) {
+                                                Interface.CurrentHudElements[i].TransitionState -= speed * TimeElapsed;
+                                                if (Interface.CurrentHudElements[i].TransitionState < 0.0) Interface.CurrentHudElements[i].TransitionState = 0.0;
+                                            } else {
+                                                Interface.CurrentHudElements[i].TransitionState += speed * TimeElapsed;
+                                                if (Interface.CurrentHudElements[i].TransitionState > 1.0) Interface.CurrentHudElements[i].TransitionState = 1.0;
+                                            }
+                                        } else {
+                                            Interface.CurrentHudElements[i].TransitionState += speed * TimeElapsed;
+                                            if (Interface.CurrentHudElements[i].TransitionState > 1.0) Interface.CurrentHudElements[i].TransitionState = 1.0;
+                                        }
+                                        br = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.R;
+                                        bg = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.G;
+                                        bb = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.B;
+                                        t = Interface.CurrentHudElements[i].Text;
+                                    } break;
+                                case "stoplefttick":
+                                case "stoprighttick":
+                                case "stopnonetick": {
+                                        int s = TrainManager.Trains[TrainManager.PlayerTrain].Station;
+                                        if (s >= 0) {
+                                            int c = Game.GetStopIndex(s, TrainManager.Trains[TrainManager.PlayerTrain].Cars.Length);
+                                            if (c >= 0) {
+                                                bool cond;
+                                                if (Command == "stoplefttick") {
+                                                    cond = Game.Stations[s].OpenLeftDoors;
+                                                } else if (Command == "stoprighttick") {
+                                                    cond = Game.Stations[s].OpenRightDoors;
+                                                } else {
+                                                    cond = !Game.Stations[s].OpenLeftDoors & !Game.Stations[s].OpenRightDoors;
+                                                }
+                                                if (TrainManager.Trains[TrainManager.PlayerTrain].StationState == TrainManager.TrainStopState.Pending & cond) {
+                                                    Interface.CurrentHudElements[i].TransitionState -= speed * TimeElapsed;
+                                                    if (Interface.CurrentHudElements[i].TransitionState < 0.0) Interface.CurrentHudElements[i].TransitionState = 0.0;
+                                                } else {
+                                                    Interface.CurrentHudElements[i].TransitionState += speed * TimeElapsed;
+                                                    if (Interface.CurrentHudElements[i].TransitionState > 1.0) Interface.CurrentHudElements[i].TransitionState = 1.0;
+                                                }
+                                                double d = TrainManager.Trains[TrainManager.PlayerTrain].StationStopDifference;
+                                                double r;
+                                                if (d < 0.0) {
+                                                    r = d / Game.Stations[s].Stops[c].BackwardTolerance;
+                                                } else {
+                                                    r = d / Game.Stations[s].Stops[c].ForwardTolerance;
+                                                }
+                                                if (r < -1.0) r = -1.0;
+                                                if (r > 1.0) r = 1.0;
+                                                y -= r * (double)Interface.CurrentHudElements[i].Value;
+                                            } else {
+                                                Interface.CurrentHudElements[i].TransitionState += speed * TimeElapsed;
+                                                if (Interface.CurrentHudElements[i].TransitionState > 1.0) Interface.CurrentHudElements[i].TransitionState = 1.0;
+                                            }
+                                        } else {
+                                            Interface.CurrentHudElements[i].TransitionState += speed * TimeElapsed;
+                                            if (Interface.CurrentHudElements[i].TransitionState > 1.0) Interface.CurrentHudElements[i].TransitionState = 1.0;
+                                        }
+                                        br = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.R;
+                                        bg = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.G;
+                                        bb = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.B;
+                                        t = Interface.CurrentHudElements[i].Text;
+                                    } break;
+                                case "clock": {
+                                        br = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.R;
+                                        bg = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.G;
+                                        bb = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.B;
+                                        int hours = (int)Math.Floor(Game.SecondsSinceMidnight);
+                                        int seconds = hours % 60; hours /= 60;
+                                        int minutes = hours % 60; hours /= 60;
+                                        t = hours.ToString(Culture).PadLeft(2, '0') + ":" + minutes.ToString(Culture).PadLeft(2, '0') + ":" + seconds.ToString(Culture).PadLeft(2, '0');
+                                        if (OptionClock) {
+                                            Interface.CurrentHudElements[i].TransitionState -= speed * TimeElapsed;
+                                            if (Interface.CurrentHudElements[i].TransitionState < 0.0) Interface.CurrentHudElements[i].TransitionState = 0.0;
+                                        } else {
+                                            Interface.CurrentHudElements[i].TransitionState += speed * TimeElapsed;
+                                            if (Interface.CurrentHudElements[i].TransitionState > 1.0) Interface.CurrentHudElements[i].TransitionState = 1.0;
+                                        }
+                                    } break;
+                                case "speed":
+                                    br = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.R;
+                                    bg = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.G;
+                                    bb = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.B;
+                                    if (OptionSpeed == SpeedDisplayMode.Kmph) {
+                                        double kmph = Math.Abs(TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentAverageSpeed) * 3.6;
+                                        t = kmph.ToString("0.00",Culture) + " km/h";
+                                        Interface.CurrentHudElements[i].TransitionState -= speed * TimeElapsed;
+                                        if (Interface.CurrentHudElements[i].TransitionState < 0.0) Interface.CurrentHudElements[i].TransitionState = 0.0;
+                                    } else if (OptionSpeed == SpeedDisplayMode.Mph) {
+                                        double mph = Math.Abs(TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentAverageSpeed) * 2.2369362920544;
+                                        t = mph.ToString("0.00", Culture) + " mph";
+                                        Interface.CurrentHudElements[i].TransitionState -= speed * TimeElapsed;
+                                        if (Interface.CurrentHudElements[i].TransitionState < 0.0) Interface.CurrentHudElements[i].TransitionState = 0.0;
+                                    } else {
+                                        double mph = Math.Abs(TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentAverageSpeed) * 2.2369362920544;
+                                        t = mph.ToString("0.00", Culture) + " mph";
+                                        Interface.CurrentHudElements[i].TransitionState += speed * TimeElapsed;
+                                        if (Interface.CurrentHudElements[i].TransitionState > 1.0) Interface.CurrentHudElements[i].TransitionState = 1.0;
+                                    } break;
+                                case "fps":
+                                    br = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.R;
+                                    bg = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.G;
+                                    bb = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.B;
+                                    int fps = (int)Math.Round(Game.InfoFrameRate);
+                                    t = fps.ToString(Culture) + " fps";
+                                    if (OptionFrameRates) {
+                                        Interface.CurrentHudElements[i].TransitionState -= speed * TimeElapsed;
+                                        if (Interface.CurrentHudElements[i].TransitionState < 0.0) Interface.CurrentHudElements[i].TransitionState = 0.0;
+                                    } else {
+                                        Interface.CurrentHudElements[i].TransitionState += speed * TimeElapsed;
+                                        if (Interface.CurrentHudElements[i].TransitionState > 1.0) Interface.CurrentHudElements[i].TransitionState = 1.0;
+                                    } break;
+                                default:
+                                    br = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.R;
+                                    bg = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.G;
+                                    bb = inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.B;
+                                    t = Interface.CurrentHudElements[i].Text;
+                                    break;
+                            }
+                            /// transitions
+                            float alpha = 1.0f;
+                            if (Interface.CurrentHudElements[i].Transition == Interface.HudTransition.Move | Interface.CurrentHudElements[i].Transition == Interface.HudTransition.MoveAndFade) {
+                                double s = Interface.CurrentHudElements[i].TransitionState;
+                                x += Interface.CurrentHudElements[i].TransitionVector.X * s * s;
+                                y += Interface.CurrentHudElements[i].TransitionVector.Y * s * s;
+                            }
+                            if (Interface.CurrentHudElements[i].Transition == Interface.HudTransition.Fade | Interface.CurrentHudElements[i].Transition == Interface.HudTransition.MoveAndFade) {
+                                alpha = (float)(1.0 - Interface.CurrentHudElements[i].TransitionState);
+                            }
+                            /// render
+                            if (alpha != 0.0f) {
+                                /// background
+                                if (Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex >= 0) {
+                                    int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                    ba *= inv255 * (float)Interface.CurrentHudElements[i].BackgroundColor.A * alpha;
+                                    Gl.glColor4f(br, bg, bb, ba);
+                                    RenderOverlayTexture(Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex, x, y, x + w, y + h);
+                                }
+                                { /// text
+                                    float r = inv255 * (float)Interface.CurrentHudElements[i].TextColor.R;
+                                    float g = inv255 * (float)Interface.CurrentHudElements[i].TextColor.G;
+                                    float b = inv255 * (float)Interface.CurrentHudElements[i].TextColor.B;
+                                    float a = inv255 * (float)Interface.CurrentHudElements[i].TextColor.A * alpha;
+                                    float u, v;
+                                    MeasureString(t, Interface.CurrentHudElements[i].TextSize, out u, out v);
+                                    double p = Interface.CurrentHudElements[i].TextAlignment.X < 0 ? x : Interface.CurrentHudElements[i].TextAlignment.X == 0 ? x + 0.5 * (w - u) : x + w - u;
+                                    double q = Interface.CurrentHudElements[i].TextAlignment.Y < 0 ? y : Interface.CurrentHudElements[i].TextAlignment.Y == 0 ? y + 0.5 * (h - v) : y + h - v;
+                                    p += Interface.CurrentHudElements[i].TextPosition.X;
+                                    q += Interface.CurrentHudElements[i].TextPosition.Y;
+                                    RenderString(p, q, Interface.CurrentHudElements[i].TextSize, t, -1, r, g, b, a, Interface.CurrentHudElements[i].TextShadow);
+                                }
+                                /// overlay
+                                if (Interface.CurrentHudElements[i].CenterMiddle.OverlayTextureIndex >= 0) {
+                                    int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].CenterMiddle.OverlayTextureIndex, TextureManager.UseMode.LoadImmediately);
+                                    float r, g, b, a;
+                                    r = inv255 * (float)Interface.CurrentHudElements[i].OverlayColor.R;
+                                    g = inv255 * (float)Interface.CurrentHudElements[i].OverlayColor.G;
+                                    b = inv255 * (float)Interface.CurrentHudElements[i].OverlayColor.B;
+                                    a = inv255 * (float)Interface.CurrentHudElements[i].OverlayColor.A * alpha;
+                                    Gl.glColor4f(r, g, b, a);
+                                    RenderOverlayTexture(Interface.CurrentHudElements[i].CenterMiddle.OverlayTextureIndex, x, y, x + w, y + h);
+                                }
+                            }
+                        } break;
                 }
             }
-            // score
-            if (Game.CurrentMode == Game.GameMode.Arcade & Game.InfoOutputMode != Game.OutputMode.None) {
-                {
-                    float r, g, b;
-                    if (Game.CurrentScore.Value < 0) {
-                        r = 1.0f; g = 0.0f; b = 0.0f;
+#endif
+
+#if true
+                // messages
+                if (Game.InfoOutputMode == Game.OutputMode.Default) {
+                    for (int i = Game.Messages.Length - 1; i >= 0; i--) {
+                        double p = Game.CurrentMode == Game.GameMode.Arcade ? (double)i + 1.0 : (double)i;
+                        if (Game.Messages[i].RendererPosition < p) {
+                            double d = p - Game.Messages[i].RendererPosition;
+                            Game.Messages[i].RendererPosition += 4.0 * (0.1 + d * d) * TimeElapsed;
+                            if (Game.Messages[i].RendererPosition > p) Game.Messages[i].RendererPosition = p;
+                        } else if (Game.Messages[i].RendererPosition > p) {
+                            double d = Game.Messages[i].RendererPosition - p;
+                            Game.Messages[i].RendererPosition -= 4.0 * (0.1 + d * d) * TimeElapsed;
+                            if (Game.Messages[i].RendererPosition < p) Game.Messages[i].RendererPosition = p;
+                        }
+                        double y = 8.0 + Game.Messages[i].RendererPosition * 22.0;
+                        float a; if (Game.SecondsSinceMidnight >= Game.Messages[i].Timeout) {
+                            a = 1.0f - (float)((Game.SecondsSinceMidnight - Game.Messages[i].Timeout) / Game.MessageFadeOutTime);
+                            if (a < 0.0f) a = 0.0f;
+                        } else {
+                            a = 1.0f;
+                        }
+                        RenderString(16.0, y, Fonts.FontType.Medium, Game.Messages[i].DisplayText, -1, inv255 * (float)Game.Messages[i].Color.R, inv255 * (float)Game.Messages[i].Color.G, inv255 * (float)Game.Messages[i].Color.B, a, true);
+                    }
+                }
+                // score
+                if (Game.CurrentMode == Game.GameMode.Arcade & Game.InfoOutputMode != Game.OutputMode.None) {
+                    {
+                        float r, g, b;
+                        if (Game.CurrentScore.Value < 0) {
+                            r = 1.0f; g = 0.0f; b = 0.0f;
+                        } else {
+                            r = 0.0f; g = 1.0f; b = 0.0f;
+                        }
+                        string s = Interface.QuickReferences.Score + Game.CurrentScore.Value.ToString(Culture) + " / " + Game.CurrentScore.Maximum.ToString(Culture);
+                        RenderString(0.5 * (double)ScreenWidth - 64.0, 8.0, Fonts.FontType.Medium, s, -1, r, g, b, 1.0f, true);
+                    }
+                    for (int i = 0; i < Game.ScoreMessages.Length; i++) {
+                        float r, g, b, a = (float)Game.ScoreMessages[i].Alpha;
+                        if (Game.ScoreMessages[i].Value < 0) {
+                            r = 1.0f; g = 0.0f; b = 0.0f;
+                        } else if (Game.ScoreMessages[i].Value > 0) {
+                            r = 0.0f; g = 1.0f; b = 0.0f;
+                        } else {
+                            r = 1.0f; g = 1.0f; b = 1.0f;
+                        }
+                        double p = Game.ScoreMessages[i].RendererPosition;
+                        if (Game.ScoreMessages[i].Text.Length == 0) {
+                            double y = 0.5 * (double)ScreenHeight - 128 + 28.0 * (p + 0.5);
+                            Gl.glColor4f(1.0f, 1.0f, 1.0f, a);
+                            RenderOverlaySolid(0.5 * (double)ScreenWidth - 128.0, y - 1.0, 0.5 * (double)ScreenWidth + 128.0, y + 1.0);
+                        } else {
+                            {
+                                string s;
+                                if (Game.ScoreMessages[i].Value == 0) {
+                                    s = "▶";
+                                } else {
+                                    s = Game.ScoreMessages[i].Value.ToString(Culture);
+                                }
+                                RenderString(0.5 * (double)ScreenWidth - 128.0, 0.5 * (double)ScreenHeight - 128 + 28.0 * p, Fonts.FontType.Large, s, -1, r, g, b, a, true);
+                            }
+                            {
+                                string s = Game.ScoreMessages[i].Text;
+                                RenderString(0.5 * (double)ScreenWidth - 56.0, 0.5 * (double)ScreenHeight - 128 + 28.0 * p, Fonts.FontType.Large, s, -1, r, g, b, a, true);
+                            }
+                        }
+                    }
+                }
+                // marker
+                if (Game.CurrentMode != Game.GameMode.Expert & Game.InfoOutputMode != Game.OutputMode.None) {
+                    double y = 8.0;
+                    for (int i = 0; i < Game.MarkerTextures.Length; i++) {
+                        int t = TextureManager.UseTexture(Game.MarkerTextures[i], TextureManager.UseMode.LoadImmediately);
+                        if (t >= 0) {
+                            double w = (double)TextureManager.Textures[Game.MarkerTextures[i]].ClipWidth;
+                            double h = (double)TextureManager.Textures[Game.MarkerTextures[i]].ClipHeight;
+                            Gl.glColor4d(1.0, 1.0, 1.0, 1.0);
+                            RenderOverlayTexture(Game.MarkerTextures[i], (double)ScreenWidth - w - 8.0, y, (double)ScreenWidth - 8.0, y + h);
+                            y += h + 8.0;
+                        }
+                    }
+                }
+                // stop meter
+                if (Game.CurrentMode != Game.GameMode.Expert & Game.InfoOutputMode != Game.OutputMode.None) {
+                    int s = TrainManager.Trains[TrainManager.PlayerTrain].Station;
+                    bool showatall = s >= 0 && Game.Stations[s].StopAtStation & TrainManager.Trains[TrainManager.PlayerTrain].StationState == TrainManager.TrainStopState.Pending;
+                    bool showleft = showatall && (Game.Stations[s].OpenLeftDoors | !Game.Stations[s].OpenRightDoors);
+                    bool showright = showatall && (Game.Stations[s].OpenRightDoors | !Game.Stations[s].OpenLeftDoors);
+                    if (showleft) {
+                        double d = 1.0 - FadeLeftStopMarker;
+                        FadeLeftStopMarker += 5.0 * (0.1 + d * d) * TimeElapsed;
+                        if (FadeLeftStopMarker > 1.0) FadeLeftStopMarker = 1.0;
                     } else {
-                        r = 0.0f; g = 1.0f; b = 0.0f;
+                        double d = 1.0 - FadeLeftStopMarker;
+                        FadeLeftStopMarker -= 5.0 * (0.1 + d * d) * TimeElapsed;
+                        if (FadeLeftStopMarker < 0.0) FadeLeftStopMarker = 0.0;
                     }
-                    string s = Interface.QuickReferences.Score + Game.CurrentScore.Value.ToString(Culture) + " / " + Game.CurrentScore.Maximum.ToString(Culture);
-                    RenderString(0.5 * (double)ScreenWidth - 64.0, 8.0, Fonts.FontType.Medium, s, -1, r, g, b, 1.0f, true);
-                }
-                for (int i = 0; i < Game.ScoreMessages.Length; i++) {
-                    float r, g, b, a = (float)Game.ScoreMessages[i].Alpha;
-                    if (Game.ScoreMessages[i].Value < 0) {
-                        r = 1.0f; g = 0.0f; b = 0.0f;
-                    } else if (Game.ScoreMessages[i].Value > 0) {
-                        r = 0.0f; g = 1.0f; b = 0.0f;
+                    if (showright) {
+                        double d = 1.0 - FadeRightStopMarker;
+                        FadeRightStopMarker += 5.0 * (0.1 + d * d) * TimeElapsed;
+                        if (FadeRightStopMarker > 1.0) FadeRightStopMarker = 1.0;
                     } else {
-                        r = 1.0f; g = 1.0f; b = 1.0f;
+                        double d = 1.0 - FadeRightStopMarker;
+                        FadeRightStopMarker -= 5.0 * (0.1 + d * d) * TimeElapsed;
+                        if (FadeRightStopMarker < 0.0) FadeRightStopMarker = 0.0;
                     }
-                    double p = Game.ScoreMessages[i].RendererPosition;
-                    if (Game.ScoreMessages[i].Text.Length == 0) {
-                        double y = 0.5 * (double)ScreenHeight - 128 + 28.0 * (p + 0.5);
-                        Gl.glColor4f(1.0f, 1.0f, 1.0f, a);
-                        RenderOverlaySolid(0.5 * (double)ScreenWidth - 128.0, y - 1.0, 0.5 * (double)ScreenWidth + 128.0, y + 1.0);
+                    if (FadeLeftStopMarker > 0.0 | FadeRightStopMarker > 0) {
+                        // meter
+                        double w1, h1;
+                        if (TextureStopMeterBar >= 0) {
+                            w1 = (double)TextureManager.Textures[TextureStopMeterBar].ClipWidth;
+                            h1 = (double)TextureManager.Textures[TextureStopMeterBar].ClipHeight;
+                        } else {
+                            w1 = 32.0;
+                            h1 = 256.0;
+                        }
+                        if (FadeLeftStopMarker > 0.0) {
+                            Gl.glColor3f(1.0f, 1.0f, 1.0f);
+                            RenderOverlayTexture(TextureStopMeterBar, -w1 + FadeLeftStopMarker * (w1 + 8.0), 0.5 * ((double)ScreenHeight - h1), FadeLeftStopMarker * (w1 + 8.0), 0.5 * ((double)ScreenHeight + h1));
+                            if (s >= 0 && !Game.Stations[s].OpenLeftDoors) {
+                                if (TextureStopMeterNo >= 0) {
+                                    double w2 = (double)TextureManager.Textures[TextureStopMeterNo].ClipWidth;
+                                    double h2 = (double)TextureManager.Textures[TextureStopMeterNo].ClipHeight;
+                                    RenderOverlayTexture(TextureStopMeterNo, FadeLeftStopMarker * (8.0 + w1) - 0.5 * (w2 + w1), 0.5 * ((double)ScreenHeight - h1) - h2 - 16, FadeLeftStopMarker * (8.0 + w1) + 0.5 * (w2 - w1), 0.5 * ((double)ScreenHeight - h1) - 16);
+                                } else {
+                                    RenderString(FadeLeftStopMarker * (w1 + 8.0) - 0.5 * w1, 0.5 * ((double)ScreenHeight - h1) - 32.0, Fonts.FontType.Medium, "X", 0, 1.0f, 0.0f, 0.0f, true);
+                                }
+                            }
+                        }
+                        if (FadeRightStopMarker > 0.0) {
+                            Gl.glColor3f(1.0f, 1.0f, 1.0f);
+                            RenderOverlayTexture(TextureStopMeterBar, (double)ScreenWidth - FadeRightStopMarker * (w1 + 8.0), 0.5 * ((double)ScreenHeight - h1), (double)ScreenWidth - FadeRightStopMarker * (w1 + 8.0) + w1, 0.5 * ((double)ScreenHeight + h1));
+                            if (s >= 0 && !Game.Stations[s].OpenRightDoors) {
+                                if (TextureStopMeterNo >= 0) {
+                                    double w2 = (double)TextureManager.Textures[TextureStopMeterNo].ClipWidth;
+                                    double h2 = (double)TextureManager.Textures[TextureStopMeterNo].ClipHeight;
+                                    RenderOverlayTexture(TextureStopMeterNo, (double)ScreenWidth - FadeRightStopMarker * (8.0 + w1) + 0.5 * (w1 - w2), 0.5 * ((double)ScreenHeight - h1) - h2 - 16, (double)ScreenWidth - FadeRightStopMarker * (8.0 + w1) + 0.5 * (w1 + w2), 0.5 * ((double)ScreenHeight - h1) - 16);
+                                } else {
+                                    RenderString((double)ScreenWidth - FadeRightStopMarker * (w1 + 8.0) + 0.5 * w1, 0.5 * ((double)ScreenHeight - h1) - 32.0, Fonts.FontType.Medium, "X", 0, 1.0f, 0.0f, 0.0f, true);
+                                }
+                            }
+                        }
+                        // tick
+                        if (FadeLeftStopMarker == 1.0 | FadeRightStopMarker == 1.0) {
+                            double d = TrainManager.Trains[TrainManager.PlayerTrain].StationStopDifference;
+                            int c = TrainManager.Trains[TrainManager.PlayerTrain].Cars.Length;
+                            int p = Game.GetStopIndex(s, c);
+                            if (p >= 0) {
+                                double r;
+                                if (d >= 0) {
+                                    r = (Game.Stations[s].Stops[p].BackwardTolerance - d) / (2.0 * Game.Stations[s].Stops[p].BackwardTolerance);
+                                    if (r < 0.0) r = 0.0;
+                                } else {
+                                    r = (Game.Stations[s].Stops[p].ForwardTolerance - d) / (2.0 * Game.Stations[s].Stops[p].ForwardTolerance);
+                                    if (r >= 1.0) r = 1.0;
+                                }
+                                double w2, h2;
+                                if (TextureStopMeterTick >= 0) {
+                                    w2 = (double)TextureManager.Textures[TextureStopMeterTick].ClipWidth;
+                                    h2 = (double)TextureManager.Textures[TextureStopMeterTick].ClipHeight;
+                                    Gl.glColor3f(1.0f, 1.0f, 1.0f);
+                                } else {
+                                    w2 = 32.0;
+                                    h2 = 16.0;
+                                    Gl.glColor3d(0.0, 0.0, 0.0);
+                                }
+                                if (FadeLeftStopMarker == 1.0) {
+                                    RenderOverlayTexture(TextureStopMeterTick, 0.5 * (w1 - w2) + 8.0, 0.5 * ((double)ScreenHeight - h1 - h2 + 2.0 * h1 * r), 0.5 * (w1 + w2) + 8.0, 0.5 * ((double)ScreenHeight - h1 + h2 + 2.0 * h1 * r));
+                                }
+                                if (FadeRightStopMarker == 1.0) {
+                                    RenderOverlayTexture(TextureStopMeterTick, (double)ScreenWidth - 0.5 * (w1 + w2) - 8.0, 0.5 * ((double)ScreenHeight - h1 - h2 + 2.0 * h1 * r), (double)ScreenWidth - 0.5 * (w1 - w2) - 8.0, 0.5 * ((double)ScreenHeight - h1 + h2 + 2.0 * h1 * r));
+                                }
+                            }
+                        }
+                    }
+                }
+                // door indicator
+                if (Game.InfoOutputMode != Game.OutputMode.None & TrainManager.Trains[TrainManager.PlayerTrain].Specs.DoorCloseMode != TrainManager.DoorMode.Automatic) {
+                    bool leftopened = false, rightopened = false;
+                    bool leftclosed = false, rightclosed = false;
+                    for (int i = 0; i < TrainManager.Trains[TrainManager.PlayerTrain].Cars.Length; i++) {
+                        for (int j = 0; j < TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors.Length; j++) {
+                            if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors[j].Direction <= 0) {
+                                if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors[j].State == 0.0) {
+                                    leftclosed = true;
+                                } else if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors[j].State == 1.0) {
+                                    leftopened = true;
+                                } else {
+                                    leftclosed = true;
+                                    leftopened = true;
+                                }
+                            }
+                            if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors[j].Direction >= 0) {
+                                if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors[j].State == 0.0) {
+                                    rightclosed = true;
+                                } else if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors[j].State == 1.0) {
+                                    rightopened = true;
+                                } else {
+                                    rightclosed = true;
+                                    rightopened = true;
+                                }
+                            }
+                        }
+                    }
+                    if (leftopened | rightopened) {
+                        double d = 1.0 - FadeDoorIndicator;
+                        FadeDoorIndicator += 4.0 * (0.1 + d * d) * TimeElapsed;
+                        if (FadeDoorIndicator > 1.0) FadeDoorIndicator = 1.0;
                     } else {
-                        {
-                            string s;
-                            if (Game.ScoreMessages[i].Value == 0) {
-                                s = "▶";
-                            } else {
-                                s = Game.ScoreMessages[i].Value.ToString(Culture);
-                            }
-                            RenderString(0.5 * (double)ScreenWidth - 128.0, 0.5 * (double)ScreenHeight - 128 + 28.0 * p, Fonts.FontType.Large, s, -1, r, g, b, a, true);
+                        double d = 1.0 - FadeDoorIndicator;
+                        FadeDoorIndicator -= 4.0 * (0.1 + d * d) * TimeElapsed;
+                        if (FadeDoorIndicator < 0.0) FadeDoorIndicator = 0.0;
+                    }
+                    if (FadeDoorIndicator > 0.0) {
+                        double w, h;
+                        if (TextureDoors >= 0) {
+                            w = (double)TextureManager.Textures[TextureDoors].ClipWidth;
+                            h = (double)TextureManager.Textures[TextureDoors].ClipHeight;
+                        } else {
+                            w = 32.0;
+                            h = 16.0;
                         }
-                        {
-                            string s = Game.ScoreMessages[i].Text;
-                            RenderString(0.5 * (double)ScreenWidth - 56.0, 0.5 * (double)ScreenHeight - 128 + 28.0 * p, Fonts.FontType.Large, s, -1, r, g, b, a, true);
+                        double x = 0.5 * ((double)ScreenWidth - w);
+                        double y = (double)ScreenHeight - FadeDoorIndicator * (h + 4.0);
+                        // left
+                        if (leftopened & leftclosed) {
+                            Gl.glColor4d(1.0, 0.5, 0.0, 0.5);
+                        } else if (leftopened & TrainManager.Trains[TrainManager.PlayerTrain].Specs.DoorCloseMode != TrainManager.DoorMode.Manual) {
+                            Gl.glColor4d(0.0, 0.75, 1.0, 0.5);
+                        } else if (leftopened) {
+                            Gl.glColor4d(0.0, 1.0, 0.0, 0.5);
+                        } else {
+                            Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
                         }
+                        RenderOverlayTexture(TextureDoors, x - w - 2.0, y, x - 2.0, y + h);
+                        RenderString(x - w - 2.0 + 0.5 * w, y, Fonts.FontType.Small, Interface.QuickReferences.DoorsLeft, 0, 0.0f, 0.0f, 0.0f, false);
+                        // right
+                        if (rightopened & rightclosed) {
+                            Gl.glColor4d(1.0, 0.5, 0.0, 0.5);
+                        } else if (rightopened & TrainManager.Trains[TrainManager.PlayerTrain].Specs.DoorCloseMode != TrainManager.DoorMode.Manual) {
+                            Gl.glColor4d(0.0, 0.75, 1.0, 0.5);
+                        } else if (rightopened) {
+                            Gl.glColor4d(0.0, 1.0, 0.0, 0.5);
+                        } else {
+                            Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
+                        }
+                        RenderOverlayTexture(TextureDoors, x + 2.0, y, x + w + 2.0, y + h);
+                        RenderString(x + 2.0 + 0.5 * w, y, Fonts.FontType.Small, Interface.QuickReferences.DoorsRight, 0, 0.0f, 0.0f, 0.0f, false);
                     }
                 }
-            }
-            // marker
-            if (Game.CurrentMode != Game.GameMode.Expert & Game.InfoOutputMode != Game.OutputMode.None) {
-                double y = 8.0;
-                for (int i = 0; i < Game.MarkerTextures.Length; i++) {
-                    int t = TextureManager.UseTexture(Game.MarkerTextures[i], TextureManager.UseMode.LoadImmediately);
-                    if (t >= 0) {
-                        double w = (double)TextureManager.Textures[Game.MarkerTextures[i]].ClipWidth;
-                        double h = (double)TextureManager.Textures[Game.MarkerTextures[i]].ClipHeight;
-                        Gl.glColor4d(1.0, 1.0, 1.0, 1.0);
-                        RenderOverlayTexture(Game.MarkerTextures[i], (double)ScreenWidth - w - 8.0, y, (double)ScreenWidth - 8.0, y + h);
-                        y += h + 8.0;
-                    }
-                }
-            }
-            // stop meter
-            if (Game.CurrentMode != Game.GameMode.Expert & Game.InfoOutputMode != Game.OutputMode.None) {
-                int s = TrainManager.Trains[TrainManager.PlayerTrain].Station;
-                bool showatall = s >= 0 && Game.Stations[s].StopAtStation & TrainManager.Trains[TrainManager.PlayerTrain].StationState == TrainManager.TrainStopState.Pending;
-                bool showleft = showatall && (Game.Stations[s].OpenLeftDoors | !Game.Stations[s].OpenRightDoors);
-                bool showright = showatall && (Game.Stations[s].OpenRightDoors | !Game.Stations[s].OpenLeftDoors);
-                if (showleft) {
-                    double d = 1.0 - FadeLeftStopMarker;
-                    FadeLeftStopMarker += 5.0 * (0.1 + d * d) * TimeElapsed;
-                    if (FadeLeftStopMarker > 1.0) FadeLeftStopMarker = 1.0;
-                } else {
-                    double d = 1.0 - FadeLeftStopMarker;
-                    FadeLeftStopMarker -= 5.0 * (0.1 + d * d) * TimeElapsed;
-                    if (FadeLeftStopMarker < 0.0) FadeLeftStopMarker = 0.0;
-                }
-                if (showright) {
-                    double d = 1.0 - FadeRightStopMarker;
-                    FadeRightStopMarker += 5.0 * (0.1 + d * d) * TimeElapsed;
-                    if (FadeRightStopMarker > 1.0) FadeRightStopMarker = 1.0;
-                } else {
-                    double d = 1.0 - FadeRightStopMarker;
-                    FadeRightStopMarker -= 5.0 * (0.1 + d * d) * TimeElapsed;
-                    if (FadeRightStopMarker < 0.0) FadeRightStopMarker = 0.0;
-                }
-                if (FadeLeftStopMarker > 0.0 | FadeRightStopMarker > 0) {
-                    // meter
-                    double w1, h1;
-                    if (TextureStopMeterBar >= 0) {
-                        w1 = (double)TextureManager.Textures[TextureStopMeterBar].ClipWidth;
-                        h1 = (double)TextureManager.Textures[TextureStopMeterBar].ClipHeight;
+                // lamps
+                if (Game.InfoOutputMode != Game.OutputMode.None) {
+                    OldLamp[] Lamps; 
+                    int LampsUsed = 0;
+                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Bve4Plugin) {
+                        if (Game.InfoOutputMode == Game.OutputMode.Debug) {
+                            Lamps = new OldLamp[1];
+                            Lamps[0] = OldLamp.Plugin;
+                            LampsUsed = 1;
+                        } else {
+                            Lamps = new OldLamp[] { };
+                        }
+                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPAvailable & TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Atc.Available) {
+                        Lamps = new OldLamp[17];
+                        Lamps[0] = OldLamp.Ats;
+                        Lamps[1] = OldLamp.AtsOperation;
+                        Lamps[2] = OldLamp.None;
+                        Lamps[3] = OldLamp.AtsPPower;
+                        Lamps[4] = OldLamp.AtsPPattern;
+                        Lamps[5] = OldLamp.AtsPBrakeOverride;
+                        Lamps[6] = OldLamp.AtsPBrakeOperation;
+                        Lamps[7] = OldLamp.AtsP;
+                        Lamps[8] = OldLamp.AtsPFailure;
+                        Lamps[9] = OldLamp.None;
+                        Lamps[10] = OldLamp.Atc;
+                        Lamps[11] = OldLamp.AtcPower;
+                        Lamps[12] = OldLamp.AtcUse;
+                        Lamps[13] = OldLamp.AtcEmergency;
+                        LampsUsed = 14;
+                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPAvailable) {
+                        Lamps = new OldLamp[12];
+                        Lamps[0] = OldLamp.Ats;
+                        Lamps[1] = OldLamp.AtsOperation;
+                        Lamps[2] = OldLamp.None;
+                        Lamps[3] = OldLamp.AtsPPower;
+                        Lamps[4] = OldLamp.AtsPPattern;
+                        Lamps[5] = OldLamp.AtsPBrakeOverride;
+                        Lamps[6] = OldLamp.AtsPBrakeOperation;
+                        Lamps[7] = OldLamp.AtsP;
+                        Lamps[8] = OldLamp.AtsPFailure;
+                        LampsUsed = 9;
+                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Atc.Available & TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsAvailable) {
+                        Lamps = new OldLamp[10];
+                        Lamps[0] = OldLamp.Ats;
+                        Lamps[1] = OldLamp.AtsOperation;
+                        Lamps[2] = OldLamp.None;
+                        Lamps[3] = OldLamp.Atc;
+                        Lamps[4] = OldLamp.AtcPower;
+                        Lamps[5] = OldLamp.AtcUse;
+                        Lamps[6] = OldLamp.AtcEmergency;
+                        LampsUsed = 7;
+                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Atc.Available) {
+                        Lamps = new OldLamp[7];
+                        Lamps[0] = OldLamp.Atc;
+                        Lamps[1] = OldLamp.AtcPower;
+                        Lamps[2] = OldLamp.AtcUse;
+                        Lamps[3] = OldLamp.AtcEmergency;
+                        LampsUsed = 4;
+                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsAvailable) {
+                        Lamps = new OldLamp[5];
+                        Lamps[0] = OldLamp.Ats;
+                        Lamps[1] = OldLamp.AtsOperation;
+                        LampsUsed = 2;
                     } else {
-                        w1 = 32.0;
-                        h1 = 256.0;
+                        Lamps = new OldLamp[3];
+                        LampsUsed = 0;
                     }
-                    if (FadeLeftStopMarker > 0.0) {
-                        Gl.glColor3f(1.0f, 1.0f, 1.0f);
-                        RenderOverlayTexture(TextureStopMeterBar, -w1 + FadeLeftStopMarker * (w1 + 8.0), 0.5 * ((double)ScreenHeight - h1), FadeLeftStopMarker * (w1 + 8.0), 0.5 * ((double)ScreenHeight + h1));
-                        if (s >= 0 && !Game.Stations[s].OpenLeftDoors) {
-                            if (TextureStopMeterNo >= 0) {
-                                double w2 = (double)TextureManager.Textures[TextureStopMeterNo].ClipWidth;
-                                double h2 = (double)TextureManager.Textures[TextureStopMeterNo].ClipHeight;
-                                RenderOverlayTexture(TextureStopMeterNo, FadeLeftStopMarker * (8.0 + w1) - 0.5 * (w2 + w1), 0.5 * ((double)ScreenHeight - h1) - h2 - 16, FadeLeftStopMarker * (8.0 + w1) + 0.5 * (w2 - w1), 0.5 * ((double)ScreenHeight - h1) - 16);
-                            } else {
-                                RenderString(FadeLeftStopMarker * (w1 + 8.0) - 0.5 * w1, 0.5 * ((double)ScreenHeight - h1) - 32.0, Fonts.FontType.Medium, "X", 0, 1.0f, 0.0f, 0.0f, true);
-                            }
+                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.Bve4Plugin) {
+                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Eb.Available | TrainManager.Trains[TrainManager.PlayerTrain].Specs.HasConstSpeed) {
+                            Lamps[LampsUsed] = OldLamp.None;
+                            LampsUsed++;
+                        }
+                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Eb.Available) {
+                            Lamps[LampsUsed] = OldLamp.Eb;
+                            LampsUsed++;
+                        }
+                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.HasConstSpeed) {
+                            Lamps[LampsUsed] = OldLamp.ConstSpeed;
+                            LampsUsed++;
                         }
                     }
-                    if (FadeRightStopMarker > 0.0) {
-                        Gl.glColor3f(1.0f, 1.0f, 1.0f);
-                        RenderOverlayTexture(TextureStopMeterBar, (double)ScreenWidth - FadeRightStopMarker * (w1 + 8.0), 0.5 * ((double)ScreenHeight - h1), (double)ScreenWidth - FadeRightStopMarker * (w1 + 8.0) + w1, 0.5 * ((double)ScreenHeight + h1));
-                        if (s >= 0 && !Game.Stations[s].OpenRightDoors) {
-                            if (TextureStopMeterNo >= 0) {
-                                double w2 = (double)TextureManager.Textures[TextureStopMeterNo].ClipWidth;
-                                double h2 = (double)TextureManager.Textures[TextureStopMeterNo].ClipHeight;
-                                RenderOverlayTexture(TextureStopMeterNo, (double)ScreenWidth - FadeRightStopMarker * (8.0 + w1) + 0.5 * (w1 - w2), 0.5 * ((double)ScreenHeight - h1) - h2 - 16, (double)ScreenWidth - FadeRightStopMarker * (8.0 + w1) + 0.5 * (w1 + w2), 0.5 * ((double)ScreenHeight - h1) - 16);
-                            } else {
-                                RenderString((double)ScreenWidth - FadeRightStopMarker * (w1 + 8.0) + 0.5 * w1, 0.5 * ((double)ScreenHeight - h1) - 32.0, Fonts.FontType.Medium, "X", 0, 1.0f, 0.0f, 0.0f, true);
-                            }
-                        }
-                    }
-                    // tick
-                    if (FadeLeftStopMarker == 1.0 | FadeRightStopMarker == 1.0) {
-                        double d = TrainManager.Trains[TrainManager.PlayerTrain].StationStopDifference;
-                        int c = TrainManager.Trains[TrainManager.PlayerTrain].Cars.Length;
-                        int p = Game.GetStopIndex(s, c);
-                        if (p >= 0) {
-                            double r;
-                            if (d >= 0) {
-                                r = (Game.Stations[s].Stops[p].BackwardTolerance - d) / (2.0 * Game.Stations[s].Stops[p].BackwardTolerance);
-                                if (r < 0.0) r = 0.0;
-                            } else {
-                                r = (Game.Stations[s].Stops[p].ForwardTolerance - d) / (2.0 * Game.Stations[s].Stops[p].ForwardTolerance);
-                                if (r >= 1.0) r = 1.0;
-                            }
-                            double w2, h2;
-                            if (TextureStopMeterTick >= 0) {
-                                w2 = (double)TextureManager.Textures[TextureStopMeterTick].ClipWidth;
-                                h2 = (double)TextureManager.Textures[TextureStopMeterTick].ClipHeight;
-                                Gl.glColor3f(1.0f, 1.0f, 1.0f);
-                            } else {
-                                w2 = 32.0;
-                                h2 = 16.0;
-                                Gl.glColor3d(0.0, 0.0, 0.0);
-                            }
-                            if (FadeLeftStopMarker == 1.0) {
-                                RenderOverlayTexture(TextureStopMeterTick, 0.5 * (w1 - w2) + 8.0, 0.5 * ((double)ScreenHeight - h1 - h2 + 2.0 * h1 * r), 0.5 * (w1 + w2) + 8.0, 0.5 * ((double)ScreenHeight - h1 + h2 + 2.0 * h1 * r));
-                            }
-                            if (FadeRightStopMarker == 1.0) {
-                                RenderOverlayTexture(TextureStopMeterTick, (double)ScreenWidth - 0.5 * (w1 + w2) - 8.0, 0.5 * ((double)ScreenHeight - h1 - h2 + 2.0 * h1 * r), (double)ScreenWidth - 0.5 * (w1 - w2) - 8.0, 0.5 * ((double)ScreenHeight - h1 + h2 + 2.0 * h1 * r));
-                            }
-                        }
-                    }
-                }
-            }
-            // door indicator
-            if (Game.InfoOutputMode != Game.OutputMode.None & TrainManager.Trains[TrainManager.PlayerTrain].Specs.DoorCloseMode != TrainManager.DoorMode.Automatic) {
-                bool leftopened = false, rightopened = false;
-                bool leftclosed = false, rightclosed = false;
-                for (int i = 0; i < TrainManager.Trains[TrainManager.PlayerTrain].Cars.Length; i++) {
-                    for (int j = 0; j < TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors.Length; j++) {
-                        if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors[j].Direction <= 0) {
-                            if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors[j].State == 0.0) {
-                                leftclosed = true;
-                            } else if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors[j].State == 1.0) {
-                                leftopened = true;
-                            } else {
-                                leftclosed = true;
-                                leftopened = true;
-                            }
-                        }
-                        if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors[j].Direction >= 0) {
-                            if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors[j].State == 0.0) {
-                                rightclosed = true;
-                            } else if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[i].Specs.Doors[j].State == 1.0) {
-                                rightopened = true;
-                            } else {
-                                rightclosed = true;
-                                rightopened = true;
-                            }
-                        }
-                    }
-                }
-                if (leftopened | rightopened) {
-                    double d = 1.0 - FadeDoorIndicator;
-                    FadeDoorIndicator += 4.0 * (0.1 + d * d) * TimeElapsed;
-                    if (FadeDoorIndicator > 1.0) FadeDoorIndicator = 1.0;
-                } else {
-                    double d = 1.0 - FadeDoorIndicator;
-                    FadeDoorIndicator -= 4.0 * (0.1 + d * d) * TimeElapsed;
-                    if (FadeDoorIndicator < 0.0) FadeDoorIndicator = 0.0;
-                }
-                if (FadeDoorIndicator > 0.0) {
                     double w, h;
-                    if (TextureDoors >= 0) {
-                        w = (double)TextureManager.Textures[TextureDoors].ClipWidth;
-                        h = (double)TextureManager.Textures[TextureDoors].ClipHeight;
+                    if (TextureLamp >= 0) {
+                        w = (double)TextureManager.Textures[TextureLamp].ClipWidth;
+                        h = (double)TextureManager.Textures[TextureLamp].ClipHeight;
                     } else {
-                        w = 32.0;
+                        w = 80.0;
                         h = 16.0;
                     }
-                    double x = 0.5 * ((double)ScreenWidth - w);
-                    double y = (double)ScreenHeight - FadeDoorIndicator * (h + 4.0);
-                    // left
-                    if (leftopened & leftclosed) {
-                        Gl.glColor4d(1.0, 0.5, 0.0, 0.5);
-                    } else if (leftopened & TrainManager.Trains[TrainManager.PlayerTrain].Specs.DoorCloseMode != TrainManager.DoorMode.Manual) {
-                        Gl.glColor4d(0.0, 0.75, 1.0, 0.5);
-                    } else if (leftopened) {
-                        Gl.glColor4d(0.0, 1.0, 0.0, 0.5);
-                    } else {
-                        Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
-                    }
-                    RenderOverlayTexture(TextureDoors, x - w - 2.0, y, x - 2.0, y + h);
-                    RenderString(x - w - 2.0 + 0.5 * w, y, Fonts.FontType.Small, Interface.QuickReferences.DoorsLeft, 0, 0.0f, 0.0f, 0.0f, false);
-                    // right
-                    if (rightopened & rightclosed) {
-                        Gl.glColor4d(1.0, 0.5, 0.0, 0.5);
-                    } else if (rightopened & TrainManager.Trains[TrainManager.PlayerTrain].Specs.DoorCloseMode != TrainManager.DoorMode.Manual) {
-                        Gl.glColor4d(0.0, 0.75, 1.0, 0.5);
-                    } else if (rightopened) {
-                        Gl.glColor4d(0.0, 1.0, 0.0, 0.5);
-                    } else {
-                        Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
-                    }
-                    RenderOverlayTexture(TextureDoors, x + 2.0, y, x + w + 2.0, y + h);
-                    RenderString(x + 2.0 + 0.5 * w, y, Fonts.FontType.Small, Interface.QuickReferences.DoorsRight, 0, 0.0f, 0.0f, 0.0f, false);
-                }
-            }
-            // lamps
-            if (Game.InfoOutputMode != Game.OutputMode.None) {
-                Lamp[] Lamps; int LampsUsed = 0;
-                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Bve4Plugin) {
-                    if (Game.InfoOutputMode == Game.OutputMode.Debug) {
-                        Lamps = new Lamp[1];
-                        Lamps[0] = Lamp.Plugin;
-                        LampsUsed = 1;
-                    } else {
-                        Lamps = new Lamp[] { };
-                    }
-                } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPAvailable & TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Atc.Available) {
-                    Lamps = new Lamp[17];
-                    Lamps[0] = Lamp.Ats;
-                    Lamps[1] = Lamp.AtsOperation;
-                    Lamps[2] = Lamp.None;
-                    Lamps[3] = Lamp.AtsPPower;
-                    Lamps[4] = Lamp.AtsPPattern;
-                    Lamps[5] = Lamp.AtsPBrakeOverride;
-                    Lamps[6] = Lamp.AtsPBrakeOperation;
-                    Lamps[7] = Lamp.AtsP;
-                    Lamps[8] = Lamp.AtsPFailure;
-                    Lamps[9] = Lamp.None;
-                    Lamps[10] = Lamp.Atc;
-                    Lamps[11] = Lamp.AtcPower;
-                    Lamps[12] = Lamp.AtcUse;
-                    Lamps[13] = Lamp.AtcEmergency;
-                    LampsUsed = 14;
-                } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPAvailable) {
-                    Lamps = new Lamp[12];
-                    Lamps[0] = Lamp.Ats;
-                    Lamps[1] = Lamp.AtsOperation;
-                    Lamps[2] = Lamp.None;
-                    Lamps[3] = Lamp.AtsPPower;
-                    Lamps[4] = Lamp.AtsPPattern;
-                    Lamps[5] = Lamp.AtsPBrakeOverride;
-                    Lamps[6] = Lamp.AtsPBrakeOperation;
-                    Lamps[7] = Lamp.AtsP;
-                    Lamps[8] = Lamp.AtsPFailure;
-                    LampsUsed = 9;
-                } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Atc.Available & TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsAvailable) {
-                    Lamps = new Lamp[10];
-                    Lamps[0] = Lamp.Ats;
-                    Lamps[1] = Lamp.AtsOperation;
-                    Lamps[2] = Lamp.None;
-                    Lamps[3] = Lamp.Atc;
-                    Lamps[4] = Lamp.AtcPower;
-                    Lamps[5] = Lamp.AtcUse;
-                    Lamps[6] = Lamp.AtcEmergency;
-                    LampsUsed = 7;
-                } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Atc.Available) {
-                    Lamps = new Lamp[7];
-                    Lamps[0] = Lamp.Atc;
-                    Lamps[1] = Lamp.AtcPower;
-                    Lamps[2] = Lamp.AtcUse;
-                    Lamps[3] = Lamp.AtcEmergency;
-                    LampsUsed = 4;
-                } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsAvailable) {
-                    Lamps = new Lamp[5];
-                    Lamps[0] = Lamp.Ats;
-                    Lamps[1] = Lamp.AtsOperation;
-                    LampsUsed = 2;
-                } else {
-                    Lamps = new Lamp[3];
-                    LampsUsed = 0;
-                }
-                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.Bve4Plugin) {
-                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Eb.Available | TrainManager.Trains[TrainManager.PlayerTrain].Specs.HasConstSpeed) {
-                        Lamps[LampsUsed] = Lamp.None;
-                        LampsUsed++;
-                    }
-                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Eb.Available) {
-                        Lamps[LampsUsed] = Lamp.Eb;
-                        LampsUsed++;
-                    }
-                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.HasConstSpeed) {
-                        Lamps[LampsUsed] = Lamp.ConstSpeed;
-                        LampsUsed++;
-                    }
-                }
-                double w, h;
-                if (TextureLamp >= 0) {
-                    w = (double)TextureManager.Textures[TextureLamp].ClipWidth;
-                    h = (double)TextureManager.Textures[TextureLamp].ClipHeight;
-                } else {
-                    w = 80.0;
-                    h = 16.0;
-                }
-                double x = (double)ScreenWidth - w - 8.0;
-                double y = (double)ScreenHeight - 8.0;
-                for (int i = LampsUsed - 1; i >= 0; i--) {
-                    if (Lamps[i] != Lamp.None) {
-                        const double a = 0.5;
-                        Gl.glColor4d(0.5, 0.5, 0.5, a);
-                        string s = "";
-                        switch (Lamps[i]) {
-                            // ats
-                            case Lamp.Ats: s = Interface.QuickReferences.LampAts;
-                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
-                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Normal | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Initialization) {
-                                        Gl.glColor4d(1.0, 0.5, 0.0, a);
-                                    }
-                                } break;
-                            case Lamp.AtsOperation: s = Interface.QuickReferences.LampAtsOperation;
-                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
-                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Ringing) {
-                                        Gl.glColor4d(1.0, 0.0, 0.0, a);
-                                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Emergency | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Pattern | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Service) {
-                                        if (((int)Math.Floor(2.0 * Game.SecondsSinceMidnight) & 1) == 0) {
-                                            Gl.glColor4d(1.0, 0.0, 0.0, a);
+                    double x = (double)ScreenWidth - w - 8.0;
+                    double y = (double)ScreenHeight - 8.0;
+                    for (int i = LampsUsed - 1; i >= 0; i--) {
+                        if (Lamps[i] != OldLamp.None) {
+                            const double a = 0.5;
+                            Gl.glColor4d(0.5, 0.5, 0.5, a);
+                            string s = "";
+                            switch (Lamps[i]) {
+                                // ats
+                                case OldLamp.Ats: s = Interface.QuickReferences.LampAts;
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
+                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Normal | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Initialization) {
+                                            Gl.glColor4d(1.0, 0.5, 0.0, a);
                                         }
-                                    }
-                                } break;
-                            // ats-p
-                            case Lamp.AtsPPower: s = Interface.QuickReferences.LampAtsPPower;
-                                if ((TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) & TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPAvailable) {
-                                    Gl.glColor4d(0.0, 1.0, 0.0, a);
-                                } break;
-                            case Lamp.AtsPPattern: s = Interface.QuickReferences.LampAtsPPattern;
-                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
-                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Pattern | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Service) {
-                                        Gl.glColor4d(1.0, 0.5, 0.0, a);
-                                    }
-                                } break;
-                            case Lamp.AtsPBrakeOverride: s = Interface.QuickReferences.LampAtsPBrakeOverride;
-                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
-                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPOverride) {
-                                        Gl.glColor4d(1.0, 0.5, 0.0, a);
-                                    }
-                                } break;
-                            case Lamp.AtsPBrakeOperation: s = Interface.QuickReferences.LampAtsPBrakeOperation;
-                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
-                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Service & !TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPOverride) {
-                                        Gl.glColor4d(1.0, 0.5, 0.0, a);
-                                    }
-                                } break;
-                            case Lamp.AtsP: s = Interface.QuickReferences.LampAtsP;
-                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
-                                    Gl.glColor4d(0.0, 1.0, 0.0, a);
-                                } break;
-                            case Lamp.AtsPFailure: s = Interface.QuickReferences.LampAtsPFailure;
-                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.None) {
-                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Initialization) {
-                                        Gl.glColor4d(1.0, 0.0, 0.0, a);
-                                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
-                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Ringing | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Emergency) {
+                                    } break;
+                                case OldLamp.AtsOperation: s = Interface.QuickReferences.LampAtsOperation;
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
+                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Ringing) {
                                             Gl.glColor4d(1.0, 0.0, 0.0, a);
+                                        } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Emergency | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Pattern | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Service) {
+                                            if (((int)Math.Floor(2.0 * Game.SecondsSinceMidnight) & 1) == 0) {
+                                                Gl.glColor4d(1.0, 0.0, 0.0, a);
+                                            }
                                         }
-                                    }
-                                } break;
-                            // atc
-                            case Lamp.Atc: s = Interface.QuickReferences.LampAtc;
-                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
-                                    Gl.glColor4d(1.0, 0.5, 0.0, a);
-                                } break;
-                            case Lamp.AtcPower: s = Interface.QuickReferences.LampAtcPower;
-                                if ((TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Atc | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.None & TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Atc.AutomaticSwitch)) {
-                                    Gl.glColor4d(1.0, 0.5, 0.0, a);
-                                } break;
-                            case Lamp.AtcUse: s = Interface.QuickReferences.LampAtcUse;
-                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
-                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Service) {
-                                        Gl.glColor4d(1.0, 0.5, 0.0, a);
-                                    }
-                                } break;
-                            case Lamp.AtcEmergency: s = Interface.QuickReferences.LampAtcEmergency;
-                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
-                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Security != TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
-                                        Gl.glColor4d(1.0, 0.0, 0.0, a);
-                                    }
-                                } break;
-                            // eb
-                            case Lamp.Eb: s = Interface.QuickReferences.LampEb;
-                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.None) {
-                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Eb.BellState == TrainManager.SecurityState.Ringing) {
+                                    } break;
+                                // ats-p
+                                case OldLamp.AtsPPower: s = Interface.QuickReferences.LampAtsPPower;
+                                    if ((TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) & TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPAvailable) {
                                         Gl.glColor4d(0.0, 1.0, 0.0, a);
-                                    }
-                                } break;
-                            // const speed
-                            case Lamp.ConstSpeed: s = Interface.QuickReferences.LampConstSpeed;
-                                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.HasConstSpeed) {
-                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentConstSpeed) {
+                                    } break;
+                                case OldLamp.AtsPPattern: s = Interface.QuickReferences.LampAtsPPattern;
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Pattern | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Service) {
+                                            Gl.glColor4d(1.0, 0.5, 0.0, a);
+                                        }
+                                    } break;
+                                case OldLamp.AtsPBrakeOverride: s = Interface.QuickReferences.LampAtsPBrakeOverride;
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPOverride) {
+                                            Gl.glColor4d(1.0, 0.5, 0.0, a);
+                                        }
+                                    } break;
+                                case OldLamp.AtsPBrakeOperation: s = Interface.QuickReferences.LampAtsPBrakeOperation;
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Service & !TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Ats.AtsPOverride) {
+                                            Gl.glColor4d(1.0, 0.5, 0.0, a);
+                                        }
+                                    } break;
+                                case OldLamp.AtsP: s = Interface.QuickReferences.LampAtsP;
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+                                        Gl.glColor4d(0.0, 1.0, 0.0, a);
+                                    } break;
+                                case OldLamp.AtsPFailure: s = Interface.QuickReferences.LampAtsPFailure;
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.None) {
+                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Initialization) {
+                                            Gl.glColor4d(1.0, 0.0, 0.0, a);
+                                        } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+                                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Ringing | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Emergency) {
+                                                Gl.glColor4d(1.0, 0.0, 0.0, a);
+                                            }
+                                        }
+                                    } break;
+                                // atc
+                                case OldLamp.Atc: s = Interface.QuickReferences.LampAtc;
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
                                         Gl.glColor4d(1.0, 0.5, 0.0, a);
-                                    }
-                                } break;
-                            // plugin
-                            case Lamp.Plugin: s = Interface.QuickReferences.LampPlugin;
-                                if (PluginManager.PluginValid) {
-                                    Gl.glColor4d(0.0, 1.0, 0.0, a);
-                                } else {
-                                    Gl.glColor4d(1.0, 0.0, 0.0, a);
-                                } break;
+                                    } break;
+                                case OldLamp.AtcPower: s = Interface.QuickReferences.LampAtcPower;
+                                    if ((TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Atc | TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.None & TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Atc.AutomaticSwitch)) {
+                                        Gl.glColor4d(1.0, 0.5, 0.0, a);
+                                    } break;
+                                case OldLamp.AtcUse: s = Interface.QuickReferences.LampAtcUse;
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
+                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.State == TrainManager.SecurityState.Service) {
+                                            Gl.glColor4d(1.0, 0.5, 0.0, a);
+                                        }
+                                    } break;
+                                case OldLamp.AtcEmergency: s = Interface.QuickReferences.LampAtcEmergency;
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
+                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Security != TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
+                                            Gl.glColor4d(1.0, 0.0, 0.0, a);
+                                        }
+                                    } break;
+                                // eb
+                                case OldLamp.Eb: s = Interface.QuickReferences.LampEb;
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.None) {
+                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Eb.BellState == TrainManager.SecurityState.Ringing) {
+                                            Gl.glColor4d(0.0, 1.0, 0.0, a);
+                                        }
+                                    } break;
+                                // const speed
+                                case OldLamp.ConstSpeed: s = Interface.QuickReferences.LampConstSpeed;
+                                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.HasConstSpeed) {
+                                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentConstSpeed) {
+                                            Gl.glColor4d(1.0, 0.5, 0.0, a);
+                                        }
+                                    } break;
+                                // plugin
+                                case OldLamp.Plugin: s = "PLUGIN";
+                                    if (PluginManager.PluginValid) {
+                                        Gl.glColor4d(0.0, 1.0, 0.0, a);
+                                    } else {
+                                        Gl.glColor4d(1.0, 0.0, 0.0, a);
+                                    } break;
+                            }
+                            y -= h;
+                            RenderOverlayTexture(TextureLamp, x, y, x + w, y + h);
+                            RenderString(x + 0.5 * w, y + 0.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
+                        } else {
+                            y -= 0.5 * h;
                         }
-                        y -= h;
-                        RenderOverlayTexture(TextureLamp, x, y, x + w, y + h);
-                        RenderString(x + 0.5 * w, y + 0.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
-                    } else {
-                        y -= 0.5 * h;
                     }
                 }
-            }
-            // clock
-            if (OptionClock & Game.InfoOutputMode != Game.OutputMode.None) {
-                double x;
-                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.Bve4Plugin | Game.InfoOutputMode == Game.OutputMode.Debug) {
-                    if (TextureLamp >= 0) {
-                        double w = (double)TextureManager.Textures[TextureLamp].ClipWidth;
-                        x = (double)ScreenWidth - w - 20.0;
+                // clock
+                if (OptionClock & Game.InfoOutputMode != Game.OutputMode.None) {
+                    double x;
+                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.Security.Mode != TrainManager.SecuritySystem.Bve4Plugin | Game.InfoOutputMode == Game.OutputMode.Debug) {
+                        if (TextureLamp >= 0) {
+                            double w = (double)TextureManager.Textures[TextureLamp].ClipWidth;
+                            x = (double)ScreenWidth - w - 20.0;
+                        } else {
+                            x = (double)ScreenWidth - 100.0;
+                        }
                     } else {
-                        x = (double)ScreenWidth - 100.0;
+                        x = (double)ScreenWidth - 12.0;
                     }
-                } else {
-                    x = (double)ScreenWidth - 12.0;
+                    double y = (double)ScreenHeight - 22.0;
+                    double s = Game.SecondsSinceMidnight;
+                    int hours = (int)Math.Floor(s / 3600.0);
+                    s -= (double)hours * 3600.0;
+                    int minutes = (int)Math.Floor(s / 60.0);
+                    s -= (double)minutes * 60.0;
+                    int seconds = (int)Math.Floor(s);
+                    hours %= 24;
+                    string t = hours.ToString("00", Culture) + ":" + minutes.ToString("00", Culture) + ":" + seconds.ToString("00", Culture);
+                    RenderString(x, y, Fonts.FontType.Small, t, 1, 1.0f, 1.0f, 1.0f, true);
                 }
-                double y = (double)ScreenHeight - 22.0;
-                double s = Game.SecondsSinceMidnight;
-                int hours = (int)Math.Floor(s / 3600.0);
-                s -= (double)hours * 3600.0;
-                int minutes = (int)Math.Floor(s / 60.0);
-                s -= (double)minutes * 60.0;
-                int seconds = (int)Math.Floor(s);
-                hours %= 24;
-                string t = hours.ToString("00", Culture) + ":" + minutes.ToString("00", Culture) + ":" + seconds.ToString("00", Culture);
-                RenderString(x, y, Fonts.FontType.Small, t, 1, 1.0f, 1.0f, 1.0f, true);
-            }
-            // speed
-            if (OptionSpeed != SpeedDisplayMode.None & Game.InfoOutputMode != Game.OutputMode.None) {
-                double x = 4.0;
-                double y = (double)ScreenHeight - 40.0;
-                double s = TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentAverageSpeed;
-                string g;
-                switch (OptionSpeed) {
-                    case SpeedDisplayMode.Kmph:
-                        s *= 3.6;
-                        g = " km/h";
-                        break;
-                    case SpeedDisplayMode.Mph:
-                        s *= 2.25;
-                        g = " mph";
-                        break;
-                    default:
-                        g = " m/s";
-                        break;
+                // speed
+                if (OptionSpeed != SpeedDisplayMode.None & Game.InfoOutputMode != Game.OutputMode.None) {
+                    double x = 4.0;
+                    double y = (double)ScreenHeight - 40.0;
+                    double s = TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentAverageSpeed;
+                    string g;
+                    switch (OptionSpeed) {
+                        case SpeedDisplayMode.Kmph:
+                            s *= 3.6;
+                            g = " km/h";
+                            break;
+                        case SpeedDisplayMode.Mph:
+                            s *= 2.25;
+                            g = " mph";
+                            break;
+                        default:
+                            g = " m/s";
+                            break;
+                    }
+                    string t = s.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + g;
+                    RenderString(x, y, Fonts.FontType.Small, t, -1, 1.0f, 1.0f, 1.0f, true);
                 }
-                string t = s.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + g;
-                RenderString(x, y, Fonts.FontType.Small, t, -1, 1.0f, 1.0f, 1.0f, true);
-            }
-            // ai logo
-            if (Game.InfoOutputMode != Game.OutputMode.None) {
-                if (TrainManager.Trains[TrainManager.PlayerTrain].AI != null) {
-                    FadeDriver += 3.0 * TimeElapsed;
-                    if (FadeDriver > 1.0) FadeDriver = 1.0;
-                } else {
-                    FadeDriver -= 3.0 * TimeElapsed;
-                    if (FadeDriver < 0.0) FadeDriver = 0.0;
-                }
-                if (FadeDriver > 0.0) {
-                    double y = ScreenHeight - 24.0;
-                    if (OptionSpeed != SpeedDisplayMode.None) y -= 16.0;
-                    if (TextureDriver >= 0) {
-                        TextureManager.UseTexture(TextureDriver, TextureManager.UseMode.LoadImmediately);
-                        double w = (double)TextureManager.Textures[TextureDriver].ClipWidth;
-                        double h = (double)TextureManager.Textures[TextureDriver].ClipHeight;
-                        Gl.glColor3f(1.0f, 1.0f, 1.0f);
-                        RenderOverlayTexture(TextureDriver, -w + FadeDriver * (8.0 + w), y - h, FadeDriver * (8.0 + w), y);
+                // ai logo
+                if (Game.InfoOutputMode != Game.OutputMode.None) {
+                    if (TrainManager.Trains[TrainManager.PlayerTrain].AI != null) {
+                        FadeDriver += 3.0 * TimeElapsed;
+                        if (FadeDriver > 1.0) FadeDriver = 1.0;
                     } else {
-                        RenderString(4.0, y - 16.0, Fonts.FontType.Small, "AI", -1, 1.0f, 1.0f, 1.0f, true);
+                        FadeDriver -= 3.0 * TimeElapsed;
+                        if (FadeDriver < 0.0) FadeDriver = 0.0;
+                    }
+                    if (FadeDriver > 0.0) {
+                        double y = ScreenHeight - 24.0;
+                        if (OptionSpeed != SpeedDisplayMode.None) y -= 16.0;
+                        if (TextureDriver >= 0) {
+                            TextureManager.UseTexture(TextureDriver, TextureManager.UseMode.LoadImmediately);
+                            double w = (double)TextureManager.Textures[TextureDriver].ClipWidth;
+                            double h = (double)TextureManager.Textures[TextureDriver].ClipHeight;
+                            Gl.glColor3f(1.0f, 1.0f, 1.0f);
+                            RenderOverlayTexture(TextureDriver, -w + FadeDriver * (8.0 + w), y - h, FadeDriver * (8.0 + w), y);
+                        } else {
+                            RenderString(4.0, y - 16.0, Fonts.FontType.Small, "AI", -1, 1.0f, 1.0f, 1.0f, true);
+                        }
                     }
                 }
-            }
-            // handles
-            if (Game.InfoOutputMode != Game.OutputMode.None) {
-                TextureManager.UseTexture(TextureReverser, TextureManager.UseMode.LoadImmediately);
-                TextureManager.UseTexture(TexturePower, TextureManager.UseMode.LoadImmediately);
-                TextureManager.UseTexture(TextureBrake, TextureManager.UseMode.LoadImmediately);
-                string s; int n;
-                double wr, hr;
-                if (TextureReverser >= 0) {
-                    wr = (double)TextureManager.Textures[TextureReverser].ClipWidth;
-                    hr = (double)TextureManager.Textures[TextureReverser].ClipHeight;
-                } else {
-                    wr = 32.0;
-                    hr = 16.0;
-                }
-                double x = 4.0;
-                // reverser
-                n = TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentReverser.Driver;
-                s = n < 0 ? Interface.QuickReferences.HandleBackward : n > 0 ? Interface.QuickReferences.HandleForward : Interface.QuickReferences.HandleNeutral;
-                if (n == -1) {
-                    Gl.glColor4d(1.0, 1.0, 0.5, 0.5);
-                } else if (n == 1) {
-                    Gl.glColor4d(0.5, 1.0, 0.5, 0.5);
-                } else {
-                    Gl.glColor4d(1.0, 1.0, 1.0, 0.5);
-                }
-                RenderOverlayTexture(TextureReverser, x, (double)ScreenHeight - 4.0 - hr, x + wr, (double)ScreenHeight - 4.0);
-                RenderString(x + 0.5 * wr, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
-                x += wr + 4.0;
                 // handles
-                if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.SingleHandle) {
-                    // texture
-                    double ws, hs;
-                    if (TextureSingle >= 0) {
-                        ws = (double)TextureManager.Textures[TextureSingle].ClipWidth;
-                        hs = (double)TextureManager.Textures[TextureSingle].ClipHeight;
+                if (Game.InfoOutputMode != Game.OutputMode.None) {
+                    TextureManager.UseTexture(TextureReverser, TextureManager.UseMode.LoadImmediately);
+                    TextureManager.UseTexture(TexturePower, TextureManager.UseMode.LoadImmediately);
+                    TextureManager.UseTexture(TextureBrake, TextureManager.UseMode.LoadImmediately);
+                    string s; int n;
+                    double wr, hr;
+                    if (TextureReverser >= 0) {
+                        wr = (double)TextureManager.Textures[TextureReverser].ClipWidth;
+                        hr = (double)TextureManager.Textures[TextureReverser].ClipHeight;
                     } else {
-                        ws = 32.0;
-                        hs = 16.0;
+                        wr = 32.0;
+                        hr = 16.0;
                     }
-                    // one handle
-                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
-                        s = Interface.QuickReferences.HandleEmergency;
-                        Gl.glColor4d(1.0, 0.5, 0.5, 0.5);
-                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentHoldBrake.Driver) {
-                        s = Interface.QuickReferences.HandleHoldBrake;
-                        Gl.glColor4d(0.5, 0.75, 1.0, 0.5);
-                    } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentBrakeNotch.Driver > 0) {
-                        n = TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentBrakeNotch.Driver;
-                        s = Interface.QuickReferences.HandleBrake + n.ToString(Culture);
+                    double x = 4.0;
+                    // reverser
+                    n = TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentReverser.Driver;
+                    s = n < 0 ? Interface.QuickReferences.HandleBackward : n > 0 ? Interface.QuickReferences.HandleForward : Interface.QuickReferences.HandleNeutral;
+                    if (n == -1) {
                         Gl.glColor4d(1.0, 1.0, 0.5, 0.5);
+                    } else if (n == 1) {
+                        Gl.glColor4d(0.5, 1.0, 0.5, 0.5);
                     } else {
+                        Gl.glColor4d(1.0, 1.0, 1.0, 0.5);
+                    }
+                    RenderOverlayTexture(TextureReverser, x, (double)ScreenHeight - 4.0 - hr, x + wr, (double)ScreenHeight - 4.0);
+                    RenderString(x + 0.5 * wr, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
+                    x += wr + 4.0;
+                    // handles
+                    if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.SingleHandle) {
+                        // texture
+                        double ws, hs;
+                        if (TextureSingle >= 0) {
+                            ws = (double)TextureManager.Textures[TextureSingle].ClipWidth;
+                            hs = (double)TextureManager.Textures[TextureSingle].ClipHeight;
+                        } else {
+                            ws = 32.0;
+                            hs = 16.0;
+                        }
+                        // one handle
+                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
+                            s = Interface.QuickReferences.HandleEmergency;
+                            Gl.glColor4d(1.0, 0.5, 0.5, 0.5);
+                        } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentHoldBrake.Driver) {
+                            s = Interface.QuickReferences.HandleHoldBrake;
+                            Gl.glColor4d(0.5, 0.75, 1.0, 0.5);
+                        } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentBrakeNotch.Driver > 0) {
+                            n = TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentBrakeNotch.Driver;
+                            s = Interface.QuickReferences.HandleBrake + n.ToString(Culture);
+                            Gl.glColor4d(1.0, 1.0, 0.5, 0.5);
+                        } else {
+                            n = TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentPowerNotch.Driver;
+                            s = n > 0 ? Interface.QuickReferences.HandlePower + n.ToString(Culture) : Interface.QuickReferences.HandlePowerNull;
+                            if (n > 0) {
+                                Gl.glColor4d(0.5, 1.0, 0.5, 0.5);
+                            } else {
+                                Gl.glColor4d(1.0, 1.0, 1.0, 0.5);
+                            }
+                        }
+                        RenderOverlayTexture(TextureSingle, x, (double)ScreenHeight - 4.0 - hs, x + ws, (double)ScreenHeight - 4.0);
+                        RenderString(x + 0.5 * ws, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
+                    } else {
+                        // textures
+                        double wp, hp, wb, hb;
+                        if (TexturePower >= 0) {
+                            wp = (double)TextureManager.Textures[TexturePower].ClipWidth;
+                            hp = (double)TextureManager.Textures[TexturePower].ClipHeight;
+                        } else {
+                            wp = 32.0;
+                            hp = 16.0;
+                        }
+                        if (TextureBrake >= 0) {
+                            wb = (double)TextureManager.Textures[TextureBrake].ClipWidth;
+                            hb = (double)TextureManager.Textures[TextureBrake].ClipHeight;
+                        } else {
+                            wb = 32.0;
+                            hb = 16.0;
+                        }
+                        // power notch
                         n = TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentPowerNotch.Driver;
                         s = n > 0 ? Interface.QuickReferences.HandlePower + n.ToString(Culture) : Interface.QuickReferences.HandlePowerNull;
                         if (n > 0) {
@@ -1387,98 +2117,72 @@ namespace OpenBve {
                         } else {
                             Gl.glColor4d(1.0, 1.0, 1.0, 0.5);
                         }
-                    }
-                    RenderOverlayTexture(TextureSingle, x, (double)ScreenHeight - 4.0 - hs, x + ws, (double)ScreenHeight - 4.0);
-                    RenderString(x + 0.5 * ws, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
-                } else {
-                    // textures
-                    double wp, hp, wb, hb;
-                    if (TexturePower >= 0) {
-                        wp = (double)TextureManager.Textures[TexturePower].ClipWidth;
-                        hp = (double)TextureManager.Textures[TexturePower].ClipHeight;
-                    } else {
-                        wp = 32.0;
-                        hp = 16.0;
-                    }
-                    if (TextureBrake >= 0) {
-                        wb = (double)TextureManager.Textures[TextureBrake].ClipWidth;
-                        hb = (double)TextureManager.Textures[TextureBrake].ClipHeight;
-                    } else {
-                        wb = 32.0;
-                        hb = 16.0;
-                    }
-                    // power notch
-                    n = TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentPowerNotch.Driver;
-                    s = n > 0 ? Interface.QuickReferences.HandlePower + n.ToString(Culture) : Interface.QuickReferences.HandlePowerNull;
-                    if (n > 0) {
-                        Gl.glColor4d(0.5, 1.0, 0.5, 0.5);
-                    } else {
-                        Gl.glColor4d(1.0, 1.0, 1.0, 0.5);
-                    }
-                    RenderOverlayTexture(TexturePower, x, (double)ScreenHeight - 4.0 - hp, x + wp, (double)ScreenHeight - 4.0);
-                    RenderString(x + 0.5 * wp, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
-                    int d = TrainManager.Trains[TrainManager.PlayerTrain].DriverCar;
-                    if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[d].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
-                        // air brake
-                        x += wp + 4.0;
-                        s = Interface.QuickReferences.HandleRelease;
-                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Release) {
-                            Gl.glColor4d(1.0, 1.0, 0.5, 0.5);
-                        } else {
-                            Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
-                        }
-                        RenderOverlayTexture(TextureBrake, x, (double)ScreenHeight - 4.0 - hb, x + wb, (double)ScreenHeight - 4.0);
-                        RenderString(x + 0.5 * wb, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
-                        x += wb;
-                        s = Interface.QuickReferences.HandleLap;
-                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Lap) {
-                            Gl.glColor4d(1.0, 1.0, 0.5, 0.5);
-                        } else {
-                            Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
-                        }
-                        RenderOverlayTexture(TextureBrake, x, (double)ScreenHeight - 4.0 - hb, x + wb, (double)ScreenHeight - 4.0);
-                        RenderString(x + 0.5 * wb, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
-                        x += wb;
-                        s = Interface.QuickReferences.HandleService;
-                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Service & !TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
-                            Gl.glColor4d(1.0, 1.0, 0.5, 0.5);
-                        } else {
-                            Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
-                        }
-                        RenderOverlayTexture(TextureBrake, x, (double)ScreenHeight - 4.0 - hb, x + wb, (double)ScreenHeight - 4.0);
-                        RenderString(x + 0.5 * wb, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
-                        x += wb;
-                        s = Interface.QuickReferences.HandleEmergency;
-                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
-                            Gl.glColor4d(1.0, 0.5, 0.5, 0.5);
-                        } else {
-                            Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
-                        }
-                        RenderOverlayTexture(TextureBrake, x, (double)ScreenHeight - 4.0 - hb, x + wb, (double)ScreenHeight - 4.0);
-                        RenderString(x + 0.5 * wb, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
-                    } else {
-                        // brake notch
-                        x += wp;
-                        if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
-                            s = Interface.QuickReferences.HandleEmergency;
-                            Gl.glColor4d(1.0, 0.5, 0.5, 0.5);
-                        } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentHoldBrake.Driver) {
-                            s = Interface.QuickReferences.HandleHoldBrake;
-                            Gl.glColor4d(0.5, 0.75, 1.0, 0.5);
-                        } else {
-                            n = TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentBrakeNotch.Driver;
-                            s = n > 0 ? Interface.QuickReferences.HandleBrake + n.ToString(Culture) : Interface.QuickReferences.HandleBrakeNull;
-                            if (n > 0) {
+                        RenderOverlayTexture(TexturePower, x, (double)ScreenHeight - 4.0 - hp, x + wp, (double)ScreenHeight - 4.0);
+                        RenderString(x + 0.5 * wp, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
+                        int d = TrainManager.Trains[TrainManager.PlayerTrain].DriverCar;
+                        if (TrainManager.Trains[TrainManager.PlayerTrain].Cars[d].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
+                            // air brake
+                            x += wp + 4.0;
+                            s = Interface.QuickReferences.HandleRelease;
+                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Release) {
                                 Gl.glColor4d(1.0, 1.0, 0.5, 0.5);
                             } else {
-                                Gl.glColor4d(1.0, 1.0, 1.0, 0.5);
+                                Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
                             }
+                            RenderOverlayTexture(TextureBrake, x, (double)ScreenHeight - 4.0 - hb, x + wb, (double)ScreenHeight - 4.0);
+                            RenderString(x + 0.5 * wb, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
+                            x += wb;
+                            s = Interface.QuickReferences.HandleLap;
+                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Lap) {
+                                Gl.glColor4d(1.0, 1.0, 0.5, 0.5);
+                            } else {
+                                Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
+                            }
+                            RenderOverlayTexture(TextureBrake, x, (double)ScreenHeight - 4.0 - hb, x + wb, (double)ScreenHeight - 4.0);
+                            RenderString(x + 0.5 * wb, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
+                            x += wb;
+                            s = Interface.QuickReferences.HandleService;
+                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Service & !TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
+                                Gl.glColor4d(1.0, 1.0, 0.5, 0.5);
+                            } else {
+                                Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
+                            }
+                            RenderOverlayTexture(TextureBrake, x, (double)ScreenHeight - 4.0 - hb, x + wb, (double)ScreenHeight - 4.0);
+                            RenderString(x + 0.5 * wb, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
+                            x += wb;
+                            s = Interface.QuickReferences.HandleEmergency;
+                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
+                                Gl.glColor4d(1.0, 0.5, 0.5, 0.5);
+                            } else {
+                                Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
+                            }
+                            RenderOverlayTexture(TextureBrake, x, (double)ScreenHeight - 4.0 - hb, x + wb, (double)ScreenHeight - 4.0);
+                            RenderString(x + 0.5 * wb, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
+                        } else {
+                            // brake notch
+                            x += wp;
+                            if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentEmergencyBrake.Driver) {
+                                s = Interface.QuickReferences.HandleEmergency;
+                                Gl.glColor4d(1.0, 0.5, 0.5, 0.5);
+                            } else if (TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentHoldBrake.Driver) {
+                                s = Interface.QuickReferences.HandleHoldBrake;
+                                Gl.glColor4d(0.5, 0.75, 1.0, 0.5);
+                            } else {
+                                n = TrainManager.Trains[TrainManager.PlayerTrain].Specs.CurrentBrakeNotch.Driver;
+                                s = n > 0 ? Interface.QuickReferences.HandleBrake + n.ToString(Culture) : Interface.QuickReferences.HandleBrakeNull;
+                                if (n > 0) {
+                                    Gl.glColor4d(1.0, 1.0, 0.5, 0.5);
+                                } else {
+                                    Gl.glColor4d(1.0, 1.0, 1.0, 0.5);
+                                }
+                            }
+                            RenderOverlayTexture(TextureBrake, x, (double)ScreenHeight - 4.0 - hb, x + wb, (double)ScreenHeight - 4.0);
+                            RenderString(x + 0.5 * wb, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
                         }
-                        RenderOverlayTexture(TextureBrake, x, (double)ScreenHeight - 4.0 - hb, x + wb, (double)ScreenHeight - 4.0);
-                        RenderString(x + 0.5 * wb, (double)ScreenHeight - 20.0, Fonts.FontType.Small, s, 0, 0.0f, 0.0f, 0.0f, false);
                     }
                 }
-            }
+#endif
+
             // timetable
             if (OptionTimetable) {
                 int t = Timetable.TimetableTexture;
@@ -1732,18 +2436,18 @@ namespace OpenBve {
                 }
             }
             // logo
-            if (FadeLogo > 0.0) {
-                double size = ScreenWidth > ScreenHeight ? ScreenWidth : ScreenHeight;
-                if (FadeLogo > 1.0) {
-                    Gl.glColor3d(1.0, 1.0, 1.0);
-                    FadeLogo -= 1.0;
-                } else {
-                    FadeLogo -= TimeElapsed;
-                    if (FadeLogo < 0.0) FadeLogo = 0.0;
-                    Gl.glColor4d(1.0, 1.0, 1.0, FadeLogo);
-                }
-                RenderOverlayTexture(TextureLogo, 0.5 * (ScreenWidth - size), 0.5 * (ScreenHeight - size), 0.5 * (ScreenWidth + size), 0.5 * (ScreenHeight + size));
-            }
+            //if (FadeLogo > 0.0) {
+            //    double size = ScreenWidth > ScreenHeight ? ScreenWidth : ScreenHeight;
+            //    if (FadeLogo > 1.0) {
+            //        Gl.glColor3d(1.0, 1.0, 1.0);
+            //        FadeLogo -= 1.0;
+            //    } else {
+            //        FadeLogo -= TimeElapsed;
+            //        if (FadeLogo < 0.0) FadeLogo = 0.0;
+            //        Gl.glColor4d(1.0, 1.0, 1.0, FadeLogo);
+            //    }
+            //    RenderOverlayTexture(TextureLogo, 0.5 * (ScreenWidth - size), 0.5 * (ScreenHeight - size), 0.5 * (ScreenWidth + size), 0.5 * (ScreenHeight + size));
+            //}
             // finalize
             Gl.glPopMatrix();
             Gl.glMatrixMode(Gl.GL_PROJECTION);
@@ -1757,6 +2461,7 @@ namespace OpenBve {
             RenderString(PixelLeft, PixelTop, FontType, Text, Orientation, R, G, B, 1.0f, Shadow);
         }
         private static void RenderString(double PixelLeft, double PixelTop, Fonts.FontType FontType, string Text, int Orientation, float R, float G, float B, float A, bool Shadow) {
+            if (Text == null) return;
             int Font = (int)FontType;
             double c = 1;// Font == 2 ? 2 : 1;
             double x = PixelLeft;
@@ -1781,9 +2486,6 @@ namespace OpenBve {
                 Gl.glColor3f(A, A, A);
                 RenderOverlayTexture(t, x, y, x + w, y + h);
                 if (Shadow) {
-                    //if (FontType == Fonts.FontType.Large) {
-                    //    RenderOverlayTexture(t, x - c, y - c, x + w, y + h);
-                    //}
                     RenderOverlayTexture(t, x + c, y + c, x + w, y + h);
                 }
                 Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE);
@@ -1792,6 +2494,20 @@ namespace OpenBve {
                 x += Fonts.Characters[Font][b].Width;
             }
             Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
+        }
+        private static void MeasureString(string Text, Fonts.FontType FontType, out float Width, out float Height) {
+            Width = 0.0f;
+            Height = 0.0f;
+            if (Text == null) return;
+            int Font = (int)FontType;
+            for (int i = 0; i < Text.Length; i++) {
+                int Codepoint = char.ConvertToUtf32(Text, i);
+                int Texture = Fonts.GetTextureIndex(FontType, Text[i]);
+                Width += Fonts.Characters[Font][Codepoint].Width;
+                if (Fonts.Characters[Font][Codepoint].Height > Height) {
+                    Height = Fonts.Characters[Font][Codepoint].Height;
+                }
+            }
         }
 
         // render overlay texture

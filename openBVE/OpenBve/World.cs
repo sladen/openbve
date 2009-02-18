@@ -4,6 +4,7 @@ namespace OpenBve {
     public static class World {
 
         // vectors
+        /// <summary>Represents a 2D vector of System.Double coordinates.</summary>
         public struct Vector2D {
             public double X;
             public double Y;
@@ -12,6 +13,7 @@ namespace OpenBve {
                 this.Y = Y;
             }
         }
+        /// <summary>Represents a 2D vector of System.Single coordinates.</summary>
         public struct Vector2Df {
             public float X;
             public float Y;
@@ -20,6 +22,7 @@ namespace OpenBve {
                 this.Y = Y;
             }
         }
+        /// <summary>Represents a 3D vector of System.Double coordinates.</summary>
         public struct Vector3D {
             public double X;
             public double Y;
@@ -29,19 +32,25 @@ namespace OpenBve {
                 this.Y = Y;
                 this.Z = Z;
             }
-            public Vector3D(Vector2D Vector, double Pitch) {
-                double t = 1.0 / Math.Sqrt(Vector.X * Vector.X + Vector.Y * Vector.Y + Pitch * Pitch);
-                this.X = Vector.X * t;
-                this.Y = Pitch * t;
-                this.Z = Vector.Y * t;
+            /// <summary>Returns a normalized vector based on a 2D vector in the XZ plane and an additional Y-coordinate.</summary>
+            /// <param name="Vector">The vector in the XZ-plane. The X and Y components in <paramref name="Vector"/> represent the X- and Z-coordinates, respectively.</param>
+            /// <param name="Y">The Y-coordinate.</param>
+            public Vector3D(Vector2D Vector, double Y) {
+                double t = 1.0 / Math.Sqrt(Vector.X * Vector.X + Vector.Y * Vector.Y + Y * Y);
+                this.X = t * Vector.X;
+                this.Y = t * Y;
+                this.Z = t * Vector.Y;
             }
+            /// <summary>Returns the sum of two vectors.</summary>
             public static Vector3D Add(Vector3D A, Vector3D B) {
                 return new Vector3D(A.X + B.X, A.Y + B.Y, A.Z + B.Z);
             }
+            /// <summary>Returns the difference of two vectors.</summary>
             public static Vector3D Subtract(Vector3D A, Vector3D B) {
                 return new Vector3D(A.X - B.X, A.Y - B.Y, A.Z - B.Z);
             }
         }
+        /// <summary>Represents a 3D vector of System.Single coordinates.</summary>
         public struct Vector3Df {
             public float X;
             public float Y;
@@ -54,6 +63,7 @@ namespace OpenBve {
         }
 
         // colors
+        /// <summary>Represents an RGB color with 8-bit precision per channel.</summary>
         internal struct ColorRGB {
             internal byte R;
             internal byte G;
@@ -64,6 +74,7 @@ namespace OpenBve {
                 this.B = B;
             }
         }
+        /// <summary>Represents an RGBA color with 8-bit precision per channel.</summary>
         internal struct ColorRGBA {
             internal byte R;
             internal byte G;
@@ -78,13 +89,10 @@ namespace OpenBve {
         }
 
         // vertices
+        /// <summary>Represents a vertex consisting of 3D coordinates and 2D texture coordinates.</summary>
         internal struct Vertex {
             internal Vector3D Coordinates;
             internal Vector2Df TextureCoordinates;
-            internal Vertex(Vector3D Coordinates) {
-                this.Coordinates = Coordinates;
-                this.TextureCoordinates = new Vector2Df(0.0f, 0.0f);
-            }
             internal Vertex(double X, double Y, double Z) {
                 this.Coordinates = new Vector3D(X, Y, Z);
                 this.TextureCoordinates = new Vector2Df(0.0f, 0.0f);
@@ -101,7 +109,9 @@ namespace OpenBve {
         }
 
         // meshes
+        /// <summary>Represents material properties.</summary>
         internal struct MeshMaterial {
+            /// <summary>A bit mask combining constants of the MeshMaterial structure.</summary>
             internal byte Flags;
             internal ColorRGBA Color;
             internal ColorRGB TransparentColor;
@@ -110,6 +120,7 @@ namespace OpenBve {
             internal int NighttimeTextureIndex;
             internal byte DaytimeNighttimeBlend;
             internal MeshMaterialBlendMode BlendMode;
+            /// <summary>A bit mask specifying the glow properties. Use <typeparamref name="GetGlowAttenuationData"/> to create valid data for this field.</summary>
             internal ushort GlowAttenuationData;
             internal const int EmissiveColorMask = 1;
             internal const int TransparentColorMask = 2;
@@ -129,8 +140,11 @@ namespace OpenBve {
             Normal = 0,
             Additive = 1
         }
+        /// <summary>Represents a reference to a vertex and the normal to be used for that vertex.</summary>
         internal struct MeshFaceVertex {
+            /// <summary>A reference to an element in the Vertex array of the contained Mesh structure.</summary>
             internal ushort Index;
+            /// <summary>The normal to be used at the vertex.</summary>
             internal Vector3Df Normal;
             internal MeshFaceVertex(int Index) {
                 this.Index = (ushort)Index;
@@ -141,9 +155,12 @@ namespace OpenBve {
                 this.Normal = Normal;
             }
         }
+        /// <summary>Represents a face consisting of vertices and material attributes.</summary>
         internal struct MeshFace {
             internal MeshFaceVertex[] Vertices;
+            /// <summary>A reference to an element in the Material array of the containing Mesh structure.</summary>
             internal ushort Material;
+            /// <summary>A bit mask combining constants of the MeshFace structure.</summary>
             internal byte Flags;
             internal const int Face2Mask = 1;
             internal MeshFace(int[] Vertices) {
@@ -155,10 +172,14 @@ namespace OpenBve {
                 this.Flags = 0;
             }
         }
+        /// <summary>Represents a mesh consisting of a series of vertices, faces and material properties.</summary>
         internal struct Mesh {
             internal Vertex[] Vertices;
             internal MeshMaterial[] Materials;
             internal MeshFace[] Faces;
+            /// <summary>Creates a mesh consisting of one face, which is represented by individual vertices, and a color.</summary>
+            /// <param name="Vertices">The vertices that make up one face.</param>
+            /// <param name="Color">The color to be applied on the face.</param>
             internal Mesh(Vertex[] Vertices, ColorRGBA Color) {
                 this.Vertices = Vertices;
                 this.Materials = new MeshMaterial[1];
@@ -175,13 +196,17 @@ namespace OpenBve {
         }
 
         // glow
-        /// <info>The values of GlowAttenuationMode must remain in the range from 0 to 15</info>
         internal enum GlowAttenuationMode {
-            DivisionExponent2 = 0,
-            DivisionExponent4 = 1,
+            None = 0,
+            DivisionExponent2 = 1,
+            DivisionExponent4 = 2,
         }
+        /// <summary>Creates glow attenuation data from a half distance and a mode. The resulting value can be later passed to SplitGlowAttenuationData in order to reconstruct the parameters.</summary>
+        /// <param name="HalfDistance">The distance at which the glow is at 50% of its full intensity. The value is clamped to the integer range from 1 to 4096. Values less than or equal to 0 disable glow attenuation.</param>
+        /// <param name="Mode">The glow attenuation mode.</param>
+        /// <returns>A System.UInt16 packed with the information about the half distance and glow attenuation mode.</returns>
         internal static ushort GetGlowAttenuationData(double HalfDistance, GlowAttenuationMode Mode) {
-            if (HalfDistance <= 0.0) return 0;
+            if (HalfDistance <= 0.0 | Mode == GlowAttenuationMode.None) return 0;
             if (HalfDistance < 1.0) {
                 HalfDistance = 1.0;
             } else if (HalfDistance > 4095.0) {
@@ -189,6 +214,10 @@ namespace OpenBve {
             }
             return (ushort)((int)Math.Round(HalfDistance) | ((int)Mode << 12));
         }
+        /// <summary>Recreates the half distance and the glow attenuation mode from a packed System.UInt16 that was created by GetGlowAttenuationData.</summary>
+        /// <param name="Data">The data returned by GetGlowAttenuationData.</param>
+        /// <param name="Mode">The mode of glow attenuation.</param>
+        /// <param name="HalfDistance">The half distance of glow attenuation.</param>
         internal static void SplitGlowAttenuationData(ushort Data, out GlowAttenuationMode Mode, out double HalfDistance) {
             Mode = (GlowAttenuationMode)(Data >> 12);
             HalfDistance = (double)(Data & 4095);
@@ -263,7 +292,7 @@ namespace OpenBve {
                     UpdateAbsoluteCamera(0.0);
                     UpdateViewingDistances();
                     if (!PerformCameraRestrictionTest()) {
-                        CameraCurrentAlignment.TrackOffset.Z = 0.5;
+                        CameraCurrentAlignment.TrackOffset.Z = 0.8;
                         UpdateAbsoluteCamera(0.0);
                         PerformProgressiveAdjustmentForCameraRestriction(ref CameraCurrentAlignment.TrackOffset.Z, 0.0, true);
                         if (!PerformCameraRestrictionTest()) {
