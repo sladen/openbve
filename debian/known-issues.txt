@@ -66,6 +66,9 @@ directory at some point.
 16. After selecting an exterior camera view and then switching back to
 the interior camera; the cab/panel overlay appears in a different position.
 
+17. CPU load goes up to 100% is OpenBVE is obscured from view
+(eg. Alt-tab to another program).
+
 In-progress:
 ------------
 12. Language Locale not automatically set by default;  patched to  use
