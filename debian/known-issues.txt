@@ -50,8 +50,14 @@ from being the incorrect case).
 
 11. Crashes if you provide incorrect openbve /train=... /route=...
 
+13. Pressing "Show issues" durin Cross-City line loading causes 100% CPU.
+
+14. Loading fails if 'Train/' and 'Railway/' do not share a common parent
+directory at some point.
+
 In-progress:
 
 12. Language Locale not automatically set by default;  patched to  use
 System.Globalization.CultureInfo.CurrentCulture.Name as default, but
 needs refining.
+
