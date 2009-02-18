@@ -1,7 +1,8 @@
 Known bugs/issues with running OpenBVE on Linux/Ubuntu/Debian.
+==============================================================
 
 Fixed and merged upstream:
-
+-------------------------------
 1. The binary 'OpenBve.exe' compiled by Michelle for MS Windows
 will crash out of the box;  hopefully this recompiled binary
 will work.
@@ -18,14 +19,21 @@ Kludged for the moment with try{}catch{} to not die.
 
 15. Window manager icon loading was not handled.
 
-Fixed with outstanding patches:
+7. The London Undergrond cab 'LT_C69_77' appears in the centre of
+the screen in OpenBVE, meaning that you can't see where you're going.
+As a work-around, you may able to unlock the cam and move yourself up
+a bit to look over the top of the console.  Sort-of-fixed in 0.9.5.5.  
+(Though you will need to unlock the camera and zoom out to see any of 
+the panel).
 
+Fixed with outstanding patches:
+-------------------------------
 4. Trying to write the directory the executable is in; On Unix this is
 likely to be owned by route.  Modified to use the CLR SpecialFolder
 functions and save configuration data in the right places.
 
 Remaining:
-
+----------
 5. Non-existant audio; sound should work the first time, but after
 quitting OpenAL complains about unclened up buffered.  You will
 likely need to 'kill -9 pulseaudio' if you having that running.
@@ -36,11 +44,6 @@ but not the full multi-channel surround experience.
 MiXeD cAsE filenames which is a problem on Unix.  The file-loading
 routinues need modifying to search for alterntively cased files if
 the filename as spelt can't be found.
-
-7. The London Undergrond cab 'LT_C69_77' appears in the centre of
-the screen in OpenBVE, meaning that you can't see where you're going.
-As a work-around, you may able to unlock the cam and move yourself up
-a bit to look over the top of the console.
 
 8. The displayed controller in the London Underground 'LT_C69_77' cab
 does not work correctly in OpenBVE.  Each state on the combined
@@ -55,13 +58,16 @@ from being the incorrect case).
 
 11. Crashes if you provide incorrect openbve /train=... /route=...
 
-13. Pressing "Show issues" durin Cross-City line loading causes 100% CPU.
+13. Pressing "Show issues" during Cross-City line loading causes 100% CPU.
 
 14. Loading fails if 'Train/' and 'Railway/' do not share a common parent
 directory at some point.
 
-In-progress:
+16. After selecting an exterior camera view and then switching back to
+the interior camera; the cab/panel overlay appears in a different position.
 
+In-progress:
+------------
 12. Language Locale not automatically set by default;  patched to  use
 System.Globalization.CultureInfo.CurrentCulture.Name as default, but
 needs refining.
