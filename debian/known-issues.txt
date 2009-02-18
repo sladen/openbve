@@ -1,6 +1,6 @@
 Known bugs/issues with running OpenBVE on Linux/Ubuntu/Debian.
 
-Fixed:
+Fixed and merged upstream:
 
 1. The binary 'OpenBve.exe' compiled by Michelle for MS Windows
 will crash out of the box;  hopefully this recompiled binary
@@ -8,12 +8,17 @@ will work.
 
 2. If you have texture flashing issues; this is because the C-based
 OpenGL code was receiving pointers to single integers from the
-OpenBVE.  Fixed by passing a array.
+OpenBVE.  Fixed by passing a array.  Fixed upstream by passing
+components separately.
 
 3. Crashes out whilst trying to promisicously read non-accessible
 directories (eg. '/lost+found' or '~/.dbus').  It is hunting
 for directories containing a valid 'train.dat' description file.
 Kludged for the moment with try{}catch{} to not die.
+
+15. Window manager icon loading was not handled.
+
+Fixed with outstanding patches:
 
 4. Trying to write the directory the executable is in; On Unix this is
 likely to be owned by route.  Modified to use the CLR SpecialFolder
