@@ -89,7 +89,7 @@ namespace OpenBve {
         }
         internal static Options CurrentOptions;
         internal static bool LoadOptions() {
-            CurrentOptions.LanguageCode = "en";
+            CurrentOptions.LanguageCode = System.Globalization.CultureInfo.CurrentCulture.Name.Substring(0, 2);
             CurrentOptions.FullscreenMode = false;
             CurrentOptions.WindowWidth = 960;
             CurrentOptions.WindowHeight = 600;
@@ -120,7 +120,8 @@ namespace OpenBve {
             CurrentOptions.RouteEncodings = new EncodingValue[] { };
             CurrentOptions.TrainEncodings = new EncodingValue[] { };
             System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
-            string Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
+            string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+            string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
             string File = Interface.GetCombinedFileName(Folder, "settings.cfg");
             if (System.IO.File.Exists(File)) {
                 string[] Lines = System.IO.File.ReadAllLines(File, new System.Text.UTF8Encoding());
@@ -395,16 +396,22 @@ namespace OpenBve {
             for (int i = 0; i < CurrentOptions.TrainEncodings.Length; i++) {
                 Builder.AppendLine(CurrentOptions.TrainEncodings[i].Codepage.ToString(Culture) + " = " + CurrentOptions.TrainEncodings[i].Value);
             }
-            string Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
-            string File = Interface.GetCombinedFileName(Folder, "settings.cfg");
-            System.IO.File.WriteAllText(File, Builder.ToString(), new System.Text.UTF8Encoding(true));
+            try {
+                string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+                string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
+                if (!System.IO.Directory.Exists(Folder))
+                    System.IO.Directory.CreateDirectory(Folder);
+                string File = Interface.GetCombinedFileName(Folder, "settings.cfg");
+                System.IO.File.WriteAllText(File, Builder.ToString(), new System.Text.UTF8Encoding(true));
+            } catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
         }
 
         // ================================
 
         // load logs
         internal static void LoadLogs() {
-            string Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
+            string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+            string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
             string File = Interface.GetCombinedFileName(Folder, "logs.bin");
             try {
                 using (System.IO.FileStream Stream = new System.IO.FileStream(File, System.IO.FileMode.Open, System.IO.FileAccess.Read)) {
@@ -468,7 +475,10 @@ namespace OpenBve {
 
         // save logs
         internal static void SaveLogs() {
-            string Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
+            string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+            string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
+            if (!System.IO.Directory.Exists(Folder))
+                System.IO.Directory.CreateDirectory(Folder);
             string File = Interface.GetCombinedFileName(Folder, "logs.bin");
             using (System.IO.FileStream Stream = new System.IO.FileStream(File, System.IO.FileMode.Create, System.IO.FileAccess.Write)) {
                 using (System.IO.BinaryWriter Writer = new System.IO.BinaryWriter(Stream, System.Text.Encoding.UTF8)) {
@@ -1434,7 +1444,10 @@ namespace OpenBve {
             }
             string File;
             if (FileOrNull == null) {
-                string Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
+                string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+                string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
+                if (!System.IO.Directory.Exists(Folder))
+                    System.IO.Directory.CreateDirectory(Folder);
                 File = Interface.GetCombinedFileName(Folder, "controls.cfg");
             } else {
                 File = FileOrNull;
@@ -1448,7 +1461,8 @@ namespace OpenBve {
             Controls = new Control[] { };
             string File;
             if (FileOrNull == null) {
-                string Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
+                string ConfigDir = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+                string Folder = Interface.GetCombinedFileName(ConfigDir, "OpenBVE");
                 File = Interface.GetCombinedFileName(Folder, "controls.cfg");
                 if (!System.IO.File.Exists(File)) {
                     Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Controls");
