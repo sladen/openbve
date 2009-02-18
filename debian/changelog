@@ -1,0 +1,6 @@
+openbve (0.9.5.0-0ubuntu1) unreleased; urgency=low
+
+  * import 0.9.5.0, dated 20090201-1953
+  * Debianise
+
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Fri, 15 Feb 2009 11:51:30 +0100

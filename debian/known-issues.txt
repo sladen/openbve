@@ -1,0 +1,63 @@
+Known bugs/issues with running OpenBVE on Linux/Ubuntu/Debian.
+
+Fixed:
+
+1. The binary 'OpenBve.exe' compiled by Michelle for MS Windows
+will crash out of the box;  hopefully this recompiled binary
+will work.
+
+2. If you have texture flashing issues; this is because the C-based
+OpenGL code was receiving pointers to single integers from the
+OpenBVE.  Fixed by passing a array.
+
+3. Crashes out whilst trying to promisicously read non-accessible
+directories (eg. '/lost+found' or '~/.dbus').  It is hunting
+for directories containing a valid 'train.dat' description file.
+Kludged for the moment with try{}catch{} to not die.
+
+4. Trying to write the directory the executable is in; On Unix this is
+likely to be owned by route.  Modified to use the CLR SpecialFolder
+functions and save configuration data in the right places.
+
+Remaining:
+
+5. Non-existant audio; sound should work the first time, but after
+quitting OpenAL complains about unclened up buffered.  You will
+likely need to 'kill -9 pulseaudio' if you having that running.
+You may get the occasional sound afterwards on second/third attempts
+but not the full multi-channel surround experience.
+
+6. Captialisation.  The routes have a combination of UPPER, lower, and
+MiXeD cAsE filenames which is a problem on Unix.  The file-loading
+routinues need modifying to search for alterntively cased files if
+the filename as spelt can't be found.
+
+7. The London Undergrond cab 'LT_C69_77' appears in the centre of
+the screen in OpenBVE, meaning that you can't see where you're going.
+As a work-around, you may able to unlock the cam and move yourself up
+a bit to look over the top of the console.
+
+8. The displayed controller in the London Underground 'LT_C69_77' cab
+does not work correctly in OpenBVE.  Each state on the combined
+power/brake index is a separate sprite in the same image, but the
+clipping is currently wrong.
+
+9. The preview images for trains and route in the file-manager screen
+display random binary data if the preview image isn't found (normally
+from being the incorrect case).
+
+10. Crashes if you provide correct  openbve /train=... /route=...
+
+11. Crashes if you provide incorrect openbve /train=... /route=...
+
+13. Pressing "Show issues" durin Cross-City line loading causes 100% CPU.
+
+14. Loading fails if 'Train/' and 'Railway/' do not share a common parent
+directory at some point.
+
+In-progress:
+
+12. Language Locale not automatically set by default;  patched to  use
+System.Globalization.CultureInfo.CurrentCulture.Name as default, but
+needs refining.
+
