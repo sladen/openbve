@@ -20,7 +20,7 @@ namespace OpenBve {
                 /// general Unix
                 CurrentPlatform = Platform.Linux;
             } else if (p == 6) {
-                /// explicity Mac
+                /// explicitly Mac
                 CurrentPlatform = Platform.Mac;
             } else {
                 /// non-Unix
@@ -33,7 +33,7 @@ namespace OpenBve {
             try {
                 Start(Args);
             } catch (Exception ex) {
-                MessageBox.Show(ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(GetExceptionText(ex, 5), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 #endif
             Asynchronous.Deinitialize();
@@ -51,6 +51,15 @@ namespace OpenBve {
                 System.Reflection.Assembly Assembly = System.Reflection.Assembly.GetExecutingAssembly();
                 string File = Assembly.Location;
                 System.Diagnostics.Process.Start(File, RestartProcessArguments);
+            }
+        }
+
+        // get exception text
+        private static string GetExceptionText(Exception ex, int Levels) {
+            if (Levels > 0 & ex.InnerException != null) {
+                return ex.Message + "\n\n" + GetExceptionText(ex.InnerException, Levels - 1);
+            } else {
+                return ex.Message;
             }
         }
 
@@ -84,7 +93,7 @@ namespace OpenBve {
             for (int i = 0; i < Args.Length; i++) {
                 if (Args[i].StartsWith("/route=", StringComparison.OrdinalIgnoreCase)) {
                     Result.RouteFile = Args[i].Substring(7);
-                    Result.RouteEncoding = System.Text.Encoding.Default;
+                    Result.RouteEncoding = System.Text.Encoding.UTF8;
                     for (int j = 0; j < Interface.CurrentOptions.RouteEncodings.Length; j++) {
                         if (string.Compare(Interface.CurrentOptions.RouteEncodings[j].Value, Result.RouteFile, StringComparison.InvariantCultureIgnoreCase) == 0) {
                             Result.RouteEncoding = System.Text.Encoding.GetEncoding(Interface.CurrentOptions.RouteEncodings[j].Codepage);
@@ -93,7 +102,7 @@ namespace OpenBve {
                     }
                 } else if (Args[i].StartsWith("/train=", StringComparison.OrdinalIgnoreCase)) {
                     Result.TrainFolder = Args[i].Substring(7);
-                    Result.TrainEncoding = System.Text.Encoding.Default;
+                    Result.TrainEncoding = System.Text.Encoding.UTF8;
                     for (int j = 0; j < Interface.CurrentOptions.TrainEncodings.Length; j++) {
                         if (string.Compare(Interface.CurrentOptions.TrainEncodings[j].Value, Result.TrainFolder, StringComparison.InvariantCultureIgnoreCase) == 0) {
                             Result.TrainEncoding = System.Text.Encoding.GetEncoding(Interface.CurrentOptions.TrainEncodings[j].Codepage);

@@ -115,8 +115,8 @@ namespace OpenBve {
                             } break;
                         case "addvertex":
                         case "vertex": {
-                                if (Arguments.Length > 4) {
-                                    Interface.AddMessage(Interface.MessageType.Warning, false, "At most 4 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+                                if (Arguments.Length > 3) {
+                                    Interface.AddMessage(Interface.MessageType.Warning, false, "At most 3 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
                                 }
                                 double x = 0.0, y = 0.0, z = 0.0;
                                 if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out x)) {
@@ -185,16 +185,16 @@ namespace OpenBve {
                                 }
                                 double x = 0.0;
                                 if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out x)) {
-                                    Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Width in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+                                    Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument HalfWidth in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
                                     x = 1.0;
                                 }
                                 double y = x, z = x;
                                 if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out y)) {
-                                    Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Height in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+                                    Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument HalfHeight in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
                                     y = 1.0;
                                 }
                                 if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[2], out z)) {
-                                    Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Depth in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+                                    Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument HalfDepth in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
                                     z = 1.0;
                                 }
                                 CreateCube(ref Builder, x, y, z);
@@ -310,6 +310,7 @@ namespace OpenBve {
                                     x = 1.0;
                                     y = 0.0;
                                     z = 0.0;
+                                    t = 1.0;
                                 }
                                 if (a != 0.0) {
                                     a *= 0.0174532925199433;
@@ -323,9 +324,7 @@ namespace OpenBve {
                             } break;
                         case "generatenormals":
                         case "[texture]":
-                            if (Arguments.Length > 0) {
-                                Interface.AddMessage(Interface.MessageType.Warning, false, "0 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-                            } break;
+                            break;
                         case "setcolor":
                         case "color": {
                                 if (Arguments.Length > 4) {
@@ -464,18 +463,22 @@ namespace OpenBve {
                                     Interface.AddMessage(Interface.MessageType.Warning, false, "At most 2 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
                                 }
                                 string tday = null, tnight = null;
-                                if (Arguments.Length >= 1) {
+                                if (Arguments.Length >= 1 && Arguments[0].Length != 0) {
                                     tday = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), Arguments[0]);
                                     if (!System.IO.File.Exists(tday)) {
-                                        Interface.AddMessage(Interface.MessageType.Error, true, "The daytime texture file " + tday + " could not be found in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+                                        Interface.AddMessage(Interface.MessageType.Error, true, "The DaytimeTexture " + tday + " could not be found in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
                                         tday = null;
                                     }
                                 }
-                                if (Arguments.Length >= 2) {
-                                    tnight = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), Arguments[1]);
-                                    if (!System.IO.File.Exists(tnight)) {
-                                        Interface.AddMessage(Interface.MessageType.Error, true, "The nighttime texture file " + tnight + " could not be found in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-                                        tnight = null;
+                                if (Arguments.Length >= 2 && Arguments[1].Length != 0) {
+                                    if (Arguments[0].Length == 0) {
+                                        Interface.AddMessage(Interface.MessageType.Error, true, "DaytimeTexture is required to be specified in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+                                    } else {
+                                        tnight = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), Arguments[1]);
+                                        if (!System.IO.File.Exists(tnight)) {
+                                            Interface.AddMessage(Interface.MessageType.Error, true, "The NighttimeTexture " + tnight + " could not be found in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+                                            tnight = null;
+                                        }
                                     }
                                 }
                                 for (int j = 0; j < Builder.Materials.Length; j++) {

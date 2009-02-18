@@ -162,7 +162,17 @@ namespace OpenBve {
                     for (int k = 0; k < m; k++) {
                         ObjectManager.Objects[i].Meshes[j].Vertices[k] = Object.States[t].Object.Meshes[j].Vertices[k];
                     }
-                    ObjectManager.Objects[i].Meshes[j].Faces = Object.States[t].Object.Meshes[j].Faces;
+                    m = Object.States[t].Object.Meshes[j].Faces.Length;
+                    ObjectManager.Objects[i].Meshes[j].Faces = new World.MeshFace[m];
+                    for (int k = 0; k < m; k++) {
+                        ObjectManager.Objects[i].Meshes[j].Faces[k].Flags = Object.States[t].Object.Meshes[j].Faces[k].Flags;
+                        ObjectManager.Objects[i].Meshes[j].Faces[k].Material = Object.States[t].Object.Meshes[j].Faces[k].Material;
+                        int o = Object.States[t].Object.Meshes[j].Faces[k].Vertices.Length;
+                        ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices = new World.MeshFaceVertex[o];
+                        for (int h = 0; h < o; h++) {
+                            ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h] = Object.States[t].Object.Meshes[j].Faces[k].Vertices[h];
+                        }
+                    }
                     ObjectManager.Objects[i].Meshes[j].Materials = Object.States[t].Object.Meshes[j].Materials;
                 }
             } else {
@@ -283,6 +293,7 @@ namespace OpenBve {
             // determine position for each polygon
             int m = ObjectManager.Objects[i].Meshes.Length;
             for (int j = 0; j < m; j++) {
+                /// initialize vertices
                 int n = Object.States[s].Object.Meshes[j].Vertices.Length;
                 for (int k = 0; k < n; k++) {
                     ObjectManager.Objects[i].Meshes[j].Vertices[k].Coordinates = Object.States[s].Object.Meshes[j].Vertices[k].Coordinates;
@@ -418,7 +429,7 @@ namespace OpenBve {
                         ObjectManager.Objects[i].Meshes[j].Vertices[2].Coordinates.Z = z0 * cpos1 + z1 * pos1;
                     }
                 }
-                // determine coordinates for each vertex
+                // update vertices
                 for (int k = 0; k < n; k++) {
                     // rotate
                     if (rotateX) {
@@ -452,8 +463,23 @@ namespace OpenBve {
                         ObjectManager.Objects[i].Meshes[j].Vertices[k].Coordinates.Z += Position.Z;
                     }
                 }
-                // normal
-                World.CreateNormals(ref ObjectManager.Objects[i].Meshes[j], true);
+                /// update normals
+                for (int k = 0; k < Object.States[s].Object.Meshes[j].Faces.Length; k++) {
+                    for (int h = 0; h < Object.States[s].Object.Meshes[j].Faces[k].Vertices.Length; h++) {
+                        ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal = Object.States[s].Object.Meshes[j].Faces[k].Vertices[h].Normal;
+                        if (rotateX) {
+                            World.Rotate(ref ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal.X, ref ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal.Y, ref ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal.Z, Object.RotateXDirection.X, Object.RotateXDirection.Y, Object.RotateXDirection.Z, cosX, sinX);
+                        }
+                        if (rotateY) {
+                            World.Rotate(ref ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal.X, ref ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal.Y, ref ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal.Z, Object.RotateYDirection.X, Object.RotateYDirection.Y, Object.RotateYDirection.Z, cosY, sinY);
+                        }
+                        if (rotateZ) {
+                            World.Rotate(ref ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal.X, ref ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal.Y, ref ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal.Z, Object.RotateZDirection.X, Object.RotateZDirection.Y, Object.RotateZDirection.Z, cosZ, sinZ);
+                        }
+                        World.Rotate(ref ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal.X, ref ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal.Y, ref ObjectManager.Objects[i].Meshes[j].Faces[k].Vertices[h].Normal.Z, Direction.X, Direction.Y, Direction.Z, Up.X, Up.Y, Up.Z, Side.X, Side.Y, Side.Z);
+                    }
+                }
+                World.CreateNormals(ref ObjectManager.Objects[i].Meshes[j], false);
                 // visibility changed
                 if (Visibility == VisibilityChangeMode.Hide) {
                     Renderer.HideObject(i);

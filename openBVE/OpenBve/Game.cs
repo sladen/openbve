@@ -387,7 +387,7 @@ namespace OpenBve {
             }
             // red signal
             {
-                if (TrainManager.Trains[i].CurrentSectionLimit == 0.0) {
+                if (TrainManager.Trains[i].CurrentSectionLimit == 0.0 & TrainManager.Trains[i].Specs.Security.Mode != TrainManager.SecuritySystem.Atc) {
                     if (!CurrentScore.RedSignal) {
                         int x = ScoreValueRedSignal;
                         CurrentScore.Value += x;

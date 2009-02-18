@@ -273,7 +273,7 @@ namespace OpenBve {
                                         Interface.CurrentOptions.RecentlyUsedTrains[n] = Value;
                                     } break;
                                 case "routeencodings": {
-                                        int a = System.Text.Encoding.Default.CodePage;
+                                        int a = System.Text.Encoding.UTF8.CodePage;
                                         int.TryParse(Key, System.Globalization.NumberStyles.Integer, Culture, out a);
                                         int n = Interface.CurrentOptions.RouteEncodings.Length;
                                         Array.Resize<EncodingValue>(ref Interface.CurrentOptions.RouteEncodings, n + 1);
@@ -281,7 +281,7 @@ namespace OpenBve {
                                         Interface.CurrentOptions.RouteEncodings[n].Value = Value;
                                     } break;
                                 case "trainencodings": {
-                                        int a = System.Text.Encoding.Default.CodePage;
+                                        int a = System.Text.Encoding.UTF8.CodePage;
                                         int.TryParse(Key, System.Globalization.NumberStyles.Integer, Culture, out a);
                                         int n = Interface.CurrentOptions.TrainEncodings.Length;
                                         Array.Resize<EncodingValue>(ref Interface.CurrentOptions.TrainEncodings, n + 1);
@@ -862,7 +862,7 @@ namespace OpenBve {
 
         // ================================
 
-        // strings
+        // interface strings
         private struct InterfaceString {
             internal string Name;
             internal string Text;
@@ -896,6 +896,8 @@ namespace OpenBve {
             } return Name;
         }
         internal struct InterfaceQuickReference {
+
+            // ### TO BE REMOVED SOON
             internal string LampAts;
             internal string LampAtsOperation;
             internal string LampAtsPPower;
@@ -910,7 +912,7 @@ namespace OpenBve {
             internal string LampAtcEmergency;
             internal string LampEb;
             internal string LampConstSpeed;
-            internal string LampPlugin;
+
             internal string HandleForward;
             internal string HandleNeutral;
             internal string HandleBackward;
@@ -943,6 +945,8 @@ namespace OpenBve {
             Renderer.FileDoors = "handle_32.png";
             Renderer.FilePause = "pause.png";
             Renderer.FileDriver = "driver.png";
+
+            // ### TO BE REMOVED SOON
             QuickReferences.LampAts = "ATS";
             QuickReferences.LampAtsOperation = "ATS 作動";
             QuickReferences.LampAtsPPower = "P 電源";
@@ -957,6 +961,7 @@ namespace OpenBve {
             QuickReferences.LampAtcEmergency = "ATC 非常";
             QuickReferences.LampEb = "EB";
             QuickReferences.LampConstSpeed = "定速";
+
             QuickReferences.HandleForward = "F";
             QuickReferences.HandleNeutral = "N";
             QuickReferences.HandleBackward = "B";
@@ -983,6 +988,8 @@ namespace OpenBve {
                             string a = Lines[i].Substring(0, j).TrimEnd().ToLowerInvariant();
                             string b = Interface.Unescape(Lines[i].Substring(j + 1).TrimStart());
                             switch (Section) {
+
+                                // ### TO BE REMOVED SOON
                                 case "lamps":
                                     switch (a) {
                                         case "file": Renderer.FileLamp = b; break;
@@ -1000,8 +1007,8 @@ namespace OpenBve {
                                         case "atcemergency": Interface.QuickReferences.LampAtcEmergency = b; break;
                                         case "eb": Interface.QuickReferences.LampEb = b; break;
                                         case "constspeed": Interface.QuickReferences.LampConstSpeed = b; break;
-                                        case "plugin": Interface.QuickReferences.LampPlugin = b; break;
                                     } break;
+
                                 case "handles":
                                     switch (a) {
                                         case "file_reverser": Renderer.FileReverser = b; break;
@@ -1096,7 +1103,7 @@ namespace OpenBve {
             }
         }
 
-        // key
+        // key infos
         internal struct KeyInfo {
             internal int Value;
             internal string Name;
@@ -1279,7 +1286,7 @@ namespace OpenBve {
             internal string Name;
         }
 
-        // members
+        // control descriptions
         internal static string[] ControlDescriptions = new string[] { };
         internal static CommandInfo[] CommandInfos = new CommandInfo[] {
             new CommandInfo(Command.PowerIncrease, CommandType.Digital, "POWER_INCREASE", "Increases power by one notch for trains with two handles"),
@@ -1562,6 +1569,477 @@ namespace OpenBve {
                     }
                 }
             }
+        }
+
+        // ================================
+
+        // hud elements
+        internal struct HudVector {
+            internal int X;
+            internal int Y;
+        }
+        internal struct HudVectorF {
+            internal float X;
+            internal float Y;
+        }
+        internal struct HudImage {
+            internal int BackgroundTextureIndex;
+            internal int OverlayTextureIndex;
+        }
+        internal enum HudTransition {
+            None = 0,
+            Move = 1,
+            Fade = 2,
+            MoveAndFade = 3
+        }
+        internal class HudElement {
+            internal string Subject;
+            internal HudVectorF Position;
+            internal HudVector Alignment;
+            internal HudImage TopLeft;
+            internal HudImage TopMiddle;
+            internal HudImage TopRight;
+            internal HudImage CenterLeft;
+            internal HudImage CenterMiddle;
+            internal HudImage CenterRight;
+            internal HudImage BottomLeft;
+            internal HudImage BottomMiddle;
+            internal HudImage BottomRight;
+            internal World.ColorRGBA BackgroundColor;
+            internal World.ColorRGBA OverlayColor;
+            internal World.ColorRGBA TextColor;
+            internal HudVectorF TextPosition;
+            internal HudVector TextAlignment;
+            internal Fonts.FontType TextSize;
+            internal bool TextShadow;
+            internal string Text;
+            internal float Value;
+            internal HudTransition Transition;
+            internal HudVectorF TransitionVector;
+            internal double TransitionState;
+            internal HudElement() {
+                this.Subject = null;
+                this.Position.X = 0.0f;
+                this.Position.Y = 0.0f;
+                this.Alignment.X = -1;
+                this.Alignment.Y = -1;
+                this.TopLeft.BackgroundTextureIndex = -1;
+                this.TopLeft.OverlayTextureIndex = -1;
+                this.TopMiddle.BackgroundTextureIndex = -1;
+                this.TopMiddle.OverlayTextureIndex = -1;
+                this.TopRight.BackgroundTextureIndex = -1;
+                this.TopRight.OverlayTextureIndex = -1;
+                this.CenterLeft.BackgroundTextureIndex = -1;
+                this.CenterLeft.OverlayTextureIndex = -1;
+                this.CenterMiddle.BackgroundTextureIndex = -1;
+                this.CenterMiddle.OverlayTextureIndex = -1;
+                this.CenterRight.BackgroundTextureIndex = -1;
+                this.CenterRight.OverlayTextureIndex = -1;
+                this.BottomLeft.BackgroundTextureIndex = -1;
+                this.BottomLeft.OverlayTextureIndex = -1;
+                this.BottomMiddle.BackgroundTextureIndex = -1;
+                this.BottomMiddle.OverlayTextureIndex = -1;
+                this.BottomRight.BackgroundTextureIndex = -1;
+                this.BottomRight.OverlayTextureIndex = -1;
+                this.BackgroundColor = new World.ColorRGBA(255, 255, 255, 255);
+                this.OverlayColor = new World.ColorRGBA(255, 255, 255, 255);
+                this.TextColor = new World.ColorRGBA(255, 255, 255, 255);
+                this.TextPosition.X = 0.0f;
+                this.TextPosition.Y = 0.0f;
+                this.TextAlignment.X = -1;
+                this.TextAlignment.Y = 0;
+                this.TextSize = Fonts.FontType.ExtraSmall;
+                this.TextShadow = true;
+                this.Text = null;
+                this.Value = 0.0f;
+                this.Transition = HudTransition.None;
+                this.TransitionState = 0.0;
+            }
+        }
+        internal static HudElement[] CurrentHudElements = new HudElement[] { };
+
+        // load hud
+        internal static void LoadHUD(string FileOrNull) {
+
+            // ### TO BE REMOVED SOON
+            CurrentHudElements = new HudElement[] { };
+            return;
+
+            System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
+            string Folder;
+            if (FileOrNull == null) {
+                Folder = Interface.GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Interface");
+                Folder = Interface.GetCombinedFolderName(Folder, "HUD");
+                Folder = Interface.GetCombinedFolderName(Folder, "Default");
+                FileOrNull = Interface.GetCombinedFileName(Folder, "hud.cfg");
+            } else {
+                Folder = System.IO.Path.GetDirectoryName(FileOrNull);
+            }
+            CurrentHudElements = new HudElement[16];
+            int Length = 0;
+            if (System.IO.File.Exists(FileOrNull)) {
+                string[] Lines = System.IO.File.ReadAllLines(FileOrNull, new System.Text.UTF8Encoding());
+                for (int i = 0; i < Lines.Length; i++) {
+                    int j = Lines[i].IndexOf(';');
+                    if (j >= 0) {
+                        Lines[i] = Lines[i].Substring(0, j).Trim();
+                    } else {
+                        Lines[i] = Lines[i].Trim();
+                    }
+                    if (Lines[i].Length != 0) {
+                        if (!Lines[i].StartsWith(";", StringComparison.Ordinal)) {
+                            if (Lines[i].Equals("[element]", StringComparison.OrdinalIgnoreCase)) {
+                                Length++;
+                                if (Length > CurrentHudElements.Length) {
+                                    Array.Resize<HudElement>(ref CurrentHudElements, CurrentHudElements.Length << 1);
+                                }
+                                CurrentHudElements[Length - 1] = new HudElement();
+                            } else if (Length == 0) {
+                                System.Windows.Forms.MessageBox.Show("Line outside of [element] structure encountered at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                            } else {
+                                j = Lines[i].IndexOf("=", StringComparison.Ordinal);
+                                if (j >= 0) {
+                                    string Command = Lines[i].Substring(0, j).TrimEnd();
+                                    string[] Arguments = Lines[i].Substring(j + 1).TrimStart().Split(new char[] { ',' }, StringSplitOptions.None);
+                                    for (j = 0; j < Arguments.Length; j++) {
+                                        Arguments[j] = Arguments[j].Trim();
+                                    }
+                                    switch (Command.ToLowerInvariant()) {
+                                        case "subject":
+                                            if (Arguments.Length == 1) {
+                                                CurrentHudElements[Length - 1].Subject = Arguments[0];
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "position":
+                                            if (Arguments.Length == 2) {
+                                                float x, y;
+                                                if (!float.TryParse(Arguments[0], System.Globalization.NumberStyles.Float, Culture, out x)) {
+                                                    System.Windows.Forms.MessageBox.Show("X is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!float.TryParse(Arguments[1], System.Globalization.NumberStyles.Float, Culture, out y)) {
+                                                    System.Windows.Forms.MessageBox.Show("Y is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else {
+                                                    CurrentHudElements[Length - 1].Position.X = x;
+                                                    CurrentHudElements[Length - 1].Position.Y = y;
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "alignment":
+                                            if (Arguments.Length == 2) {
+                                                int x, y;
+                                                if (!int.TryParse(Arguments[0], System.Globalization.NumberStyles.Integer, Culture, out x)) {
+                                                    System.Windows.Forms.MessageBox.Show("X is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!int.TryParse(Arguments[1], System.Globalization.NumberStyles.Integer, Culture, out y)) {
+                                                    System.Windows.Forms.MessageBox.Show("Y is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else {
+                                                    CurrentHudElements[Length - 1].Alignment.X = Math.Sign(x);
+                                                    CurrentHudElements[Length - 1].Alignment.Y = Math.Sign(y);
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "topleft":
+                                            if (Arguments.Length == 2) {
+                                                if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].TopLeft.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                                if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].TopLeft.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "topmiddle":
+                                            if (Arguments.Length == 2) {
+                                                if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].TopMiddle.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                                if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].TopMiddle.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "topright":
+                                            if (Arguments.Length == 2) {
+                                                if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].TopRight.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                                if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].TopRight.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "centerleft":
+                                            if (Arguments.Length == 2) {
+                                                if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].CenterLeft.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                                if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].CenterLeft.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "centermiddle":
+                                            if (Arguments.Length == 2) {
+                                                if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].CenterMiddle.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                                if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].CenterMiddle.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "centerright":
+                                            if (Arguments.Length == 2) {
+                                                if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].CenterRight.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                                if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].CenterRight.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "bottomleft":
+                                            if (Arguments.Length == 2) {
+                                                if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].BottomLeft.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                                if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].BottomLeft.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "bottommiddle":
+                                            if (Arguments.Length == 2) {
+                                                if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].BottomMiddle.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                                if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].BottomMiddle.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "bottomright":
+                                            if (Arguments.Length == 2) {
+                                                if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].BottomRight.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                                if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
+                                                    CurrentHudElements[Length - 1].BottomRight.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "backcolor":
+                                            if (Arguments.Length == 4) {
+                                                int r, g, b, a;
+                                                if (!int.TryParse(Arguments[0], System.Globalization.NumberStyles.Integer, Culture, out r)) {
+                                                    System.Windows.Forms.MessageBox.Show("R is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!int.TryParse(Arguments[1], System.Globalization.NumberStyles.Integer, Culture, out g)) {
+                                                    System.Windows.Forms.MessageBox.Show("G is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!int.TryParse(Arguments[2], System.Globalization.NumberStyles.Integer, Culture, out b)) {
+                                                    System.Windows.Forms.MessageBox.Show("B is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!int.TryParse(Arguments[3], System.Globalization.NumberStyles.Integer, Culture, out a)) {
+                                                    System.Windows.Forms.MessageBox.Show("A is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else {
+                                                    r = r < 0 ? 0 : r > 255 ? 255 : r;
+                                                    g = g < 0 ? 0 : g > 255 ? 255 : g;
+                                                    b = b < 0 ? 0 : b > 255 ? 255 : b;
+                                                    a = a < 0 ? 0 : a > 255 ? 255 : a;
+                                                    CurrentHudElements[Length - 1].BackgroundColor = new World.ColorRGBA((byte)r, (byte)g, (byte)b, (byte)a);
+                                                } break;
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "overlaycolor":
+                                            if (Arguments.Length == 4) {
+                                                int r, g, b, a;
+                                                if (!int.TryParse(Arguments[0], System.Globalization.NumberStyles.Integer, Culture, out r)) {
+                                                    System.Windows.Forms.MessageBox.Show("R is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!int.TryParse(Arguments[1], System.Globalization.NumberStyles.Integer, Culture, out g)) {
+                                                    System.Windows.Forms.MessageBox.Show("G is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!int.TryParse(Arguments[2], System.Globalization.NumberStyles.Integer, Culture, out b)) {
+                                                    System.Windows.Forms.MessageBox.Show("B is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!int.TryParse(Arguments[3], System.Globalization.NumberStyles.Integer, Culture, out a)) {
+                                                    System.Windows.Forms.MessageBox.Show("A is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else {
+                                                    r = r < 0 ? 0 : r > 255 ? 255 : r;
+                                                    g = g < 0 ? 0 : g > 255 ? 255 : g;
+                                                    b = b < 0 ? 0 : b > 255 ? 255 : b;
+                                                    a = a < 0 ? 0 : a > 255 ? 255 : a;
+                                                    CurrentHudElements[Length - 1].OverlayColor = new World.ColorRGBA((byte)r, (byte)g, (byte)b, (byte)a);
+                                                } break;
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "textcolor":
+                                            if (Arguments.Length == 4) {
+                                                int r, g, b, a;
+                                                if (!int.TryParse(Arguments[0], System.Globalization.NumberStyles.Integer, Culture, out r)) {
+                                                    System.Windows.Forms.MessageBox.Show("R is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!int.TryParse(Arguments[1], System.Globalization.NumberStyles.Integer, Culture, out g)) {
+                                                    System.Windows.Forms.MessageBox.Show("G is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!int.TryParse(Arguments[2], System.Globalization.NumberStyles.Integer, Culture, out b)) {
+                                                    System.Windows.Forms.MessageBox.Show("B is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!int.TryParse(Arguments[3], System.Globalization.NumberStyles.Integer, Culture, out a)) {
+                                                    System.Windows.Forms.MessageBox.Show("A is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else {
+                                                    r = r < 0 ? 0 : r > 255 ? 255 : r;
+                                                    g = g < 0 ? 0 : g > 255 ? 255 : g;
+                                                    b = b < 0 ? 0 : b > 255 ? 255 : b;
+                                                    a = a < 0 ? 0 : a > 255 ? 255 : a;
+                                                    CurrentHudElements[Length - 1].TextColor = new World.ColorRGBA((byte)r, (byte)g, (byte)b, (byte)a);
+                                                } break;
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "textposition":
+                                            if (Arguments.Length == 2) {
+                                                float x, y;
+                                                if (!float.TryParse(Arguments[0], System.Globalization.NumberStyles.Float, Culture, out x)) {
+                                                    System.Windows.Forms.MessageBox.Show("X is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!float.TryParse(Arguments[1], System.Globalization.NumberStyles.Float, Culture, out y)) {
+                                                    System.Windows.Forms.MessageBox.Show("Y is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else {
+                                                    CurrentHudElements[Length - 1].TextPosition.X = x;
+                                                    CurrentHudElements[Length - 1].TextPosition.Y = y;
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "textalignment":
+                                            if (Arguments.Length == 2) {
+                                                int x, y;
+                                                if (!int.TryParse(Arguments[0], System.Globalization.NumberStyles.Integer, Culture, out x)) {
+                                                    System.Windows.Forms.MessageBox.Show("X is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!int.TryParse(Arguments[1], System.Globalization.NumberStyles.Integer, Culture, out y)) {
+                                                    System.Windows.Forms.MessageBox.Show("Y is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else {
+                                                    CurrentHudElements[Length - 1].TextAlignment.X = Math.Sign(x);
+                                                    CurrentHudElements[Length - 1].TextAlignment.Y = Math.Sign(y);
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "textsize":
+                                            if (Arguments.Length == 1) {
+                                                int s;
+                                                if (!int.TryParse(Arguments[0], System.Globalization.NumberStyles.Integer, Culture, out s)) {
+                                                    System.Windows.Forms.MessageBox.Show("SIZE is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else {
+                                                    CurrentHudElements[Length - 1].TextSize = (Fonts.FontType)s;
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "textshadow":
+                                            if (Arguments.Length == 1) {
+                                                int s;
+                                                if (!int.TryParse(Arguments[0], System.Globalization.NumberStyles.Integer, Culture, out s)) {
+                                                    System.Windows.Forms.MessageBox.Show("SHADOW is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else {
+                                                    CurrentHudElements[Length - 1].TextShadow = s != 0;
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "text":
+                                            if (Arguments.Length == 1) {
+                                                CurrentHudElements[Length - 1].Text = Arguments[0];
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "value":
+                                            if (Arguments.Length == 1) {
+                                                int n;
+                                                if (!int.TryParse(Arguments[0], System.Globalization.NumberStyles.Integer, Culture, out n)) {
+                                                    System.Windows.Forms.MessageBox.Show("VALUE is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else {
+                                                    CurrentHudElements[Length - 1].Value = n;
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "transition":
+                                            if (Arguments.Length == 1) {
+                                                int n;
+                                                if (!int.TryParse(Arguments[0], System.Globalization.NumberStyles.Integer, Culture, out n)) {
+                                                    System.Windows.Forms.MessageBox.Show("TRANSITION is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else {
+                                                    CurrentHudElements[Length - 1].Transition = (HudTransition)n;
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        case "transitionvector":
+                                            if (Arguments.Length == 2) {
+                                                float x, y;
+                                                if (!float.TryParse(Arguments[0], System.Globalization.NumberStyles.Float, Culture, out x)) {
+                                                    System.Windows.Forms.MessageBox.Show("X is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else if (!float.TryParse(Arguments[1], System.Globalization.NumberStyles.Float, Culture, out y)) {
+                                                    System.Windows.Forms.MessageBox.Show("Y is invalid in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                                } else {
+                                                    CurrentHudElements[Length - 1].TransitionVector.X = x;
+                                                    CurrentHudElements[Length - 1].TransitionVector.Y = y;
+                                                }
+                                            } else {
+                                                System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            } break;
+                                        default:
+                                            System.Windows.Forms.MessageBox.Show("Invalid command encountered at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                            break;
+                                    }
+                                } else {
+                                    System.Windows.Forms.MessageBox.Show("Invalid statement encountered at line " + (i + 1).ToString(Culture) + " in " + FileOrNull);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Array.Resize<HudElement>(ref CurrentHudElements, Length);
+        }
+
+        // ================================
+
+        // encodings
+        internal enum Encoding {
+            Unknown = 0,
+            Utf8 = 1,
+            Utf16Le = 2,
+            Utf16Be = 3,
+            Utf32Le = 4,
+            Utf32Be = 5,
+        }
+        internal static Encoding GetEncodingFromFile(string File) {
+            try {
+                byte[] Data = System.IO.File.ReadAllBytes(File);
+                if (Data.Length >= 3) {
+                    if (Data[0] == 0xEF & Data[1] == 0xBB & Data[2] == 0xBF) return Encoding.Utf8;
+                }
+                if (Data.Length >= 2) {
+                    if (Data[0] == 0xFE & Data[1] == 0xFF) return Encoding.Utf16Be;
+                    if (Data[0] == 0xFF & Data[1] == 0xFE) return Encoding.Utf16Le;
+                }
+                if (Data.Length >= 4) {
+                    if (Data[0] == 0x00 & Data[1] == 0x00 & Data[2] == 0xFE & Data[3] == 0xFF) return Encoding.Utf32Be;
+                    if (Data[0] == 0xFF & Data[1] == 0xFE & Data[2] == 0x00 & Data[3] == 0x00) return Encoding.Utf32Le;
+                }
+                return Encoding.Unknown;
+            } catch {
+                return Encoding.Unknown;
+            }
+        }
+        internal static Encoding GetEncodingFromFile(string Folder, string File) {
+            return GetEncodingFromFile(GetCombinedFileName(Folder, File));
         }
 
         // ================================

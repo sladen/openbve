@@ -46,6 +46,9 @@
             this.textboxTrainDescription = new System.Windows.Forms.TextBox();
             this.pictureboxTrainImage = new System.Windows.Forms.PictureBox();
             this.tabpageTrainSettings = new System.Windows.Forms.TabPage();
+            this.buttonTrainEncodingBig5 = new System.Windows.Forms.Button();
+            this.buttonTrainEncodingShiftJis = new System.Windows.Forms.Button();
+            this.buttonTrainEncodingLatin1 = new System.Windows.Forms.Button();
             this.labelTrainEncodingPreview = new System.Windows.Forms.Label();
             this.textboxTrainEncodingPreview = new System.Windows.Forms.TextBox();
             this.comboboxTrainEncoding = new System.Windows.Forms.ComboBox();
@@ -70,6 +73,9 @@
             this.tabpageRouteGradient = new System.Windows.Forms.TabPage();
             this.pictureboxRouteGradient = new System.Windows.Forms.PictureBox();
             this.tabpageRouteSettings = new System.Windows.Forms.TabPage();
+            this.buttonRouteEncodingBig5 = new System.Windows.Forms.Button();
+            this.buttonRouteEncodingShiftJis = new System.Windows.Forms.Button();
+            this.buttonRouteEncodingLatin1 = new System.Windows.Forms.Button();
             this.labelRouteEncodingPreview = new System.Windows.Forms.Label();
             this.textboxRouteEncodingPreview = new System.Windows.Forms.TextBox();
             this.comboboxRouteEncoding = new System.Windows.Forms.ComboBox();
@@ -221,6 +227,8 @@
             this.labelVersion = new System.Windows.Forms.Label();
             this.labelInfoBottom = new System.Windows.Forms.Label();
             this.labelInfoTop = new System.Windows.Forms.Label();
+            this.panelRouteEncoding = new System.Windows.Forms.Panel();
+            this.panelTrainEncoding = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureboxLogo)).BeginInit();
             this.panelStart.SuspendLayout();
             this.groupboxTrainSelection.SuspendLayout();
@@ -278,6 +286,8 @@
             this.panelJoystick.SuspendLayout();
             this.panelKeyboard.SuspendLayout();
             this.panelInfo.SuspendLayout();
+            this.panelRouteEncoding.SuspendLayout();
+            this.panelTrainEncoding.SuspendLayout();
             this.SuspendLayout();
             // 
             // labelFillerOne
@@ -418,8 +428,8 @@
             this.listviewTrainFolders.TabIndex = 1;
             this.listviewTrainFolders.UseCompatibleStateImageBehavior = false;
             this.listviewTrainFolders.View = System.Windows.Forms.View.Details;
-            this.listviewTrainFolders.SelectedIndexChanged += new System.EventHandler(this.listviewTrainFolders_SelectedIndexChanged);
             this.listviewTrainFolders.DoubleClick += new System.EventHandler(this.listviewTrainFolders_DoubleClick);
+            this.listviewTrainFolders.SelectedIndexChanged += new System.EventHandler(this.listviewTrainFolders_SelectedIndexChanged);
             this.listviewTrainFolders.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listviewTrainFolders_KeyDown);
             // 
             // textboxTrainFolder
@@ -549,10 +559,9 @@
             // 
             // tabpageTrainSettings
             // 
+            this.tabpageTrainSettings.Controls.Add(this.panelTrainEncoding);
             this.tabpageTrainSettings.Controls.Add(this.labelTrainEncodingPreview);
             this.tabpageTrainSettings.Controls.Add(this.textboxTrainEncodingPreview);
-            this.tabpageTrainSettings.Controls.Add(this.comboboxTrainEncoding);
-            this.tabpageTrainSettings.Controls.Add(this.labelTrainEncoding);
             this.tabpageTrainSettings.Location = new System.Drawing.Point(4, 22);
             this.tabpageTrainSettings.Name = "tabpageTrainSettings";
             this.tabpageTrainSettings.Padding = new System.Windows.Forms.Padding(3);
@@ -561,13 +570,46 @@
             this.tabpageTrainSettings.Text = "Settings";
             this.tabpageTrainSettings.UseVisualStyleBackColor = true;
             // 
+            // buttonTrainEncodingBig5
+            // 
+            this.buttonTrainEncodingBig5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonTrainEncodingBig5.Location = new System.Drawing.Point(264, 24);
+            this.buttonTrainEncodingBig5.Name = "buttonTrainEncodingBig5";
+            this.buttonTrainEncodingBig5.Size = new System.Drawing.Size(64, 24);
+            this.buttonTrainEncodingBig5.TabIndex = 9;
+            this.buttonTrainEncodingBig5.Text = "Big5";
+            this.buttonTrainEncodingBig5.UseVisualStyleBackColor = true;
+            this.buttonTrainEncodingBig5.Click += new System.EventHandler(this.buttonTrainEncodingBig5_Click);
+            // 
+            // buttonTrainEncodingShiftJis
+            // 
+            this.buttonTrainEncodingShiftJis.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonTrainEncodingShiftJis.Location = new System.Drawing.Point(200, 24);
+            this.buttonTrainEncodingShiftJis.Name = "buttonTrainEncodingShiftJis";
+            this.buttonTrainEncodingShiftJis.Size = new System.Drawing.Size(64, 24);
+            this.buttonTrainEncodingShiftJis.TabIndex = 3;
+            this.buttonTrainEncodingShiftJis.Text = "Shift_JIS";
+            this.buttonTrainEncodingShiftJis.UseVisualStyleBackColor = true;
+            this.buttonTrainEncodingShiftJis.Click += new System.EventHandler(this.buttonTrainEncodingShiftJis_Click);
+            // 
+            // buttonTrainEncodingLatin1
+            // 
+            this.buttonTrainEncodingLatin1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonTrainEncodingLatin1.Location = new System.Drawing.Point(136, 24);
+            this.buttonTrainEncodingLatin1.Name = "buttonTrainEncodingLatin1";
+            this.buttonTrainEncodingLatin1.Size = new System.Drawing.Size(64, 24);
+            this.buttonTrainEncodingLatin1.TabIndex = 2;
+            this.buttonTrainEncodingLatin1.Text = "Latin-1";
+            this.buttonTrainEncodingLatin1.UseVisualStyleBackColor = true;
+            this.buttonTrainEncodingLatin1.Click += new System.EventHandler(this.buttonTrainEncodingLatin1_Click);
+            // 
             // labelTrainEncodingPreview
             // 
             this.labelTrainEncodingPreview.AutoEllipsis = true;
-            this.labelTrainEncodingPreview.Location = new System.Drawing.Point(8, 32);
+            this.labelTrainEncodingPreview.Location = new System.Drawing.Point(8, 64);
             this.labelTrainEncodingPreview.Name = "labelTrainEncodingPreview";
             this.labelTrainEncodingPreview.Size = new System.Drawing.Size(96, 16);
-            this.labelTrainEncodingPreview.TabIndex = 2;
+            this.labelTrainEncodingPreview.TabIndex = 4;
             this.labelTrainEncodingPreview.Text = "Preview:";
             this.labelTrainEncodingPreview.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
@@ -577,13 +619,13 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.textboxTrainEncodingPreview.BackColor = System.Drawing.SystemColors.Window;
-            this.textboxTrainEncodingPreview.Location = new System.Drawing.Point(104, 32);
+            this.textboxTrainEncodingPreview.Location = new System.Drawing.Point(104, 64);
             this.textboxTrainEncodingPreview.Multiline = true;
             this.textboxTrainEncodingPreview.Name = "textboxTrainEncodingPreview";
             this.textboxTrainEncodingPreview.ReadOnly = true;
             this.textboxTrainEncodingPreview.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textboxTrainEncodingPreview.Size = new System.Drawing.Size(232, 128);
-            this.textboxTrainEncodingPreview.TabIndex = 3;
+            this.textboxTrainEncodingPreview.Size = new System.Drawing.Size(232, 96);
+            this.textboxTrainEncodingPreview.TabIndex = 5;
             // 
             // comboboxTrainEncoding
             // 
@@ -591,7 +633,7 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.comboboxTrainEncoding.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboboxTrainEncoding.FormattingEnabled = true;
-            this.comboboxTrainEncoding.Location = new System.Drawing.Point(104, 8);
+            this.comboboxTrainEncoding.Location = new System.Drawing.Point(96, 0);
             this.comboboxTrainEncoding.Name = "comboboxTrainEncoding";
             this.comboboxTrainEncoding.Size = new System.Drawing.Size(232, 21);
             this.comboboxTrainEncoding.TabIndex = 1;
@@ -600,7 +642,7 @@
             // labelTrainEncoding
             // 
             this.labelTrainEncoding.AutoEllipsis = true;
-            this.labelTrainEncoding.Location = new System.Drawing.Point(8, 8);
+            this.labelTrainEncoding.Location = new System.Drawing.Point(0, 0);
             this.labelTrainEncoding.Name = "labelTrainEncoding";
             this.labelTrainEncoding.Size = new System.Drawing.Size(96, 16);
             this.labelTrainEncoding.TabIndex = 0;
@@ -699,8 +741,8 @@
             this.listviewRouteFiles.TabIndex = 1;
             this.listviewRouteFiles.UseCompatibleStateImageBehavior = false;
             this.listviewRouteFiles.View = System.Windows.Forms.View.Details;
-            this.listviewRouteFiles.SelectedIndexChanged += new System.EventHandler(this.listviewRouteFiles_SelectedIndexChanged);
             this.listviewRouteFiles.DoubleClick += new System.EventHandler(this.listviewRouteFiles_DoubleClick);
+            this.listviewRouteFiles.SelectedIndexChanged += new System.EventHandler(this.listviewRouteFiles_SelectedIndexChanged);
             this.listviewRouteFiles.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listviewRouteFiles_KeyDown);
             // 
             // textboxRouteFolder
@@ -852,10 +894,9 @@
             // 
             // tabpageRouteSettings
             // 
+            this.tabpageRouteSettings.Controls.Add(this.panelRouteEncoding);
             this.tabpageRouteSettings.Controls.Add(this.labelRouteEncodingPreview);
             this.tabpageRouteSettings.Controls.Add(this.textboxRouteEncodingPreview);
-            this.tabpageRouteSettings.Controls.Add(this.comboboxRouteEncoding);
-            this.tabpageRouteSettings.Controls.Add(this.labelRouteEncoding);
             this.tabpageRouteSettings.Location = new System.Drawing.Point(4, 22);
             this.tabpageRouteSettings.Name = "tabpageRouteSettings";
             this.tabpageRouteSettings.Padding = new System.Windows.Forms.Padding(3);
@@ -864,13 +905,46 @@
             this.tabpageRouteSettings.Text = "Settings";
             this.tabpageRouteSettings.UseVisualStyleBackColor = true;
             // 
+            // buttonRouteEncodingBig5
+            // 
+            this.buttonRouteEncodingBig5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonRouteEncodingBig5.Location = new System.Drawing.Point(264, 24);
+            this.buttonRouteEncodingBig5.Name = "buttonRouteEncodingBig5";
+            this.buttonRouteEncodingBig5.Size = new System.Drawing.Size(64, 24);
+            this.buttonRouteEncodingBig5.TabIndex = 4;
+            this.buttonRouteEncodingBig5.Text = "Big5";
+            this.buttonRouteEncodingBig5.UseVisualStyleBackColor = true;
+            this.buttonRouteEncodingBig5.Click += new System.EventHandler(this.buttonRouteEncodingBig5_Click);
+            // 
+            // buttonRouteEncodingShiftJis
+            // 
+            this.buttonRouteEncodingShiftJis.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonRouteEncodingShiftJis.Location = new System.Drawing.Point(200, 24);
+            this.buttonRouteEncodingShiftJis.Name = "buttonRouteEncodingShiftJis";
+            this.buttonRouteEncodingShiftJis.Size = new System.Drawing.Size(64, 24);
+            this.buttonRouteEncodingShiftJis.TabIndex = 3;
+            this.buttonRouteEncodingShiftJis.Text = "Shift_JIS";
+            this.buttonRouteEncodingShiftJis.UseVisualStyleBackColor = true;
+            this.buttonRouteEncodingShiftJis.Click += new System.EventHandler(this.buttonRouteEncodingShiftJis_Click);
+            // 
+            // buttonRouteEncodingLatin1
+            // 
+            this.buttonRouteEncodingLatin1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonRouteEncodingLatin1.Location = new System.Drawing.Point(136, 24);
+            this.buttonRouteEncodingLatin1.Name = "buttonRouteEncodingLatin1";
+            this.buttonRouteEncodingLatin1.Size = new System.Drawing.Size(64, 24);
+            this.buttonRouteEncodingLatin1.TabIndex = 2;
+            this.buttonRouteEncodingLatin1.Text = "Latin-1";
+            this.buttonRouteEncodingLatin1.UseVisualStyleBackColor = true;
+            this.buttonRouteEncodingLatin1.Click += new System.EventHandler(this.buttonRouteEncodingLatin1_Click);
+            // 
             // labelRouteEncodingPreview
             // 
             this.labelRouteEncodingPreview.AutoEllipsis = true;
-            this.labelRouteEncodingPreview.Location = new System.Drawing.Point(8, 32);
+            this.labelRouteEncodingPreview.Location = new System.Drawing.Point(8, 64);
             this.labelRouteEncodingPreview.Name = "labelRouteEncodingPreview";
             this.labelRouteEncodingPreview.Size = new System.Drawing.Size(96, 16);
-            this.labelRouteEncodingPreview.TabIndex = 2;
+            this.labelRouteEncodingPreview.TabIndex = 5;
             this.labelRouteEncodingPreview.Text = "Preview:";
             this.labelRouteEncodingPreview.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
@@ -880,13 +954,13 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.textboxRouteEncodingPreview.BackColor = System.Drawing.SystemColors.Window;
-            this.textboxRouteEncodingPreview.Location = new System.Drawing.Point(104, 32);
+            this.textboxRouteEncodingPreview.Location = new System.Drawing.Point(104, 64);
             this.textboxRouteEncodingPreview.Multiline = true;
             this.textboxRouteEncodingPreview.Name = "textboxRouteEncodingPreview";
             this.textboxRouteEncodingPreview.ReadOnly = true;
             this.textboxRouteEncodingPreview.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textboxRouteEncodingPreview.Size = new System.Drawing.Size(232, 128);
-            this.textboxRouteEncodingPreview.TabIndex = 3;
+            this.textboxRouteEncodingPreview.Size = new System.Drawing.Size(232, 96);
+            this.textboxRouteEncodingPreview.TabIndex = 6;
             // 
             // comboboxRouteEncoding
             // 
@@ -894,7 +968,7 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.comboboxRouteEncoding.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboboxRouteEncoding.FormattingEnabled = true;
-            this.comboboxRouteEncoding.Location = new System.Drawing.Point(104, 8);
+            this.comboboxRouteEncoding.Location = new System.Drawing.Point(96, 0);
             this.comboboxRouteEncoding.Name = "comboboxRouteEncoding";
             this.comboboxRouteEncoding.Size = new System.Drawing.Size(232, 21);
             this.comboboxRouteEncoding.TabIndex = 1;
@@ -903,7 +977,7 @@
             // labelRouteEncoding
             // 
             this.labelRouteEncoding.AutoEllipsis = true;
-            this.labelRouteEncoding.Location = new System.Drawing.Point(8, 8);
+            this.labelRouteEncoding.Location = new System.Drawing.Point(0, 0);
             this.labelRouteEncoding.Name = "labelRouteEncoding";
             this.labelRouteEncoding.Size = new System.Drawing.Size(96, 16);
             this.labelRouteEncoding.TabIndex = 0;
@@ -2464,8 +2538,8 @@
             this.textboxJoystickGrab.Size = new System.Drawing.Size(248, 72);
             this.textboxJoystickGrab.TabIndex = 10;
             this.textboxJoystickGrab.Text = "Joystick grab";
-            this.textboxJoystickGrab.Leave += new System.EventHandler(this.textboxJoystickGrab_Leave);
             this.textboxJoystickGrab.Enter += new System.EventHandler(this.textboxJoystickGrab_Enter);
+            this.textboxJoystickGrab.Leave += new System.EventHandler(this.textboxJoystickGrab_Leave);
             // 
             // labelJoystickAssignmentValue
             // 
@@ -2656,6 +2730,34 @@
             this.labelInfoTop.Size = new System.Drawing.Size(144, 2);
             this.labelInfoTop.TabIndex = 0;
             // 
+            // panelRouteEncoding
+            // 
+            this.panelRouteEncoding.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelRouteEncoding.Controls.Add(this.buttonRouteEncodingLatin1);
+            this.panelRouteEncoding.Controls.Add(this.buttonRouteEncodingBig5);
+            this.panelRouteEncoding.Controls.Add(this.labelRouteEncoding);
+            this.panelRouteEncoding.Controls.Add(this.buttonRouteEncodingShiftJis);
+            this.panelRouteEncoding.Controls.Add(this.comboboxRouteEncoding);
+            this.panelRouteEncoding.Location = new System.Drawing.Point(8, 8);
+            this.panelRouteEncoding.Name = "panelRouteEncoding";
+            this.panelRouteEncoding.Size = new System.Drawing.Size(328, 48);
+            this.panelRouteEncoding.TabIndex = 7;
+            // 
+            // panelTrainEncoding
+            // 
+            this.panelTrainEncoding.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelTrainEncoding.Controls.Add(this.labelTrainEncoding);
+            this.panelTrainEncoding.Controls.Add(this.buttonTrainEncodingBig5);
+            this.panelTrainEncoding.Controls.Add(this.comboboxTrainEncoding);
+            this.panelTrainEncoding.Controls.Add(this.buttonTrainEncodingShiftJis);
+            this.panelTrainEncoding.Controls.Add(this.buttonTrainEncodingLatin1);
+            this.panelTrainEncoding.Location = new System.Drawing.Point(8, 8);
+            this.panelTrainEncoding.Name = "panelTrainEncoding";
+            this.panelTrainEncoding.Size = new System.Drawing.Size(328, 48);
+            this.panelTrainEncoding.TabIndex = 10;
+            // 
             // formMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2678,10 +2780,10 @@
             this.Name = "formMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "openBVE";
-            this.Load += new System.EventHandler(this.formMain_Load);
+            this.Resize += new System.EventHandler(this.formMain_Resize);
             this.Shown += new System.EventHandler(this.formMain_Shown);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.formMain_FormClosing);
-            this.Resize += new System.EventHandler(this.formMain_Resize);
+            this.Load += new System.EventHandler(this.formMain_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureboxLogo)).EndInit();
             this.panelStart.ResumeLayout(false);
             this.groupboxTrainSelection.ResumeLayout(false);
@@ -2756,6 +2858,8 @@
             this.panelKeyboard.ResumeLayout(false);
             this.panelKeyboard.PerformLayout();
             this.panelInfo.ResumeLayout(false);
+            this.panelRouteEncoding.ResumeLayout(false);
+            this.panelTrainEncoding.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -2959,5 +3063,13 @@
         private System.Windows.Forms.RadioButton radiobuttonOptions;
         private System.Windows.Forms.RadioButton radiobuttonControls;
         private System.Windows.Forms.RadioButton radiobuttonReview;
+        private System.Windows.Forms.Button buttonRouteEncodingLatin1;
+        private System.Windows.Forms.Button buttonRouteEncodingBig5;
+        private System.Windows.Forms.Button buttonRouteEncodingShiftJis;
+        private System.Windows.Forms.Button buttonTrainEncodingBig5;
+        private System.Windows.Forms.Button buttonTrainEncodingShiftJis;
+        private System.Windows.Forms.Button buttonTrainEncodingLatin1;
+        private System.Windows.Forms.Panel panelRouteEncoding;
+        private System.Windows.Forms.Panel panelTrainEncoding;
     }
 }
