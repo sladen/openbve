@@ -9,6 +9,7 @@ Build-Depends-Indep: cli-common-dev (>= 0.4.4), mono-devel (>=2.0.1), mono-xbuil
 Vcs-Browser: http://github.com/sladen/openbve/tree/debian
 Vcs-Git: git://github.com/sladen/openbve.git
 Standards-Version: 3.8.0
+Homepage: http://openbve.uuuq.com/
 
 Package: openbve
 Architecture: all
