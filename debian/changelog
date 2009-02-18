@@ -1,12 +1,12 @@
 openbve (0.9.5.5-0ubuntu1) unreleased; urgency=low
 
   * New upstream release 0.9.5.5, dated 20090217-2228
-
- -- Paul Sladen <ubuntu@paul.sladen.org>  Fri, 15 Feb 2009 11:51:30 +0100
+  * Initial release (LP: #331188)
+	
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Web, 18 Feb 2009 23:23:30 +0200
 
 openbve (0.9.5.0-0ubuntu1) unreleased; urgency=low
 
   * import 0.9.5.0, dated 20090201-1953
-  * Debianise
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Fri, 15 Feb 2009 11:51:30 +0100
