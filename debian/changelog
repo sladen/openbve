@@ -1,6 +1,7 @@
 openbve (0.9.5.5-0ubuntu2) unreleased; urgency=low
 
   * Use optimised compiler target (Release, instead of Debug)
+  * Use '/usr/share/games/bve/' as default train/route location
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Thu, 19 Feb 2009 18:49:21 +0000
 
