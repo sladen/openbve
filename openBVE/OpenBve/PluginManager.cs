@@ -553,8 +553,8 @@ namespace OpenBve {
         // load ats config
         internal static bool LoadAtsConfig(string TrainPath, System.Text.Encoding Encoding, TrainManager.Train Train) {
             string File = Interface.GetCombinedFileName(TrainPath, "ats.cfg");
-            if (Program.CurrentPlatform == Program.Platform.Windows) {
-                if (System.IO.File.Exists(File)) {
+            if (System.IO.File.Exists(File)) {
+                if (Program.CurrentPlatform == Program.Platform.Windows) {
                     string DllTitle = System.IO.File.ReadAllText(File, Encoding).Trim();
                     string DllFile = Interface.GetCombinedFileName(TrainPath, DllTitle);
                     if (System.IO.File.Exists(DllFile)) {
@@ -576,10 +576,11 @@ namespace OpenBve {
                         return false;
                     }
                 } else {
+                    // We can't load these on Linux, just yet and they'll need recompiling first
+                    Interface.AddMessage(Interface.MessageType.Information, false, "The platform (operating system) does not support loading (railway signalling) security system plugins in " + File);
                     return false;
                 }
             } else {
-                Interface.AddMessage(Interface.MessageType.Information, false, "The platform does not support loading security system plugins in " + File);
                 return false;
             }
         }
