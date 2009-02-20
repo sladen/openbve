@@ -2,7 +2,7 @@ Known bugs/issues with running OpenBVE on Linux/Ubuntu/Debian.
 ==============================================================
 
 Fixed and merged upstream:
--------------------------------
+--------------------------
 1. The binary 'OpenBve.exe' compiled by Michelle for MS Windows
 will crash out of the box;  hopefully this recompiled binary
 will work.
@@ -24,7 +24,13 @@ the screen in OpenBVE, meaning that you can't see where you're going.
 As a work-around, you may able to unlock the cam and move yourself up
 a bit to look over the top of the console.  Sort-of-fixed in 0.9.5.5.  
 (Though you will need to unlock the camera and zoom out to see any of 
-the panel).
+the panel).  This is to do with the camera-restriction box algorithm
+used in OpenBVE.
+
+6. Captialisation.  The routes have a combination of UPPER, lower, and
+MiXeD cAsE filenames which is a problem on Unix.  The file-loading
+routinues need modifying to search for alterntively cased files if
+the filename as spelt can't be found.
 
 Fixed with outstanding patches:
 -------------------------------
@@ -32,23 +38,26 @@ Fixed with outstanding patches:
 likely to be owned by route.  Modified to use the CLR SpecialFolder
 functions and save configuration data in the right places.
 
+21. 'Security system warning', this refers to signalling system, not
+to the program trying to perform anything naughty!  As extension DLLs
+are not being available on Linux.  Patched to only display a warning
+*if* an 'ats.cfg' was present .  This avoids the Issues dialogue on an
+otherwise error-free route/train.
+
 Remaining:
 ----------
 5. Non-existant audio; sound should work the first time, but after
-quitting OpenAL complains about unclened up buffered.  You will
-likely need to 'kill -9 pulseaudio' if you having that running.
+quitting OpenAL complains about uncleaned-up buffers.  You will
+likely need to 'kill -9 pulseaudio', although this may not recover
+the situation.  Something in OpenAL/SDL isn't being cleanly shutdown.
 You may get the occasional sound afterwards on second/third attempts
 but not the full multi-channel surround experience.
 
-6. Captialisation.  The routes have a combination of UPPER, lower, and
-MiXeD cAsE filenames which is a problem on Unix.  The file-loading
-routinues need modifying to search for alterntively cased files if
-the filename as spelt can't be found.
-
-8. The displayed controller in the London Underground 'LT_C69_77' cab
-does not work correctly in OpenBVE.  Each state on the combined
-power/brake index is a separate sprite in the same image, but the
-clipping is currently wrong.
+8. The sprites Gauges in cabs displayed are not displayed correctly,
+instead showing a different/stretched part of the overlay with blue
+tinting from the edges of the alpha mask.  Clipping/position broken.
+You will have to rely on the small rectangle OpenBVE overlays
+('EMG/B3/B2/B1/N/P1/P2/P3') instead.
 
 9. The preview images for trains and route in the file-manager screen
 display random binary data if the preview image isn't found (normally
@@ -58,7 +67,8 @@ from being the incorrect case).
 
 11. Crashes if you provide incorrect openbve /train=... /route=...
 
-13. Pressing "Show issues" during Cross-City line loading causes 100% CPU.
+13. Pressing "Show issues" during a route with loads of reported issues
+causes 100% CPU.
 
 14. Loading fails if 'Train/' and 'Railway/' do not share a common parent
 directory at some point.
@@ -69,9 +79,20 @@ the interior camera; the cab/panel overlay appears in a different position.
 17. CPU load goes up to 100% is OpenBVE is obscured from view
 (eg. Alt-tab to another program).
 
+18. ExitToMainMenu causes a fork() and return (leaving the user at the
+command prompt and daemonising the second instance into the background)
+rather than using exec() or restarting itself.
+
+19. The program may sometimes display "route not found" or "train not found"
+even when the correct files do exist.  clicking on another route/directory
+and then clicking back works around it, so this is probably a race condition.
+
+20. No way reset the Train (and camera) to be upright after a crash.  You
+should drive more carefully next time!
+
 In-progress:
 ------------
 12. Language Locale not automatically set by default;  patched to  use
 System.Globalization.CultureInfo.CurrentCulture.Name as default, but
-needs refining.
+needs refining to cope with 'll_CC' not just 'll' language codes.
 
