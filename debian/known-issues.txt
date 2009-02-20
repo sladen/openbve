@@ -44,6 +44,11 @@ are not being available on Linux.  Patched to only display a warning
 *if* an 'ats.cfg' was present .  This avoids the Issues dialogue on an
 otherwise error-free route/train.
 
+22. Hidden dot files/folders (those starting with '.') are clutter
+the filemanager.  Patched to skip listing dot-files;  you can
+still type the full name in.  May be worth restricting to only
+!Platform.Windows.
+
 Remaining:
 ----------
 5. Non-existant audio; sound should work the first time, but after
