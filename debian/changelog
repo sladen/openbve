@@ -3,6 +3,7 @@ openbve (0.9.5.5-0ubuntu2) unreleased; urgency=low
   * Use optimised compiler target (Release, instead of Debug)
   * Use '/usr/share/games/bve/' as default train/route location
   * Only whinge about plugins not being available if 'ats.cfg' exists
+  * Don't display hidden .files and .folders in ListViews
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Thu, 19 Feb 2009 18:49:21 +0000
 

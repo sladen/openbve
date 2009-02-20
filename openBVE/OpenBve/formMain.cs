@@ -935,6 +935,7 @@ namespace OpenBve {
                         Array.Sort<string>(Folders);
                         for (int i = 0; i < Folders.Length; i++) {
                             string Name = System.IO.Path.GetFileName(Folders[i]);
+                            if (Name[0] == '.') continue;
                             if (Name.Length == 0) Name = Folders[i];
                             ListViewItem Item = listviewRouteFiles.Items.Add(Name);
                             Item.ImageKey = "folder";
@@ -951,6 +952,7 @@ namespace OpenBve {
                                 case ".rw":
                                 case ".csv":
                                     string Name = System.IO.Path.GetFileName(Files[i]);
+                                    if (Name[0] == '.') continue;
                                     if (Name.Length == 0) Name = Files[i];
                                     ListViewItem Item = listviewRouteFiles.Items.Add(Name);
                                     Item.ImageKey = "file";
@@ -1115,6 +1117,7 @@ namespace OpenBve {
                             try {
                                 string File = Interface.GetCombinedFileName(Folders[i], "train.dat");
                                 string Name = System.IO.Path.GetFileName(Folders[i]);
+                                if (Name[0] == '.') continue;
                                 if (Name.Length == 0) Name = Folders[i];
                                 ListViewItem Item = listviewTrainFolders.Items.Add(Name);
                                 if (System.IO.File.Exists(File)) {
