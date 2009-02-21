@@ -89,7 +89,7 @@ namespace OpenBve {
         }
         internal static Options CurrentOptions;
         internal static bool LoadOptions() {
-            CurrentOptions.LanguageCode = System.Globalization.CultureInfo.CurrentCulture.Name.Substring(0, 2);
+            CurrentOptions.LanguageCode = "none";
             CurrentOptions.FullscreenMode = false;
             CurrentOptions.WindowWidth = 960;
             CurrentOptions.WindowHeight = 600;

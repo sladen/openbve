@@ -306,15 +306,33 @@ namespace OpenBve {
             updownSoundNumber.Value = (decimal)Interface.CurrentOptions.SoundNumber;
             // language
             {
+		string Code = Interface.CurrentOptions.LanguageCode;
+		if (Code.Length == 0)
+		    Code = System.Globalization.CultureInfo.CurrentCulture.Name;
+		Console.Error.WriteLine(System.Globalization.CultureInfo.CurrentCulture.Name);
+                Console.Error.WriteLine('"' + Interface.CurrentOptions.LanguageCode + "\", \"" + Code + '"');
                 int j;
-                for (j = 0; j < LanguageFiles.Length; j++) {
-                    string File = Interface.GetCombinedFileName(Folder, "language_" + Interface.CurrentOptions.LanguageCode + ".cfg");
-                    if (string.Compare(File, LanguageFiles[j], StringComparison.OrdinalIgnoreCase) == 0) {
-                        comboboxLanguages.SelectedIndex = j;
-                        break;
-                    }
-                }
+                for (int codeLength = 5; codeLength > 0; codeLength -= 3) { // 5, then 2, then stop
+                    try { 
+                        string trialCode = Code.Substring(0, codeLength);
+                        string File = Interface.GetCombinedFileName(Folder, "language_" + trialCode + ".cfg");
+                        for (j = 0; j < LanguageFiles.Length; j++) {
+                            Console.Error.WriteLine(File + ", " + LanguageFiles[j]);
+                            if (string.Compare(File, LanguageFiles[j], StringComparison.OrdinalIgnoreCase) == 0) {
+                                Console.Error.WriteLine("yes");
+                                if (trialCode == Interface.CurrentOptions.LanguageCode) // Only select in combobox if *explicitly* set
+                                    comboboxLanguages.SelectedIndex = j;
+                                Interface.LoadLanguage(File);
+                                ApplyLanguage();
+                                codeLength = 0; // break out of both loops;
+                                break;
+                            }
+                            Console.Error.WriteLine("no");
+                        }
+		    } catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
+		}
                 if (j == LanguageFiles.Length) {
+	            Console.Error.WriteLine("default");
                     try {
                         string File = Interface.GetCombinedFileName(Folder, "language_en.cfg");
                         Interface.LoadLanguage(File);

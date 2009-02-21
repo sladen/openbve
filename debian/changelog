@@ -7,6 +7,7 @@ openbve (0.9.5.5-0ubuntu2) unreleased; urgency=low
   * Update manpage with initial tab options
   * Disable spurious Train folder warning message, as existance is not required later
   * Replace while(true) with else..if in LoadManager.cs
+  * Handle ll-CC default langauge selection and fall back to just ll.
 	
  -- Paul Sladen <ubuntu@paul.sladen.org>  Thu, 19 Feb 2009 18:49:21 +0000
 
