@@ -95,6 +95,12 @@ and then clicking back works around it, so this is probably a race condition.
 20. No way reset the Train (and camera) to be upright after a crash.  You
 should drive more carefully next time!
 
+21. In full-screen on Linux, the mouse-cursor (pointer) remains visible in
+the centre of the screen.
+
+22. Excessive re-drawing of the listview boxes causes the interface to lag
+(particularly noticable when typing in the route selection path box.
+
 In-progress:
 ------------
 12. Language Locale not automatically set by default;  patched to  use
