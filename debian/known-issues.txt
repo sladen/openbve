@@ -103,6 +103,13 @@ the centre of the screen.
 22. Excessive re-drawing of the listview boxes causes the interface to lag
 (particularly noticable when typing in the route selection path box.
 
+23. If the Train/ and Railway/ do not share and immediate common parent
+directory, the external view (may) not be loaded.
+
+24. Route-specific Timetable overlays try to be loaded from
+Train/somewhere/../../Railway/Object/...  rather than directly from
+Railway/Object/...
+
 In-progress:
 ------------
 12. Language Locale not automatically set by default;  patched to  use
