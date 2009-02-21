@@ -687,25 +687,14 @@ namespace OpenBve {
             try {
 #endif
             if (!System.IO.Path.HasExtension(FileName)) {
-                while (true) {
-                    string f;
-                    f = Interface.GetCorrectedFileName(FileName + ".x");
-                    if (System.IO.File.Exists(f)) {
-                        FileName = f;
-                        break;
-                    }
-                    f = Interface.GetCorrectedFileName(FileName + ".csv");
-                    if (System.IO.File.Exists(f)) {
-                        FileName = f;
-                        break;
-                    }
-                    f = Interface.GetCorrectedFileName(FileName + ".b3d");
-                    if (System.IO.File.Exists(f)) {
-                        FileName = f;
-                        break;
-                    }
-                    break;
-                }
+		string f;
+		if (System.IO.File.Exists(f = Interface.GetCorrectedFileName(FileName + ".x"))) {
+		    FileName = f;
+		} else if (System.IO.File.Exists(f = Interface.GetCorrectedFileName(FileName + ".csv"))) {
+		    FileName = f;
+		} else if (System.IO.File.Exists(f = Interface.GetCorrectedFileName(FileName + ".b3d"))) {
+		    FileName = f;
+		}
             }
             UnifiedObject Result;
             switch (System.IO.Path.GetExtension(FileName).ToLowerInvariant()) {
@@ -737,25 +726,14 @@ namespace OpenBve {
             try {
 #endif
             if (!System.IO.Path.HasExtension(FileName)) {
-                while (true) {
-                    string f;
-                    f = Interface.GetCorrectedFileName(FileName + ".x");
-                    if (System.IO.File.Exists(f)) {
-                        FileName = f;
-                        break;
-                    }
-                    f = Interface.GetCorrectedFileName(FileName + ".csv");
-                    if (System.IO.File.Exists(f)) {
-                        FileName = f;
-                        break;
-                    }
-                    f = Interface.GetCorrectedFileName(FileName + ".b3d");
-                    if (System.IO.File.Exists(f)) {
-                        FileName = f;
-                        break;
-                    }
-                    break;
-                }
+		string f;
+		if (System.IO.File.Exists(f = Interface.GetCorrectedFileName(FileName + ".x"))) {
+		    FileName = f;
+		} else if (System.IO.File.Exists(f = Interface.GetCorrectedFileName(FileName + ".csv"))) {
+		    FileName = f;
+		} else if (System.IO.File.Exists(f = Interface.GetCorrectedFileName(FileName + ".b3d"))) {
+		    FileName = f;
+		}
             }
             StaticObject Result;
             switch (System.IO.Path.GetExtension(FileName).ToLowerInvariant()) {
