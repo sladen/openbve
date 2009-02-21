@@ -49,7 +49,9 @@ namespace OpenBve {
             string Folder = System.IO.Path.GetDirectoryName(RouteFile);
             while (true) {
                 string Subfolder = Interface.GetCombinedFolderName(Folder, "Railway");
-                /* Checking for the "Train" folder is unnecessary, as it is not used later */
+                /* Checking for the "Train" folder is unnecessary, as it is not used later
+                ** Although it would probably be a good idea to check for 'Object/ and Sound/'
+                */
                 if (System.IO.Directory.Exists(Subfolder)) {
                 //    string a = Interface.GetCombinedFolderName(Folder, "Train");
                 //    if (System.IO.Directory.Exists(a)) {
