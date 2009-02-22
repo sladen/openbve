@@ -1,5 +1,7 @@
 openbve (0.9.5.5-0ubuntu2) unreleased; urgency=low
 
+  * Fix FTBFS: append 'libtaoframework-openal1.1-cil' and 'libmono-winforms2.0-cil'
+    and move 'mono-xbuild' from -Indep (for clean target).
   * Use optimised compiler target (Release, instead of Debug)
   * Use '/usr/share/games/bve/' as default train/route location
   * Only whinge about plugins not being available if 'ats.cfg' exists
