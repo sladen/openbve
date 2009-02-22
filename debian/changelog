@@ -8,7 +8,6 @@ openbve (0.9.5.5-0ubuntu2) unreleased; urgency=low
   * Don't display hidden .files and .folders in ListViews
   * Update manpage with initial tab options
   * Disable spurious Train folder warning message, as existance is not required later
-  * Replace while(true) with else..if in LoadManager.cs
   * Handle ll-CC default langauge selection and fall back to just ll.
   * Use Sdl_WM_SetIcon() on all platforms
 
