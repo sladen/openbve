@@ -110,6 +110,11 @@ directory, the external view (may) not be loaded.
 Train/somewhere/../../Railway/Object/...  rather than directly from
 Railway/Object/...
 
+25. After a route is selected in the listview, the circular "busy"
+mouse pointer may stay busy even after loading is completely.  As
+a workaround, move the mouse-pointer out of the listview rectangle
+and back in again.
+
 In-progress:
 ------------
 12. Language Locale not automatically set by default;  patched to  use
