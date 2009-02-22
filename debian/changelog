@@ -11,6 +11,7 @@ openbve (0.9.5.5-0ubuntu2) unreleased; urgency=low
     as existance is not required later
   * Handle ll-CC default langauge selection and fall back to just ll.
   * Use Sdl_WM_SetIcon() on all platforms
+  * Bump openbve-data (>= 0.9.5.5+dfsg-0ubuntu3) dependency
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Thu, 19 Feb 2009 18:49:21 +0000
 
