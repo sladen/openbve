@@ -148,8 +148,8 @@ namespace OpenBve {
             Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_ALPHA_SIZE, 8);
             Sdl.SDL_ShowCursor(Sdl.SDL_DISABLE);
             int Bits = Interface.CurrentOptions.FullscreenMode ? Interface.CurrentOptions.FullscreenBits : 32;
-            // icon
-            if (Program.CurrentPlatform == Platform.Windows) {
+            // icon, all platforms, not just MS Windows
+            try {
                 string File = Interface.GetCombinedFileName(Interface.GetCombinedFolderName(Application.StartupPath, "Interface"), "icon.bmp");
                 if (System.IO.File.Exists(File)) {
                     IntPtr Bitmap = Sdl.SDL_LoadBMP(File);
@@ -160,7 +160,7 @@ namespace OpenBve {
                         Sdl.SDL_WM_SetIcon(Bitmap, null);
                     }
                 }
-            }
+            } catch { }
             // create window
             IntPtr video = Sdl.SDL_SetVideoMode(Width, Height, Bits, Sdl.SDL_OPENGL | Sdl.SDL_DOUBLEBUF | (Interface.CurrentOptions.FullscreenMode ? Sdl.SDL_FULLSCREEN : 0));
             if (video != IntPtr.Zero) {
