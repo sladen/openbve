@@ -1,4 +1,4 @@
-openbve (0.9.5.5-0ubuntu2) unreleased; urgency=low
+openbve (0.9.5.5-0ubuntu2) jaunty; urgency=low
 
   * Fix FTBFS: 'libtaoframework-openal1.1-cil' and 'libmono-winforms2.0-cil'
     plus move 'mono-xbuild' from -Indep (for clean target).
