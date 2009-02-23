@@ -1466,7 +1466,13 @@ namespace OpenBve {
                                                         Data.TimetableDaytime[i] = -1;
                                                     }
                                                 }
-                                                string f = Interface.GetCombinedFileName(TrainPath, Arguments[0]);
+                                                // Hack: try something in the Route's hierarchy first; not sure
+                                                // what the clean way to do this would be...  Also this is the only
+                                                // (mis-)use? of Trainpath whilst parsing a Route
+                                                string f = Interface.GetCombinedFileName(ObjectPath, Arguments[0]);
+                                                if(!System.IO.File.Exists(f)) {
+                                                   f = Interface.GetCombinedFileName(TrainPath, Arguments[0]);
+                                                }
                                                 if (!System.IO.File.Exists(f)) {
                                                     Interface.AddMessage(Interface.MessageType.Error, true, "Texture file " + f + " not found in Train.Timetable at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                                 } else {
@@ -1490,7 +1496,13 @@ namespace OpenBve {
                                                         Data.TimetableNighttime[i] = -1;
                                                     }
                                                 }
-                                                string f = Interface.GetCombinedFileName(TrainPath, Arguments[0]);
+                                                // Hack: try something in the Route's hierarchy first; not sure
+                                                // what the clean way to do this would be...  Also this is the only
+                                                // (mis-)use? of Trainpath whilst parsing a Route
+                                                string f = Interface.GetCombinedFileName(ObjectPath, Arguments[0]);
+                                                if(!System.IO.File.Exists(f)) {
+                                                   f = Interface.GetCombinedFileName(TrainPath, Arguments[0]);
+                                                }
                                                 if (!System.IO.File.Exists(f)) {
                                                     Interface.AddMessage(Interface.MessageType.Error, true, "Texture file " + f + " not found in Train.Timetable at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
                                                 } else {
