@@ -9,16 +9,8 @@ namespace OpenBve {
         private class SoundBuffer {
             internal string FileName;
             internal double Duration;
-            internal int OpenAlBufferName;
+            internal int OpenAlBufferIndex;
             internal float Radius;
-
-	    public SoundBuffer()
-	    {
-                this.FileName = null;
-                this.Duration = 0.0;
-                this.OpenAlBufferName = 0;
-                this.Radius = 10.0f;
-            }
         }
         private static SoundBuffer[] SoundBuffers = new SoundBuffer[16];
 
@@ -27,7 +19,7 @@ namespace OpenBve {
             internal World.Vector3D Position;
             internal float[] OpenAlPosition;
             internal float[] OpenAlVelocity;
-            internal int OpenAlSourceName;
+            internal int OpenAlSourceIndex;
             internal int SoundBufferIndex;
             internal double Radius;
             internal float Pitch;
@@ -38,26 +30,6 @@ namespace OpenBve {
             internal bool HasHandle;
             internal int TrainIndex;
             internal int CarIndex;
-
-	    public SoundSource()
-	    {
-                //this.Position = null;
-                ////this.OpenAlPosition = new float[] { 0.0f, 0.0f, 0.0f };
-                ////this.OpenAlVelocity = new float[] { 0.0f, 0.0f, 0.0f };
-                //this.OpenAlPosition = new float[];
-                //this.OpenAlVelocity = new float[];
-                //this.SoundBufferIndex = null;
-                //this.Radius = 10.0f;
-                //this.Pitch = 0.0f;
-                //this.Gain = 1.0f;
-                //this.Looped = false;
-                //this.Suppressed = false;
-                //this.FinishedPlaying = false;
-                //this.TrainIndex = null;
-                //this.CarIndex = null;
-                //this.OpenAlSourceName = 0;
-                //this.HasHandle = null;
-	    }
         }
         internal static SoundSource[] SoundSources = new SoundSource[16];
 
@@ -101,7 +73,6 @@ namespace OpenBve {
 
         // deinitialize
         internal static void Deinitialize() {
-	    Console.Error.WriteLine("SoundManager.Deinitialize() called");
             SoundManager.StopAllSounds(true);
             SoundManager.UnuseAllSoundsBuffers();
             SdlMixer.Mix_CloseAudio();
@@ -172,22 +143,31 @@ namespace OpenBve {
                         px -= cx; py -= cy; pz -= cz;
                         double sp = TrainManager.Trains[t].Specs.CurrentAverageSpeed;
                         if (World.CameraMode != World.CameraViewMode.Interior) {
-                            SoundSources[i].OpenAlVelocity = new float[] { (float)(tx * sp), (float)(ty * sp), (float)(tz * sp) };
+                            SoundSources[i].OpenAlVelocity[0] = (float)(tx * sp);
+                            SoundSources[i].OpenAlVelocity[1] = (float)(ty * sp);
+                            SoundSources[i].OpenAlVelocity[2] = (float)(tz * sp);
                         } else {
-                            SoundSources[i].OpenAlVelocity = new float[] { (float)(tx * sp - vx), (float)(ty * sp - vy), (float)(tz * sp - vz) };
+                            SoundSources[i].OpenAlVelocity[0] = (float)(tx * sp - vx);
+                            SoundSources[i].OpenAlVelocity[1] = (float)(ty * sp - vy);
+                            SoundSources[i].OpenAlVelocity[2] = (float)(tz * sp - vz);
                         }
                     } else {
                         px = rx - cx; py = ry - cy; pz = rz - cz;
                         if (World.CameraMode != World.CameraViewMode.Interior) {
-                            SoundSources[i].OpenAlVelocity = new float[] { 0.0f, 0.0f, 0.0f };
+                            SoundSources[i].OpenAlVelocity[0] = 0.0f;
+                            SoundSources[i].OpenAlVelocity[1] = 0.0f;
+                            SoundSources[i].OpenAlVelocity[2] = 0.0f;
                         } else {
-                            SoundSources[i].OpenAlVelocity = new float[] { (float)(-vx), (float)(-vy), (float)(-vz) };
+                            SoundSources[i].OpenAlVelocity[0] = (float)-vx;
+                            SoundSources[i].OpenAlVelocity[1] = (float)-vy;
+                            SoundSources[i].OpenAlVelocity[2] = (float)-vz;
                         }
                     }
                     double dt = px * px + py * py + pz * pz;
                     double rt = SoundSources[i].Radius * SoundSources[i].Radius;
                     bool update = false, play = false;
                     double gainfactor = 1.0;
+                    int j = SoundSources[i].OpenAlSourceIndex;
                     if (dt <= rt) {
                         update = true;
                         if (SoundSources[i].Suppressed) {
@@ -210,12 +190,11 @@ namespace OpenBve {
                             }
                             if (!SoundSources[i].Suppressed) {
                                 if (SoundSources[i].Looped) {
-                                    if (SoundSources[i].OpenAlSourceName != 0) {
-					Console.Error.WriteLine("alDeleteSources() => 0x{0:x8} (via Update())", SoundSources[i].OpenAlSourceName);
-                                        Al.alSourceStop(SoundSources[i].OpenAlSourceName);
-                                        Al.alDeleteSources(1, ref SoundSources[i].OpenAlSourceName);
-					SoundSources[i].OpenAlSourceName = 0;
+                                    if (j >= 0) {
+                                        Al.alSourceStop(j);
+                                        Al.alDeleteSources(1, ref j);
                                     }
+                                    SoundSources[i].OpenAlSourceIndex = -1;
                                     SoundSources[i].Suppressed = true;
                                 } else {
                                     StopSound(i, false);
@@ -229,23 +208,16 @@ namespace OpenBve {
                         SoundsQueriedPlaying++;
                         SoundsActuallyPlaying++;
                     }
-		    //Console.Error.WriteLine("play == {0}", play);
                     if (play) {
-		        //Console.Error.WriteLine("Index == 0x{0:x8}", SoundSources[i].SoundBufferIndex);
                         if (SoundSources[i].SoundBufferIndex >= 0) {
                             UseSoundBuffer(SoundSources[i].SoundBufferIndex);
-		            //Console.Error.WriteLine("OpenAlBufferName == 0x{0:x8}", SoundBuffers[SoundSources[i].SoundBufferIndex].OpenAlBufferName);
-                            if (SoundSources[i].OpenAlSourceName == 0) {
-				int j = SoundSources[i].OpenAlSourceName;
-			        //Console.Error.WriteLine("Moobar {s}", Al.alGetString(Al.alGetError()));
-				int new_source_name;
-                                Al.alGenSources(1, out new_source_name);
-				SoundSources[i].OpenAlSourceName = new_source_name;
-				Console.Error.WriteLine("alGenSources() => 0x{0:x8} (OpenAlBufferName == 0x{0:x8}", new_source_name, SoundBuffers[SoundSources[i].SoundBufferIndex].OpenAlBufferName);
+                            if (SoundBuffers[SoundSources[i].SoundBufferIndex].OpenAlBufferIndex >= 0) {
+                                Al.alGetError();
+                                Al.alGenSources(1, out j);
                                 int err = Al.alGetError();
-				Console.Error.WriteLine("err => {0}", err);
                                 if (err == Al.AL_NO_ERROR) {
-                                    Al.alSourcei(j, Al.AL_BUFFER, SoundBuffers[SoundSources[i].SoundBufferIndex].OpenAlBufferName);
+                                    SoundSources[i].OpenAlSourceIndex = j;
+                                    Al.alSourcei(j, Al.AL_BUFFER, SoundBuffers[SoundSources[i].SoundBufferIndex].OpenAlBufferIndex);
                                 } else {
                                     SoundSources[i].Suppressed = true;
                                     continue;
@@ -261,8 +233,9 @@ namespace OpenBve {
                     }
                     if (update) {
                         if (play || IsPlaying(i)) {
-			    int j = SoundSources[i].OpenAlSourceName;
-                            SoundSources[i].OpenAlPosition = new float[] { (float)px,  (float)py, (float)pz };
+                            SoundSources[i].OpenAlPosition[0] = (float)px;
+                            SoundSources[i].OpenAlPosition[1] = (float)py;
+                            SoundSources[i].OpenAlPosition[2] = (float)pz;
                             Al.alSourcefv(j, Al.AL_POSITION, SoundSources[i].OpenAlPosition);
                             Al.alSourcefv(j, Al.AL_VELOCITY, SoundSources[i].OpenAlVelocity);
                             Al.alSourcef(j, Al.AL_PITCH, SoundSources[i].Pitch);
@@ -275,7 +248,6 @@ namespace OpenBve {
                         }
                     }
                     if (play) {
-			int j = SoundSources[i].OpenAlSourceName;
                         Al.alSourcei(j, Al.AL_LOOPING, SoundSources[i].Looped ? Al.AL_TRUE : Al.AL_FALSE);
                         Al.alSourcef(j, Al.AL_REFERENCE_DISTANCE, SoundBuffers[SoundSources[i].SoundBufferIndex].Radius);
                         Al.alSourcePlay(j);
@@ -297,39 +269,39 @@ namespace OpenBve {
         // use sound buffer
         private static int UseSoundBuffer(int SoundBufferIndex) {
             if (SoundBufferIndex >= 0) {
-                if (SoundBuffers[SoundBufferIndex].OpenAlBufferName == 0) {
+                if (SoundBuffers[SoundBufferIndex].OpenAlBufferIndex == -1) {
                     // load via alut
-                    SoundBuffers[SoundBufferIndex].OpenAlBufferName = Alut.alutCreateBufferFromFile(SoundBuffers[SoundBufferIndex].FileName);
-                    if (SoundBuffers[SoundBufferIndex].OpenAlBufferName != 0) {
+                    SoundBuffers[SoundBufferIndex].OpenAlBufferIndex = Alut.alutCreateBufferFromFile(SoundBuffers[SoundBufferIndex].FileName);
+                    if (SoundBuffers[SoundBufferIndex].OpenAlBufferIndex != 0) {
                         // detect stereo
-                        int c; Al.alGetBufferi(SoundBuffers[SoundBufferIndex].OpenAlBufferName, Al.AL_CHANNELS, out c);
+                        int c; Al.alGetBufferi(SoundBuffers[SoundBufferIndex].OpenAlBufferIndex, Al.AL_CHANNELS, out c);
                         if (c == 1) {
                             // valid mono
                             try {
                                 // determine duration
-                                int bits; Al.alGetBufferiv(SoundBuffers[SoundBufferIndex].OpenAlBufferName, Al.AL_BITS, out bits);
-                                int channels; Al.alGetBufferiv(SoundBuffers[SoundBufferIndex].OpenAlBufferName, Al.AL_CHANNELS, out channels);
-                                int frequency; Al.alGetBufferiv(SoundBuffers[SoundBufferIndex].OpenAlBufferName, Al.AL_FREQUENCY, out frequency);
-                                int size; Al.alGetBufferiv(SoundBuffers[SoundBufferIndex].OpenAlBufferName, Al.AL_SIZE, out size);
+                                int bits; Al.alGetBufferiv(SoundBuffers[SoundBufferIndex].OpenAlBufferIndex, Al.AL_BITS, out bits);
+                                int channels; Al.alGetBufferiv(SoundBuffers[SoundBufferIndex].OpenAlBufferIndex, Al.AL_CHANNELS, out channels);
+                                int frequency; Al.alGetBufferiv(SoundBuffers[SoundBufferIndex].OpenAlBufferIndex, Al.AL_FREQUENCY, out frequency);
+                                int size; Al.alGetBufferiv(SoundBuffers[SoundBufferIndex].OpenAlBufferIndex, Al.AL_SIZE, out size);
                                 if (bits != 0 & frequency != 0) {
                                     SoundBuffers[SoundBufferIndex].Duration = 8.0 * (double)size / (double)(bits * frequency);
                                 } else {
                                     // guess duration
                                     System.IO.FileInfo f = new System.IO.FileInfo(SoundBuffers[SoundBufferIndex].FileName);
-                                    SoundBuffers[SoundBufferIndex].Duration = f.Length / 88200;
+                                    SoundBuffers[SoundBufferIndex].Duration = 0.0000113378684807256 * (double)f.Length;
                                 }
                             } catch {
                                 // guess duration
                                 System.IO.FileInfo f = new System.IO.FileInfo(SoundBuffers[SoundBufferIndex].FileName);
-                                SoundBuffers[SoundBufferIndex].Duration = f.Length / 88200;
+                                SoundBuffers[SoundBufferIndex].Duration = 0.0000113378684807256 * (double)f.Length;
                             }
                         } else {
                             // must not be stereo
-                            Al.alDeleteBuffers(1, new int[] { SoundBuffers[SoundBufferIndex].OpenAlBufferName });
-			    Console.Error.WriteLine("alDeleteBuffersA() => 0x{0:x8} (via UseSoundBuffer())", SoundBuffers[SoundBufferIndex].OpenAlBufferName);
-                            SoundBuffers[SoundBufferIndex].OpenAlBufferName = 0;
+                            Al.alDeleteBuffers(1, ref SoundBuffers[SoundBufferIndex].OpenAlBufferIndex);
+                            SoundBuffers[SoundBufferIndex].OpenAlBufferIndex = 0;
                         }
-		    } else {
+                    }
+                    if (SoundBuffers[SoundBufferIndex].OpenAlBufferIndex == 0) {
                         // load via sdl
                         IntPtr h = SdlMixer.Mix_LoadWAV(SoundBuffers[SoundBufferIndex].FileName);
                         if (h != IntPtr.Zero) {
@@ -337,30 +309,27 @@ namespace OpenBve {
                             SdlMixer.Mix_Chunk chu = (SdlMixer.Mix_Chunk)System.Runtime.InteropServices.Marshal.PtrToStructure(h, typeof(SdlMixer.Mix_Chunk));
                             if (chu.abuf != IntPtr.Zero) {
                                 // determine duration
-                                double dur = chu.alen * 8 / (44100 * 16 * 1);
+                                double dur = (double)chu.alen * 8.0 / (double)(44100 * 16 * 1);
                                 // convert data
                                 byte[] dat = new byte[chu.alen];
                                 System.Runtime.InteropServices.Marshal.Copy(chu.abuf, dat, 0, chu.alen);
                                 SdlMixer.Mix_FreeChunk(h);
                                 int i; Al.alGenBuffers(1, out i);
-				Console.Error.WriteLine("alGenBuffers() => 0x{0:x8} (via SDL)", i);
                                 Al.alBufferData(i, Al.AL_FORMAT_MONO16, dat, dat.Length, 44100);
-                                SoundBuffers[SoundBufferIndex].OpenAlBufferName = i;
+                                SoundBuffers[SoundBufferIndex].OpenAlBufferIndex = i;
                                 SoundBuffers[SoundBufferIndex].Duration = dur;
                             } else {
                                 // no usable sound
                                 SdlMixer.Mix_FreeChunk(h);
-                                SoundBuffers[SoundBufferIndex].OpenAlBufferName = 0;
-				Console.Error.WriteLine("// no usable sound (1)");
+                                SoundBuffers[SoundBufferIndex].OpenAlBufferIndex = -1;
                             }
                         } else {
                             // no usable sound
-                            SoundBuffers[SoundBufferIndex].OpenAlBufferName = 0;
-			    Console.Error.WriteLine("// no usable sound (2)");
+                            SoundBuffers[SoundBufferIndex].OpenAlBufferIndex = -1;
                         }
                     }
                 }
-                return SoundBuffers[SoundBufferIndex].OpenAlBufferName;
+                return SoundBuffers[SoundBufferIndex].OpenAlBufferIndex;
             } else {
                 return -1;
             }
@@ -368,10 +337,9 @@ namespace OpenBve {
 
         // unuse sound buffer
         private static void UnuseSoundBuffer(int SoundBufferIndex) {
-            if (SoundBuffers[SoundBufferIndex].OpenAlBufferName != 0) {
-                Al.alDeleteBuffers(1, new int[] { SoundBuffers[SoundBufferIndex].OpenAlBufferName});
-		Console.Error.WriteLine("alDeleteBuffersB() => 0x{0:x8} (via UnuseSoundBuffer())", SoundBuffers[SoundBufferIndex].OpenAlBufferName);
-                SoundBuffers[SoundBufferIndex].OpenAlBufferName = 0;
+            if (SoundBuffers[SoundBufferIndex].OpenAlBufferIndex >= 0) {
+                Al.alDeleteBuffers(1, ref SoundBuffers[SoundBufferIndex].OpenAlBufferIndex);
+                SoundBuffers[SoundBufferIndex].OpenAlBufferIndex = -1;
             }
         }
         private static void UnuseAllSoundsBuffers() {
@@ -398,7 +366,7 @@ namespace OpenBve {
             }
             SoundBuffers[i] = new SoundBuffer();
             SoundBuffers[i].FileName = FileName;
-            SoundBuffers[i].OpenAlBufferName = 0;
+            SoundBuffers[i].OpenAlBufferIndex = -1;
             SoundBuffers[i].Radius = (float)Radius;
             return i;
         }
@@ -437,7 +405,6 @@ namespace OpenBve {
                 StopSound(ref SoundSourceIndex);
             }
             if (Game.MinimalisticSimulation & Important == Importance.DontCare) {
-	        Console.Error.WriteLine("PlaySound() skipped because of Importance.DontCare");
                 return;
             }
             if (SoundBufferIndex == -1) {
@@ -452,13 +419,18 @@ namespace OpenBve {
             }
             SoundSources[i] = new SoundSource();
             SoundSources[i].Position = Position;
+            SoundSources[i].OpenAlPosition = new float[] { 0.0f, 0.0f, 0.0f };
+            SoundSources[i].OpenAlVelocity = new float[] { 0.0f, 0.0f, 0.0f };
             SoundSources[i].SoundBufferIndex = SoundBufferIndex;
             SoundSources[i].Radius = SoundBuffers[SoundBufferIndex].Radius;
             SoundSources[i].Pitch = (float)Pitch;
             SoundSources[i].Gain = (float)Gain;
             SoundSources[i].Looped = Looped;
+            SoundSources[i].Suppressed = true;
+            SoundSources[i].FinishedPlaying = false;
             SoundSources[i].TrainIndex = TrainIndex;
             SoundSources[i].CarIndex = CarIndex;
+            SoundSources[i].OpenAlSourceIndex = -1;
             SoundSources[i].HasHandle = ReturnHandle;
             SoundSourceIndex = i;
         }
@@ -481,11 +453,10 @@ namespace OpenBve {
         }
         internal static void StopSound(ref int SoundSourceIndex) {
             if (SoundSourceIndex >= 0 && SoundSources[SoundSourceIndex] != null) {
-                int i = SoundSources[SoundSourceIndex].OpenAlSourceName;
-                if (i != 0) {
-		    Console.Error.WriteLine("alDeleteSources() => 0x{0:x8} (via StopSound)", i);
+                int i = SoundSources[SoundSourceIndex].OpenAlSourceIndex;
+                if (i >= 0) {
                     Al.alSourceStop(i);
-                    Al.alDeleteSources(1, new int[] {i});
+                    Al.alDeleteSources(1, ref i);
                 }
                 SoundSources[SoundSourceIndex] = null;
             }
@@ -512,8 +483,8 @@ namespace OpenBve {
                 if (SoundSources[SoundSourceIndex].Suppressed) {
                     return true;
                 } else {
-                    int i = SoundSources[SoundSourceIndex].OpenAlSourceName;
-                    if (i != 0) {
+                    int i = SoundSources[SoundSourceIndex].OpenAlSourceIndex;
+                    if (i >= 0) {
                         int state;
                         Al.alGetSourcei(i, Al.AL_SOURCE_STATE, out state);
                         return state == Al.AL_PLAYING;
