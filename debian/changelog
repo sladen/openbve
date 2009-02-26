@@ -1,7 +1,10 @@
 openbve (0.9.5.5-0ubuntu3) unreleased; urgency=low
 
+  * Try to shutdown OpenAL more fully.
+    - Shutdown Alut before SDL_Mixer
+    - Always use SDL for loading audio data
 
- -- Paul Sladen <ubuntu@paul.sladen.org>  Thu, 23 Feb 2009 12:48:27 +0000
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Mon, 23 Feb 2009 12:48:27 +0000
 
 openbve (0.9.5.5-0ubuntu2) jaunty; urgency=low
 
