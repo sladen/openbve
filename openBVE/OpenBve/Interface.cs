@@ -7,9 +7,15 @@ namespace OpenBve {
 
 		// special folders
 		internal static string GetSettingsFolder() {
+			return GetSettingsFolder(true);
+		}
+		internal static string GetSettingsFolder(bool ensure_exists) {
 			if (Program.UseFilesystemHierarchyStandard) {
 				string Folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-				return GetCombinedFolderName(Folder, "OpenBve");
+				Folder = GetCombinedFolderName(Folder, "OpenBve");
+				if (ensure_exists && !System.IO.Directory.Exists(Folder))
+					System.IO.Directory.CreateDirectory(Folder);
+				return Folder;
 			} else {
 				return GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Settings");
 			}
@@ -527,7 +533,10 @@ namespace OpenBve {
 				Builder.AppendLine(CurrentOptions.TrainEncodings[i].Codepage.ToString(Culture) + " = " + CurrentOptions.TrainEncodings[i].Value);
 			}
 			string File = Interface.GetCombinedFileName(GetSettingsFolder(), "options.cfg");
+			try {
+			Console.Error.WriteLine("Writing to:'" + File + "'");
 			System.IO.File.WriteAllText(File, Builder.ToString(), new System.Text.UTF8Encoding(true));
+			} catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
 		}
 
 		// ================================
