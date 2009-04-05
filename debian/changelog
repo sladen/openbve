@@ -1,0 +1,36 @@
+openbve (0.9.5.5-0ubuntu3) unreleased; urgency=low
+
+  * Tweak manpage
+
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Thu, 23 Feb 2009 12:48:27 +0000
+
+openbve (0.9.5.5-0ubuntu2) jaunty; urgency=low
+
+  * Fix FTBFS: 'libtaoframework-openal1.1-cil' and 'libmono-winforms2.0-cil'
+    plus move 'mono-xbuild' from -Indep (for clean target).
+  * Use optimised compiler target (Release, instead of Debug)
+  * Use '/usr/share/games/bve/' as default train/route location
+  * Only whinge about plugins not being available if 'ats.cfg' exists
+  * Don't display hidden .files and .folders in ListViews
+  * Update manpage with initial tab options
+  * Disable spurious Train folder warning message,
+    as existance is not required later
+  * Handle ll-CC default langauge selection and fall back to just ll.
+  * Use Sdl_WM_SetIcon() on all platforms
+  * Bump openbve-data (>= 0.9.5.5+dfsg-0ubuntu3) dependency
+  * Load timetables relative to route directory, not trainpath
+
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Thu, 19 Feb 2009 18:49:21 +0000
+
+openbve (0.9.5.5-0ubuntu1) jaunty; urgency=low
+
+  * New upstream release 0.9.5.5, dated 20090217-2228
+  * Initial release (LP: #331188)
+	
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Wed, 18 Feb 2009 23:23:30 +0200
+
+openbve (0.9.5.0-0ubuntu1) unreleased; urgency=low
+
+  * import 0.9.5.0, dated 20090201-1953
+
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Fri, 15 Feb 2009 11:51:30 +0100
