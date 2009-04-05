@@ -2,6 +2,8 @@
 export DH_VERBOSE=15
 BUILDDIRS = openBVE/OpenBve
 TARGET = $(CURDIR)/debian/openbve
+DEBUG_CONFIGURATION=Debug
+#DEBUG_CONFIGURATION=Release
 
 configure: configure-stamp
 configure-stamp:
@@ -12,7 +14,7 @@ build: build-stamp
 build-stamp: configure-stamp 
 	dh_testdir
 	for builddir in $(BUILDDIRS); do \
-	  (cd $$builddir && xbuild /p:Configuration=Release) || exit 1; \
+	  (cd $$builddir && xbuild /p:Configuration=$(DEBUG_CONFIGURATION) ) || exit 1; \
 	done
 	touch build-stamp
 
@@ -33,8 +35,8 @@ install: build
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
-	install -m 755 $(CURDIR)/openBVE/OpenBve/bin/Release/OpenBve.exe $(TARGET)/usr/lib/openbve/
-	install -m 644 $(CURDIR)/openBVE/OpenBve/bin/Release/OpenBve.exe.mdb $(TARGET)/usr/lib/openbve/
+	install -m 755 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe $(TARGET)/usr/lib/openbve/
+	install -m 644 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe.mdb $(TARGET)/usr/lib/openbve/
 	install -m 755 -T $(CURDIR)/debian/openbve.wrapper $(TARGET)/usr/games/openbve
 
 binary-arch:
