@@ -12,6 +12,7 @@ openbve (1.0.2.0-0buntu1) unreleased; urgency=low
   * Don't display hidden .files and .folders in ListViews
   * Include 'changelog.html' and 'releasenotes.html' downloaded from the website
   * Fix case in manpage documentation for '~/.config/OpenBve/'
+  * Add README.Debian covering Debian-centric patches
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Sun, 05 Apr 2009 12:33:10 +0000
 
