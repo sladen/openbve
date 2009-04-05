@@ -429,9 +429,9 @@
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonIgnore);
             this.Controls.Add(this.labelPanel);
+            this.Controls.Add(this.panelAlmost);
             this.Controls.Add(this.panelLoading);
             this.Controls.Add(this.panelProblems);
-            this.Controls.Add(this.panelAlmost);
             this.Name = "formLoading";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

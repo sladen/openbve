@@ -6,14 +6,14 @@ using System.Windows.Forms;
 namespace OpenBve {
     internal static class Program {
 
-        // members
+        //// system
         internal static string RestartProcessArguments = null;
         internal enum Platform { Windows, Linux, Mac }
         internal static Platform CurrentPlatform = Platform.Windows;
         internal static bool CurrentlyRunOnMono = false;
         internal static bool UseFilesystemHierarchyStandard = false;
 
-        // main
+        //// main
         [STAThread]
         internal static void Main(string[] Args) {
             Application.EnableVisualStyles();
@@ -21,13 +21,13 @@ namespace OpenBve {
             // platform and mono
             int p = (int)Environment.OSVersion.Platform;
             if (p == 4 | p == 128) {
-                /// general Unix
+                // general Unix
                 CurrentPlatform = Platform.Linux;
             } else if (p == 6) {
-                /// Mac
+                // Mac
                 CurrentPlatform = Platform.Mac;
             } else {
-                /// non-Unix
+                // non-Unix
                 CurrentPlatform = Platform.Windows;
             }
             CurrentlyRunOnMono = Type.GetType("Mono.Runtime") != null;
@@ -47,7 +47,12 @@ namespace OpenBve {
             try {
                 Start(Args);
             } catch (Exception ex) {
-                MessageBox.Show(GetExceptionText(ex, 5), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string t = GetExceptionText(ex, 5);
+                if (PluginManager.PluginError & PluginManager.PluginName != null) {
+                    MessageBox.Show("The " + PluginManager.PluginName + " plugin raised the following exception:\n\n" + t, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                } else {
+                    MessageBox.Show(t, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
 #endif
             // deinitialize
@@ -69,7 +74,7 @@ namespace OpenBve {
             }
         }
 
-        // get exception text
+        //// get exception text
         /// <summary>Returns a textual representation of an exception and its inner exceptions.</summary>
         /// <param name="ex">The exception to serialize.</param>
         /// <param name="Levels">The amount of inner exceptions to include.</param>
@@ -81,7 +86,7 @@ namespace OpenBve {
             }
         }
 
-        // start
+        //// start
         private static void Start(string[] Args) {
             // initialize sdl video
             if (Sdl.SDL_Init(Sdl.SDL_INIT_VIDEO) != 0) {
@@ -211,6 +216,8 @@ namespace OpenBve {
             // screen
             int Width = Interface.CurrentOptions.FullscreenMode ? Interface.CurrentOptions.FullscreenWidth : Interface.CurrentOptions.WindowWidth;
             int Height = Interface.CurrentOptions.FullscreenMode ? Interface.CurrentOptions.FullscreenHeight : Interface.CurrentOptions.WindowHeight;
+            if (Width < 16) Width = 16;
+            if (Height < 16) Height = 16;
             Renderer.ScreenWidth = Width;
             Renderer.ScreenHeight = Height;
             World.AspectRatio = (double)Renderer.ScreenWidth / (double)Renderer.ScreenHeight;
@@ -244,10 +251,14 @@ namespace OpenBve {
                     try {
                         IntPtr Bitmap = Sdl.SDL_LoadBMP(File);
                         if (Bitmap != null) {
-                            Sdl.SDL_Surface Surface = (Sdl.SDL_Surface)System.Runtime.InteropServices.Marshal.PtrToStructure(Bitmap, typeof(Sdl.SDL_Surface));
-                            int ColorKey = Sdl.SDL_MapRGB(Surface.format, 0, 0, 255);
-                            Sdl.SDL_SetColorKey(Bitmap, Sdl.SDL_SRCCOLORKEY, ColorKey);
-                            Sdl.SDL_WM_SetIcon(Bitmap, null);
+                            if (CurrentPlatform == Platform.Windows) {
+                                Sdl.SDL_Surface Surface = (Sdl.SDL_Surface)System.Runtime.InteropServices.Marshal.PtrToStructure(Bitmap, typeof(Sdl.SDL_Surface));
+                                int ColorKey = Sdl.SDL_MapRGB(Surface.format, 0, 0, 255);
+                                Sdl.SDL_SetColorKey(Bitmap, Sdl.SDL_SRCCOLORKEY, ColorKey);
+                                Sdl.SDL_WM_SetIcon(Bitmap, null);
+                            } else {
+                                Sdl.SDL_WM_SetIcon(Bitmap, null);
+                            }
                         }
                     } catch { }
                 }

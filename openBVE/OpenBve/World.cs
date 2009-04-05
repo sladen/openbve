@@ -203,6 +203,21 @@ namespace OpenBve {
                     this.Faces[0].Vertices[i].Index = (ushort)i;
                 }
             }
+            /// <summary>Creates a mesh consisting of the specified vertices, faces and color.</summary>
+            /// <param name="Vertices">The vertices used.</param>
+            /// <param name="FaceVertices">A list of faces represented by a list of references to vertices.</param>
+            /// <param name="Color">The color to be applied on all of the faces.</param>
+            internal Mesh(Vertex[] Vertices, int[][] FaceVertices, ColorRGBA Color) {
+                this.Vertices = Vertices;
+                this.Materials = new MeshMaterial[1];
+                this.Materials[0].Color = Color;
+                this.Materials[0].DaytimeTextureIndex = -1;
+                this.Materials[0].NighttimeTextureIndex = -1;
+                this.Faces = new MeshFace[FaceVertices.Length];
+                for (int i = 0; i < FaceVertices.Length; i++) {
+                    this.Faces[i] = new MeshFace(FaceVertices[i]);
+                }
+            }
         }
 
         // glow
@@ -272,12 +287,18 @@ namespace OpenBve {
         internal static CameraAlignment CameraAlignmentSpeed;
         internal static double CameraSpeed;
         internal const double CameraInteriorTopSpeed = 1.0;
-        internal const double CameraInteriorTopAngularSpeed = 2.0;
+        internal const double CameraInteriorTopAngularSpeed = 1.0;
         internal const double CameraExteriorTopSpeed = 50.0;
         internal const double CameraExteriorTopAngularSpeed = 5.0;
         internal const double CameraZoomTopSpeed = 2.0;
         internal enum CameraViewMode { Interior, Exterior, Track, FlyBy, FlyByZooming }
         internal static CameraViewMode CameraMode;
+        
+        // camera memory
+        internal static CameraAlignment CameraSavedInterior;
+        internal static CameraAlignment CameraSavedExterior;
+        internal static CameraAlignment CameraSavedTrack;
+        internal static double CameraSavedTrackPosition;
 
         // camera restriction
         internal static Vector3D CameraRestrictionBottomLeft = new Vector3D(-1.0, -1.0, 1.0);

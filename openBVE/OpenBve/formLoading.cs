@@ -30,6 +30,7 @@ namespace OpenBve {
             labelRoute.Text = Interface.GetInterfaceString("loading_loading_route");
             labelTrain.Text = Interface.GetInterfaceString("loading_loading_train");
             labelAlmostTitle.Text = Interface.GetInterfaceString("loading_almost");
+            labelFilesNotFoundCaption.Text = Interface.GetInterfaceString("loading_almost_filesnotfound");
             buttonIssues.Text = Interface.GetInterfaceString("loading_almost_show");
             labelProblemsTitle.Text = Interface.GetInterfaceString("loading_problems");
             listviewProblems.Columns[0].Text = Interface.GetInterfaceString("loading_problems_type");

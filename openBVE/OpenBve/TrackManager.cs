@@ -617,8 +617,8 @@ namespace OpenBve {
         // track element
         internal enum CantInterpolationMode {
             Linear = 0,
-            BiasForward = 1,
-            BiasBackward = 2
+            BiasBackward = 1,
+            BiasForward = 2
         }
         internal struct TrackElement {
             internal double StartingTrackPosition;
@@ -692,7 +692,7 @@ namespace OpenBve {
             if (UpdateWorldCoordinates) {
                 if (db != 0.0) {
                     if (CurrentTrack.Elements[i].CurveRadius != 0.0) {
-                        // side curve
+                        // curve
                         double r = CurrentTrack.Elements[i].CurveRadius;
                         double p = CurrentTrack.Elements[i].WorldDirection.Y / Math.Sqrt(CurrentTrack.Elements[i].WorldDirection.X * CurrentTrack.Elements[i].WorldDirection.X + CurrentTrack.Elements[i].WorldDirection.Z * CurrentTrack.Elements[i].WorldDirection.Z);
                         double s = db / Math.Sqrt(1.0 + p * p);
@@ -734,12 +734,12 @@ namespace OpenBve {
                     if (i < CurrentTrack.Elements.Length - 1) {
                         double t = db / (CurrentTrack.Elements[i + 1].StartingTrackPosition - CurrentTrack.Elements[i].StartingTrackPosition);
                         switch (CurrentTrack.Elements[i].CurveCantInterpolation) {
-                            case CantInterpolationMode.BiasForward:
+                            case CantInterpolationMode.BiasBackward:
                                 t *= t;
                                 t = 1.0 - t * t;
                                 t = 1.0 - t * t;
                                 break;
-                            case CantInterpolationMode.BiasBackward:
+                            case CantInterpolationMode.BiasForward:
                                 t = 1.0 - t;
                                 t *= t;
                                 t = 1.0 - t * t;

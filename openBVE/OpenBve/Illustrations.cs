@@ -109,34 +109,6 @@ namespace OpenBve {
                     }
                 }
             }
-            // draw speed limit changes
-#if false
-                Font f = new Font(FontFamily.GenericSansSerif, 9.0f, GraphicsUnit.Pixel);
-                System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
-                for (int i = 0; i < n; i++) {
-                    for (int j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
-                        if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.LimitChangeEvent) {
-                            TrackManager.LimitChangeEvent e = (TrackManager.LimitChangeEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
-                            double x = TrackManager.CurrentTrack.Elements[i].WorldPosition.X;
-                            double y = TrackManager.CurrentTrack.Elements[i].WorldPosition.Z;
-                            x = ox + w * (x - x0) * xd;
-                            y = oy + h + h * zd * (z0 - y);
-                            string t;
-                            if (e.NextSpeedLimit == double.PositiveInfinity) {
-                                t = "∞";
-                            } else {
-                                double s = e.NextSpeedLimit * 3.6;
-                                t = s.ToString("0", Culture);
-                            }
-                            SizeF m = g.MeasureString(t, f, Width, StringFormat.GenericDefault);
-                            RectangleF r = new RectangleF((float)x - 0.5f * m.Width, (float)y - 0.5f * m.Height, m.Width, m.Height);
-                            g.FillRectangle(Brushes.Salmon, r.Left, r.Top, r.Width, r.Height);
-                            g.DrawRectangle(Pens.Black, r.Left, r.Top, r.Width, r.Height);
-                            g.DrawString(t, f, Brushes.White, (float)r.Left, (float)r.Top);
-                        }
-                    }
-                }
-#endif
             // draw station names
             {
                 double wh = w * h;
