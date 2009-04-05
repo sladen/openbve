@@ -1,12 +1,8 @@
 Known bugs/issues with running OpenBVE on Linux/Ubuntu/Debian.
 ==============================================================
 
-Fixed and merged upstream:
---------------------------
-1. The binary 'OpenBve.exe' compiled by Michelle for MS Windows
-will crash out of the box;  hopefully this recompiled binary
-will work.
-
+Fixed and merged by upstream:
+-----------------------------
 2. If you have texture flashing issues; this is because the C-based
 OpenGL code was receiving pointers to single integers from the
 OpenBVE.  Fixed by passing a array.  Fixed upstream by passing
@@ -19,6 +15,18 @@ Kludged for the moment with try{}catch{} to not die.
 
 15. Window manager icon loading was not handled.
 
+5. Non-existant audio; sound should work the first time, but after
+quitting OpenAL complains about uncleaned-up buffers.  You will
+likely need to 'kill -9 pulseaudio', although this may not recover
+the situation.  Something in OpenAL/SDL isn't being cleanly shutdown.
+You may get the occasional sound afterwards on second/third attempts
+but not the full multi-channel surround experience.
+
+6. Captialisation.  The routes have a combination of UPPER, lower, and
+MiXeD cAsE filenames which is a problem on Unix.  The file-loading
+routinues need modifying to search for alterntively cased files if
+the filename as spelt can't be found.
+
 7. The London Undergrond cab 'LT_C69_77' appears in the centre of
 the screen in OpenBVE, meaning that you can't see where you're going.
 As a work-around, you may able to unlock the cam and move yourself up
@@ -27,22 +35,23 @@ a bit to look over the top of the console.  Sort-of-fixed in 0.9.5.5.
 the panel).  This is to do with the camera-restriction box algorithm
 used in OpenBVE.
 
-6. Captialisation.  The routes have a combination of UPPER, lower, and
-MiXeD cAsE filenames which is a problem on Unix.  The file-loading
-routinues need modifying to search for alterntively cased files if
-the filename as spelt can't be found.
-
-Fixed with outstanding patches:
--------------------------------
-4. Trying to write the directory the executable is in; On Unix this is
-likely to be owned by route.  Modified to use the CLR SpecialFolder
-functions and save configuration data in the right places.
+8. The sprites Gauges in cabs displayed are not displayed correctly,
+instead showing a different/stretched part of the overlay with blue
+tinting from the edges of the alpha mask.  Clipping/position broken.
+You will have to rely on the small rectangle OpenBVE overlays
+('EMG/B3/B2/B1/N/P1/P2/P3') instead.
 
 21. 'Security system warning', this refers to signalling system, not
 to the program trying to perform anything naughty!  As extension DLLs
 are not being available on Linux.  Patched to only display a warning
 *if* an 'ats.cfg' was present .  This avoids the Issues dialogue on an
 otherwise error-free route/train.
+
+Fixed with outstanding patches:
+-------------------------------
+4. Trying to write the directory the executable is in; On Unix this is
+likely to be owned by route.  Modified to use the CLR SpecialFolder
+functions and save configuration data in the right places.
 
 22. Hidden dot files/folders (those starting with '.') are clutter
 the filemanager.  Patched to skip listing dot-files;  you can
@@ -54,24 +63,17 @@ directory at some point.  # Disabled the check for 'Train/' as it is
 not actually used later (loading works fine when a Train/ and Railway/
 are in separate locations.
 
+26. British English and flag should be en-GB/GB (not 'en-UK/UK').
+
 Remaining:
 ----------
-5. Non-existant audio; sound should work the first time, but after
-quitting OpenAL complains about uncleaned-up buffers.  You will
-likely need to 'kill -9 pulseaudio', although this may not recover
-the situation.  Something in OpenAL/SDL isn't being cleanly shutdown.
-You may get the occasional sound afterwards on second/third attempts
-but not the full multi-channel surround experience.
-
-8. The sprites Gauges in cabs displayed are not displayed correctly,
-instead showing a different/stretched part of the overlay with blue
-tinting from the edges of the alpha mask.  Clipping/position broken.
-You will have to rely on the small rectangle OpenBVE overlays
-('EMG/B3/B2/B1/N/P1/P2/P3') instead.
+1. The binary 'OpenBve.exe' binary compiled by Michelle for MS Windows
+may crash out of the box; hopefully this patched recompile doesn't!
+(Whether this is true depends on the particular release!)...
 
 9. The preview images for trains and route in the file-manager screen
 display random binary data if the preview image isn't found (normally
-from being the incorrect case).
+from being the incorrect case).  This also applies to flag icons.
 
 10. Crashes if you provide correct  openbve /train=... /route=...
 
@@ -88,7 +90,7 @@ the interior camera; the cab/panel overlay appears in a different position.
 
 18. ExitToMainMenu causes a fork() and return (leaving the user at the
 command prompt and daemonising the second instance into the background)
-rather than using exec() or restarting itself.
+rather than using exec() or restarting itself.  This crashes OpenBVE.
 
 19. The program may sometimes display "route not found" or "train not found"
 even when the correct files do exist.  clicking on another route/directory
@@ -115,9 +117,20 @@ mouse pointer may stay busy even after loading is completely.  As
 a workaround, move the mouse-pointer out of the listview rectangle
 and back in again.
 
+26. On closing, it may go into an infinite loop waiting on a futex
+(100% CPU).
+
+27. First noticed in 1.0.2.0; alpha shading under bridges and lampposts
+will flicker and may be yellow instead of gray.  Other people have noticed
+similar issues since at least 0.9.3.3:
+http://openbve.freeforums.org/texture-colouration-in-xcs-t445.html
+
 In-progress:
 ------------
 12. Language Locale not automatically set by default;  patched to  use
 System.Globalization.CultureInfo.CurrentCulture.Name as default, but
 needs refining to cope with 'll_CC' not just 'll' language codes.
+This is done on first-load but then forcifully saved in the options
+even if the user has not manually selected a language (prevents
+future automatic language selection working).
 
