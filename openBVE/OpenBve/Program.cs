@@ -121,7 +121,7 @@ namespace OpenBve {
             Interface.LoadOptions();
             Interface.LoadControls(null, out Interface.CurrentControls);
             {
-                string f = Interface.GetCombinedFileName(Interface.GetControlsFolder(), "Default keyboard assignment.controls");
+                string f = Interface.GetCombinedFileName(Interface.GetDataFolder("Controls"), "Default keyboard assignment.controls");
                 Interface.Control[] c;
                 Interface.LoadControls(f, out c);
                 Interface.AddControls(ref Interface.CurrentControls, c);

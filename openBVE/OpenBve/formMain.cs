@@ -1763,7 +1763,7 @@ namespace OpenBve {
 		private void buttonControlsImport_Click(object sender, EventArgs e) {
 			OpenFileDialog Dialog = new OpenFileDialog();
 			Dialog.CheckFileExists = true;
-			Dialog.InitialDirectory = Interface.GetControlsFolder();
+			Dialog.InitialDirectory = Interface.GetDataFolder("Controls");
 			Dialog.Filter = Interface.GetInterfaceString("dialog_controlsfiles") + "|*.controls|" + Interface.GetInterfaceString("dialog_allfiles") + "|*";
 			if (Dialog.ShowDialog() == DialogResult.OK) {
 				try {
