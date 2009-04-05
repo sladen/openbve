@@ -1,3 +1,5 @@
 debian/licence-background.txt
 debian/known-issues.txt
 debian/routes-and-trains.txt
+debian/changelog.html
+debian/releasenotes.html

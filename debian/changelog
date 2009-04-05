@@ -10,6 +10,7 @@ openbve (1.0.2.0-0buntu1) unreleased; urgency=low
   * Load timetables relative to route directory, not trainpath
   + disable spurious Train folder warning message, as existance is not required later
   * Don't display hidden .files and .folders in ListViews
+  * Include 'changelog.html' and 'releasenotes.html' downloaded from the website
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Sun, 05 Apr 2009 12:33:10 +0000
 

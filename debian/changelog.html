@@ -1,0 +1,580 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="SHORTCUT ICON" href="../common/favicon.png" />
+<meta name="keywords" content="openBVE,homepage" />
+<title>Changelog</title>
+</head>
+<body style="font-family:sans-serif;font-size:small">
+<table width="100%" cellspacing="0" style="min-width:1090px">
+<tr>
+<td bgcolor="#000000" height="96"><a href="index.html"><img style="border: none;" src="../common/homepage_logo.png" alt="Logo" /></a></td>
+<td bgcolor="#000000" width="100%">
+<a href="about/index.html"><img style="border: none;" src="button_about.png" alt="About" /></a>
+&nbsp;<a href="screenshots.html"><img style="border: none;" src="button_screenshots.png" alt="Screenshots" /></a>
+&nbsp;<a href="use/index.html"><img style="border: none;" src="button_using.png" alt="Using" /></a>
+&nbsp;<a href="develop/index.html"><img style="border: none;" src="button_developing.png" alt="Developing" /></a>
+&nbsp;<a href="blog/index.html"><img style="border: none;" src="button_blog.png" alt="Blog" /></a>
+&nbsp;<a href="http://openbve.freeforums.org"><img style="border: none;" src="button_forum.png" alt="Forum" /></a>
+&nbsp;<a href="downloads.html"><img style="border: none;" src="button_downloads.png" alt="Download" /></a>
+</td>
+</tr>
+<tr><td bgcolor="#808080" height="16" style="background-image:url(../common/gradient_16.png)" colspan="2"></td></tr>
+<tr><td bgcolor="#E0E0E0" height="10" colspan="2"></td></tr>
+<tr><td bgcolor="#E0E0E0" colspan="2"><table cellspacing="15" width="100%"><tr><td>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0">
+<tr><td bgcolor="#808080" height="4" style="background-image:url(../common/gradient_04_inverted.png)">
+</td></tr>
+<tr><td height="24">
+<font color="#0060A0" size="+1"><b>Changelog&nbsp;</b></font>
+</td></tr>
+<tr><td bgcolor="#808080" height="4" style="background-image:url(../common/gradient_04.png)">
+</td></tr>
+</table><br />
+<table><tr style="height: 4px;"><td /></tr></table>
+↷ <a href="#history10">1.0 series (stable)</a><br />
+↷ <a href="#history09">0.9 series (development)</a><br />
+<br /><a name="history10" />
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF"><b>&nbsp;1.0 series (stable)&nbsp;</b></font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.0.2.0 (2009-04-05)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>If a train does not explicitly specify the operating pressure of the brake pipe, it is now assumed to be 490 kPa if applicable. The train.dat documentation describes this in more detail.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Bugfix: PNG and GIF textures are now synchronously loaded in order to prevent them from ending up in the alpha rendering list where applicable (which is more expensive to render and can cause visual glitches if too heavily populated due to the use of depth sorting).</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Bugfix: The <em>RefreshRate</em> parameter in animated objects was not applied if the animated object was used as a train exterior object.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Bugfix: Beacons which appeared before the starting position were not triggered, causing some trains to operate incorrectly on some routes.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.0.1.0 (2009-03-29)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The stop indicator previously showed in Expert mode, which was not intended. It is now displayed only in Arcade and Normal modes. Additionally, the debug output is now unavailable in Expert mode.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Camera settings are now preserved when changing interior, exterior and track views. The zoom is reset though when switching the views.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The scrolling speed inside the cab has been made slightly slower.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Some compatibility graphics (needles) have been resaved as 8-bit per channel RGBA in order to appear correctly on Linux.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The code that applied transparency to the SDL window icon is now only executed on Windows. It could previously crash the program on Linux.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Warning messages are now shown again in openBVE. However, both warning and error messages can now be invidually disabled in the Options menu. Developers are strictly encouraged to leave these settings enabled, though.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Track positions in RW and CSV routes now require to adhere to the <em>Strict</em> number format. Previously, they were interpreted as <em>Loose</em>, which could mess up the route too much if an invalid statement was interpreted as a track position.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>A default set of points of interests is now included for every station if the route does not define any points of interest itself.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The sound subsystem can now be deactivated in the options.cfg.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>OpenBve64.exe is now available. It can be used on 64-bit systems that also provide 64-bit versions of the dependencies.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Bugfix: Entering the <em>Jump to station</em> menu previously crashed the program with an <em>Index was outside the bounds of the array</em> when the route did not have any stations. The menu entry is not displayed any longer.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Bugfix: In animated objects, the <em>leftdoorstarget</em> and <em>rightdoorstarget</em> variables could previously crash the program with an <em>Index was outside the bounds of the array</em> message, or these variables simply didn't work correctly.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Bugfix: In animated objects, texture clamping was disabled and could lead to visual artifacts at the edges of some textures.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.0.0.0 (2009-03-23)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug that made the train topple and derail to the wrong side when driving backward.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Messages about missing support for Windows-only DLL plugins on Linux/Mac are now only generated if the train actually uses a plugin.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>If an exception (runtime error) occurs inside a plugin, openBVE now crashes with the name of the plugin being reported.</td>
+</tr></table>
+<br /><a name="history09" />
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF"><b>&nbsp;0.9 series (development)&nbsp;</b></font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.7.0&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug that made digital gauges (LEDs) appear incorrectly since 0.9.6.0.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Modified some of the ingame-displays, including bringing back old stop indicator and repositioning fps/clock/speed indicators.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The A.I. now drives at 80%-100% of the route speed, depending on a random initial choice. This adds some slight variation to the preceding train.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.6.0&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The in-game displays have been redrawn to result in a hopefully more professional look.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Cant (superelevation) is now interpolated between blocks to give a smoother ride.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The built-in security systems now cut off power when the doors are not fully closed.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The volume of flange sounds has been slightly adjusted.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug that caused a crash when colliding backward with buffer stop.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a design flaw in the sound manager that could randomly prevent sounds from playing on some sound cards.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Compatibility with compressed X files has been improved.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Radically improved Linux compatibility. The Filesystem Hierarchy Standard is now also supported. See the <em>Using openBVE</em> pages for more information on this.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Slight performance improvements and slightly reduced memory consumption.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The setting of the Arcade, Normal and Expert game modes are now preserved.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>A frame rate command has been introduced as MISC_FPS. The default key combination to show/hide it is CTRL+X.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.5.5&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The default encoding for all routes and trains is now UTF-8. Buttons for the three most commonly used encodings (Latin-1, Shift_JIS and Big-5) have been added to the main menu in order to quickly select these encodings.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Custom normals on animated objects are now preserved, allowing for smooth shading on such objects. Previously, smooth shading was not available on animated objects.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug that forced cars to run into the front car when the front car was prevented to move by a buffer stop.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed some bugs related to animated objects. In particular, the <em>pluginstate</em> variable was affected and did not work correctly.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.5.0&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Door operation can now be set to fully manual, automatic with manual override and fully automatic inside the train.dat. The default behavior is now automatic door operation with manual override.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Door opening and closing speeds are now the same as the durations of their respective sound files (if present).</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The new variables <em>leftdoorstarget</em> and <em>rightdoorstarget</em> are now available in functions (animated objects) in order to query the target state of the doors (compared to the current states of the doors.)</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The call to the HornBlow function in DLL plugins is now actually made. By accident, it was never implemented before.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.4.2&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Signal.Load can now be used to load animated objects as signals, and Track.SigF to place them. The signalling functionality of Track.FreeObj is now deprecated and will be removed soon.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Track.Signal and Track.SigF now all have additional <em>Yaw</em>, <em>Pitch</em> and <em>Roll</em> arguments.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug that prevented arguments enclosed by parantheses in CSV routes from being recognized whenever a space preceded the argument's parantheses and no other parantheses were used in the same expression.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug that prevented != from being recognized in functions (animated objects).</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.4.0&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Animated objects can now be used as train exterior objects, allowing for animated doors, wheels, and via plugins, also for whipers, headlights and more. The new variables <em>distance[i]</em>, <em>trackdistance[i]</em>, <em>cameradistance</em> and <em>pluginstate[i]</em> have been added.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Updated all compatibility signal graphics. The new images are slightly darker than the original ones, have more distinct colors (especially red vs. yellow) and use more photo-realistic textures.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug that prevented the motor sound volumes read from the train.dat from being correctly applied. Additionally, the volume curve has been further adjusted to produce output more similar to BVE Trainsim.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug and a compatibility issue that caused train plugins to receive wrong values regarding brake notches when the train was equipped with a hold brake system. The effect was mainly that the emergency brake could not be applied on those trains.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug that could cause custom timetable images to appear in the exterior view whenever the timetable was instructed to update but the user was not in the cab.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The scoring system has been fine-tuned. The most noticable effect is that lateness, off station stop and overspeed are now less penalized.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Added the <em>rev</em> subject to the panel2.cfg in order to allow showing the state of the reverser.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.3.7&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Removed all platform-specific conditional compilation from the source code. The same executable can now be used on all platforms (<em>not tested yet</em>).</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Adjusted the sound volume curve for motor power and electric brake. The most noticable effect is that lower brake notches now produce louder eletric brake sounds.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Adjusted the brake behavior. Some values that were previously not incorporated from the #MOVE section in the train.dat are so now.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Added variables for function scripts: <em>speedometer</em>, <em>trackdistance</em>, <em>leftdoors[i]</em>, <em>rightdoors[i]</em>. Changed the meanings of <em>speed</em> and <em>distance</em>.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug in the function script optimizer that prevented certain combinations of additions and multiplications from producing working code.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug that prevented the Texture.Background(<em>index</em>).Aspect command from being recognized.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.3.3&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Parts of the route parser have been completely rewritten to better account for the many syntactical variations possible in CSV routes and also to better recover from ill-conditions.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug that caused the route parser to crash when a signal was used before the first station.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed a bug that caused a departure signal to jump back to red once the train left the station area but did not pass the signal yet.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Added a version check facility to the main menu. The version check, once clicked, informs the user of possible updates available, but does not automatically download them.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.3.0&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Fixed wrong interpretation of commands in CSV routes when the arguments were enclosed in parantheses and spaces were used in the expression.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Changed fog behavior: By default, the fog will now blend from the old settings at the beginning of the block where <em>Track.Fog</em> is used to the new settings at the beginning of the next block. Additionally, the new command <em>Option.FogBehavior</em> allows to switch to a different interpretation where the fog is interpolated between successive <em>Track.Fog</em> commands akin to <em>Track.Brightness</em>.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Added subjects in the panel2.cfg: <em>ms</em> (meters/second), <em>mph</em> (miles/hour) and <em>atc</em>. Additionally, the <em>d0</em>, <em>d1</em>, <em>d2</em>, etc. suffixes can now be applied to all subjects.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Added commands to the panel.cfg: The <em>Unit</em> key-value pair has been added to the <em>DigitalIndicator</em> section in order to select between kilometers per hour, miles per hour or meters per second for the display.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Removed problematic algorithm for brake pipe pressure distribution. For the time being, the brake pipe pressure will be equal on all cars by having the brake pipe pressures from the different cars averaged.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Added new default keyboard configuration for notebooks (without keypad). This configuration remaps the keys that are normally assigned to the keypad to other keys instead. The configuration can be imported within the <em>Customize controls</em> tab in the main menu. Please inspect the list of commands to see which keys have been remapped.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.2.6&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The background cylinder has been given top and bottom caps. When the background image changes, the new image will now smoothly fade in.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Some admendments to the file formats have been made, including Japanese names of BVE 1 legacy for arguments in the panel.cfg, a compatibility fix regarding Track.Rail for route files  and some alterations to Option.UnitOfLength and Option.UnitOfSpeed behavior for route files.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Slight changes in brake behavior for automatic air brakes; some optimizations for function scripts.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.2.3&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The maximum angle that can be produced for forward/backward shaking has been slightly increased again, but the effect is no longer performed on the train exterior.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The effect of boarding passengers has been made less frequent and also less intense.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>In previous versions, some sounds would play with a seemingly random pitch or gain occasionally and usually non-reproducably, which has been corrected now. The problem resulted from the fact that the sound manager could stop sounds and free their handles if the respective sounds were too far away from the listener or too many sounds were playing at the same time, but the train manager still had a handle to that sound and was trying to modify its pitch or gain, resulting in a change of another sound which had been assigned the just freed handle.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>In previous versions, some sounds were modified in volume by a quadratic formula which only worked in the range from 0 to 1. As openBVE uses some sort of high dynamic range volume, occasionally volumes higher than 1 are encountered and incorrectly modified, forcing such high-volume sounds to become essentially mute instead. This has been resolved by not making use of such quadratic formulas any longer.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.2.2&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The forward/backward shaking has been made faster, while the maximum angle that can be produced has been reduced.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>If a route file referenced objects without file extensions, files of B3D, CSV and X types would be looked for in this order. This caused some signals to not load correctly if both an X file and B3D/CSV files of the same base name were present in the respective folder, but the developer intended to load the X file for the signal. As such, the precedence order is now reversed so that X files are looked for first, then CSV and finally B3D.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.2.1&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Passenger comfort now depends on how much the train is crowded (<em>Jam</em> parameter in <em>Track.Sta</em>)</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Removed in-game debug output that was not intended to show up in the public release.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v0.9.2.0&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The train now shakes forward/backward on excessive change of acceleration.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The train now shakes left/right as a result of passenger boarding at stations.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Jerk regulation is now used for both motor power and motor brake, leading to gentler changes in acceleration.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Animated scenery objects have been introduced and can be used by route developers mostly just as static objects.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Rewritten geometric transformations in the route loading process have fixed some alignment issues and also speed up the loading process slightly.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>A bug in the panel2.cfg parser has been fixed which previously inverted the yaw, so that the driver would be looking left instead of right or vice versa.</td>
+</tr></table>
+
+</td></tr></table>
+</td></tr>
+</table>
+</body>
+</html><script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-950416-50");
+pageTracker._trackPageview();
+} catch(err) {}</script>
