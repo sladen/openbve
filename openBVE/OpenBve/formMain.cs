@@ -161,11 +161,23 @@ namespace OpenBve {
 				textboxRouteFolder.Text = Interface.CurrentOptions.RouteFolder;
 			} else {
 				textboxRouteFolder.Text = Interface.GetPersonalFolder();
+				// For Debian/Ubuntu, the location for the packaged trains+routes is /usr/share/games/bve/*
+				// since these are optional, check if it has been created (installed) by another package instead of ~/
+				string s = Environment.GetFolderPath( Environment.SpecialFolder.CommonApplicationData ) + "/games/bve/Railway/Route";
+				if (Program.CurrentPlatform == Program.Platform.Linux && System.IO.Directory.Exists(s)) {
+					textboxRouteFolder.Text = s;
+				}
 			}
 			if (Interface.CurrentOptions.TrainFolder.Length != 0 && System.IO.Directory.Exists(Interface.CurrentOptions.TrainFolder)) {
 				textboxTrainFolder.Text = Interface.CurrentOptions.TrainFolder;
 			} else {
 				textboxTrainFolder.Text = Interface.GetPersonalFolder();
+				// For Debian/Ubuntu, the location for the packaged trains+routes is /usr/share/games/bve/*
+				// since these are optional, check if it has been created (installed) by another package instead of ~/
+				string s = Environment.GetFolderPath( Environment.SpecialFolder.CommonApplicationData ) + "/games/bve/Train";
+				if (Program.CurrentPlatform == Program.Platform.Linux && System.IO.Directory.Exists(s)) {
+					textboxTrainFolder.Text = s;
+				}
 			}
 			// encodings
 			{
