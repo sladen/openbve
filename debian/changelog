@@ -7,6 +7,8 @@ openbve (1.0.2.0-0buntu1) unreleased; urgency=low
   * Load first-use Keyboard mapping from GetDataFolder("Controls") not ~/
   * Default first-use game data from /usr/share/games/bve/{Railway/Route,Train}
   * Update 'openbve-data' Depends: >= 1.0.2.0+dfsg
+  * Load timetables relative to route directory, not trainpath
+  + disable spurious Train folder warning message, as existance is not required later
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Sun, 05 Apr 2009 12:33:10 +0000
 

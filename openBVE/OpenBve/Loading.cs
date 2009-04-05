@@ -50,10 +50,8 @@ namespace OpenBve {
 			while (true) {
 				string Subfolder = Interface.GetCombinedFolderName(Folder, "Railway");
 				if (System.IO.Directory.Exists(Subfolder)) {
-					string a = Interface.GetCombinedFolderName(Folder, "Train");
-					if (System.IO.Directory.Exists(a)) {
-						return Subfolder;
-					}
+					/* Checking for the "Train" folder is unnecessary, as it is not used later */
+					return Subfolder;
 				}
 				System.IO.DirectoryInfo Info = System.IO.Directory.GetParent(Folder);
 				if (Info == null) return null;
@@ -77,7 +75,7 @@ namespace OpenBve {
 		private static void LoadEverythingThreaded() {
 			string RailwayFolder = GetRailwayFolder(CurrentRouteFile);
 			if (RailwayFolder == null) {
-				Interface.AddMessage(Interface.MessageType.Critical, false, "The Railway and Train folders could not be found in any of the route file's parent directories. Please check your folder structure.");
+				Interface.AddMessage(Interface.MessageType.Critical, false, "The Railway folder could not be found in any of the route file's parent directories. Please check your folder structure.");
 				return;
 			}
 			string ObjectFolder = Interface.GetCombinedFolderName(RailwayFolder, "Object");
