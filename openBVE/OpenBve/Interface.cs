@@ -412,10 +412,13 @@ namespace OpenBve {
 					int i = Code.IndexOf("-", StringComparison.Ordinal);
 					if (i > 0) {
 						Code = Code.Substring(0, i);
+						try {
+						Console.Error.WriteLine("GetCorrectedFileName(\"" + Code + ".cfg\");");
 						File = GetCorrectedFileName(Code + ".cfg");
 						if (System.IO.File.Exists(File)) {
 							CurrentOptions.LanguageCode = Code;
 						}
+						} catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
 					}
 				}
 			}
