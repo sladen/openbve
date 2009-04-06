@@ -14,9 +14,9 @@ Most of these necessary alternate paths have been incorporated by
 upstream and enabled by the "/fhs" switch.  The rest are explicitly
 patched on top as part of the Debian packaging process.
 
-The source is also patched to remove the artifical restriction of the
+The source is also patched to remove the artificial restriction of the
 Train/ and Railway/ directories needing to be in the same place.
-Removing this psuedo-requirement allows testing out newly-downloaded
+Removing this pseudo-requirement allows testing out newly-downloaded
 routes saved in your home-directory with a fully packaged route
 located under /usr/share/games/bve/ --- or vice-versa.
 

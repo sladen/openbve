@@ -8,13 +8,14 @@ openbve (1.0.2.0-0ubuntu1) unreleased; urgency=low
   * Default first-use game data from /usr/share/games/bve/{Railway/Route,Train}
   * Update 'openbve-data' Depends: >= 1.0.2.0+dfsg
   * Load timetables relative to route directory, not trainpath
-  + disable spurious Train folder warning message, as existance is not required later
+  + disable spurious Train folder warning, as existance is not required later
   * Don't display hidden .files and .folders in ListViews
   * Include 'changelog.html' and 'releasenotes.html' downloaded from the website
   * Fix case in manpage documentation for '~/.config/OpenBve/'
   * Add README.Debian covering Debian-centric patches
   * Update 'known-issues.txt'
   * Print + try...except{} around path used in LoadOptions() (debugging)
+  * Pacify lintian checker
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Sun, 05 Apr 2009 12:33:10 +0000
 

@@ -28,7 +28,7 @@ clean:
 	  (cd $$builddir && echo "**NOT doing" xbuild /t:Clean); \
 	done
 	rm -rf openBVE/OpenBve/bin/
-	dh_clean 
+	dh_clean
 
 install: build
 	dh_testdir
@@ -38,6 +38,7 @@ install: build
 	install -m 755 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe $(TARGET)/usr/lib/openbve/
 	install -m 644 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe.mdb $(TARGET)/usr/lib/openbve/
 	install -m 755 -T $(CURDIR)/debian/openbve.wrapper $(TARGET)/usr/games/openbve
+	lynx -dump -nolist $(CURDIR)/debian/changelog.html > $(TARGET)/usr/share/doc/openbve/changelog
 
 binary-arch:
 	# Do nothing

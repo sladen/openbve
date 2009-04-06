@@ -2,7 +2,7 @@ Source: openbve
 Section: games
 Priority: optional
 Maintainer: Paul Sladen <ubuntu@paul.sladen.org>
-Build-Depends: debhelper, mono-xbuild,
+Build-Depends: debhelper, mono-xbuild, lynx
 Build-Depends-Indep: cli-common-dev (>= 0.4.4), mono-devel (>=2.0.1), libmono-i18n2.0-cil, libtaoframework-openal1.1-cil, libtaoframework-opengl2.1-cil, libtaoframework-sdl1.2-cil, libtaoframework-openal1.1-cil, libmono-winforms2.0-cil
 Vcs-Browser: http://github.com/sladen/openbve/tree/debian
 Vcs-Git: git://github.com/sladen/openbve.git
