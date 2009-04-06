@@ -56,6 +56,12 @@ namespace OpenBve {
             }
 #endif
             // deinitialize
+
+	    // leave full-screen mode, to reduce risk of leaving a mess
+	    // if something during shutdown crashes/hangs
+	    if(Interface.CurrentOptions.FullscreenMode) {
+		OpenBve.MainLoop.ToggleFullscreen();
+	    }
             Asynchronous.Deinitialize();
             PluginManager.UnloadPlugin();
             TextureManager.UnuseAllTextures();
