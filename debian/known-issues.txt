@@ -125,6 +125,10 @@ will flicker and may be yellow instead of gray.  Other people have noticed
 similar issues since at least 0.9.3.3:
 http://openbve.freeforums.org/texture-colouration-in-xcs-t445.html
 
+28. First noticed in 1.0.2.0; the formLoading dialogue is not getting 
+Diposed() (closed/destroyed) when the main Game Window opens and
+hangs around in the background without being redrawn.
+
 In-progress:
 ------------
 12. Language Locale not automatically set by default;  patched to  use
