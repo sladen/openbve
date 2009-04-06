@@ -1,4 +1,4 @@
-openbve (1.0.2.0-0ubuntu1) unreleased; urgency=low
+openbve (1.0.2.0-0ubuntu1) jaunty; urgency=low
 
   * New upstream version (bugfix release) (LP: #356344)
   * debian/rules: tweak to allow easy building of Debug or Release target
