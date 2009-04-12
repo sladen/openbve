@@ -403,13 +403,17 @@ namespace OpenBve {
 				if (System.IO.File.Exists(File)) {
 					CurrentOptions.LanguageCode = Code;
 				} else {
-					int i = Code.IndexOf("-", StringComparison.Ordinal);
-					if (i > 0) {
-						Code = Code.Substring(0, i);
-						File = GetCorrectedFileName(Code + ".cfg");
-						if (System.IO.File.Exists(File)) {
-							CurrentOptions.LanguageCode = Code;
+					try {
+						int i = Code.IndexOf("-", StringComparison.Ordinal);
+						if (i > 0) {
+							Code = Code.Substring(0, i);
+							File = GetCombinedFileName(GetDataFolder("Languages"), Code + ".cfg");
+							if (System.IO.File.Exists(File)) {
+								CurrentOptions.LanguageCode = Code;
+							}
 						}
+					} catch {
+						CurrentOptions.LanguageCode = "en-US";
 					}
 				}
 			}
@@ -2489,10 +2493,12 @@ namespace OpenBve {
 			}
 		}
 
-		// get corected folder and file names
+		// get corected folder name
 		internal static string GetCorrectedFolderName(string Folder) {
-			if (Program.CurrentPlatform == Program.Platform.Linux) {
-				/// find folder case-insensitively
+			if (Folder.Length == 0) {
+				return "";
+			} else if (Program.CurrentPlatform == Program.Platform.Linux) {
+				// find folder case-insensitively
 				if (System.IO.Directory.Exists(Folder)) {
 					return Folder;
 				} else {
@@ -2516,9 +2522,13 @@ namespace OpenBve {
 				return Folder;
 			}
 		}
+		
+		// get corrected file name
 		internal static string GetCorrectedFileName(string File) {
-			if (Program.CurrentPlatform == Program.Platform.Linux) {
-				/// find file case-insensitively
+			if (File.Length == 0) {
+				return "";
+			} else if (Program.CurrentPlatform == Program.Platform.Linux) {
+				// find file case-insensitively
 				if (System.IO.File.Exists(File)) {
 					return File;
 				} else {

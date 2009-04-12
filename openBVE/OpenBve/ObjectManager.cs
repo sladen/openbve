@@ -155,7 +155,7 @@ namespace OpenBve {
 			int i = Object.ObjectIndex;
 			Renderer.HideObject(i);
 			int t = StateIndex;
-			if (t >= 0) {
+			if (t >= 0 && Object.States[t].Object != null) {
 				int m = Object.States[t].Object.Mesh.Vertices.Length;
 				ObjectManager.Objects[i].Mesh.Vertices = new World.Vertex[m];
 				for (int k = 0; k < m; k++) {
@@ -321,6 +321,10 @@ namespace OpenBve {
 			} else {
 				ledangle = 0.0;
 			}
+			// null object
+			if (Object.States[s].Object == null) {
+				return;
+			}
 			// initialize vertices
 			for (int k = 0; k < Object.States[s].Object.Mesh.Vertices.Length; k++) {
 				ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates = Object.States[s].Object.Mesh.Vertices[k].Coordinates;
@@ -477,9 +481,9 @@ namespace OpenBve {
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Y += Object.States[s].Position.Y - Position.Y;
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Z += Object.States[s].Position.Z - Position.Z;
 					World.Rotate(ref ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.X, ref ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Y, ref ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Z, World.AbsoluteCameraDirection.X, World.AbsoluteCameraDirection.Y, World.AbsoluteCameraDirection.Z, World.AbsoluteCameraUp.X, World.AbsoluteCameraUp.Y, World.AbsoluteCameraUp.Z, World.AbsoluteCameraSide.X, World.AbsoluteCameraSide.Y, World.AbsoluteCameraSide.Z);
-					double dx = -Math.Tan(World.CameraCurrentAlignment.Yaw) - World.CameraCurrentAlignment.TrackOffset.X;
-					double dy = -Math.Tan(World.CameraCurrentAlignment.Pitch) - World.CameraCurrentAlignment.TrackOffset.Y;
-					double dz = -World.CameraCurrentAlignment.TrackOffset.Z;
+					double dx = -Math.Tan(World.CameraCurrentAlignment.Yaw) - World.CameraCurrentAlignment.Position.X;
+					double dy = -Math.Tan(World.CameraCurrentAlignment.Pitch) - World.CameraCurrentAlignment.Position.Y;
+					double dz = -World.CameraCurrentAlignment.Position.Z;
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.X += World.AbsoluteCameraPosition.X + dx * World.AbsoluteCameraSide.X + dy * World.AbsoluteCameraUp.X + dz * World.AbsoluteCameraDirection.X;
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Y += World.AbsoluteCameraPosition.Y + dx * World.AbsoluteCameraSide.Y + dy * World.AbsoluteCameraUp.Y + dz * World.AbsoluteCameraDirection.Y;
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Z += World.AbsoluteCameraPosition.Z + dx * World.AbsoluteCameraSide.Z + dy * World.AbsoluteCameraUp.Z + dz * World.AbsoluteCameraDirection.Z;
@@ -1121,7 +1125,7 @@ namespace OpenBve {
 			ObjectsSortedByStartPointer = 0;
 			ObjectsSortedByEndPointer = 0;
 			// initial visiblity
-			double p = World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.TrackOffset.Z;
+			double p = World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z;
 			for (int i = 0; i < ObjectsUsed; i++) {
 				if (Objects[i].StartingDistance <= p + World.ForwardViewingDistance & Objects[i].EndingDistance >= p - World.BackwardViewingDistance) {
 					Renderer.ShowObject(i, false);
@@ -1143,7 +1147,7 @@ namespace OpenBve {
 		internal static void UpdateVisibility(double TrackPosition) {
 			double d = TrackPosition - LastUpdatedTrackPosition;
 			int n = ObjectsSortedByStart.Length;
-			double p = World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.TrackOffset.Z;
+			double p = World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z;
 			if (d < 0.0) {
 				if (ObjectsSortedByStartPointer >= n) ObjectsSortedByStartPointer = n - 1;
 				if (ObjectsSortedByEndPointer >= n) ObjectsSortedByEndPointer = n - 1;

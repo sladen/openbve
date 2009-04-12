@@ -834,7 +834,7 @@ namespace OpenBve {
 
 		// homepage
 		private void linkHomepage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-			const string Url = "http://openbve.uuuq.com";
+			const string Url = "http://openbve.trainsimcentral.co.uk";
 			try {
 				System.Diagnostics.Process.Start(Url);
 			} catch (Exception ex) {
@@ -846,7 +846,7 @@ namespace OpenBve {
 		private static bool CurrentlyCheckingForUpdates = false;
 		private void linkUpdates_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
 			if (CurrentlyCheckingForUpdates) return;
-			const string Url = "http://openbve.uuuq.com/common/version.txt";
+			const string Url = "http://openbve.trainsimcentral.co.uk/common/version.txt";
 			CurrentlyCheckingForUpdates = true;
 			this.Cursor = Cursors.WaitCursor;
 			Application.DoEvents();
@@ -984,10 +984,11 @@ namespace OpenBve {
 						Array.Sort<string>(Folders);
 						for (int i = 0; i < Folders.Length; i++) {
 							string Name = System.IO.Path.GetFileName(Folders[i]);
-							if (Name.Length == 0) Name = Folders[i];
-							ListViewItem Item = listviewRouteFiles.Items.Add(Name);
-							Item.ImageKey = "folder";
-							Item.Tag = Folders[i];
+							if (Name.Length != 0 && Name[0] != '.') {
+								ListViewItem Item = listviewRouteFiles.Items.Add(Name);
+								Item.ImageKey = "folder";
+								Item.Tag = Folders[i];
+							}
 						}
 					} catch { }
 					// files
@@ -1000,10 +1001,11 @@ namespace OpenBve {
 								case ".rw":
 								case ".csv":
 									string Name = System.IO.Path.GetFileName(Files[i]);
-									if (Name.Length == 0) Name = Files[i];
-									ListViewItem Item = listviewRouteFiles.Items.Add(Name);
-									Item.ImageKey = "route";
-									Item.Tag = Files[i];
+									if (Name.Length != 0 && Name[0] != '.') {
+										ListViewItem Item = listviewRouteFiles.Items.Add(Name);
+										Item.ImageKey = "route";
+										Item.Tag = Files[i];
+									}
 									break;
 							}
 						}
@@ -1164,14 +1166,15 @@ namespace OpenBve {
 							try {
 								string File = Interface.GetCombinedFileName(Folders[i], "train.dat");
 								string Name = System.IO.Path.GetFileName(Folders[i]);
-								if (Name.Length == 0) Name = Folders[i];
-								ListViewItem Item = listviewTrainFolders.Items.Add(Name);
-								if (System.IO.File.Exists(File)) {
-									Item.ImageKey = "train";
-								} else {
-									Item.ImageKey = "folder";
+								if (Name.Length != 0 && Name[0] != '.') {
+									ListViewItem Item = listviewTrainFolders.Items.Add(Name);
+									if (System.IO.File.Exists(File)) {
+										Item.ImageKey = "train";
+									} else {
+										Item.ImageKey = "folder";
+									}
+									Item.Tag = Folders[i];
 								}
-								Item.Tag = Folders[i];
 							} catch { }
 						}
 					} catch { }

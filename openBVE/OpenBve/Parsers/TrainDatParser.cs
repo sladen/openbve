@@ -20,11 +20,13 @@ namespace OpenBve {
 			bool ver1220000 = false;
 			for (int i = 0; i < Lines.Length; i++) {
 				if (Lines[i].Length > 0) {
-					if (Lines[i].ToLowerInvariant() == "bve1220000") {
+					string t = Lines[i].ToLowerInvariant();
+					if (t == "bve1220000") {
 						ver1220000 = true;
-					} else if (Lines[i].ToLowerInvariant() != "bve2000000") {
+					} else if (t != "bve2000000" & t != "openbve") {
 						Interface.AddMessage(Interface.MessageType.Error, false, "The train.dat format " + Lines[0].ToLowerInvariant() + " is not supported in " + Interface.GetCombinedFileName(TrainPath, "train.dat"));
-					} break;
+					}
+					break;
 				}
 			}
 			// initialize
@@ -134,6 +136,9 @@ namespace OpenBve {
 													} else {
 														const double c = 4.439346232277577;
 														AccelerationCurves[n].StageTwoExponent = 1.0 - Math.Log(a) * AccelerationCurves[n].StageTwoSpeed * c;
+														if (AccelerationCurves[n].StageTwoExponent > 4.0) {
+															AccelerationCurves[n].StageTwoExponent = 4.0;
+														}
 													}
 												} else {
 													AccelerationCurves[n].StageTwoExponent = a;

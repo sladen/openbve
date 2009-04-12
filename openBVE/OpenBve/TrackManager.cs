@@ -733,6 +733,11 @@ namespace OpenBve {
                     // cant
                     if (i < CurrentTrack.Elements.Length - 1) {
                         double t = db / (CurrentTrack.Elements[i + 1].StartingTrackPosition - CurrentTrack.Elements[i].StartingTrackPosition);
+                        if (t < 0.0) {
+                        	t = 0.0;
+                        } else if (t > 1.0) {
+                        	t = 1.0;
+                        }
                         switch (CurrentTrack.Elements[i].CurveCantInterpolation) {
                             case CantInterpolationMode.BiasBackward:
                                 t *= t;
