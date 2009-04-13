@@ -1,3 +1,8 @@
+openbve (1.0.2.0-0ubuntu1sladen1) unreleased; urgency=low
+
+
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Mon, 13 Apr 2009 23:33:10 +0000
+
 openbve (1.0.2.0-0ubuntu1) jaunty; urgency=low
 
   * New upstream version (bugfix release) (LP: #356344)
