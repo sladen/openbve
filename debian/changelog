@@ -1,7 +1,8 @@
-openbve (1.0.2.0-0ubuntu1sladen1) unreleased; urgency=low
+openbve (1.0.2.0-0ubuntu2) unreleased; urgency=low
 
+  * Explicitly depend on 'libmono-i18n2.0-cil'
 
- -- Paul Sladen <ubuntu@paul.sladen.org>  Mon, 13 Apr 2009 23:33:10 +0000
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Wed, 15 Apr 2009 02:14:09 +0000
 
 openbve (1.0.2.0-0ubuntu1) jaunty; urgency=low
 
