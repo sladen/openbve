@@ -1,6 +1,6 @@
 openbve (1.0.2.0-0ubuntu2) unreleased; urgency=low
 
-  * Explicitly depend on 'libmono-i18n2.0-cil'
+  * Explicitly depend on 'libmono-i18n2.0-cil' (LP: #356487)
   * Backport homepage update to 'http://openbve.trainsimcentral.co.uk/'
   + and fix packaging to reflect
 
