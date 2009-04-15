@@ -7,12 +7,35 @@ It was downloaded from:
 Upstream authors:
   Michelle Boucquemont <reschanger@gmail.com>
 
-Public Domain:
-  http://openbve.trainsimcentral.co.uk/
+Copyright:
+  Copyright 2008-2009 Michelle Boucquemont
+  Copyright      2009 Paul Sladen (Debian packaging)
 
-  "Dedication to the Public"
+  From 'http://openbve.trainsimcentral.co.uk/index.html':
 
-  This program, along with all documentation provided, is dedicated
-  to the public. I do not pose any restrictions on how this material
-  can be used, and explicitly encourage redistribution and
-  modification for any purpose.
+    "Dedication to the Public"
+
+    This program, along with all documentation provided, is dedicated
+    to the public. I do not pose any restrictions on how this material
+    can be used, and explicitly encourage redistribution and
+    modification for any purpose.
+
+  More information on the thinking behind the "license free" intend has been
+  saved and included in the 'debian/licence-background.txt' file:
+
+    Post by michelle on Sat, 14th Feb 2009, 18:00, UTC
+
+    I have been approached by some individuals over the time, including
+    from the GNU project and the Ubuntu Foundation (as it appears at
+    least), and was told that they lack a means of "legal security" for
+    reuse without an explicit license. You can read my above post on
+    details about my attitude regarding this matter, but as a start, I
+    have decided to put the following line on the homepage and will also
+    include it in any later release:
+
+      " This program, along with all documentation provided, is dedicated
+	to the public. I do not pose any restrictions on how this material
+	can be used, and explicitly encourage redistribution and
+	modification for any purpose. "
+
+  Any Debian-packaging additions are hereby placed into the Public Domain.
