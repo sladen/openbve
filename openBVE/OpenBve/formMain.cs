@@ -846,7 +846,7 @@ namespace OpenBve {
 
 		// homepage
 		private void linkHomepage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-			const string Url = "http://openbve.uuuq.com";
+			const string Url = "http://openbve.trainsimcentral.co.uk";
 			try {
 				System.Diagnostics.Process.Start(Url);
 			} catch (Exception ex) {
@@ -858,7 +858,7 @@ namespace OpenBve {
 		private static bool CurrentlyCheckingForUpdates = false;
 		private void linkUpdates_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
 			if (CurrentlyCheckingForUpdates) return;
-			const string Url = "http://openbve.uuuq.com/common/version.txt";
+			const string Url = "http://openbve.trainsimcentral.co.uk/common/version.txt";
 			CurrentlyCheckingForUpdates = true;
 			this.Cursor = Cursors.WaitCursor;
 			Application.DoEvents();
