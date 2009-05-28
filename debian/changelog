@@ -3,6 +3,7 @@ openbve (1.0.6.0-0ubuntu1) unreleased; urgency=low
   * New upstream version (1.0.6.0)
   * Make dropping out of full-screen *very* first priority
   * Update changelog.html (1.0.6.0) and releasenotes.html (1.0.5.0)
+  * Update known-issues.txt
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Thu, 28 May 2009 06:53:10 +0000
 	

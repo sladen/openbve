@@ -47,23 +47,26 @@ are not being available on Linux.  Patched to only display a warning
 *if* an 'ats.cfg' was present .  This avoids the Issues dialogue on an
 otherwise error-free route/train.
 
+22. Hidden dot files/folders (those starting with '.') are clutter
+the filemanager.  Patched to skip listing dot-files;  you can
+still type the full name in.  May be worth restricting to only
+!Platform.Windows.
+
+26. British English and flag should be en-GB/GB (not 'en-UK/UK').
+
+21. In full-screen on Linux, the mouse-cursor (pointer) remains visible in
+the centre of the screen.
+
 Fixed with outstanding patches:
 -------------------------------
 4. Trying to write the directory the executable is in; On Unix this is
 likely to be owned by route.  Modified to use the CLR SpecialFolder
 functions and save configuration data in the right places.
 
-22. Hidden dot files/folders (those starting with '.') are clutter
-the filemanager.  Patched to skip listing dot-files;  you can
-still type the full name in.  May be worth restricting to only
-!Platform.Windows.
-
 14. Loading fails if 'Train/' and 'Railway/' do not share a common parent
 directory at some point.  # Disabled the check for 'Train/' as it is
 not actually used later (loading works fine when a Train/ and Railway/
 are in separate locations.
-
-26. British English and flag should be en-GB/GB (not 'en-UK/UK').
 
 Remaining:
 ----------
@@ -91,6 +94,7 @@ the interior camera; the cab/panel overlay appears in a different position.
 18. ExitToMainMenu causes a fork() and return (leaving the user at the
 command prompt and daemonising the second instance into the background)
 rather than using exec() or restarting itself.  This crashes OpenBVE.
+It needs openbve to pass "/fhs" back to itself if it was handed it.
 
 19. The program may sometimes display "route not found" or "train not found"
 even when the correct files do exist.  clicking on another route/directory
@@ -98,9 +102,6 @@ and then clicking back works around it, so this is probably a race condition.
 
 20. No way reset the Train (and camera) to be upright after a crash.  You
 should drive more carefully next time!
-
-21. In full-screen on Linux, the mouse-cursor (pointer) remains visible in
-the centre of the screen.
 
 22. Excessive re-drawing of the listview boxes causes the interface to lag
 (particularly noticable when typing in the route selection path box.
