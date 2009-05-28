@@ -1511,6 +1511,7 @@ namespace OpenBve {
 				World.CameraCurrentAlignment.Yaw = PointsOfInterest[j].TrackYaw;
 				World.CameraCurrentAlignment.Pitch = PointsOfInterest[j].TrackPitch;
 				World.CameraCurrentAlignment.Roll = PointsOfInterest[j].TrackRoll;
+				World.CameraCurrentAlignment.TrackPosition = t;
 				World.UpdateAbsoluteCamera(0.0);
 				if (PointsOfInterest[j].Text != null) {
 					double n = 3.0 + 0.5 * Math.Sqrt((double)PointsOfInterest[j].Text.Length);

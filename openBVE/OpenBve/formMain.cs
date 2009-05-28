@@ -733,7 +733,7 @@ namespace OpenBve {
 						string Name = Code;
 						for (int j = 0; j < Lines.Length; j++) {
 							Lines[j] = Lines[j].Trim();
-							if (Lines[j].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[j].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+							if (Lines[j].StartsWith("[", StringComparison.Ordinal) & Lines[j].EndsWith("]", StringComparison.Ordinal)) {
 								Section = Lines[j].Substring(1, Lines[j].Length - 2).Trim().ToLowerInvariant();
 							} else if (!Lines[j].StartsWith(";", StringComparison.OrdinalIgnoreCase)) {
 								int k = Lines[j].IndexOf('=');

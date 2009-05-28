@@ -258,7 +258,7 @@ namespace OpenBve {
 							}
 						} Position++;
 					} m--;
-				} else if (Template.Members[m].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+				} else if (Template.Members[m].EndsWith("]", StringComparison.Ordinal)) {
 					// inlined array expected
 					string r = Template.Members[m].Substring(0, Template.Members[m].Length - 1);
 					int h = r.IndexOf('[');
@@ -756,7 +756,7 @@ namespace OpenBve {
 							Interface.AddMessage(Interface.MessageType.Error, false, "TOKEN_NAME or TOKEN_CBRACE expected at position 0x" + Reader.BaseStream.Position.ToString("X", Culture) + " in binary X object file " + FileName);
 							return false;
 					} m--;
-				} else if (Template.Members[m].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+				} else if (Template.Members[m].EndsWith("]", StringComparison.Ordinal)) {
 					// inlined array expected
 					string r = Template.Members[m].Substring(0, Template.Members[m].Length - 1);
 					int h = r.IndexOf('[');
@@ -1362,11 +1362,15 @@ namespace OpenBve {
 																		return false;
 																	}
 																	string filename = (string)e.Data[0];
-																	string File = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), filename);
-																	if (System.IO.File.Exists(File)) {
-																		Materials[MaterialIndex].TextureFilename = File;
+																	if (Interface.ContainsInvalidPathChars(filename)) {
+																		Interface.AddMessage(Interface.MessageType.Error, false, "filename contains illegal characters in TextureFilename in Material in MeshMaterialList in Mesh in x object file " + FileName);
 																	} else {
-																		Interface.AddMessage(Interface.MessageType.Error, true, "The texture file " + File + " could not be found in TextureFilename in Material in MeshMaterialList in Mesh in x object file " + FileName);
+																		string File = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), filename);
+																		if (System.IO.File.Exists(File)) {
+																			Materials[MaterialIndex].TextureFilename = File;
+																		} else {
+																			Interface.AddMessage(Interface.MessageType.Error, true, "The texture file " + File + " could not be found in TextureFilename in Material in MeshMaterialList in Mesh in x object file " + FileName);
+																		}
 																	}
 																} break;
 															default:

@@ -88,7 +88,7 @@ namespace OpenBve {
 				int n = 0;
 				switch (Lines[i].ToLowerInvariant()) {
 					case "#acceleration":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							Array.Resize<TrainManager.AccelerationCurve>(ref AccelerationCurves, n + 1);
 							string t = Lines[i] + ",";
 							int m = 0;
@@ -150,7 +150,7 @@ namespace OpenBve {
 						} i--; break;
 					case "#performance":
 					case "#deceleration":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 									case 0:
@@ -181,7 +181,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#delay":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 										case 0: Train.Specs.DelayPowerUp = a; break;
@@ -192,7 +192,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#move":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 										case 0: JerkPowerUp = 0.01 * a; break;
@@ -205,7 +205,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#brake":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 									case 0:
@@ -233,7 +233,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#pressure":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 									case 0:
@@ -270,7 +270,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#handle":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							int a; if (Interface.TryParseIntVb6(Lines[i], out a)) {
 								switch (n) {
 										case 0: Train.Specs.SingleHandle = a == 1; break;
@@ -282,7 +282,7 @@ namespace OpenBve {
 						} i--; break;
 					case "#cockpit":
 					case "#cab":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 										case 0: DriverX = 0.001 * a; break;
@@ -292,7 +292,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#car":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 									case 0:
@@ -356,7 +356,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#device":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 									case 0:
@@ -423,7 +423,7 @@ namespace OpenBve {
 									case "#motor_b1": msi = TrainManager.MotorSound.MotorB1; break;
 									case "#motor_b2": msi = TrainManager.MotorSound.MotorB2; break;
 							} i++;
-							while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+							while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 								int u = Tables[msi].Entries.Length;
 								if (n >= u) {
 									Array.Resize<TrainManager.MotorSoundTableEntry>(ref Tables[msi].Entries, 2 * u);

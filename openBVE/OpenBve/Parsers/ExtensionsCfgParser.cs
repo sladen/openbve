@@ -21,19 +21,25 @@ namespace OpenBve {
 						switch (Lines[i].ToLowerInvariant()) {
 							case "[exterior]":
 								// exterior
-								i++; while (i < Lines.Length && !Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & !Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+								i++;
+								while (i < Lines.Length && !Lines[i].StartsWith("[", StringComparison.Ordinal) & !Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 									if (Lines[i].Length != 0) {
-										int j = Lines[i].IndexOf("=", StringComparison.OrdinalIgnoreCase);
+										int j = Lines[i].IndexOf("=", StringComparison.Ordinal);
 										if (j >= 0) {
 											string a = Lines[i].Substring(0, j).TrimEnd();
 											string b = Lines[i].Substring(j + 1).TrimStart();
-											int n; if (int.TryParse(a, System.Globalization.NumberStyles.Integer, Culture, out n)) {
+											int n;
+											if (int.TryParse(a, System.Globalization.NumberStyles.Integer, Culture, out n)) {
 												if (n >= 0 & n < Train.Cars.Length) {
-													string File = Interface.GetCombinedFileName(TrainPath, b);
-													if (System.IO.File.Exists(File)) {
-														CarObjects[n] = ObjectManager.LoadObject(File, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+													if (Interface.ContainsInvalidPathChars(b)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "File contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} else {
-														Interface.AddMessage(Interface.MessageType.Error, true, "The car object " + File + " does not exist at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+														string File = Interface.GetCombinedFileName(TrainPath, b);
+														if (System.IO.File.Exists(File)) {
+															CarObjects[n] = ObjectManager.LoadObject(File, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														} else {
+															Interface.AddMessage(Interface.MessageType.Error, true, "The car object " + File + " does not exist at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+														}
 													}
 												} else {
 													Interface.AddMessage(Interface.MessageType.Error, false, "The car index " + a + " does not reference an existing car at line " + (i + 1).ToString(Culture) + " in file " + FileName);
@@ -44,36 +50,43 @@ namespace OpenBve {
 										} else {
 											Interface.AddMessage(Interface.MessageType.Error, false, "Invalid statement " + Lines[i] + " encountered at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 										}
-									} i++;
-								} i--;
+									}
+									i++;
+								}
+								i--;
 								break;
 							default:
-								if (Lines[i].StartsWith("[car", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+								if (Lines[i].StartsWith("[car", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 									// car
 									string t = Lines[i].Substring(4, Lines[i].Length - 5);
 									int n; if (int.TryParse(t, System.Globalization.NumberStyles.Integer, Culture, out n)) {
 										if (n >= 0 & n < Train.Cars.Length) {
 											bool DefinedLength = false;
 											bool DefinedAxles = false;
-											i++; while (i < Lines.Length && !Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & !Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+											i++;
+											while (i < Lines.Length && !Lines[i].StartsWith("[", StringComparison.Ordinal) & !Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 												if (Lines[i].Length != 0) {
-													int j = Lines[i].IndexOf("=", StringComparison.OrdinalIgnoreCase);
+													int j = Lines[i].IndexOf("=", StringComparison.Ordinal);
 													if (j >= 0) {
 														string a = Lines[i].Substring(0, j).TrimEnd();
 														string b = Lines[i].Substring(j + 1).TrimStart();
 														switch (a.ToLowerInvariant()) {
 															case "object":
-																{
+																if (Interface.ContainsInvalidPathChars(b)) {
+																	Interface.AddMessage(Interface.MessageType.Error, false, "File contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+																} else {
 																	string File = Interface.GetCombinedFileName(TrainPath, b);
 																	if (System.IO.File.Exists(File)) {
 																		CarObjects[n] = ObjectManager.LoadObject(File, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
 																	} else {
 																		Interface.AddMessage(Interface.MessageType.Error, true, "The car object " + File + " does not exist at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 																	}
-																} break;
+																}
+																break;
 															case "length":
 																{
-																	double m; if (double.TryParse(b, System.Globalization.NumberStyles.Float, Culture, out m)) {
+																	double m;
+																	if (double.TryParse(b, System.Globalization.NumberStyles.Float, Culture, out m)) {
 																		if (m > 0.0) {
 																			Train.Cars[n].Length = m;
 																			DefinedLength = true;
@@ -107,7 +120,7 @@ namespace OpenBve {
 																	}
 																} break;
 															default:
-																Interface.AddMessage(Interface.MessageType.Error, false, "Unsupported key-value pair " + a + " encountered at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+																Interface.AddMessage(Interface.MessageType.Warning, false, "Unsupported key-value pair " + a + " encountered at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 																break;
 														}
 													} else {
@@ -126,14 +139,14 @@ namespace OpenBve {
 									} else {
 										Interface.AddMessage(Interface.MessageType.Error, false, "The car index is expected to be an integer at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									}
-								} else if (Lines[i].StartsWith("[coupler", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+								} else if (Lines[i].StartsWith("[coupler", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 									// coupler
 									string t = Lines[i].Substring(8, Lines[i].Length - 9);
 									int n; if (int.TryParse(t, System.Globalization.NumberStyles.Integer, Culture, out n)) {
 										if (n >= 0 & n < Train.Couplers.Length) {
-											i++; while (i < Lines.Length && !Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & !Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+											i++; while (i < Lines.Length && !Lines[i].StartsWith("[", StringComparison.Ordinal) & !Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 												if (Lines[i].Length != 0) {
-													int j = Lines[i].IndexOf("=", StringComparison.OrdinalIgnoreCase);
+													int j = Lines[i].IndexOf("=", StringComparison.Ordinal);
 													if (j >= 0) {
 														string a = Lines[i].Substring(0, j).TrimEnd();
 														string b = Lines[i].Substring(j + 1).TrimStart();
@@ -160,7 +173,7 @@ namespace OpenBve {
 																	}
 																} break;
 															default:
-																Interface.AddMessage(Interface.MessageType.Error, false, "Unsupported key-value pair " + a + " encountered at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+																Interface.AddMessage(Interface.MessageType.Warning, false, "Unsupported key-value pair " + a + " encountered at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 																break;
 														}
 													} else {

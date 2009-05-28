@@ -190,7 +190,7 @@ namespace OpenBve {
 				for (int i = 0; i < Lines.Length; i++) {
 					Lines[i] = Lines[i].Trim();
 					if (Lines[i].Length != 0 && !Lines[i].StartsWith(";", StringComparison.OrdinalIgnoreCase)) {
-						if (Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+						if (Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 							Section = Lines[i].Substring(1, Lines[i].Length - 2).Trim().ToLowerInvariant();
 						} else {
 							int j = Lines[i].IndexOf("=", StringComparison.OrdinalIgnoreCase);
@@ -1073,7 +1073,7 @@ namespace OpenBve {
 			for (int i = 0; i < Lines.Length; i++) {
 				Lines[i] = Lines[i].Trim();
 				if (!Lines[i].StartsWith(";")) {
-					if (Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+					if (Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 						Section = Lines[i].Substring(1, Lines[i].Length - 2).Trim().ToLowerInvariant();
 					} else {
 						int j = Lines[i].IndexOf('=');
@@ -2557,9 +2557,28 @@ namespace OpenBve {
 		internal static string GetCombinedFileName(string SafeFolderPart, string UnsafeFilePart) {
 			return GetCorrectedFileName(System.IO.Path.Combine(SafeFolderPart, GetCorrectedPathSeparation(UnsafeFilePart)));
 		}
+		
 		// get combined folder name
 		internal static string GetCombinedFolderName(string SafeFolderPart, string UnsafeFolderPart) {
 			return GetCorrectedFolderName(System.IO.Path.Combine(SafeFolderPart, GetCorrectedPathSeparation(UnsafeFolderPart)));
+		}
+		
+		// contains invalid path characters
+		internal static bool ContainsInvalidPathChars(string Expression) {
+			char[] a = System.IO.Path.GetInvalidFileNameChars();
+			char[] b = System.IO.Path.GetInvalidPathChars();
+			for (int i = 0; i < Expression.Length; i++) {
+				for (int j = 0; j < a.Length; j++) {
+					if (Expression[i] == a[j]) {
+						for (int k = 0; k < b.Length; k++) {
+							if (Expression[i] == b[k]) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+			return false;
 		}
 
 	}

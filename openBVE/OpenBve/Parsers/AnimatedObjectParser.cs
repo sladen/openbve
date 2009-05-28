@@ -45,7 +45,7 @@ namespace OpenBve {
 							World.Vector3D Position = new World.Vector3D(0.0, 0.0, 0.0);
 							while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 								if (Lines[i].Length != 0) {
-									int j = Lines[i].IndexOf("=", StringComparison.OrdinalIgnoreCase);
+									int j = Lines[i].IndexOf("=", StringComparison.Ordinal);
 									if (j > 0) {
 										string a = Lines[i].Substring(0, j).TrimEnd();
 										string b = Lines[i].Substring(j + 1).TrimStart();
@@ -75,12 +75,17 @@ namespace OpenBve {
 														string Folder = System.IO.Path.GetDirectoryName(FileName);
 														Result.Objects[Objects].States = new ObjectManager.AnimatedObjectState[s.Length];
 														for (int k = 0; k < s.Length; k++) {
-															string f = Interface.GetCombinedFileName(Folder, s[k].Trim());
-															Result.Objects[Objects].States[k].Position = new World.Vector3D(0.0, 0.0, 0.0);
-															if (System.IO.File.Exists(f)) {
-																Result.Objects[Objects].States[k].Object = ObjectManager.LoadStaticObject(f, Encoding, LoadMode, false, false);
+															s[k] = s[k].Trim();
+															if (Interface.ContainsInvalidPathChars(s[k])) {
+																Interface.AddMessage(Interface.MessageType.Error, false, "File" + k.ToString(Culture) + " contains illegal characters in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 															} else {
-																Interface.AddMessage(Interface.MessageType.Error, true, "Object file " + f + " not found in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+																string f = Interface.GetCombinedFileName(Folder, s[k]);
+																Result.Objects[Objects].States[k].Position = new World.Vector3D(0.0, 0.0, 0.0);
+																if (System.IO.File.Exists(f)) {
+																	Result.Objects[Objects].States[k].Object = ObjectManager.LoadStaticObject(f, Encoding, LoadMode, false, false);
+																} else {
+																	Interface.AddMessage(Interface.MessageType.Error, true, "Object file " + f + " not found in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+																}
 															}
 														}
 													} else {

@@ -44,31 +44,34 @@ namespace OpenBve {
 			// parse lines for panel and view
 			for (int i = 0; i < Lines.Length; i++) {
 				if (Lines[i].Length > 0) {
-					if (Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+					if (Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 						string Section = Lines[i].Substring(1, Lines[i].Length - 2).Trim();
 						switch (Section.ToLowerInvariant()) {
 								// panel
 							case "panel":
-								i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+								i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 									int j = Lines[i].IndexOf('=');
 									if (j >= 0) {
 										string Key = Lines[i].Substring(0, j).TrimEnd();
 										string Value = Lines[i].Substring(j + 1).TrimStart();
 										switch (Key.ToLowerInvariant()) {
 											case "background":
-												{
+												if (Interface.ContainsInvalidPathChars(Value)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+												} else {
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
 													PanelBackground = Interface.GetCombinedFileName(TrainPath, Value);
 													if (!System.IO.File.Exists(PanelBackground)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + PanelBackground + "could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
 													}
-												} break;
+												}
+												break;
 										}
 									} i++;
 								} i--; break;
 								// view
 							case "view":
-								i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+								i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 									int j = Lines[i].IndexOf('=');
 									if (j >= 0) {
 										string Key = Lines[i].Substring(0, j).TrimEnd();
@@ -123,7 +126,7 @@ namespace OpenBve {
 					if (Loading.Cancel) return;
 				}
 				if (Lines[i].Length != 0) {
-					if (Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+					if (Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 						string Section = Lines[i].Substring(1, Lines[i].Length - 2).Trim();
 						switch (Section.ToLowerInvariant()) {
 								// pressuregauge
@@ -139,7 +142,7 @@ namespace OpenBve {
 									string Background = null, Cover = null;
 									double Angle = 0.785398163397449, Minimum = 0.0, Maximum = 1000.0;
 									double UnitFactor = 1000.0;
-									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 										int j = Lines[i].IndexOf('='); if (j >= 0) {
 											string Key = Lines[i].Substring(0, j).TrimEnd();
 											string Value = Lines[i].Substring(j + 1).TrimStart();
@@ -222,19 +225,29 @@ namespace OpenBve {
 												case "background":
 												case "背景":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													Background = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(Background)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + Background + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														Background = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														Background = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(Background)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + Background + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															Background = null;
+														}
+													}
+													break;
 												case "cover":
 												case "ふた":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													Cover = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(Cover)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + Cover + "could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														Cover = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														Cover = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(Cover)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + Cover + "could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															Cover = null;
+														}
+													}
+													break;
 												case "unit":
 												case "単位":
 													if (Arguments.Length >= 1 && Arguments[0].Length > 0) {
@@ -388,7 +401,7 @@ namespace OpenBve {
 									double CenterX = 0.0, CenterY = 0.0, Radius = 16.0;
 									string Background = null, Cover = null, Atc = null;
 									double Angle = 1.0471975511966, Maximum = 33.3333333333333, AtcRadius = 0.0;
-									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 										int j = Lines[i].IndexOf('='); if (j >= 0) {
 											string Key = Lines[i].Substring(0, j).TrimEnd();
 											string Value = Lines[i].Substring(j + 1).TrimStart();
@@ -406,11 +419,16 @@ namespace OpenBve {
 												case "background":
 												case "背景":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													Background = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(Background)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + Background + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														Background = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														Background = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(Background)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + Background + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															Background = null;
+														}
+													}
+													break;
 												case "needle":
 												case "hand":
 												case "針":
@@ -599,7 +617,7 @@ namespace OpenBve {
 									double CornerX = 0.0, CornerY = 0.0;
 									int Width = 0, Height = 0;
 									double UnitFactor = 3.6;
-									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 										int j = Lines[i].IndexOf('='); if (j >= 0) {
 											string Key = Lines[i].Substring(0, j).TrimEnd();
 											string Value = Lines[i].Substring(j + 1).TrimStart();
@@ -607,11 +625,16 @@ namespace OpenBve {
 											switch (Key.ToLowerInvariant()) {
 												case "number":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													Number = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(Number)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + Number + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														Number = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														Number = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(Number)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + Number + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															Number = null;
+														}
+													}
+													break;
 												case "corner":
 													if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out CornerX)) {
 														Interface.AddMessage(Interface.MessageType.Error, false, "Left is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
@@ -714,7 +737,7 @@ namespace OpenBve {
 								{
 									double CornerX = 0.0, CornerY = 0.0;
 									string TurnOn = null, TurnOff = null;
-									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 										int j = Lines[i].IndexOf('='); if (j >= 0) {
 											string Key = Lines[i].Substring(0, j).TrimEnd();
 											string Value = Lines[i].Substring(j + 1).TrimStart();
@@ -723,19 +746,29 @@ namespace OpenBve {
 												case "turnon":
 												case "点灯":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													TurnOn = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(TurnOn)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName" + TurnOn + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														TurnOn = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														TurnOn = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(TurnOn)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName" + TurnOn + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															TurnOn = null;
+														}
+													}
+													break;
 												case "turnoff":
 												case "消灯":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													TurnOff = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(TurnOff)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName" + TurnOff + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														TurnOff = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														TurnOff = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(TurnOff)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName" + TurnOff + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															TurnOff = null;
+														}
+													}
+													break;
 												case "corner":
 												case "左上":
 													if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out CornerX)) {
@@ -769,7 +802,7 @@ namespace OpenBve {
 									World.ColorRGBA Needle = new World.ColorRGBA(0, 0, 0, 255);
 									double CenterX = 0.0, CenterY = 0.0, Radius = 16.0;
 									string Background = null;
-									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 										int j = Lines[i].IndexOf('='); if (j >= 0) {
 											string Key = Lines[i].Substring(0, j).TrimEnd();
 											string Value = Lines[i].Substring(j + 1).TrimStart();
@@ -778,11 +811,16 @@ namespace OpenBve {
 												case "background":
 												case "背景":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													Background = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(Background)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName" + Background + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														Background = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														Background = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(Background)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName" + Background + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															Background = null;
+														}
+													}
+													break;
 												case "needle":
 												case "hand":
 												case "針":
@@ -870,7 +908,7 @@ namespace OpenBve {
 									double CornerX = 0.0, CornerY = 0.0;
 									string Image = null;
 									int Width = 0;
-									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 										int j = Lines[i].IndexOf('='); if (j >= 0) {
 											string Key = Lines[i].Substring(0, j).TrimEnd();
 											string Value = Lines[i].Substring(j + 1).TrimStart();
@@ -878,11 +916,16 @@ namespace OpenBve {
 											switch (Key.ToLowerInvariant()) {
 												case "image":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													Image = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(Image)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + Image + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														Image = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														Image = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(Image)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + Image + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															Image = null;
+														}
+													}
+													break;
 												case "corner":
 													if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out CornerX)) {
 														Interface.AddMessage(Interface.MessageType.Error, false, "Left is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);

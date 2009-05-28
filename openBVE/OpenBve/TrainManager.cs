@@ -517,7 +517,11 @@ namespace OpenBve {
 			if (System.IO.File.Exists(File)) {
 				Panel2CfgParser.ParsePanel2Config(TrainPath, Encoding, Train);
 			} else {
-				PanelCfgParser.ParsePanelConfig(TrainPath, Encoding, Train);
+				File = Interface.GetCombinedFileName(TrainPath, "panel.cfg");
+				if (System.IO.File.Exists(File)) {
+					PanelCfgParser.ParsePanelConfig(TrainPath, Encoding, Train);
+				} else {
+				}
 			}
 		}
 

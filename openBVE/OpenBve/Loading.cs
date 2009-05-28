@@ -301,7 +301,11 @@ namespace OpenBve {
 					FirstStationIndex = i;
 					int s = Game.GetStopIndex(i, TrainManager.PlayerTrain.Cars.Length);
 					if (s >= 0) {
-						FirstStationPosition = Game.Stations[i].Stops[s].TrackPosition;
+						if (s < Game.Stations[i].Stops.Length) {
+							FirstStationPosition = Game.Stations[i].Stops[s].TrackPosition;
+						} else {
+							FirstStationPosition = Game.Stations[i].Stops[Game.Stations[i].Stops.Length - 1].TrackPosition;
+						}
 						if (Game.Stations[i].ArrivalTime < 0.0) {
 							if (Game.Stations[i].DepartureTime < 0.0) {
 								Game.SecondsSinceMidnight = 0.0;
@@ -397,10 +401,9 @@ namespace OpenBve {
 			System.Threading.Thread.Sleep(1); if (Cancel) return;
 			TrainManager.UpdateCamera(TrainManager.PlayerTrain);
 			ObjectManager.UpdateVisibility(World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z);
-			//World.CameraSavedTrackPosition = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition;
 			World.CameraSavedInterior = new World.CameraAlignment();
-			World.CameraSavedExterior = new World.CameraAlignment(new World.Vector3D(-2.5, 1.5, -15.0), 0.3, -0.2, 0.0, 0.0, 1.0);
-			World.CameraSavedTrack = new World.CameraAlignment(new World.Vector3D(-3.0, 2.5, -10.0), 0.3, 0.0, 0.0, TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition, 1.0);
+			World.CameraSavedExterior = new World.CameraAlignment(new World.Vector3D(-2.5, 1.5, -15.0), 0.3, -0.2, 0.0, FirstStationPosition, 1.0);
+			World.CameraSavedTrack = new World.CameraAlignment(new World.Vector3D(-3.0, 2.5, -10.0), 0.3, 0.0, FirstStationPosition, TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition, 1.0);
 		}
 
 	}

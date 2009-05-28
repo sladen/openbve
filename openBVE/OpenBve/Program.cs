@@ -12,6 +12,7 @@ namespace OpenBve {
 		internal static Platform CurrentPlatform = Platform.Windows;
 		internal static bool CurrentlyRunOnMono = false;
 		internal static bool UseFilesystemHierarchyStandard = false;
+		private static bool SdlWindowCreated = false;
 
 		//// main
 		[STAThread]
@@ -62,9 +63,12 @@ namespace OpenBve {
 			}
 			#endif
 			// deinitialize
+			TextureManager.UnuseAllTextures();
+			if(SdlWindowCreated & Interface.CurrentOptions.FullscreenMode) {
+				Sdl.SDL_SetVideoMode(Interface.CurrentOptions.WindowWidth, Interface.CurrentOptions.WindowHeight, 32, Sdl.SDL_OPENGL | Sdl.SDL_DOUBLEBUF);
+			}
 			Asynchronous.Deinitialize();
 			PluginManager.UnloadPlugin();
-			TextureManager.UnuseAllTextures();
 			SoundManager.Deinitialize();
 			// close sdl
 			for (int i = 0; i < Interface.CurrentJoysticks.Length; i++) {
@@ -75,8 +79,7 @@ namespace OpenBve {
 			// restart
 			if (RestartProcessArguments != null) {
 				System.Reflection.Assembly Assembly = System.Reflection.Assembly.GetExecutingAssembly();
-				string File = Assembly.Location;
-				System.Diagnostics.Process.Start(File, RestartProcessArguments);
+				System.Diagnostics.Process.Start(Assembly.Location, RestartProcessArguments);
 			}
 		}
 
@@ -249,6 +252,7 @@ namespace OpenBve {
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_BLUE_SIZE, 8);
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_ALPHA_SIZE, 8);
 			Sdl.SDL_ShowCursor(Sdl.SDL_DISABLE);
+			SdlWindowCreated = true;
 			int Bits = Interface.CurrentOptions.FullscreenMode ? Interface.CurrentOptions.FullscreenBits : 32;
 			// icon
 			{
