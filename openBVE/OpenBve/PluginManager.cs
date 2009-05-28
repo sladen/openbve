@@ -398,9 +398,6 @@ namespace OpenBve {
 					}
 				}
 			}
-			// debug
-			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
-			Game.InfoDebugString = "DLL debug: power=" + Handles.Power.ToString(Culture) + ", brake=" + Handles.Brake.ToString(Culture) + ", reverser=" + Handles.Reverser.ToString(Culture) + ", constspeed=" + Handles.ConstantSpeed.ToString(Culture);
 		}
 		
 		// update signal

@@ -450,7 +450,7 @@ namespace OpenBve {
 								Level--;
 								break;
 							case ',':
-								if (Level == 0) n++;
+								if (!IsRW & Level == 0) n++;
 								break;
 							case '@':
 								if (IsRW & Level == 0) n++;
@@ -473,8 +473,21 @@ namespace OpenBve {
 								Level--;
 								break;
 							case ',':
+								if (Level == 0 & !IsRW) {
+									string t = Lines[i].Substring(a, j - a).Trim();
+									if (t.Length > 0 && !t.StartsWith(";")) {
+										Expressions[e] = new Expression();
+										Expressions[e].Text = t;
+										Expressions[e].Line = i + 1;
+										Expressions[e].Column = c + 1;
+										e++;
+									}
+									a = j + 1;
+									c++;
+								}
+								break;
 							case '@':
-								if (Level == 0 & (IsRW | Lines[i][j] != '@')) {
+								if (Level == 0 & IsRW) {
 									string t = Lines[i].Substring(a, j - a).Trim();
 									if (t.Length > 0 && !t.StartsWith(";")) {
 										Expressions[e] = new Expression();
@@ -514,20 +527,28 @@ namespace OpenBve {
 				bool err = false;
 				for (int j = Expressions[i].Text.Length - 1; j >= 0; j--) {
 					if (Expressions[i].Text[j] == '$') {
-						int k; for (k = j + 1; k < Expressions[i].Text.Length; k++) {
+						int k;
+						for (k = j + 1; k < Expressions[i].Text.Length; k++) {
 							if (Expressions[i].Text[k] == '(') break;
-						} if (k <= Expressions[i].Text.Length) {
+						}
+						if (k <= Expressions[i].Text.Length) {
 							string t = Expressions[i].Text.Substring(j, k - j).TrimEnd();
 							int l = 1, h;
 							for (h = k + 1; h < Expressions[i].Text.Length; h++) {
 								switch (Expressions[i].Text[h]) {
-										case '(': l++; break;
+									case '(':
+										l++;
+										break;
 									case ')':
-										l--; if (l < 0) {
+										l--;
+										if (l < 0) {
 											err = true; Interface.AddMessage(Interface.MessageType.Error, false, "Invalid paranthesis structure in " + t + Epilog);
-										} break;
-								} if (l <= 0) break;
-							} if (err) break;
+										}
+										break;
+								}
+								if (l <= 0) break;
+							}
+							if (err) break;
 							if (l != 0) {
 								Interface.AddMessage(Interface.MessageType.Error, false, "Invalid paranthesis structure in " + t + Epilog);
 								err = true; break;
@@ -676,22 +697,21 @@ namespace OpenBve {
 						{
 							int n = 0;
 							for (int k = 0; k < ArgumentSequence.Length; k++) {
-								switch (ArgumentSequence[k]) {
-									case ';':
-									case ',':
-										n++;
-										break;
+								if (IsRW & ArgumentSequence[k] == ',') {
+									n++;
+								} else if (!IsRW & ArgumentSequence[k] == ';') {
+									n++;
 								}
 							}
 							Arguments = new string[n + 1];
 							int a = 0, h = 0;
 							for (int k = 0; k < ArgumentSequence.Length; k++) {
-								switch (ArgumentSequence[k]) {
-									case ';':
-									case ',':
-										Arguments[h] = ArgumentSequence.Substring(a, k - a).Trim();
-										a = k + 1; h++;
-										break;
+								if (IsRW & ArgumentSequence[k] == ',') {
+									Arguments[h] = ArgumentSequence.Substring(a, k - a).Trim();
+									a = k + 1; h++;
+								} else if (!IsRW & ArgumentSequence[k] == ';') {
+									Arguments[h] = ArgumentSequence.Substring(a, k - a).Trim();
+									a = k + 1; h++;
 								}
 							}
 							if (ArgumentSequence.Length - a > 0) {
@@ -1075,22 +1095,21 @@ namespace OpenBve {
 						{
 							int n = 0;
 							for (int k = 0; k < ArgumentSequence.Length; k++) {
-								switch (ArgumentSequence[k]) {
-									case ';':
-									case ',':
-										n++;
-										break;
+								if (IsRW & ArgumentSequence[k] == ',') {
+									n++;
+								} else if (!IsRW & ArgumentSequence[k] == ';') {
+									n++;
 								}
 							}
 							Arguments = new string[n + 1];
 							int a = 0, h = 0;
 							for (int k = 0; k < ArgumentSequence.Length; k++) {
-								switch (ArgumentSequence[k]) {
-									case ';':
-									case ',':
-										Arguments[h] = ArgumentSequence.Substring(a, k - a).Trim();
-										a = k + 1; h++;
-										break;
+								if (IsRW & ArgumentSequence[k] == ',') {
+									Arguments[h] = ArgumentSequence.Substring(a, k - a).Trim();
+									a = k + 1; h++;
+								} else if (!IsRW & ArgumentSequence[k] == ';') {
+									Arguments[h] = ArgumentSequence.Substring(a, k - a).Trim();
+									a = k + 1; h++;
 								}
 							}
 							if (ArgumentSequence.Length - a > 0) {
@@ -2243,22 +2262,21 @@ namespace OpenBve {
 						{
 							int n = 0;
 							for (int k = 0; k < ArgumentSequence.Length; k++) {
-								switch (ArgumentSequence[k]) {
-									case ';':
-									case ',':
-										n++;
-										break;
+								if (IsRW & ArgumentSequence[k] == ',') {
+									n++;
+								} else if (!IsRW & ArgumentSequence[k] == ';') {
+									n++;
 								}
 							}
 							Arguments = new string[n + 1];
 							int a = 0, h = 0;
 							for (int k = 0; k < ArgumentSequence.Length; k++) {
-								switch (ArgumentSequence[k]) {
-									case ';':
-									case ',':
-										Arguments[h] = ArgumentSequence.Substring(a, k - a).Trim();
-										a = k + 1; h++;
-										break;
+								if (IsRW & ArgumentSequence[k] == ',') {
+									Arguments[h] = ArgumentSequence.Substring(a, k - a).Trim();
+									a = k + 1; h++;
+								} else if (!IsRW & ArgumentSequence[k] == ';') {
+									Arguments[h] = ArgumentSequence.Substring(a, k - a).Trim();
+									a = k + 1; h++;
 								}
 							}
 							if (ArgumentSequence.Length - a > 0) {
@@ -2831,41 +2849,45 @@ namespace OpenBve {
 												Interface.AddMessage(Interface.MessageType.Error, false, "Type is invalid in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												type = 0;
 											}
-											if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out structure)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "BeaconStructureIndex is invalid in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												structure = 0;
-											}
-											if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out section)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Section is invalid in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												section = 0;
-											}
-											if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseIntVb6(Arguments[3], out optional)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Data is invalid in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												optional = 0;
-											}
-											if (structure < -1) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "BeaconStructureIndex is expected to be non-negative or -1 in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												structure = -1;
-											} else if (structure >= 0 && (structure >= Data.Structure.Beacon.Length || Data.Structure.Beacon[structure] == null)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "BeaconStructureIndex references an object not loaded in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												structure = -1;
-											}
-											if (section == -1) {
-												section = (int)TrackManager.TransponderSpecialSection.NextRedSection;
-											} else if (section < 0) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Section is expected to be non-negative or -1 in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												section = CurrentSection + 1;
+											if (type < -1) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "Type is expected to be positive in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 											} else {
-												section += CurrentSection;
+												if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out structure)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "BeaconStructureIndex is invalid in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													structure = 0;
+												}
+												if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out section)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "Section is invalid in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													section = 0;
+												}
+												if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseIntVb6(Arguments[3], out optional)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "Data is invalid in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													optional = 0;
+												}
+												if (structure < -1) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "BeaconStructureIndex is expected to be non-negative or -1 in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													structure = -1;
+												} else if (structure >= 0 && (structure >= Data.Structure.Beacon.Length || Data.Structure.Beacon[structure] == null)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "BeaconStructureIndex references an object not loaded in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													structure = -1;
+												}
+												if (section == -1) {
+													section = (int)TrackManager.TransponderSpecialSection.NextRedSection;
+												} else if (section < 0) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "Section is expected to be non-negative or -1 in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													section = CurrentSection + 1;
+												} else {
+													section += CurrentSection;
+												}
+												int n = Data.Blocks[BlockIndex].Transponder.Length;
+												Array.Resize<Transponder>(ref Data.Blocks[BlockIndex].Transponder, n + 1);
+												Data.Blocks[BlockIndex].Transponder[n].TrackPosition = Data.TrackPosition;
+												Data.Blocks[BlockIndex].Transponder[n].Type = (TrackManager.TransponderType)type;
+												Data.Blocks[BlockIndex].Transponder[n].OptionalInteger = optional;
+												Data.Blocks[BlockIndex].Transponder[n].BeaconStructureIndex = structure;
+												Data.Blocks[BlockIndex].Transponder[n].Section = section;
+												Data.Blocks[BlockIndex].Transponder[n].ShowDefaultObject = false;
 											}
-											int n = Data.Blocks[BlockIndex].Transponder.Length;
-											Array.Resize<Transponder>(ref Data.Blocks[BlockIndex].Transponder, n + 1);
-											Data.Blocks[BlockIndex].Transponder[n].TrackPosition = Data.TrackPosition;
-											Data.Blocks[BlockIndex].Transponder[n].Type = (TrackManager.TransponderType)type;
-											Data.Blocks[BlockIndex].Transponder[n].OptionalInteger = optional;
-											Data.Blocks[BlockIndex].Transponder[n].BeaconStructureIndex = structure;
-											Data.Blocks[BlockIndex].Transponder[n].Section = section;
-											Data.Blocks[BlockIndex].Transponder[n].ShowDefaultObject = false;
 										}
 									} break;
 								case "track.relay":
@@ -3091,9 +3113,28 @@ namespace OpenBve {
 											passalarm = 0;
 										}
 										int door = 0;
-										if (Arguments.Length >= 5 && Arguments[4].Length > 0 && !Interface.TryParseIntVb6(Arguments[4], out door)) {
-											Interface.AddMessage(Interface.MessageType.Error, false, "Doors is invalid in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-											door = 0;
+										bool doorboth = false;
+										if (Arguments.Length >= 5 && Arguments[4].Length != 0) {
+											switch (Arguments[4].ToUpperInvariant()) {
+												case "L":
+													door = -1;
+													break;
+												case "R":
+													door = 1;
+													break;
+												case "N":
+													door = 0;
+													break;
+												case "B":
+													doorboth = true;
+													break;
+												default:
+													if (!Interface.TryParseIntVb6(Arguments[4], out door)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "Doors is invalid in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+														door = 0;
+													}
+													break;
+											}
 										}
 										int stop = 0;
 										if (Arguments.Length >= 6 && Arguments[5].Length > 0 && !Interface.TryParseIntVb6(Arguments[5], out stop)) {
@@ -3109,7 +3150,8 @@ namespace OpenBve {
 											} else if (!Interface.TryParseIntVb6(Arguments[6], out device)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "System is invalid in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												device = 0;
-											} else if (device != 0 & device != 1) {
+											}
+											if (device != 0 & device != 1) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "System is not supported in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												device = 0;
 											}
@@ -3199,8 +3241,8 @@ namespace OpenBve {
 										Game.Stations[CurrentStation].DepartureSoundIndex = depsnd;
 										Game.Stations[CurrentStation].StopTime = halt;
 										Game.Stations[CurrentStation].ForceStopSignal = stop == 1;
-										Game.Stations[CurrentStation].OpenLeftDoors = door < 0.0;
-										Game.Stations[CurrentStation].OpenRightDoors = door > 0.0;
+										Game.Stations[CurrentStation].OpenLeftDoors = door < 0.0 | doorboth;
+										Game.Stations[CurrentStation].OpenRightDoors = door > 0.0 | doorboth;
 										Game.Stations[CurrentStation].SecuritySystem = device == 1 ? Game.SecuritySystem.Atc : Game.SecuritySystem.Ats;
 										Game.Stations[CurrentStation].Stops = new Game.StationStop[] { };
 										Game.Stations[CurrentStation].PassengerRatio = 0.01 * jam;
@@ -3311,14 +3353,21 @@ namespace OpenBve {
 													idx2 = Form.SecondaryRailL;
 												} else if (string.Compare(Arguments[1], "R", StringComparison.OrdinalIgnoreCase) == 0) {
 													idx2 = Form.SecondaryRailR;
+												} else if (IsRW && string.Compare(Arguments[1], "9X", StringComparison.OrdinalIgnoreCase) == 0) {
+													idx2 = int.MaxValue;
 												} else if (!Interface.TryParseIntVb6(Arguments[1], out idx2)) {
 													Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex2 is invalid in Track.Form at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													idx2 = 0;
 												}
 											}
 											if (IsRW) {
-												if (idx2 == -9) idx2 = Form.SecondaryRailL;
-												if (idx2 == 9) idx2 = Form.SecondaryRailR;
+												if (idx2 == int.MaxValue) {
+													idx2 = 9;
+												} else if (idx2 == -9) {
+													idx2 = Form.SecondaryRailL;
+												} else if (idx2 == 9) {
+													idx2 = Form.SecondaryRailR;
+												}
 											}
 											if (idx1 < 0) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex1 is expected to be non-negative in Track.Form at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
@@ -3773,7 +3822,7 @@ namespace OpenBve {
 													Data.Blocks[BlockIndex].Sound[n].TrackPosition = Data.TrackPosition;
 													Data.Blocks[BlockIndex].Sound[n].SoundIndex = SoundManager.LoadSound(f, 10.0);
 													Data.Blocks[BlockIndex].Sound[n].Type = speed == 0.0 ? SoundType.TrainStatic : SoundType.TrainDynamic;
-													Data.Blocks[BlockIndex].Sound[n].Speed = speed * 0.277777777777778;
+													Data.Blocks[BlockIndex].Sound[n].Speed = speed * Data.UnitOfSpeed;
 												}
 											}
 										}
@@ -3829,6 +3878,7 @@ namespace OpenBve {
 										}
 									} break;
 								case "track.pointofinterest":
+								case "track.poi":
 									{
 										if (!PreviewOnly) {
 											int idx = 0;
@@ -4431,10 +4481,6 @@ namespace OpenBve {
 						Game.Stations[s].Stops[t].BackwardTolerance = Data.Blocks[i].Stop[j].BackwardTolerance;
 						Game.Stations[s].Stops[t].Cars = Data.Blocks[i].Stop[j].Cars;
 						double dx, dy = 2.0;
-						if (Data.Blocks[i].Stop[j].Direction != 0 & Game.Stations[s].OpenLeftDoors & Game.Stations[s].OpenRightDoors) {
-							Game.Stations[s].OpenLeftDoors = Data.Blocks[i].Stop[j].Direction > 0;
-							Game.Stations[s].OpenRightDoors = Data.Blocks[i].Stop[j].Direction < 0;
-						}
 						if (Game.Stations[s].OpenLeftDoors & !Game.Stations[s].OpenRightDoors) {
 							dx = -5.0;
 						} else if (!Game.Stations[s].OpenLeftDoors & Game.Stations[s].OpenRightDoors) {

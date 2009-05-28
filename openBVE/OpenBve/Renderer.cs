@@ -432,7 +432,7 @@ namespace OpenBve {
 			} else if (OpenGlNighttimeTextureIndex == 0) {
 				float blend = inv255 * (float)Material.DaytimeNighttimeBlend + 1.0f - OptionLightingResultingAmount;
 				if (blend > 1.0f) blend = 1.0f;
-				factor = 1.0f - 0.75f * blend;
+				factor = 1.0f - 0.8f * blend;
 			} else {
 				factor = 1.0f;
 			}
@@ -604,9 +604,8 @@ namespace OpenBve {
 						int tw = TextureManager.Textures[Data.Texture].Width;
 						int th = TextureManager.Textures[Data.Texture].Height;
 						double hh = Math.PI * World.BackgroundImageDistance * (double)th / ((double)tw * (double)Data.Repetition);
-						double yc = 0.125 * World.BackgroundImageDistance;
-						y0 = yc - hh;
-						y1 = yc + hh;
+						y0 = -0.5 * hh;
+						y1 = 1.5 * hh;
 					} else {
 						y0 = -0.125 * World.BackgroundImageDistance;
 						y1 = 0.375 * World.BackgroundImageDistance;
@@ -663,28 +662,6 @@ namespace OpenBve {
 					if (!BlendEnabled) {
 						Gl.glEnable(Gl.GL_BLEND);
 						BlendEnabled = true;
-					}
-					textureX = textureStart;
-					for (int i = 0; i < n; i++) {
-						int j = (i + 1) % n;
-						///// top cap color overlay
-						//Gl.glBegin(Gl.GL_POLYGON);
-						//Gl.glColor4f(OptionLightingResultingAmount, OptionLightingResultingAmount, OptionLightingResultingAmount, 0.0f);
-						//Gl.glVertex3d(top[i].X, top[i].Y, top[i].Z);
-						//Gl.glColor4f(OptionLightingResultingAmount, OptionLightingResultingAmount, OptionLightingResultingAmount, 0.0f);
-						//Gl.glVertex3d(top[j].X, top[j].Y, top[j].Z);
-						//Gl.glColor4f(OptionLightingResultingAmount, OptionLightingResultingAmount, OptionLightingResultingAmount, 1.0f);
-						//Gl.glVertex3d(0.0, top[i].Y, 0.0);
-						//Gl.glEnd();
-						///// bottom cap (black overlay)
-						//Gl.glBegin(Gl.GL_POLYGON);
-						//Gl.glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-						//Gl.glVertex3d(0.0, bottom[i].Y, 0.0);
-						//Gl.glColor4f(0.0f, 0.0f, 0.0f, 0.0f);
-						//Gl.glVertex3d(bottom[j].X, bottom[j].Y, bottom[j].Z);
-						//Gl.glColor4f(0.0f, 0.0f, 0.0f, 0.0f);
-						//Gl.glVertex3d(bottom[i].X, bottom[i].Y, bottom[i].Z);
-						//Gl.glEnd();
 					}
 				}
 			}
@@ -1817,7 +1794,7 @@ namespace OpenBve {
 									case "stopnone":
 										{
 											int s = TrainManager.PlayerTrain.Station;
-											if (s >= 0 & Interface.CurrentOptions.GameMode != Interface.GameMode.Expert) {
+											if (s >= 0 && Game.Stations[s].StopAtStation && Interface.CurrentOptions.GameMode != Interface.GameMode.Expert) {
 												bool cond;
 												if (Command == "stopleft") {
 													cond = Game.Stations[s].OpenLeftDoors;
@@ -1844,7 +1821,7 @@ namespace OpenBve {
 									case "stopnonetick":
 										{
 											int s = TrainManager.PlayerTrain.Station;
-											if (s >= 0 & Interface.CurrentOptions.GameMode != Interface.GameMode.Expert) {
+											if (s >= 0 && Game.Stations[s].StopAtStation && Interface.CurrentOptions.GameMode != Interface.GameMode.Expert) {
 												int c = Game.GetStopIndex(s, TrainManager.PlayerTrain.Cars.Length);
 												if (c >= 0) {
 													bool cond;

@@ -23,8 +23,14 @@ namespace OpenBve {
 
 		// cars
 		internal struct Door {
+			/// <summary>A value of -1 (left) or 1 (right).</summary>
 			internal int Direction;
+			/// <summary>A value between 0 (closed) and 1 (opened).</summary>
 			internal double State;
+			/// <summary>The value of the state at which a door lock simulation is scheduled.</summary>
+			internal double DoorLockState;
+			/// <summary>The duration of the scheduled door lock simulation.</summary>
+			internal double DoorLockDuration;
 		}
 		internal struct AccelerationCurve {
 			internal double StageZeroAcceleration;
@@ -1493,13 +1499,27 @@ namespace OpenBve {
 									Timetable.UpdateCustomTimetable(Game.Stations[i].TimetableDaytimeTexture, Game.Stations[i].TimetableNighttimeTexture);
 								}
 								// atc switch
-								if (Train.Specs.Security.Atc.Available & Train.Specs.Security.Atc.AutomaticSwitch) {
+								if (Train.Specs.Security.Atc.Available & Train.Specs.Security.Atc.AutomaticSwitch & Train.Specs.Security.Mode != SecuritySystem.None) {
 									if (Game.Stations[i].SecuritySystem == Game.SecuritySystem.Ats & Train.Specs.Security.Mode != SecuritySystem.AtsSN & Train.Specs.Security.Mode != SecuritySystem.AtsP) {
 										if (Train.Specs.Security.Ats.AtsAvailable) {
 											Train.Specs.Security.ModeChange = SecuritySystem.AtsSN;
 										}
 									} else if (Game.Stations[i].SecuritySystem == Game.SecuritySystem.Atc & Train.Specs.Security.Mode != SecuritySystem.Atc) {
 										Train.Specs.Security.ModeChange = SecuritySystem.Atc;
+									}
+								}
+								// schedule door locks
+								for (int j = 0; j < Train.Cars.Length; j++) {
+									for (int k = 0; k < Train.Cars[j].Specs.Doors.Length; k++) {
+										Train.Cars[j].Specs.Doors[k].DoorLockDuration = 0.0;
+										if (Game.Stations[i].OpenLeftDoors & Train.Cars[j].Specs.Doors[k].Direction == -1 | Game.Stations[i].OpenRightDoors & Train.Cars[j].Specs.Doors[k].Direction == 1) {
+											double p = 0.01 * Game.Stations[i].PassengerRatio * Game.Stations[i].PassengerRatio;
+											if (Game.Generator.NextDouble() < p) {
+												Train.Cars[j].Specs.Doors[k].DoorLockState = 0.2 + 0.6 * Game.Generator.NextDouble();
+												p = Game.Generator.NextDouble();
+												Train.Cars[j].Specs.Doors[k].DoorLockDuration = 5.0 - 1.0 / (p * p - 1.05);
+											}
+										}
 									}
 								}
 							} else if (Train.Specs.CurrentAverageSpeed > -0.277777777777778 & Train.Specs.CurrentAverageSpeed < 0.277777777777778) {
@@ -1625,30 +1645,66 @@ namespace OpenBve {
 				for (int j = 0; j < Train.Cars[i].Specs.Doors.Length; j++) {
 					if (Train.Cars[i].Specs.Doors[j].Direction == -1) {
 						// left door
-						if (Train.Cars[i].Specs.Doors[j].State > 0.0) olddoorsopen = true;
+						if (Train.Cars[i].Specs.Doors[j].State > 0.0) {
+							olddoorsopen = true;
+						}
 						if (ld) {
 							// open
 							Train.Cars[i].Specs.Doors[j].State += os * TimeElapsed;
-							if (Train.Cars[i].Specs.Doors[j].State > 1.0) Train.Cars[i].Specs.Doors[j].State = 1.0;
+							if (Train.Cars[i].Specs.Doors[j].State > 1.0) {
+								Train.Cars[i].Specs.Doors[j].State = 1.0;
+								Train.Cars[i].Specs.Doors[j].DoorLockDuration = 0.0;
+							}
 						} else {
 							// close
 							Train.Cars[i].Specs.Doors[j].State -= cs * TimeElapsed;
-							if (Train.Cars[i].Specs.Doors[j].State < 0.0) Train.Cars[i].Specs.Doors[j].State = 0.0;
+							if (Train.Cars[i].Specs.Doors[j].DoorLockDuration > 0.0) {
+								if (Train.Cars[i].Specs.Doors[j].State < Train.Cars[i].Specs.Doors[j].DoorLockState) {
+									Train.Cars[i].Specs.Doors[j].State = Train.Cars[i].Specs.Doors[j].DoorLockState;
+									Train.Cars[i].Specs.Doors[j].DoorLockDuration -= TimeElapsed;
+									if (Train.Cars[i].Specs.Doors[j].DoorLockDuration < 0.0) {
+										Train.Cars[i].Specs.Doors[j].DoorLockDuration = 0.0;
+									}
+								}
+							}
+							if (Train.Cars[i].Specs.Doors[j].State < 0.0) {
+								Train.Cars[i].Specs.Doors[j].State = 0.0;
+							}
 						}
-						if (Train.Cars[i].Specs.Doors[j].State > 0.0) newdoorsopen = true;
+						if (Train.Cars[i].Specs.Doors[j].State > 0.0) {
+							newdoorsopen = true;
+						}
 					} else if (Train.Cars[i].Specs.Doors[j].Direction == 1) {
 						// right door
-						if (Train.Cars[i].Specs.Doors[j].State > 0.0) olddoorsopen = true;
+						if (Train.Cars[i].Specs.Doors[j].State > 0.0) {
+							olddoorsopen = true;
+						}
 						if (rd) {
 							// open
 							Train.Cars[i].Specs.Doors[j].State += os * TimeElapsed;
-							if (Train.Cars[i].Specs.Doors[j].State > 1.0) Train.Cars[i].Specs.Doors[j].State = 1.0;
+							if (Train.Cars[i].Specs.Doors[j].DoorLockDuration > 0.0) {
+								if (Train.Cars[i].Specs.Doors[j].State < Train.Cars[i].Specs.Doors[j].DoorLockState) {
+									Train.Cars[i].Specs.Doors[j].State = Train.Cars[i].Specs.Doors[j].DoorLockState;
+									Train.Cars[i].Specs.Doors[j].DoorLockDuration -= TimeElapsed;
+									if (Train.Cars[i].Specs.Doors[j].DoorLockDuration < 0.0) {
+										Train.Cars[i].Specs.Doors[j].DoorLockDuration = 0.0;
+									}
+								}
+							}
+							if (Train.Cars[i].Specs.Doors[j].State > 1.0) {
+								Train.Cars[i].Specs.Doors[j].State = 1.0;
+								Train.Cars[i].Specs.Doors[j].DoorLockDuration = 0.0;
+							}
 						} else {
 							// close
 							Train.Cars[i].Specs.Doors[j].State -= cs * TimeElapsed;
-							if (Train.Cars[i].Specs.Doors[j].State < 0.0) Train.Cars[i].Specs.Doors[j].State = 0.0;
+							if (Train.Cars[i].Specs.Doors[j].State < 0.0) {
+								Train.Cars[i].Specs.Doors[j].State = 0.0;
+							}
 						}
-						if (Train.Cars[i].Specs.Doors[j].State > 0.0) newdoorsopen = true;
+						if (Train.Cars[i].Specs.Doors[j].State > 0.0) {
+							newdoorsopen = true;
+						}
 					}
 				}
 			}
@@ -2018,7 +2074,8 @@ namespace OpenBve {
 							double patmin = double.PositiveInfinity;
 							const double fac = 1.1547;
 							const double invfac = 1.0 / fac;
-							{ /// scan for temporary speed restrictions
+							{
+								// scan for temporary speed restrictions
 								int i0 = Train.Cars[Train.DriverCar].FrontAxle.Follower.LastTrackElement;
 								double p0 = Train.Cars[Train.DriverCar].FrontAxle.Follower.TrackPosition;
 								double p = p0;
