@@ -27,7 +27,9 @@ namespace OpenBve {
 		internal static Fog PreviousFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 0.0);
 		internal static Fog CurrentFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 0.5);
 		internal static Fog NextFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 1.0);
-
+		internal const float NoFogStart = 800.0f;
+		internal const float NoFogEnd = 1600.0f;
+		
 		// route constants
 		internal static string RouteComment = "";
 		internal static string RouteImage = "";

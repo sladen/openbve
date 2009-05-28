@@ -63,10 +63,10 @@ namespace OpenBve {
 			}
 			#endif
 			// deinitialize
-			TextureManager.UnuseAllTextures();
 			if(SdlWindowCreated & Interface.CurrentOptions.FullscreenMode) {
 				Sdl.SDL_SetVideoMode(Interface.CurrentOptions.WindowWidth, Interface.CurrentOptions.WindowHeight, 32, Sdl.SDL_OPENGL | Sdl.SDL_DOUBLEBUF);
 			}
+			TextureManager.UnuseAllTextures();
 			Asynchronous.Deinitialize();
 			PluginManager.UnloadPlugin();
 			SoundManager.Deinitialize();
@@ -79,6 +79,9 @@ namespace OpenBve {
 			// restart
 			if (RestartProcessArguments != null) {
 				System.Reflection.Assembly Assembly = System.Reflection.Assembly.GetExecutingAssembly();
+				if (Program.UseFilesystemHierarchyStandard) {
+					RestartProcessArguments += " /fhs";
+				}
 				System.Diagnostics.Process.Start(Assembly.Location, RestartProcessArguments);
 			}
 		}

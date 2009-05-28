@@ -258,7 +258,6 @@ namespace OpenBve {
 				Game.CurrentFog.Color.B = (byte)((float)Game.PreviousFog.Color.B * frc + (float)Game.NextFog.Color.B * fr);
 			} else {
 				Game.CurrentFog = Game.PreviousFog;
-				
 			}
 			// render background
 			if (FogEnabled) {
@@ -267,6 +266,8 @@ namespace OpenBve {
 			Gl.glDisable(Gl.GL_DEPTH_TEST);
 			RenderBackground(dx, dy, dz, TimeElapsed);
 			// fog
+			double aa = Game.CurrentFog.Start;
+			double bb = Game.CurrentFog.End;
 			if (Game.CurrentFog.Start < Game.CurrentFog.End & Game.CurrentFog.Start < World.BackgroundImageDistance) {
 				if (!FogEnabled) {
 					Gl.glFogi(Gl.GL_FOG_MODE, Gl.GL_LINEAR);
@@ -277,7 +278,6 @@ namespace OpenBve {
 				if (!FogEnabled) {
 					Gl.glEnable(Gl.GL_FOG); FogEnabled = true;
 				}
-				//Gl.glClearColor(inv255 * (float)Game.CurrentFog.Color.R, inv255 * (float)Game.CurrentFog.Color.G, inv255 * (float)Game.CurrentFog.Color.B, 1.0f);
 			} else if (FogEnabled) {
 				Gl.glDisable(Gl.GL_FOG); FogEnabled = false;
 			}
@@ -576,22 +576,10 @@ namespace OpenBve {
 		private static void RenderBackground(double dx, double dy, double dz, double TimeElapsed) {
 			// fog
 			const float fogdistance = 600.0f;
-			if (Game.CurrentFog.Start < Game.CurrentFog.End) {
-				float f = (fogdistance - Game.CurrentFog.Start) / (Game.CurrentFog.End - Game.CurrentFog.Start);
-				float cr, cg, cb;
-				if (f < 0.0f) {
-					cr = 1.0f;
-					cg = 1.0f;
-					cb = 1.0f;
-				} else if (f > 1.0f) {
-					cr = inv255 * (float)Game.CurrentFog.Color.R;
-					cg = inv255 * (float)Game.CurrentFog.Color.G;
-					cb = inv255 * (float)Game.CurrentFog.Color.B;
-				} else {
-					cr = (1.0f - f) + f * inv255 * (float)Game.CurrentFog.Color.R;
-					cg = (1.0f - f) + f * inv255 * (float)Game.CurrentFog.Color.G;
-					cb = (1.0f - f) + f * inv255 * (float)Game.CurrentFog.Color.B;
-				}
+			if (Game.CurrentFog.Start < Game.CurrentFog.End & Game.CurrentFog.Start < fogdistance) {
+				float cr = inv255 * (float)Game.CurrentFog.Color.R;
+				float cg = inv255 * (float)Game.CurrentFog.Color.G;
+				float cb = inv255 * (float)Game.CurrentFog.Color.B;
 				if (!FogEnabled) {
 					Gl.glFogi(Gl.GL_FOG_MODE, Gl.GL_LINEAR);
 				}
@@ -601,6 +589,8 @@ namespace OpenBve {
 				if (!FogEnabled) {
 					Gl.glEnable(Gl.GL_FOG); FogEnabled = true;
 				}
+			} else if (FogEnabled) {
+				Gl.glDisable(Gl.GL_FOG); FogEnabled = false;
 			}
 			// render
 			if (World.TargetBackgroundCountdown >= 0.0) {
@@ -1909,6 +1899,7 @@ namespace OpenBve {
 											int hours = (int)Math.Floor(Game.SecondsSinceMidnight);
 											int seconds = hours % 60; hours /= 60;
 											int minutes = hours % 60; hours /= 60;
+											hours %= 24;
 											t = hours.ToString(Culture).PadLeft(2, '0') + ":" + minutes.ToString(Culture).PadLeft(2, '0') + ":" + seconds.ToString(Culture).PadLeft(2, '0');
 											if (OptionClock) {
 												Interface.CurrentHudElements[i].TransitionState -= speed * TimeElapsed;
