@@ -7,15 +7,9 @@ namespace OpenBve {
 
 		// special folders
 		internal static string GetSettingsFolder() {
-			return GetSettingsFolder(true);
-		}
-		internal static string GetSettingsFolder(bool ensure_exists) {
 			if (Program.UseFilesystemHierarchyStandard) {
 				string Folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-				Folder = GetCombinedFolderName(Folder, "OpenBve");
-				if (ensure_exists && !System.IO.Directory.Exists(Folder))
-					System.IO.Directory.CreateDirectory(Folder);
-				return Folder;
+				return GetCombinedFolderName(Folder, "OpenBve");
 			} else {
 				return GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Settings");
 			}
