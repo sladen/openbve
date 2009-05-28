@@ -9,6 +9,7 @@ namespace OpenBve {
 		//// declarations
 		internal static bool LimitFramerate = false;
 		private static bool Quit = false;
+		private static int TimeFactor = 1;
 
 		//// --------------------------------
 
@@ -67,7 +68,7 @@ namespace OpenBve {
 				// timer
 				double TimeElapsed;
 				if (Game.SecondsSinceMidnight >= Game.StartupTime) {
-					TimeElapsed = Timers.GetElapsedTime();
+					TimeElapsed = Timers.GetElapsedTime() * (double)TimeFactor;
 				} else {
 					TimeElapsed = Game.StartupTime - Game.SecondsSinceMidnight;
 				}
@@ -348,6 +349,13 @@ namespace OpenBve {
 										Game.CreateMenu(true);
 										Game.CurrentInterface = Game.InterfaceType.Menu;
 										break;
+									case Interface.Command.MiscFullscreen:
+										ToggleFullscreen();
+										break;
+									case Interface.Command.MiscMute:
+										SoundManager.Mute = !SoundManager.Mute;
+										SoundManager.Update(0.0);
+										break;
 								}
 							}
 						}
@@ -491,6 +499,16 @@ namespace OpenBve {
 											Array.Resize<int>(ref Game.CurrentMenuSelection, Game.CurrentMenuSelection.Length - 1);
 											Array.Resize<double>(ref Game.CurrentMenuOffsets, Game.CurrentMenuOffsets.Length - 1);
 										} break;
+									case Interface.Command.MiscFullscreen:
+										// fullscreen
+										ToggleFullscreen();
+										break;
+									case Interface.Command.MiscMute:
+										// mute
+										SoundManager.Mute = !SoundManager.Mute;
+										SoundManager.Update(0.0);
+										break;
+
 								}
 							}
 						}
@@ -1303,6 +1321,15 @@ namespace OpenBve {
 										// clock
 										Renderer.OptionClock = !Renderer.OptionClock;
 										break;
+									case Interface.Command.MiscTimeFactor:
+										// time factor
+										if (Interface.CurrentOptions.GameMode == Interface.GameMode.Expert) {
+											Game.AddMessage(Interface.GetInterfaceString("notification_notavailableexpert"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 5.0);
+										} else {
+											TimeFactor = TimeFactor == 1 ? 5 : 1;
+											Game.AddMessage(TimeFactor.ToString(System.Globalization.CultureInfo.InvariantCulture) + "x", Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 5.0 * (double)TimeFactor);
+										}
+										break;
 									case Interface.Command.MiscSpeed:
 										// speed
 										if (Interface.CurrentOptions.GameMode == Interface.GameMode.Expert) {
@@ -1318,6 +1345,10 @@ namespace OpenBve {
 									case Interface.Command.MiscFullscreen:
 										// toggle fullscreen
 										ToggleFullscreen();
+										break;
+									case Interface.Command.MiscMute:
+										// mute
+										SoundManager.Mute = !SoundManager.Mute;
 										break;
 								}
 							} else if (Interface.CurrentControls[i].DigitalState == Interface.DigitalControlState.Released) {

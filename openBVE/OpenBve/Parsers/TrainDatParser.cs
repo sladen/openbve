@@ -652,6 +652,8 @@ namespace OpenBve {
 				TrainManager.ChangeCarSection(Train, i, -1);
 				Train.Cars[i].FrontAxle.Follower.TriggerType = i == 0 ? TrackManager.EventTriggerType.FrontCarFrontAxle : TrackManager.EventTriggerType.OtherCarFrontAxle;
 				Train.Cars[i].RearAxle.Follower.TriggerType = i == Cars - 1 ? TrackManager.EventTriggerType.RearCarRearAxle : TrackManager.EventTriggerType.OtherCarRearAxle;
+				Train.Cars[i].BeaconReceiver.TriggerType = i == 0 ? TrackManager.EventTriggerType.BeaconReceiver : TrackManager.EventTriggerType.None;
+				Train.Cars[i].BeaconReceiverPosition = 0.5 * CarLength;
 				Train.Cars[i].FrontAxle.Follower.CarIndex = i;
 				Train.Cars[i].RearAxle.Follower.CarIndex = i;
 				Train.Cars[i].FrontAxlePosition = AxleDistance;

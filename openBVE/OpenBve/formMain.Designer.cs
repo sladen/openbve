@@ -89,6 +89,7 @@
         	this.labelFillerTwo = new System.Windows.Forms.Label();
         	this.panelOptions = new System.Windows.Forms.Panel();
         	this.groupboxVerbosity = new System.Windows.Forms.GroupBox();
+        	this.checkboxErrorMessages = new System.Windows.Forms.CheckBox();
         	this.checkboxWarningMessages = new System.Windows.Forms.CheckBox();
         	this.pictureboxLanguage = new System.Windows.Forms.PictureBox();
         	this.groupboxSound = new System.Windows.Forms.GroupBox();
@@ -231,7 +232,6 @@
         	this.labelVersion = new System.Windows.Forms.Label();
         	this.labelInfoBottom = new System.Windows.Forms.Label();
         	this.labelInfoTop = new System.Windows.Forms.Label();
-        	this.checkboxErrorMessages = new System.Windows.Forms.CheckBox();
         	((System.ComponentModel.ISupportInitialize)(this.pictureboxLogo)).BeginInit();
         	this.panelStart.SuspendLayout();
         	this.groupboxTrainSelection.SuspendLayout();
@@ -452,7 +452,7 @@
         	this.tabpageTrainRecently.Location = new System.Drawing.Point(4, 22);
         	this.tabpageTrainRecently.Name = "tabpageTrainRecently";
         	this.tabpageTrainRecently.Padding = new System.Windows.Forms.Padding(3);
-        	this.tabpageTrainRecently.Size = new System.Drawing.Size(384, 166);
+        	this.tabpageTrainRecently.Size = new System.Drawing.Size(376, 166);
         	this.tabpageTrainRecently.TabIndex = 1;
         	this.tabpageTrainRecently.Text = "Recently used";
         	this.tabpageTrainRecently.UseVisualStyleBackColor = true;
@@ -469,7 +469,7 @@
         	this.listviewTrainRecently.MultiSelect = false;
         	this.listviewTrainRecently.Name = "listviewTrainRecently";
         	this.listviewTrainRecently.ShowGroups = false;
-        	this.listviewTrainRecently.Size = new System.Drawing.Size(368, 152);
+        	this.listviewTrainRecently.Size = new System.Drawing.Size(360, 152);
         	this.listviewTrainRecently.TabIndex = 0;
         	this.listviewTrainRecently.UseCompatibleStateImageBehavior = false;
         	this.listviewTrainRecently.View = System.Windows.Forms.View.Details;
@@ -481,7 +481,7 @@
         	this.tabpageTrainDefault.Location = new System.Drawing.Point(4, 22);
         	this.tabpageTrainDefault.Name = "tabpageTrainDefault";
         	this.tabpageTrainDefault.Padding = new System.Windows.Forms.Padding(3);
-        	this.tabpageTrainDefault.Size = new System.Drawing.Size(384, 166);
+        	this.tabpageTrainDefault.Size = new System.Drawing.Size(376, 166);
         	this.tabpageTrainDefault.TabIndex = 2;
         	this.tabpageTrainDefault.Text = "Route default";
         	this.tabpageTrainDefault.UseVisualStyleBackColor = true;
@@ -572,7 +572,7 @@
         	this.tabpageTrainSettings.Location = new System.Drawing.Point(4, 22);
         	this.tabpageTrainSettings.Name = "tabpageTrainSettings";
         	this.tabpageTrainSettings.Padding = new System.Windows.Forms.Padding(3);
-        	this.tabpageTrainSettings.Size = new System.Drawing.Size(344, 166);
+        	this.tabpageTrainSettings.Size = new System.Drawing.Size(352, 166);
         	this.tabpageTrainSettings.TabIndex = 3;
         	this.tabpageTrainSettings.Text = "Settings";
         	this.tabpageTrainSettings.UseVisualStyleBackColor = true;
@@ -588,7 +588,7 @@
         	this.panelTrainEncoding.Controls.Add(this.buttonTrainEncodingLatin1);
         	this.panelTrainEncoding.Location = new System.Drawing.Point(8, 8);
         	this.panelTrainEncoding.Name = "panelTrainEncoding";
-        	this.panelTrainEncoding.Size = new System.Drawing.Size(328, 48);
+        	this.panelTrainEncoding.Size = new System.Drawing.Size(336, 48);
         	this.panelTrainEncoding.TabIndex = 10;
         	// 
         	// labelTrainEncoding
@@ -604,7 +604,7 @@
         	// buttonTrainEncodingBig5
         	// 
         	this.buttonTrainEncodingBig5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-        	this.buttonTrainEncodingBig5.Location = new System.Drawing.Point(264, 24);
+        	this.buttonTrainEncodingBig5.Location = new System.Drawing.Point(272, 24);
         	this.buttonTrainEncodingBig5.Name = "buttonTrainEncodingBig5";
         	this.buttonTrainEncodingBig5.Size = new System.Drawing.Size(64, 24);
         	this.buttonTrainEncodingBig5.TabIndex = 9;
@@ -620,14 +620,14 @@
         	this.comboboxTrainEncoding.FormattingEnabled = true;
         	this.comboboxTrainEncoding.Location = new System.Drawing.Point(96, 0);
         	this.comboboxTrainEncoding.Name = "comboboxTrainEncoding";
-        	this.comboboxTrainEncoding.Size = new System.Drawing.Size(232, 21);
+        	this.comboboxTrainEncoding.Size = new System.Drawing.Size(240, 21);
         	this.comboboxTrainEncoding.TabIndex = 1;
         	this.comboboxTrainEncoding.SelectedIndexChanged += new System.EventHandler(this.comboboxTrainEncoding_SelectedIndexChanged);
         	// 
         	// buttonTrainEncodingShiftJis
         	// 
         	this.buttonTrainEncodingShiftJis.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-        	this.buttonTrainEncodingShiftJis.Location = new System.Drawing.Point(200, 24);
+        	this.buttonTrainEncodingShiftJis.Location = new System.Drawing.Point(208, 24);
         	this.buttonTrainEncodingShiftJis.Name = "buttonTrainEncodingShiftJis";
         	this.buttonTrainEncodingShiftJis.Size = new System.Drawing.Size(64, 24);
         	this.buttonTrainEncodingShiftJis.TabIndex = 3;
@@ -638,7 +638,7 @@
         	// buttonTrainEncodingLatin1
         	// 
         	this.buttonTrainEncodingLatin1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-        	this.buttonTrainEncodingLatin1.Location = new System.Drawing.Point(136, 24);
+        	this.buttonTrainEncodingLatin1.Location = new System.Drawing.Point(144, 24);
         	this.buttonTrainEncodingLatin1.Name = "buttonTrainEncodingLatin1";
         	this.buttonTrainEncodingLatin1.Size = new System.Drawing.Size(64, 24);
         	this.buttonTrainEncodingLatin1.TabIndex = 2;
@@ -667,7 +667,7 @@
         	this.textboxTrainEncodingPreview.Name = "textboxTrainEncodingPreview";
         	this.textboxTrainEncodingPreview.ReadOnly = true;
         	this.textboxTrainEncodingPreview.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-        	this.textboxTrainEncodingPreview.Size = new System.Drawing.Size(232, 96);
+        	this.textboxTrainEncodingPreview.Size = new System.Drawing.Size(240, 96);
         	this.textboxTrainEncodingPreview.TabIndex = 5;
         	// 
         	// buttonStart
@@ -785,7 +785,7 @@
         	this.tabpageRouteRecently.Location = new System.Drawing.Point(4, 22);
         	this.tabpageRouteRecently.Name = "tabpageRouteRecently";
         	this.tabpageRouteRecently.Padding = new System.Windows.Forms.Padding(3);
-        	this.tabpageRouteRecently.Size = new System.Drawing.Size(384, 166);
+        	this.tabpageRouteRecently.Size = new System.Drawing.Size(376, 166);
         	this.tabpageRouteRecently.TabIndex = 1;
         	this.tabpageRouteRecently.Text = "Recently used";
         	this.tabpageRouteRecently.UseVisualStyleBackColor = true;
@@ -802,7 +802,7 @@
         	this.listviewRouteRecently.MultiSelect = false;
         	this.listviewRouteRecently.Name = "listviewRouteRecently";
         	this.listviewRouteRecently.ShowGroups = false;
-        	this.listviewRouteRecently.Size = new System.Drawing.Size(368, 152);
+        	this.listviewRouteRecently.Size = new System.Drawing.Size(360, 152);
         	this.listviewRouteRecently.TabIndex = 0;
         	this.listviewRouteRecently.UseCompatibleStateImageBehavior = false;
         	this.listviewRouteRecently.View = System.Windows.Forms.View.Details;
@@ -879,7 +879,7 @@
         	this.tabpageRouteMap.Location = new System.Drawing.Point(4, 22);
         	this.tabpageRouteMap.Name = "tabpageRouteMap";
         	this.tabpageRouteMap.Padding = new System.Windows.Forms.Padding(3);
-        	this.tabpageRouteMap.Size = new System.Drawing.Size(344, 166);
+        	this.tabpageRouteMap.Size = new System.Drawing.Size(352, 166);
         	this.tabpageRouteMap.TabIndex = 1;
         	this.tabpageRouteMap.Text = "Map";
         	this.tabpageRouteMap.UseVisualStyleBackColor = true;
@@ -891,7 +891,7 @@
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
         	this.pictureboxRouteMap.Location = new System.Drawing.Point(8, 8);
         	this.pictureboxRouteMap.Name = "pictureboxRouteMap";
-        	this.pictureboxRouteMap.Size = new System.Drawing.Size(328, 152);
+        	this.pictureboxRouteMap.Size = new System.Drawing.Size(336, 152);
         	this.pictureboxRouteMap.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
         	this.pictureboxRouteMap.TabIndex = 0;
         	this.pictureboxRouteMap.TabStop = false;
@@ -902,7 +902,7 @@
         	this.tabpageRouteGradient.Location = new System.Drawing.Point(4, 22);
         	this.tabpageRouteGradient.Name = "tabpageRouteGradient";
         	this.tabpageRouteGradient.Padding = new System.Windows.Forms.Padding(3);
-        	this.tabpageRouteGradient.Size = new System.Drawing.Size(344, 166);
+        	this.tabpageRouteGradient.Size = new System.Drawing.Size(352, 166);
         	this.tabpageRouteGradient.TabIndex = 2;
         	this.tabpageRouteGradient.Text = "Gradient profile";
         	this.tabpageRouteGradient.UseVisualStyleBackColor = true;
@@ -914,7 +914,7 @@
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
         	this.pictureboxRouteGradient.Location = new System.Drawing.Point(8, 7);
         	this.pictureboxRouteGradient.Name = "pictureboxRouteGradient";
-        	this.pictureboxRouteGradient.Size = new System.Drawing.Size(328, 152);
+        	this.pictureboxRouteGradient.Size = new System.Drawing.Size(336, 152);
         	this.pictureboxRouteGradient.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
         	this.pictureboxRouteGradient.TabIndex = 1;
         	this.pictureboxRouteGradient.TabStop = false;
@@ -927,7 +927,7 @@
         	this.tabpageRouteSettings.Location = new System.Drawing.Point(4, 22);
         	this.tabpageRouteSettings.Name = "tabpageRouteSettings";
         	this.tabpageRouteSettings.Padding = new System.Windows.Forms.Padding(3);
-        	this.tabpageRouteSettings.Size = new System.Drawing.Size(344, 166);
+        	this.tabpageRouteSettings.Size = new System.Drawing.Size(352, 166);
         	this.tabpageRouteSettings.TabIndex = 3;
         	this.tabpageRouteSettings.Text = "Settings";
         	this.tabpageRouteSettings.UseVisualStyleBackColor = true;
@@ -943,13 +943,13 @@
         	this.panelRouteEncoding.Controls.Add(this.comboboxRouteEncoding);
         	this.panelRouteEncoding.Location = new System.Drawing.Point(8, 8);
         	this.panelRouteEncoding.Name = "panelRouteEncoding";
-        	this.panelRouteEncoding.Size = new System.Drawing.Size(328, 48);
+        	this.panelRouteEncoding.Size = new System.Drawing.Size(336, 48);
         	this.panelRouteEncoding.TabIndex = 7;
         	// 
         	// buttonRouteEncodingLatin1
         	// 
         	this.buttonRouteEncodingLatin1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-        	this.buttonRouteEncodingLatin1.Location = new System.Drawing.Point(136, 24);
+        	this.buttonRouteEncodingLatin1.Location = new System.Drawing.Point(144, 24);
         	this.buttonRouteEncodingLatin1.Name = "buttonRouteEncodingLatin1";
         	this.buttonRouteEncodingLatin1.Size = new System.Drawing.Size(64, 24);
         	this.buttonRouteEncodingLatin1.TabIndex = 2;
@@ -960,7 +960,7 @@
         	// buttonRouteEncodingBig5
         	// 
         	this.buttonRouteEncodingBig5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-        	this.buttonRouteEncodingBig5.Location = new System.Drawing.Point(264, 24);
+        	this.buttonRouteEncodingBig5.Location = new System.Drawing.Point(272, 24);
         	this.buttonRouteEncodingBig5.Name = "buttonRouteEncodingBig5";
         	this.buttonRouteEncodingBig5.Size = new System.Drawing.Size(64, 24);
         	this.buttonRouteEncodingBig5.TabIndex = 4;
@@ -981,7 +981,7 @@
         	// buttonRouteEncodingShiftJis
         	// 
         	this.buttonRouteEncodingShiftJis.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-        	this.buttonRouteEncodingShiftJis.Location = new System.Drawing.Point(200, 24);
+        	this.buttonRouteEncodingShiftJis.Location = new System.Drawing.Point(208, 24);
         	this.buttonRouteEncodingShiftJis.Name = "buttonRouteEncodingShiftJis";
         	this.buttonRouteEncodingShiftJis.Size = new System.Drawing.Size(64, 24);
         	this.buttonRouteEncodingShiftJis.TabIndex = 3;
@@ -997,7 +997,7 @@
         	this.comboboxRouteEncoding.FormattingEnabled = true;
         	this.comboboxRouteEncoding.Location = new System.Drawing.Point(96, 0);
         	this.comboboxRouteEncoding.Name = "comboboxRouteEncoding";
-        	this.comboboxRouteEncoding.Size = new System.Drawing.Size(232, 21);
+        	this.comboboxRouteEncoding.Size = new System.Drawing.Size(240, 21);
         	this.comboboxRouteEncoding.TabIndex = 1;
         	this.comboboxRouteEncoding.SelectedIndexChanged += new System.EventHandler(this.comboboxRouteEncoding_SelectedIndexChanged);
         	// 
@@ -1022,7 +1022,7 @@
         	this.textboxRouteEncodingPreview.Name = "textboxRouteEncodingPreview";
         	this.textboxRouteEncodingPreview.ReadOnly = true;
         	this.textboxRouteEncodingPreview.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-        	this.textboxRouteEncodingPreview.Size = new System.Drawing.Size(232, 96);
+        	this.textboxRouteEncodingPreview.Size = new System.Drawing.Size(240, 96);
         	this.textboxRouteEncodingPreview.TabIndex = 6;
         	// 
         	// labelRoute
@@ -1121,6 +1121,16 @@
         	this.groupboxVerbosity.TabIndex = 15;
         	this.groupboxVerbosity.TabStop = false;
         	this.groupboxVerbosity.Text = "Verbosity";
+        	// 
+        	// checkboxErrorMessages
+        	// 
+        	this.checkboxErrorMessages.AutoSize = true;
+        	this.checkboxErrorMessages.Location = new System.Drawing.Point(8, 40);
+        	this.checkboxErrorMessages.Name = "checkboxErrorMessages";
+        	this.checkboxErrorMessages.Size = new System.Drawing.Size(127, 17);
+        	this.checkboxErrorMessages.TabIndex = 1;
+        	this.checkboxErrorMessages.Text = "Show error messages";
+        	this.checkboxErrorMessages.UseVisualStyleBackColor = true;
         	// 
         	// checkboxWarningMessages
         	// 
@@ -2808,16 +2818,6 @@
         	this.labelInfoTop.Size = new System.Drawing.Size(144, 2);
         	this.labelInfoTop.TabIndex = 0;
         	// 
-        	// checkboxErrorMessages
-        	// 
-        	this.checkboxErrorMessages.AutoSize = true;
-        	this.checkboxErrorMessages.Location = new System.Drawing.Point(8, 40);
-        	this.checkboxErrorMessages.Name = "checkboxErrorMessages";
-        	this.checkboxErrorMessages.Size = new System.Drawing.Size(127, 17);
-        	this.checkboxErrorMessages.TabIndex = 1;
-        	this.checkboxErrorMessages.Text = "Show error messages";
-        	this.checkboxErrorMessages.UseVisualStyleBackColor = true;
-        	// 
         	// formMain
         	// 
         	this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2832,10 +2832,10 @@
         	this.Controls.Add(this.labelFillerOne);
         	this.Controls.Add(this.labelFillerTwo);
         	this.Controls.Add(this.labelFillerThree);
-        	this.Controls.Add(this.panelControls);
-        	this.Controls.Add(this.panelReview);
         	this.Controls.Add(this.panelStart);
         	this.Controls.Add(this.panelOptions);
+        	this.Controls.Add(this.panelControls);
+        	this.Controls.Add(this.panelReview);
         	this.KeyPreview = true;
         	this.Name = "formMain";
         	this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

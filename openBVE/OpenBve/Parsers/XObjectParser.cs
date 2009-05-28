@@ -1563,21 +1563,25 @@ namespace OpenBve {
 								bool emissive = Materials[j].emissiveColor.R != 0 | Materials[j].emissiveColor.G != 0 | Materials[j].emissiveColor.B != 0;
 								bool transparent;
 								if (Materials[j].TextureFilename != null) {
-									TextureManager.TextureWrapMode Wrap;
+									TextureManager.TextureWrapMode WrapX, WrapY;
 									if (ForceTextureRepeat) {
-										Wrap = TextureManager.TextureWrapMode.Repeat;
+										WrapX = TextureManager.TextureWrapMode.Repeat;
+										WrapY = TextureManager.TextureWrapMode.Repeat;
 									} else {
-										Wrap = TextureManager.TextureWrapMode.ClampToEdge;
+										WrapX = TextureManager.TextureWrapMode.ClampToEdge;
+										WrapY = TextureManager.TextureWrapMode.ClampToEdge;
 										for (int k = 0; k < nFaces; k++) {
-											int h; for (h = 0; h < Faces[k].Length; h++) {
-												if (Vertices[Faces[k][h]].TextureCoordinates.X < 0.0 | Vertices[Faces[k][h]].TextureCoordinates.X > 1.0 | Vertices[Faces[k][h]].TextureCoordinates.Y < 0.0 | Vertices[Faces[k][h]].TextureCoordinates.Y > 1.0) {
-													Wrap = TextureManager.TextureWrapMode.Repeat;
-													break;
+											for (int h = 0; h < Faces[k].Length; h++) {
+												if (Vertices[Faces[k][h]].TextureCoordinates.X < 0.0 | Vertices[Faces[k][h]].TextureCoordinates.X > 1.0) {
+													WrapX = TextureManager.TextureWrapMode.Repeat;
 												}
-											} if (h < Faces[k].Length) break;
+												if (Vertices[Faces[k][h]].TextureCoordinates.Y < 0.0 | Vertices[Faces[k][h]].TextureCoordinates.Y > 1.0) {
+													WrapY = TextureManager.TextureWrapMode.Repeat;
+												}
+											}
 										}
 									}
-									int tday = TextureManager.RegisterTexture(Materials[j].TextureFilename, new World.ColorRGB(0, 0, 0), 1, TextureManager.TextureLoadMode.Normal, Wrap, LoadMode != ObjectManager.ObjectLoadMode.Normal, 0, 0, 0, 0);
+									int tday = TextureManager.RegisterTexture(Materials[j].TextureFilename, new World.ColorRGB(0, 0, 0), 1, TextureManager.TextureLoadMode.Normal, WrapX, WrapY, LoadMode != ObjectManager.ObjectLoadMode.Normal, 0, 0, 0, 0);
 									if (LoadMode == ObjectManager.ObjectLoadMode.PreloadTextures) {
 										TextureManager.UseTexture(tday, TextureManager.UseMode.Normal);
 									}

@@ -428,7 +428,6 @@ namespace OpenBve {
 			checkboxTrainDefault.Text = Interface.GetInterfaceString("start_train_usedefault");
 			groupboxTrainDetails.Text = Interface.GetInterfaceString("start_train_details");
 			tabpageTrainDescription.Text = Interface.GetInterfaceString("start_train_description");
-			///tabpageTrainSpecs.Text = Interface.GetInterfaceString("start_train_specs");
 			tabpageTrainSettings.Text = Interface.GetInterfaceString("start_train_settings");
 			labelTrainEncoding.Text = Interface.GetInterfaceString("start_train_settings_encoding");
 			comboboxTrainEncoding.Items[0] = Interface.GetInterfaceString("(UTF-8)");
@@ -2167,6 +2166,11 @@ namespace OpenBve {
 						textboxRouteDescription.Text = System.IO.Path.GetFileNameWithoutExtension(Result.RouteFile);
 					}
 					textboxRouteEncodingPreview.Text = Interface.ConvertNewlinesToCrLf(Description);
+					if (Game.TrainName != null) {
+						checkboxTrainDefault.Text = Interface.GetInterfaceString("start_train_usedefault") + " (" + Game.TrainName + ")";
+					} else {
+						checkboxTrainDefault.Text = Interface.GetInterfaceString("start_train_usedefault");
+					}
 				} catch (Exception ex) {
 					// error
 					TryLoadImage(pictureboxRouteImage, "route_error.png");
@@ -2175,6 +2179,7 @@ namespace OpenBve {
 					pictureboxRouteMap.Image = null;
 					pictureboxRouteGradient.Image = null;
 					Result.RouteFile = null;
+					checkboxTrainDefault.Text = Interface.GetInterfaceString("start_train_usedefault");
 				}
 				groupboxRouteDetails.Visible = true;
 				if (checkboxTrainDefault.Checked) {
@@ -2242,7 +2247,8 @@ namespace OpenBve {
 				}
 				comboboxTrainEncoding.Tag = null;
 			}
-			{ /// train image
+			{ 
+				// train image
 				string File = Interface.GetCombinedFileName(Result.TrainFolder, "train.png");
 				if (!System.IO.File.Exists(File)) {
 					File = Interface.GetCombinedFileName(Result.TrainFolder, "train.bmp");
@@ -2258,7 +2264,8 @@ namespace OpenBve {
 					TryLoadImage(pictureboxTrainImage, "train_unknown.png");
 				}
 			}
-			{ /// train description
+			{ 
+				// train description
 				string File = Interface.GetCombinedFileName(Result.TrainFolder, "train.txt");
 				if (System.IO.File.Exists(File)) {
 					try {
@@ -2273,6 +2280,13 @@ namespace OpenBve {
 				} else {
 					textboxTrainDescription.Text = System.IO.Path.GetFileName(Result.TrainFolder);
 					textboxTrainEncodingPreview.Text = "";
+				}
+			}
+			if (Program.CurrentPlatform != Program.Platform.Windows) {
+				// plugin
+				string File = Interface.GetCombinedFileName(Result.TrainFolder, "ats.cfg");
+				if (System.IO.File.Exists(File)) {
+					textboxTrainDescription.Text = Interface.GetInterfaceString("start_train_pluginnotsupported") + "\r\n\r\n" + textboxTrainDescription.Text;
 				}
 			}
 			groupboxTrainDetails.Visible = true;

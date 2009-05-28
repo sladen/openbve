@@ -109,7 +109,7 @@ namespace OpenBve {
 				if (!System.IO.File.Exists(PanelBackground)) {
 					Interface.AddMessage(Interface.MessageType.Error, true, "The panel image could not be found in " + FileName);
 				} else {
-					int t = TextureManager.RegisterTexture(PanelBackground, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+					int t = TextureManager.RegisterTexture(PanelBackground, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 					TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 					double w = (double)TextureManager.Textures[t].ClipWidth;
 					double h = (double)TextureManager.Textures[t].ClipHeight;
@@ -196,16 +196,29 @@ namespace OpenBve {
 																} break;
 														}
 													}
-													if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseByteVb6(Arguments[1], out NeedleColor[k].R)) {
+													int r = 0, g = 0, b = 0;
+													if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out r)) {
 														Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														NeedleColor[k].R = 0;
-													} else if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out NeedleColor[k].G)) {
-														Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is invalid in " + Key + " in " + Section + Key + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														NeedleColor[k].G = 0;
-													} else if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseByteVb6(Arguments[3], out NeedleColor[k].B)) {
-														Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is invalid in " + Key + " in " + Section + Key + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														NeedleColor[k].B = 0;
+														r = 0;
+													} else if (r < 0 | r > 255) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is required to be within the range from 0 to 255 in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+														r = r < 0 ? 0 : 255;
 													}
+													if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out g)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is invalid in " + Key + " in " + Section + Key + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+														g = 0;
+													} else if (g < 0 | g > 255) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is required to be within the range from 0 to 255 in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+														g = g < 0 ? 0 : 255;
+													}
+													if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseIntVb6(Arguments[3], out b)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is invalid in " + Key + " in " + Section + Key + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+														b = 0;
+													} else if (b < 0 | b > 255) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is required to be within the range from 0 to 255 in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+														b = b < 0 ? 0 : 255;
+													}
+													NeedleColor[k] = new World.ColorRGBA((byte)r, (byte)g, (byte)b, 255);
 													break;
 												case "center":
 												case "中心":
@@ -298,7 +311,7 @@ namespace OpenBve {
 									Maximum *= UnitFactor;
 									// background
 									if (Background != null) {
-										int t = TextureManager.RegisterTexture(Background, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int t = TextureManager.RegisterTexture(Background, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
@@ -306,7 +319,7 @@ namespace OpenBve {
 									}
 									// cover
 									if (Cover != null) {
-										int t = TextureManager.RegisterTexture(Cover, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int t = TextureManager.RegisterTexture(Cover, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
@@ -318,7 +331,7 @@ namespace OpenBve {
 											if (NeedleType[k] != 0) {
 												string Folder = Interface.GetDataFolder("Compatibility");
 												string File = Interface.GetCombinedFileName(Folder, k == 0 ? "needle_pressuregauge_lower.png" : "needle_pressuregauge_upper.png");
-												int t = TextureManager.RegisterTexture(File, new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, true);
+												int t = TextureManager.RegisterTexture(File, new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 												double w = (double)TextureManager.Textures[t].ClipWidth;
 												double h = (double)TextureManager.Textures[t].ClipHeight;
@@ -433,16 +446,29 @@ namespace OpenBve {
 												case "hand":
 												case "針":
 													{
-														if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseByteVb6(Arguments[0], out Needle.R)) {
+														int r = 0, g = 0, b = 0;
+														if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseIntVb6(Arguments[0], out r)) {
 															Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-															Needle.R = 255;
-														} else if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseByteVb6(Arguments[1], out Needle.G)) {
-															Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-															Needle.G = 255;
-														} else if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out Needle.B)) {
-															Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-															Needle.B = 255;
+															r = 255;
+														} else if (r < 0 | r > 255) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is required to be within the range from 0 to 255 in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															r = r < 0 ? 0 : 255;
 														}
+														if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out g)) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															g = 255;
+														} else if (g < 0 | g > 255) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is required to be within the range from 0 to 255 in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															g = g < 0 ? 0 : 255;
+														}
+														if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out b)) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															b = 255;
+														} else if (b < 0 | b > 255) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is required to be within the range from 0 to 255 in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															b = b < 0 ? 0 : 255;
+														}
+														Needle = new World.ColorRGBA((byte)r, (byte)g, (byte)b, 255);
 														NeedleOverridden = true;
 													} break;
 												case "cover":
@@ -502,7 +528,7 @@ namespace OpenBve {
 									} i--;
 									if (Background != null) {
 										// background/led
-										int t = TextureManager.RegisterTexture(Background, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int t = TextureManager.RegisterTexture(Background, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
@@ -510,7 +536,7 @@ namespace OpenBve {
 									}
 									if (Cover != null) {
 										// cover
-										int t = TextureManager.RegisterTexture(Cover, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int t = TextureManager.RegisterTexture(Cover, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
@@ -543,7 +569,7 @@ namespace OpenBve {
 											}
 											double x = CenterX - 0.5 * h + Math.Sin(a) * AtcRadius;
 											double y = CenterY - 0.5 * h - Math.Cos(a) * AtcRadius + SemiHeight;
-											int t = TextureManager.RegisterTexture(Atc, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, true, j * h, 0, h, h);
+											int t = TextureManager.RegisterTexture(Atc, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true, j * h, 0, h, h);
 											TextureManager.UseTexture(t, TextureManager.UseMode.Normal);
 											if (j == 0) {
 												k = CreateElement(Train, x, y, (double)h, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 4.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
@@ -557,7 +583,7 @@ namespace OpenBve {
 										// needle
 										string Folder = Interface.GetDataFolder("Compatibility");
 										string File = Interface.GetCombinedFileName(Folder, "needle_speedometer.png");
-										int t = TextureManager.RegisterTexture(File, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int t = TextureManager.RegisterTexture(File, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
@@ -693,7 +719,7 @@ namespace OpenBve {
 										int n = h / Height;
 										int[] t = new int[n];
 										for (int j = 0; j < n; j++) {
-											t[j] = TextureManager.RegisterTexture(Number, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, true, w - Width, j * Height, Width, Height);
+											t[j] = TextureManager.RegisterTexture(Number, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true, w - Width, j * Height, Width, Height);
 											TextureManager.UseTexture(t[j], TextureManager.UseMode.Normal);
 										}
 										{ // hundreds
@@ -782,8 +808,8 @@ namespace OpenBve {
 										} i++;
 									} i--;
 									if (TurnOn != null & TurnOff != null) {
-										int t0 = TextureManager.RegisterTexture(TurnOn, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, true);
-										int t1 = TextureManager.RegisterTexture(TurnOff, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int t0 = TextureManager.RegisterTexture(TurnOn, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int t1 = TextureManager.RegisterTexture(TurnOff, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										TextureManager.UseTexture(t0, TextureManager.UseMode.QueryDimensions);
 										TextureManager.UseTexture(t1, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t0].ClipWidth;
@@ -825,16 +851,29 @@ namespace OpenBve {
 												case "hand":
 												case "針":
 													{
-														if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseByteVb6(Arguments[0], out Needle.R)) {
-															Interface.AddMessage(Interface.MessageType.Error, false, "R is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-															Needle.R = 0;
-														} else if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseByteVb6(Arguments[1], out Needle.G)) {
-															Interface.AddMessage(Interface.MessageType.Error, false, "G is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-															Needle.G = 0;
-														} else if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out Needle.B)) {
-															Interface.AddMessage(Interface.MessageType.Error, false, "B is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-															Needle.B = 0;
+														int r = 0, g = 0, b = 0;
+														if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseIntVb6(Arguments[0], out r)) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															r = 0;
+														} else if (r < 0 | r > 255) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is required to be within the range from 0 to 255 in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															r = r < 0 ? 0 : 255;
 														}
+														if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out g)) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															g = 0;
+														} else if (g < 0 | g > 255) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is required to be within the range from 0 to 255 in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															g = g < 0 ? 0 : 255;
+														}
+														if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out b)) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															b = 0;
+														} else if (b < 0 | b > 255) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is required to be within the range from 0 to 255 in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															b = b < 0 ? 0 : 255;
+														}
+														Needle = new World.ColorRGBA((byte)r, (byte)g, (byte)b, 255);
 													} break;
 												case "center":
 												case "中心":
@@ -855,7 +894,7 @@ namespace OpenBve {
 										} i++;
 									} i--;
 									if (Background != null) {
-										int t = TextureManager.RegisterTexture(Background, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int t = TextureManager.RegisterTexture(Background, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
@@ -864,7 +903,7 @@ namespace OpenBve {
 									string Folder = Interface.GetDataFolder("Compatibility");
 									{ // hour
 										string File = Interface.GetCombinedFileName(Folder, "needle_hour.png");
-										int t = TextureManager.RegisterTexture(File, new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int t = TextureManager.RegisterTexture(File, new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
@@ -877,7 +916,7 @@ namespace OpenBve {
 									}
 									{ // minute
 										string File = Interface.GetCombinedFileName(Folder, "needle_minute.png");
-										int t = TextureManager.RegisterTexture(File, new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int t = TextureManager.RegisterTexture(File, new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
@@ -890,7 +929,7 @@ namespace OpenBve {
 									}
 									{ // second
 										string File = Interface.GetCombinedFileName(Folder, "needle_second.png");
-										int t = TextureManager.RegisterTexture(File, new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int t = TextureManager.RegisterTexture(File, new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
@@ -956,7 +995,7 @@ namespace OpenBve {
 										int n = w / Width;
 										int k = -1;
 										for (int j = 0; j < n; j++) {
-											int t = TextureManager.RegisterTexture(Image, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, true, j * Width, 0, Width, h);
+											int t = TextureManager.RegisterTexture(Image, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true, j * Width, 0, Width, h);
 											TextureManager.UseTexture(t, TextureManager.UseMode.Normal);
 											if (j == 0) {
 												k = CreateElement(Train, CornerX, CornerY + SemiHeight, (double)Width, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);

@@ -253,7 +253,7 @@ namespace OpenBve {
 			if (!PluginLoaded) return;
 			// prepare vehicle state
 			ATS_VEHICLESTATE State = new ATS_VEHICLESTATE();
-			State.Location = Train.Cars[0].FrontAxle.Follower.TrackPosition;
+			State.Location = Train.Cars[0].FrontAxle.Follower.TrackPosition - Train.Cars[0].FrontAxlePosition + 0.5 * Train.Cars[0].Length;
 			State.Speed = (float)(3.6 * Train.Cars[0].Specs.CurrentPerceivedSpeed);
 			double t = 1000.0 * Game.SecondsSinceMidnight;
 			State.Time = (int)Math.Floor(t - 2073600000.0 * Math.Floor(t / 2073600000.0));
@@ -466,7 +466,8 @@ namespace OpenBve {
 						data.Signal = Game.Sections[s].Aspects[a].Number;
 					}
 				}
-				data.Distance = (float)(Game.Sections[s].TrackPosition - Train.Cars[0].FrontAxle.Follower.TrackPosition);
+				double p = Train.Cars[0].FrontAxle.Follower.TrackPosition - Train.Cars[0].FrontAxlePosition + 0.5 * Train.Cars[0].Length;
+				data.Distance = (float)(Game.Sections[s].TrackPosition - p);
 			}
 			{
 				PluginError = true;

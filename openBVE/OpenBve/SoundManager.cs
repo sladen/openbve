@@ -56,6 +56,9 @@ namespace OpenBve {
 		private static double OuterRadiusSpeed = 0.0;
 		private static int SoundsQueriedPlaying = 0;
 		private static int SoundsActuallyPlaying = 0;
+		
+		// options
+		internal static bool Mute = false;
 
 		// initialize
 		internal static void Initialize() {
@@ -119,161 +122,185 @@ namespace OpenBve {
 			double cx = World.AbsoluteCameraPosition.X;
 			double cy = World.AbsoluteCameraPosition.Y;
 			double cz = World.AbsoluteCameraPosition.Z;
-			// outer radius
-			int n = Interface.CurrentOptions.SoundNumber - 3;
-			if (SoundsActuallyPlaying >= n) {
-				OuterRadiusSpeed -= TimeElapsed;
-				if (OuterRadiusSpeed < -1.0) OuterRadiusSpeed = -1.0;
-			} else if (SoundsQueriedPlaying < n) {
-				OuterRadiusSpeed += TimeElapsed;
-				if (OuterRadiusSpeed > 1.0) OuterRadiusSpeed = 1.0;
-			} else {
-				OuterRadiusSpeed -= (double)Math.Sign(OuterRadiusSpeed) * TimeElapsed;
-				if (OuterRadiusSpeed * OuterRadiusSpeed <= TimeElapsed * TimeElapsed) {
-					OuterRadiusSpeed = 0.0;
-				}
-			}
-			OuterRadiusFactor += OuterRadiusSpeed * TimeElapsed;
-			if (OuterRadiusFactor < OuterRadiusFactorMinimum) {
-				OuterRadiusFactor = OuterRadiusFactorMinimum;
-			} else if (OuterRadiusFactor > OuterRadiusFactorMaximum) {
-				OuterRadiusFactor = OuterRadiusFactorMaximum;
-			}
-			// sources
-			SoundsQueriedPlaying = 0;
-			SoundsActuallyPlaying = 0;
-			for (int i = 0; i < SoundSources.Length; i++) {
-				if (SoundSources[i] != null && !SoundSources[i].FinishedPlaying) {
-					double rx = SoundSources[i].Position.X;
-					double ry = SoundSources[i].Position.Y;
-					double rz = SoundSources[i].Position.Z;
-					double px, py, pz;
-					if (SoundSources[i].Train != null) {
-						int c = SoundSources[i].CarIndex;
-						double tx, ty, tz;
-						TrainManager.CreateWorldCoordinates(SoundSources[i].Train, c, rx, ry, rz, out px, out py, out pz, out tx, out ty, out tz);
-						px -= cx; py -= cy; pz -= cz;
-						double sp = SoundSources[i].Train.Specs.CurrentAverageSpeed;
-						if (World.CameraMode != World.CameraViewMode.Interior) {
-							SoundSources[i].OpenAlVelocity[0] = (float)(tx * sp);
-							SoundSources[i].OpenAlVelocity[1] = (float)(ty * sp);
-							SoundSources[i].OpenAlVelocity[2] = (float)(tz * sp);
-						} else {
-							SoundSources[i].OpenAlVelocity[0] = (float)(tx * sp - vx);
-							SoundSources[i].OpenAlVelocity[1] = (float)(ty * sp - vy);
-							SoundSources[i].OpenAlVelocity[2] = (float)(tz * sp - vz);
-						}
-					} else {
-						px = rx - cx; py = ry - cy; pz = rz - cz;
-						if (World.CameraMode != World.CameraViewMode.Interior) {
-							SoundSources[i].OpenAlVelocity[0] = 0.0f;
-							SoundSources[i].OpenAlVelocity[1] = 0.0f;
-							SoundSources[i].OpenAlVelocity[2] = 0.0f;
-						} else {
-							SoundSources[i].OpenAlVelocity[0] = (float)-vx;
-							SoundSources[i].OpenAlVelocity[1] = (float)-vy;
-							SoundSources[i].OpenAlVelocity[2] = (float)-vz;
+			if (Mute) {
+				// mute
+				for (int i = 0; i < SoundSources.Length; i++) {
+					if (SoundSources[i] != null && !SoundSources[i].FinishedPlaying) {
+						if (!SoundSources[i].Suppressed) {
+							if (SoundSources[i].Looped) {
+								if (SoundSources[i].OpenAlSourceIndex.Valid) {
+									int j = SoundSources[i].OpenAlSourceIndex.Index;
+									Al.alSourceStop(j);
+									Al.alDeleteSources(1, ref j);
+								}
+								SoundSources[i].OpenAlSourceIndex = new OpenAlIndex(0, false);
+								SoundSources[i].Suppressed = true;
+							} else {
+								StopSound(i, false);
+							}
+						} else if (!SoundSources[i].Looped) {
+							StopSound(i, false);
 						}
 					}
-					double dt = px * px + py * py + pz * pz;
-					double rt = SoundSources[i].Radius * SoundSources[i].Radius;
-					bool update = false, play = false;
-					double gainfactor = 1.0;
-					if (dt <= rt) {
-						update = true;
-						if (SoundSources[i].Suppressed) {
-							play = true;
-							SoundSources[i].Suppressed = false;
+				}
+			} else {
+				// outer radius
+				int n = Interface.CurrentOptions.SoundNumber - 3;
+				if (SoundsActuallyPlaying >= n) {
+					OuterRadiusSpeed -= TimeElapsed;
+					if (OuterRadiusSpeed < -1.0) OuterRadiusSpeed = -1.0;
+				} else if (SoundsQueriedPlaying < n) {
+					OuterRadiusSpeed += TimeElapsed;
+					if (OuterRadiusSpeed > 1.0) OuterRadiusSpeed = 1.0;
+				} else {
+					OuterRadiusSpeed -= (double)Math.Sign(OuterRadiusSpeed) * TimeElapsed;
+					if (OuterRadiusSpeed * OuterRadiusSpeed <= TimeElapsed * TimeElapsed) {
+						OuterRadiusSpeed = 0.0;
+					}
+				}
+				OuterRadiusFactor += OuterRadiusSpeed * TimeElapsed;
+				if (OuterRadiusFactor < OuterRadiusFactorMinimum) {
+					OuterRadiusFactor = OuterRadiusFactorMinimum;
+				} else if (OuterRadiusFactor > OuterRadiusFactorMaximum) {
+					OuterRadiusFactor = OuterRadiusFactorMaximum;
+				}
+				// sources
+				SoundsQueriedPlaying = 0;
+				SoundsActuallyPlaying = 0;
+				for (int i = 0; i < SoundSources.Length; i++) {
+					if (SoundSources[i] != null && !SoundSources[i].FinishedPlaying) {
+						double rx = SoundSources[i].Position.X;
+						double ry = SoundSources[i].Position.Y;
+						double rz = SoundSources[i].Position.Z;
+						double px, py, pz;
+						if (SoundSources[i].Train != null) {
+							int c = SoundSources[i].CarIndex;
+							double tx, ty, tz;
+							TrainManager.CreateWorldCoordinates(SoundSources[i].Train, c, rx, ry, rz, out px, out py, out pz, out tx, out ty, out tz);
+							px -= cx; py -= cy; pz -= cz;
+							double sp = SoundSources[i].Train.Specs.CurrentAverageSpeed;
+							if (World.CameraMode != World.CameraViewMode.Interior) {
+								SoundSources[i].OpenAlVelocity[0] = (float)(tx * sp);
+								SoundSources[i].OpenAlVelocity[1] = (float)(ty * sp);
+								SoundSources[i].OpenAlVelocity[2] = (float)(tz * sp);
+							} else {
+								SoundSources[i].OpenAlVelocity[0] = (float)(tx * sp - vx);
+								SoundSources[i].OpenAlVelocity[1] = (float)(ty * sp - vy);
+								SoundSources[i].OpenAlVelocity[2] = (float)(tz * sp - vz);
+							}
+						} else {
+							px = rx - cx; py = ry - cy; pz = rz - cz;
+							if (World.CameraMode != World.CameraViewMode.Interior) {
+								SoundSources[i].OpenAlVelocity[0] = 0.0f;
+								SoundSources[i].OpenAlVelocity[1] = 0.0f;
+								SoundSources[i].OpenAlVelocity[2] = 0.0f;
+							} else {
+								SoundSources[i].OpenAlVelocity[0] = (float)-vx;
+								SoundSources[i].OpenAlVelocity[1] = (float)-vy;
+								SoundSources[i].OpenAlVelocity[2] = (float)-vz;
+							}
 						}
-					} else {
-						double st = OuterRadiusFactor * OuterRadiusFactor * rt;
-						if (dt <= st) {
-							gainfactor = (dt - rt) / (st - rt);
-							gainfactor = 2.0 / (gainfactor + 1.0) - 1.0;
+						double dt = px * px + py * py + pz * pz;
+						double rt = SoundSources[i].Radius * SoundSources[i].Radius;
+						bool update = false, play = false;
+						double gainfactor = 1.0;
+						if (dt <= rt) {
 							update = true;
 							if (SoundSources[i].Suppressed) {
 								play = true;
 								SoundSources[i].Suppressed = false;
 							}
 						} else {
-							if (dt <= OuterRadiusFactorMaximum * rt) {
-								SoundsQueriedPlaying++;
-							}
-							if (!SoundSources[i].Suppressed) {
-								if (SoundSources[i].Looped) {
-									if (SoundSources[i].OpenAlSourceIndex.Valid) {
-										int j = SoundSources[i].OpenAlSourceIndex.Index;
-										Al.alSourceStop(j);
-										Al.alDeleteSources(1, ref j);
+							double st = OuterRadiusFactor * OuterRadiusFactor * rt;
+							if (dt <= st) {
+								gainfactor = (dt - rt) / (st - rt);
+								gainfactor = 2.0 / (gainfactor + 1.0) - 1.0;
+								update = true;
+								if (SoundSources[i].Suppressed) {
+									play = true;
+									SoundSources[i].Suppressed = false;
+								}
+							} else {
+								if (dt <= OuterRadiusFactorMaximum * rt) {
+									SoundsQueriedPlaying++;
+								}
+								if (!SoundSources[i].Suppressed) {
+									if (SoundSources[i].Looped) {
+										if (SoundSources[i].OpenAlSourceIndex.Valid) {
+											int j = SoundSources[i].OpenAlSourceIndex.Index;
+											Al.alSourceStop(j);
+											Al.alDeleteSources(1, ref j);
+										}
+										SoundSources[i].OpenAlSourceIndex = new OpenAlIndex(0, false);
+										SoundSources[i].Suppressed = true;
+									} else {
+										StopSound(i, false);
 									}
-									SoundSources[i].OpenAlSourceIndex = new OpenAlIndex(0, false);
-									SoundSources[i].Suppressed = true;
-								} else {
+								} else if (!SoundSources[i].Looped) {
 									StopSound(i, false);
 								}
-							} else if (!SoundSources[i].Looped) {
-								StopSound(i, false);
-							} continue;
+								continue;
+							}
 						}
-					}
-					if (update) {
-						SoundsQueriedPlaying++;
-						SoundsActuallyPlaying++;
-					}
-					if (play) {
-						if (SoundSources[i].SoundBufferIndex >= 0) {
-							UseSoundBuffer(SoundSources[i].SoundBufferIndex);
-							if (SoundBuffers[SoundSources[i].SoundBufferIndex].OpenAlBufferIndex.Valid) {
-								int j;
-								Al.alGetError();
-								Al.alGenSources(1, out j);
-								int err = Al.alGetError();
-								if (err == Al.AL_NO_ERROR) {
-									SoundSources[i].OpenAlSourceIndex = new OpenAlIndex(j, true);
-									Al.alSourcei(j, Al.AL_BUFFER, SoundBuffers[SoundSources[i].SoundBufferIndex].OpenAlBufferIndex.Index);
+						if (update) {
+							SoundsQueriedPlaying++;
+							SoundsActuallyPlaying++;
+						}
+						if (play) {
+							if (SoundSources[i].SoundBufferIndex >= 0) {
+								UseSoundBuffer(SoundSources[i].SoundBufferIndex);
+								if (SoundBuffers[SoundSources[i].SoundBufferIndex].OpenAlBufferIndex.Valid) {
+									int j;
+									Al.alGetError();
+									Al.alGenSources(1, out j);
+									int err = Al.alGetError();
+									if (err == Al.AL_NO_ERROR) {
+										SoundSources[i].OpenAlSourceIndex = new OpenAlIndex(j, true);
+										Al.alSourcei(j, Al.AL_BUFFER, SoundBuffers[SoundSources[i].SoundBufferIndex].OpenAlBufferIndex.Index);
+									} else {
+										SoundSources[i].Suppressed = true;
+										continue;
+									}
 								} else {
-									SoundSources[i].Suppressed = true;
+									StopSound(i, false);
 									continue;
 								}
 							} else {
 								StopSound(i, false);
 								continue;
 							}
-						} else {
-							StopSound(i, false);
-							continue;
 						}
-					}
-					if (update) {
-						if (play || IsPlaying(i)) {
-							SoundSources[i].OpenAlPosition[0] = (float)px;
-							SoundSources[i].OpenAlPosition[1] = (float)py;
-							SoundSources[i].OpenAlPosition[2] = (float)pz;
+						if (update) {
+							if (play || IsPlaying(i)) {
+								SoundSources[i].OpenAlPosition[0] = (float)px;
+								SoundSources[i].OpenAlPosition[1] = (float)py;
+								SoundSources[i].OpenAlPosition[2] = (float)pz;
+								if (!SoundSources[i].OpenAlSourceIndex.Valid) {
+									System.Windows.Forms.MessageBox.Show("THIS SHOULD NOT HAVE HAPPENED");
+									throw new InvalidProgramException();
+								}
+								int j = SoundSources[i].OpenAlSourceIndex.Index;
+								Al.alSourcefv(j, Al.AL_POSITION, SoundSources[i].OpenAlPosition);
+								Al.alSourcefv(j, Al.AL_VELOCITY, SoundSources[i].OpenAlVelocity);
+								Al.alSourcef(j, Al.AL_PITCH, SoundSources[i].Pitch);
+								float g = SoundSources[i].Gain * SoundSources[i].Gain * (float)gainfactor;
+								if (g > 1.0f) g = 1.0f;
+								Al.alSourcef(j, Al.AL_GAIN, g);
+							} else {
+								StopSound(i, false);
+								continue;
+							}
+						}
+						if (play) {
 							if (!SoundSources[i].OpenAlSourceIndex.Valid) {
 								System.Windows.Forms.MessageBox.Show("THIS SHOULD NOT HAVE HAPPENED");
 								throw new InvalidProgramException();
 							}
 							int j = SoundSources[i].OpenAlSourceIndex.Index;
-							Al.alSourcefv(j, Al.AL_POSITION, SoundSources[i].OpenAlPosition);
-							Al.alSourcefv(j, Al.AL_VELOCITY, SoundSources[i].OpenAlVelocity);
-							Al.alSourcef(j, Al.AL_PITCH, SoundSources[i].Pitch);
-							float g = SoundSources[i].Gain * SoundSources[i].Gain * (float)gainfactor;
-							if (g > 1.0f) g = 1.0f;
-							Al.alSourcef(j, Al.AL_GAIN, g);
-						} else {
-							StopSound(i, false);
-							continue;
+							Al.alSourcei(j, Al.AL_LOOPING, SoundSources[i].Looped ? Al.AL_TRUE : Al.AL_FALSE);
+							Al.alSourcef(j, Al.AL_REFERENCE_DISTANCE, SoundBuffers[SoundSources[i].SoundBufferIndex].Radius);
+							Al.alSourcePlay(j);
 						}
-					}
-					if (play) {
-						if (!SoundSources[i].OpenAlSourceIndex.Valid) {
-							System.Windows.Forms.MessageBox.Show("THIS SHOULD NOT HAVE HAPPENED");
-							throw new InvalidProgramException();
-						}
-						int j = SoundSources[i].OpenAlSourceIndex.Index;
-						Al.alSourcei(j, Al.AL_LOOPING, SoundSources[i].Looped ? Al.AL_TRUE : Al.AL_FALSE);
-						Al.alSourcef(j, Al.AL_REFERENCE_DISTANCE, SoundBuffers[SoundSources[i].SoundBufferIndex].Radius);
-						Al.alSourcePlay(j);
 					}
 				}
 			}

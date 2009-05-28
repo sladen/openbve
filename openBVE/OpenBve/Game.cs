@@ -1191,9 +1191,6 @@ namespace OpenBve {
 								brakestart = lim + 0.555555555555556;
 							}
 						}
-						//double powerstart = 0.86 * lim;
-						//double powerend = 0.94 * lim;
-						//double brakestart = BrakeMode ? 0.98 * lim : 1.06 * lim;
 						double dec = 0.0;
 						double dectol;
 						double BrakeDeceleration = Train.Cars[Train.DriverCar].Specs.BrakeDecelerationAtServiceMaximumPressure;
@@ -1240,22 +1237,24 @@ namespace OpenBve {
 													double elim = Game.Sections[e.NextSectionIndex].Aspects[Game.Sections[e.NextSectionIndex].CurrentAspect].Speed;
 													if (elim < spd | spd <= 0.0) {
 														double dist = stp + e.TrackPositionDelta - tp;
-														double edec;
-														if (elim == 0.0) {
-															const double redstopdist = 10.0;
-															if (dist > redstopdist) {
-																edec = (spd * spd - elim * elim) / (2.0 * (dist - redstopdist));
+														if (Train.Station == -1 | Train.StationState != TrainManager.TrainStopState.Pending | Train.StationDistanceToStopPoint > dist) {
+															double edec;
+															if (elim == 0.0) {
+																const double redstopdist = 10.0;
+																if (dist > redstopdist) {
+																	edec = (spd * spd) / (2.0 * (dist - redstopdist));
+																} else {
+																	edec = BrakeDeceleration;
+																}
 															} else {
-																edec = BrakeDeceleration;
+																if (dist >= 1.0) {
+																	edec = (spd * spd - elim * elim) / (2.0 * dist);
+																} else {
+																	edec = 0.0;
+																}
 															}
-														} else {
-															if (dist >= 1.0) {
-																edec = (spd * spd - elim * elim) / (2.0 * dist);
-															} else {
-																edec = 0.0;
-															}
+															if (edec > dec) dec = edec;
 														}
-														if (edec > dec) dec = edec;
 													}
 												}
 											}
@@ -1272,7 +1271,7 @@ namespace OpenBve {
 													if (dist < 0.0 | dist < Stations[e.StationIndex].Stops[s].BackwardTolerance & spd < 0.277777777777778) {
 														edec = BrakeDeceleration;
 													} else {
-														if (spd > 2.77777777777778) {
+														if (spd > 4.16666666666667) {
 															if (dist > 15.0) {
 																dist -= 7.5;
 															} else if (dist > 0.0) {

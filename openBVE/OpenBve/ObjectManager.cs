@@ -669,8 +669,17 @@ namespace OpenBve {
 			AnimatedWorldObjects[a].Object.ObjectIndex = CreateDynamicObject();
 			AnimatedWorldObjects[a].SectionIndex = SectionIndex;
 			AnimatedWorldObjects[a].TrackPosition = TrackPosition;
+			for (int i = 0; i < AnimatedWorldObjects[a].Object.States.Length; i++) {
+				if (AnimatedWorldObjects[a].Object.States[i].Object == null) {
+					AnimatedWorldObjects[a].Object.States[i].Object = new StaticObject();
+					AnimatedWorldObjects[a].Object.States[i].Object.Mesh.Faces = new World.MeshFace[] { };
+					AnimatedWorldObjects[a].Object.States[i].Object.Mesh.Materials = new World.MeshMaterial[] { };
+					AnimatedWorldObjects[a].Object.States[i].Object.Mesh.Vertices = new World.Vertex[] { };
+					AnimatedWorldObjects[a].Object.States[i].Object.RendererIndex = -1;
+				}
+			}
 			double r = 0.0;
-			for (int i = 0; i < Prototype.States.Length; i++) {
+			for (int i = 0; i < AnimatedWorldObjects[a].Object.States.Length; i++) {
 				for (int j = 0; j < AnimatedWorldObjects[a].Object.States[i].Object.Mesh.Materials.Length; j++) {
 					AnimatedWorldObjects[a].Object.States[i].Object.Mesh.Materials[j].Color.R = (byte)Math.Round((double)Prototype.States[i].Object.Mesh.Materials[j].Color.R * Brightness);
 					AnimatedWorldObjects[a].Object.States[i].Object.Mesh.Materials[j].Color.G = (byte)Math.Round((double)Prototype.States[i].Object.Mesh.Materials[j].Color.G * Brightness);
@@ -930,25 +939,31 @@ namespace OpenBve {
 		}
 
 		// join objects
-		internal static void JoinObjects(StaticObject Base, StaticObject Add) {
-			int mf = Base.Mesh.Faces.Length;
-			int mm = Base.Mesh.Materials.Length;
-			int mv = Base.Mesh.Vertices.Length;
-			Array.Resize<World.MeshFace>(ref Base.Mesh.Faces, mf + Add.Mesh.Faces.Length);
-			Array.Resize<World.MeshMaterial>(ref Base.Mesh.Materials, mm + Add.Mesh.Materials.Length);
-			Array.Resize<World.Vertex>(ref Base.Mesh.Vertices, mv + Add.Mesh.Vertices.Length);
-			for (int i = 0; i < Add.Mesh.Faces.Length; i++) {
-				Base.Mesh.Faces[mf + i] = Add.Mesh.Faces[i];
-				for (int j = 0; j < Base.Mesh.Faces[mf + i].Vertices.Length; j++) {
-					Base.Mesh.Faces[mf + i].Vertices[j].Index += (ushort)mv;
+		internal static void JoinObjects(ref StaticObject Base, StaticObject Add) {
+			if (Base == null & Add == null) {
+				return;
+			} else if (Base == null) {
+				Base = CloneObject(Add);
+			} else if (Add != null) {
+				int mf = Base.Mesh.Faces.Length;
+				int mm = Base.Mesh.Materials.Length;
+				int mv = Base.Mesh.Vertices.Length;
+				Array.Resize<World.MeshFace>(ref Base.Mesh.Faces, mf + Add.Mesh.Faces.Length);
+				Array.Resize<World.MeshMaterial>(ref Base.Mesh.Materials, mm + Add.Mesh.Materials.Length);
+				Array.Resize<World.Vertex>(ref Base.Mesh.Vertices, mv + Add.Mesh.Vertices.Length);
+				for (int i = 0; i < Add.Mesh.Faces.Length; i++) {
+					Base.Mesh.Faces[mf + i] = Add.Mesh.Faces[i];
+					for (int j = 0; j < Base.Mesh.Faces[mf + i].Vertices.Length; j++) {
+						Base.Mesh.Faces[mf + i].Vertices[j].Index += (ushort)mv;
+					}
+					Base.Mesh.Faces[mf + i].Material += (ushort)mm;
 				}
-				Base.Mesh.Faces[mf + i].Material += (ushort)mm;
-			}
-			for (int i = 0; i < Add.Mesh.Materials.Length; i++) {
-				Base.Mesh.Materials[mm + i] = Add.Mesh.Materials[i];
-			}
-			for (int i = 0; i < Add.Mesh.Vertices.Length; i++) {
-				Base.Mesh.Vertices[mv + i] = Add.Mesh.Vertices[i];
+				for (int i = 0; i < Add.Mesh.Materials.Length; i++) {
+					Base.Mesh.Materials[mm + i] = Add.Mesh.Materials[i];
+				}
+				for (int i = 0; i < Add.Mesh.Vertices.Length; i++) {
+					Base.Mesh.Vertices[mv + i] = Add.Mesh.Vertices[i];
+				}
 			}
 		}
 

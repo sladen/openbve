@@ -124,6 +124,7 @@ namespace OpenBve {
             internal ColorRGB EmissiveColor;
             internal int DaytimeTextureIndex;
             internal int NighttimeTextureIndex;
+            /// <summary>A value between 0 (daytime) and 255 (nighttime).</summary>
             internal byte DaytimeNighttimeBlend;
             internal MeshMaterialBlendMode BlendMode;
             /// <summary>A bit mask specifying the glow properties. Use GetGlowAttenuationData to create valid data for this field.</summary>

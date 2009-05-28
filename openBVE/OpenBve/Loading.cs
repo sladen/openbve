@@ -56,6 +56,16 @@ namespace OpenBve {
 					}
 				}
 				System.IO.DirectoryInfo Info = System.IO.Directory.GetParent(Folder);
+				if (Info == null) break;
+				Folder = Info.FullName;
+			}
+			Folder = System.IO.Path.GetDirectoryName(RouteFile);
+			while (true) {
+				string Subfolder = Interface.GetCombinedFolderName(Folder, "Railway");
+				if (System.IO.Directory.Exists(Subfolder)) {
+					return Subfolder;
+				}
+				System.IO.DirectoryInfo Info = System.IO.Directory.GetParent(Folder);
 				if (Info == null) return null;
 				Folder = Info.FullName;
 			}
@@ -194,6 +204,7 @@ namespace OpenBve {
 				for (int i = 0; i < TrainManager.Trains[k].Cars.Length; i++) {
 					TrainManager.Trains[k].Cars[i].FrontAxle.Follower.Train = TrainManager.Trains[k];
 					TrainManager.Trains[k].Cars[i].RearAxle.Follower.Train = TrainManager.Trains[k];
+					TrainManager.Trains[k].Cars[i].BeaconReceiver.Train = TrainManager.Trains[k];
 				}
 				// add panel section
 				if (k == TrainManager.PlayerTrain.TrainIndex) {
@@ -270,6 +281,7 @@ namespace OpenBve {
 					for (int i = 0; i < TrainManager.Trains[k].Cars.Length; i++) {
 						TrainManager.Trains[k].Cars[i].FrontAxle.Follower.TrackPosition = z - 0.5 * TrainManager.Trains[k].Cars[i].Length + TrainManager.Trains[k].Cars[i].FrontAxlePosition;
 						TrainManager.Trains[k].Cars[i].RearAxle.Follower.TrackPosition = z - 0.5 * TrainManager.Trains[k].Cars[i].Length + TrainManager.Trains[k].Cars[i].RearAxlePosition;
+						TrainManager.Trains[k].Cars[i].BeaconReceiver.TrackPosition = z - 0.5 * TrainManager.Trains[k].Cars[i].Length + TrainManager.Trains[k].Cars[i].BeaconReceiverPosition;
 						z -= TrainManager.Trains[k].Cars[i].Length;
 						if (i < TrainManager.Trains[k].Cars.Length - 1) {
 							z -= 0.5 * (TrainManager.Trains[k].Couplers[i].MinimumDistanceBetweenCars + TrainManager.Trains[k].Couplers[i].MaximumDistanceBetweenCars);
@@ -400,6 +412,7 @@ namespace OpenBve {
 			// initialize camera
 			System.Threading.Thread.Sleep(1); if (Cancel) return;
 			TrainManager.UpdateCamera(TrainManager.PlayerTrain);
+			TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, -1.0, true, false);
 			ObjectManager.UpdateVisibility(World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z);
 			World.CameraSavedInterior = new World.CameraAlignment();
 			World.CameraSavedExterior = new World.CameraAlignment(new World.Vector3D(-2.5, 1.5, -15.0), 0.3, -0.2, 0.0, FirstStationPosition, 1.0);

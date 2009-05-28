@@ -158,14 +158,14 @@ namespace OpenBve {
 					Interface.AddMessage(Interface.MessageType.Error, true, "The daytime panel bitmap could not be found in " + FileName);
 					PanelDaytimeImage = null;
 				} else {
-					int tday = TextureManager.RegisterTexture(PanelDaytimeImage, PanelTransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+					int tday = TextureManager.RegisterTexture(PanelDaytimeImage, PanelTransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 					int tnight = -1;
 					if (PanelNighttimeImage != null) {
 						if (!System.IO.File.Exists(PanelNighttimeImage)) {
 							Interface.AddMessage(Interface.MessageType.Error, true, "The nighttime panel bitmap could not be found in " + FileName);
 							PanelNighttimeImage = null;
 						} else {
-							tnight = TextureManager.RegisterTexture(PanelNighttimeImage, PanelTransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+							tnight = TextureManager.RegisterTexture(PanelNighttimeImage, PanelTransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 						}
 					}
 					TextureManager.UseTexture(tday, TextureManager.UseMode.QueryDimensions);
@@ -257,10 +257,10 @@ namespace OpenBve {
 									}
 									// create element
 									if (DaytimeImage != null) {
-										int tday = TextureManager.RegisterTexture(DaytimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int tday = TextureManager.RegisterTexture(DaytimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										int tnight = -1;
 										if (NighttimeImage != null) {
-											tnight = TextureManager.RegisterTexture(NighttimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+											tnight = TextureManager.RegisterTexture(NighttimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										}
 										TextureManager.UseTexture(tday, TextureManager.UseMode.QueryDimensions);
 										int w = TextureManager.Textures[tday].ClipWidth;
@@ -408,10 +408,10 @@ namespace OpenBve {
 									}
 									// create element
 									if (DaytimeImage != null) {
-										int tday = TextureManager.RegisterTexture(DaytimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int tday = TextureManager.RegisterTexture(DaytimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										int tnight = -1;
 										if (NighttimeImage != null) {
-											tnight = TextureManager.RegisterTexture(NighttimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+											tnight = TextureManager.RegisterTexture(NighttimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										}
 										TextureManager.UseTexture(tday, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[tday].ClipWidth;
@@ -540,7 +540,7 @@ namespace OpenBve {
 										int[] tday = new int[nday];
 										int[] tnight;
 										for (int k = 0; k < nday; k++) {
-											tday[k] = TextureManager.RegisterTexture(DaytimeImage, TransparentColor, 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, true, 0, k * Interval, wday, Interval);
+											tday[k] = TextureManager.RegisterTexture(DaytimeImage, TransparentColor, 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true, 0, k * Interval, wday, Interval);
 											TextureManager.UseTexture(tday[k], TextureManager.UseMode.Normal);
 										}
 										if (NighttimeImage != null) {
@@ -549,7 +549,7 @@ namespace OpenBve {
 											if (nnight > nday) nnight = nday;
 											tnight = new int[nday];
 											for (int k = 0; k < nnight; k++) {
-												tnight[k] = TextureManager.RegisterTexture(NighttimeImage, TransparentColor, 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, true, 0, k * Interval, wday, Interval);
+												tnight[k] = TextureManager.RegisterTexture(NighttimeImage, TransparentColor, 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true, 0, k * Interval, wday, Interval);
 												TextureManager.UseTexture(tnight[k], TextureManager.UseMode.Normal);
 											}
 											for (int k = nnight; k < nday; k++) {
@@ -793,16 +793,18 @@ namespace OpenBve {
 					if (a < 48 | a > 57) break;
 				}
 				if (i >= 0 & i < Subject.Length - 1) {
-					if (string.Equals(Subject.Substring(i, 1), "d", StringComparison.InvariantCultureIgnoreCase)) {
+					if (Subject[i] == 'd' | Subject[i] == 'D') {
 						int n;
 						if (int.TryParse(Subject.Substring(i + 1), System.Globalization.NumberStyles.Integer, Culture, out n)) {
 							if (n == 0) {
 								Suffix = " floor 10 mod";
 							} else {
-								string t = Math.Pow(10.0, (double)-n).ToString(Culture);
-								Suffix = " " + t + " * floor 10 mod";
+								string t0 = Math.Pow(10.0, (double)n).ToString(Culture);
+								string t1 = Math.Pow(10.0, (double)-n).ToString(Culture);
+								Suffix = " ~ " + t0 + " >= <> " + t1 + " * floor 10 mod 10 ?";
 							}
 							Subject = Subject.Substring(0, i);
+							i--;
 						}
 					}
 				}

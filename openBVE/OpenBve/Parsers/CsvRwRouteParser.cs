@@ -241,9 +241,9 @@ namespace OpenBve {
 			if (!PreviewOnly) {
 				Data.Blocks[0].Background = 0;
 				Data.Blocks[0].Brightness = new Brightness[] { };
-				Data.Blocks[0].Fog.Start = (float)(World.BackgroundImageDistance + World.ExtraViewingDistance);
-				Data.Blocks[0].Fog.End = (float)(World.BackgroundImageDistance + 2.0 * World.ExtraViewingDistance);
-				Data.Blocks[0].Fog.Color = new World.ColorRGB(255, 255, 255);
+				Data.Blocks[0].Fog.Start = 1200.0f;
+				Data.Blocks[0].Fog.End = 1100.0f;
+				Data.Blocks[0].Fog.Color = new World.ColorRGB(128, 128, 128);
 				Data.Blocks[0].Cycle = new int[] { -1 };
 				Data.Blocks[0].Height = IsRW ? 0.3 : 0.0;
 				Data.Blocks[0].RailFreeObj = new FreeObj[][] { };
@@ -589,15 +589,41 @@ namespace OpenBve {
 									} break;
 								case "$sub":
 									{
-										int m = s.IndexOf(";", StringComparison.Ordinal);
-										if (m >= 0) {
-											string s1 = s.Substring(0, m).TrimEnd();
-											string s2 = s.Substring(m + 1).TrimStart();
-											int x; if (Interface.TryParseIntVb6(s1, out x)) {
+										l = 0;
+										bool f = false;
+										int m;
+										for (m = h + 1; m < Expressions[i].Text.Length; m++) {
+											switch (Expressions[i].Text[m]) {
+													case '(': l++; break;
+													case ')': l--; break;
+													case '=': if (l == 0) {
+														f = true;
+													}
+													break;
+												default:
+													if (!char.IsWhiteSpace(Expressions[i].Text[m])) l = -1;
+													break;
+											}
+											if (f | l < 0) break;
+										}
+										if (f) {
+											l = 0;
+											int n;
+											for (n = m + 1; n < Expressions[i].Text.Length; n++) {
+												switch (Expressions[i].Text[n]) {
+														case '(': l++; break;
+														case ')': l--; break;
+												}
+												if (l < 0) break;
+											}
+											int x;
+											if (Interface.TryParseIntVb6(s, out x)) {
 												if (x >= 0) {
-													while (x >= Subs.Length) Array.Resize<string>(ref Subs, Subs.Length << 1);
-													Subs[x] = s2;
-													Expressions[i].Text = Expressions[i].Text.Substring(0, j) + s2 + Expressions[i].Text.Substring(h + 1);
+													while (x >= Subs.Length) {
+														Array.Resize<string>(ref Subs, Subs.Length << 1);
+													}
+													Subs[x] = Expressions[i].Text.Substring(m + 1, n - m - 1).Trim();
+													Expressions[i].Text = Expressions[i].Text.Substring(0, j) + Expressions[i].Text.Substring(n);
 												} else {
 													err = true; Interface.AddMessage(Interface.MessageType.Error, false, "Index is expected to be non-negative in " + t + Epilog);
 												}
@@ -605,54 +631,46 @@ namespace OpenBve {
 												err = true; Interface.AddMessage(Interface.MessageType.Error, false, "Index is invalid in " + t + Epilog);
 											}
 										} else {
-											l = 0; bool f = false;
-											for (m = h + 1; m < Expressions[i].Text.Length; m++) {
-												switch (Expressions[i].Text[m]) {
-														case '(': l++; break;
-														case ')': l--; break;
-														case '=': if (l == 0) {
-															f = true;
-														} break;
-													default:
-														if (!char.IsWhiteSpace(Expressions[i].Text[m])) l = -1;
-														break;
-												} if (f | l < 0) break;
-											} if (f) {
-												l = 0;
-												int n; for (n = m + 1; n < Expressions[i].Text.Length; n++) {
-													switch (Expressions[i].Text[n]) {
-															case '(': l++; break;
-															case ')': l--; break;
-													} if (l < 0) break;
-												}
-												int x; if (Interface.TryParseIntVb6(s, out x)) {
-													if (x >= 0) {
-														while (x >= Subs.Length) Array.Resize<string>(ref Subs, Subs.Length << 1);
-														Subs[x] = Expressions[i].Text.Substring(m + 1, n - m - 1).Trim();
-														Expressions[i].Text = Expressions[i].Text.Substring(0, j) + Expressions[i].Text.Substring(n);
-													} else {
-														err = true; Interface.AddMessage(Interface.MessageType.Error, false, "Index is expected to be non-negative in " + t + Epilog);
-													}
+											int x;
+											if (Interface.TryParseIntVb6(s, out x)) {
+												if (x >= 0 & x < Subs.Length && Subs[x] != null) {
+													Expressions[i].Text = Expressions[i].Text.Substring(0, j) + Subs[x] + Expressions[i].Text.Substring(h + 1);
 												} else {
-													err = true; Interface.AddMessage(Interface.MessageType.Error, false, "Index is invalid in " + t + Epilog);
+													err = true; Interface.AddMessage(Interface.MessageType.Error, false, "Index is out of range in " + t + Epilog);
 												}
 											} else {
-												int x; if (Interface.TryParseIntVb6(s, out x)) {
-													if (x >= 0 & x < Subs.Length && Subs[x] != null) {
-														Expressions[i].Text = Expressions[i].Text.Substring(0, j) + Subs[x] + Expressions[i].Text.Substring(h + 1);
-													} else {
-														err = true; Interface.AddMessage(Interface.MessageType.Error, false, "Index is out of range in " + t + Epilog);
-													}
-												} else {
-													err = true; Interface.AddMessage(Interface.MessageType.Error, false, "Index is invalid in " + t + Epilog);
-												}
+												err = true; Interface.AddMessage(Interface.MessageType.Error, false, "Index is invalid in " + t + Epilog);
 											}
 										}
+										
 									} break;
 							}
 						}
 					} if (err) continue;
 				}
+			}
+			// handle comments introduced via chr, rnd, sub
+			int length = Expressions.Length;
+			for (int i = 0; i < length; i++) {
+				Expressions[i].Text = Expressions[i].Text.Trim();
+				if (Expressions[i].Text.Length != 0) {
+					if (Expressions[i].Text[0] == ';') {
+						for (int j = i; j < length - 1; j++) {
+							Expressions[j] = Expressions[j + 1];
+						}
+						length--;
+						i--;
+					}
+				} else {
+					for (int j = i; j < length - 1; j++) {
+						Expressions[j] = Expressions[j + 1];
+					}
+					length--;
+					i--;
+				}
+			}
+			if (length != Expressions.Length) {
+				Array.Resize<Expression>(ref Expressions, length);
 			}
 		}
 
@@ -663,7 +681,7 @@ namespace OpenBve {
 			string Section = ""; bool SectionAlwaysPrefix = false;
 			// process expressions
 			for (int j = 0; j < Expressions.Length; j++) {
-				if (Expressions[j].Text.StartsWith("[") & Expressions[j].Text.EndsWith("]")) {
+				if (IsRW && Expressions[j].Text.StartsWith("[") && Expressions[j].Text.EndsWith("]")) {
 					Section = Expressions[j].Text.Substring(1, Expressions[j].Text.Length - 2).Trim();
 					if (string.Compare(Section, "object", StringComparison.OrdinalIgnoreCase) == 0) {
 						Section = "Structure";
@@ -1036,6 +1054,13 @@ namespace OpenBve {
 					}
 				}
 			}
+			// invalid trailing characters
+			if (Command.EndsWith(";")) {
+				if (RaiseErrors) {
+					Interface.AddMessage(Interface.MessageType.Error, false, "Invalid trailing semicolon encountered in " + Command + " at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
+				}
+				Command = Command.Substring(0, Command.Length - 1);
+			}
 		}
 
 		// parse route for data
@@ -1380,31 +1405,49 @@ namespace OpenBve {
 									} break;
 								case "route.ambientlight":
 									{
-										byte r = 255, g = 255, b = 255;
-										if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseByteVb6(Arguments[0], out r)) {
+										int r = 255, g = 255, b = 255;
+										if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseIntVb6(Arguments[0], out r)) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+										} else if (r < 0 | r > 255) {
+											Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is required to be within the range from 0 to 255 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+											r = r < 0 ? 0 : 255;
 										}
-										if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseByteVb6(Arguments[1], out g)) {
+										if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out g)) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+										} else if (g < 0 | g > 255) {
+											Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is required to be within the range from 0 to 255 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+											g = g < 0 ? 0 : 255;
 										}
-										if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out b)) {
+										if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out b)) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+										} else if (b < 0 | b > 255) {
+											Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is required to be within the range from 0 to 255 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+											b = b < 0 ? 0 : 255;
 										}
-										Renderer.OptionAmbientColor = new World.ColorRGB(r, g, b);
+										Renderer.OptionAmbientColor = new World.ColorRGB((byte)r, (byte)g, (byte)b);
 									} break;
 								case "route.directionallight":
 									{
-										byte r = 255, g = 255, b = 255;
-										if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseByteVb6(Arguments[0], out r)) {
+										int r = 255, g = 255, b = 255;
+										if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseIntVb6(Arguments[0], out r)) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+										} else if (r < 0 | r > 255) {
+											Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is required to be within the range from 0 to 255 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+											r = r < 0 ? 0 : 255;
 										}
-										if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseByteVb6(Arguments[1], out g)) {
+										if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out g)) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+										} else if (g < 0 | g > 255) {
+											Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is required to be within the range from 0 to 255 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+											g = g < 0 ? 0 : 255;
 										}
-										if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out b)) {
+										if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out b)) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+										} else if (b < 0 | b > 255) {
+											Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is required to be within the range from 0 to 255 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+											b = b < 0 ? 0 : 255;
 										}
-										Renderer.OptionDiffuseColor = new World.ColorRGB(r, g, b);
+										Renderer.OptionDiffuseColor = new World.ColorRGB((byte)r, (byte)g, (byte)b);
 									}
 									break;
 								case "route.lightdirection":
@@ -1506,7 +1549,7 @@ namespace OpenBve {
 													}
 													string f = Interface.GetCombinedFileName(TrainPath, Arguments[0]);
 													if (System.IO.File.Exists(f)) {
-														Data.TimetableDaytime[CommandIndex1] = TextureManager.RegisterTexture(f, TextureManager.TextureWrapMode.ClampToEdge, true);
+														Data.TimetableDaytime[CommandIndex1] = TextureManager.RegisterTexture(f, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 														TextureManager.UseTexture(Data.TimetableDaytime[CommandIndex1], TextureManager.UseMode.Normal);
 													}
 												}
@@ -1533,7 +1576,7 @@ namespace OpenBve {
 													}
 													string f = Interface.GetCombinedFileName(TrainPath, Arguments[0]);
 													if (System.IO.File.Exists(f)) {
-														Data.TimetableNighttime[CommandIndex1] = TextureManager.RegisterTexture(f, TextureManager.TextureWrapMode.ClampToEdge, false);
+														Data.TimetableNighttime[CommandIndex1] = TextureManager.RegisterTexture(f, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 														TextureManager.UseTexture(Data.TimetableNighttime[CommandIndex1], TextureManager.UseMode.Normal);
 													}
 												}
@@ -2132,7 +2175,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Backgrounds[CommandIndex1].Texture = TextureManager.RegisterTexture(f, new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.Repeat, false);
+														Data.Backgrounds[CommandIndex1].Texture = TextureManager.RegisterTexture(f, new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.Repeat, TextureManager.TextureWrapMode.ClampToEdge, false);
 													}
 												}
 											}
@@ -2651,18 +2694,27 @@ namespace OpenBve {
 												Interface.AddMessage(Interface.MessageType.Error, false, "EndingDistance is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												end = 0.0;
 											}
-											byte r = 128, g = 128, b = 128;
-											if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out r)) {
+											int r = 128, g = 128, b = 128;
+											if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out r)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												r = 128;
+											} else if (r < 0 | r > 255) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is required to be within the range from 0 to 255 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												r = r < 0 ? 0 : 255;
 											}
-											if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseByteVb6(Arguments[3], out g)) {
+											if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseIntVb6(Arguments[3], out g)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												g = 128;
+											} else if (g < 0 | g > 255) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "GreenValue is required to be within the range from 0 to 255 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												g = g < 0 ? 0 : 255;
 											}
-											if (Arguments.Length >= 5 && Arguments[4].Length > 0 && !Interface.TryParseByteVb6(Arguments[4], out b)) {
+											if (Arguments.Length >= 5 && Arguments[4].Length > 0 && !Interface.TryParseIntVb6(Arguments[4], out b)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												b = 128;
+											} else if (b < 0 | b > 255) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is required to be within the range from 0 to 255 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												b = b < 0 ? 0 : 255;
 											}
 											if (end <= 0.0 | start >= end) {
 												start = World.BackgroundImageDistance + World.ExtraViewingDistance;
@@ -2670,7 +2722,7 @@ namespace OpenBve {
 											}
 											Data.Blocks[BlockIndex].Fog.Start = (float)start;
 											Data.Blocks[BlockIndex].Fog.End = (float)end;
-											Data.Blocks[BlockIndex].Fog.Color = new World.ColorRGB(r, g, b);
+											Data.Blocks[BlockIndex].Fog.Color = new World.ColorRGB((byte)r, (byte)g, (byte)b);
 											Data.Blocks[BlockIndex].FogDefined = true;
 										}
 									} break;
@@ -2886,6 +2938,7 @@ namespace OpenBve {
 												Data.Blocks[BlockIndex].Transponder[n].OptionalInteger = optional;
 												Data.Blocks[BlockIndex].Transponder[n].BeaconStructureIndex = structure;
 												Data.Blocks[BlockIndex].Transponder[n].Section = section;
+												Data.Blocks[BlockIndex].Transponder[n].SwitchSubsystem = optional != -1;
 												Data.Blocks[BlockIndex].Transponder[n].ShowDefaultObject = false;
 											}
 										}
@@ -3394,15 +3447,13 @@ namespace OpenBve {
 												} else {
 													if (pf < 0 | (pf >= Data.Structure.FormL.Length || Data.Structure.FormL[pf] == null) & (pf >= Data.Structure.FormR.Length || Data.Structure.FormR[pf] == null)) {
 														Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references an object not loaded in Track.Form at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-													} else {
-														int n = Data.Blocks[BlockIndex].Form.Length;
-														Array.Resize<Form>(ref Data.Blocks[BlockIndex].Form, n + 1);
-														Data.Blocks[BlockIndex].Form[n].PrimaryRail = idx1;
-														Data.Blocks[BlockIndex].Form[n].SecondaryRail = idx2;
-														Data.Blocks[BlockIndex].Form[n].FormType = pf;
-														Data.Blocks[BlockIndex].Form[n].RoofType = roof;
 													}
-
+													int n = Data.Blocks[BlockIndex].Form.Length;
+													Array.Resize<Form>(ref Data.Blocks[BlockIndex].Form, n + 1);
+													Data.Blocks[BlockIndex].Form[n].PrimaryRail = idx1;
+													Data.Blocks[BlockIndex].Form[n].SecondaryRail = idx2;
+													Data.Blocks[BlockIndex].Form[n].FormType = pf;
+													Data.Blocks[BlockIndex].Form[n].RoofType = roof;
 												}
 											}
 										}
@@ -3477,9 +3528,12 @@ namespace OpenBve {
 												Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex is invalid in Track.PoleEnd at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												idx = 0;
 											}
-											if (idx < 0 || idx >= Data.Blocks[BlockIndex].Rail.Length || (!Data.Blocks[BlockIndex].Rail[idx].RailStart & !Data.Blocks[BlockIndex].Rail[idx].RailEnd)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex does not reference an existing rail in Track.PoleEnd at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-											} else if (idx < Data.Blocks[BlockIndex].RailPole.Length) {
+											if (idx < 0 | idx >= Data.Blocks[BlockIndex].RailPole.Length) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex does not reference an existing wall in Track.PoleEnd at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+											} else {
+												if (idx >= Data.Blocks[BlockIndex].Rail.Length || (!Data.Blocks[BlockIndex].Rail[idx].RailStart & !Data.Blocks[BlockIndex].Rail[idx].RailEnd)) {
+													Interface.AddMessage(Interface.MessageType.Warning, false, "RailIndex could be out of range in Track.PoleEnd at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												}
 												Data.Blocks[BlockIndex].RailPole[idx].Exists = false;
 											}
 										}
@@ -3628,7 +3682,7 @@ namespace OpenBve {
 													Array.Resize<Marker>(ref Data.Markers, n + 1);
 													Data.Markers[n].StartingPosition = start;
 													Data.Markers[n].EndingPosition = end;
-													Data.Markers[n].Texture = TextureManager.RegisterTexture(f, new World.ColorRGB(64, 64, 64), 1, TextureManager.TextureWrapMode.ClampToEdge, false);
+													Data.Markers[n].Texture = TextureManager.RegisterTexture(f, new World.ColorRGB(64, 64, 64), 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 												}
 											}
 										}
@@ -4146,7 +4200,7 @@ namespace OpenBve {
 												Textures[k] = -1;
 											}
 										}
-										Textures[j] = TextureManager.RegisterTexture(Files[i], TransparentColor, TransparentColorUsed, LoadMode, TextureManager.TextureWrapMode.ClampToEdge, true, 0, 0, 0, 0);
+										Textures[j] = TextureManager.RegisterTexture(Files[i], TransparentColor, TransparentColorUsed, LoadMode, TextureManager.TextureWrapMode.Repeat, TextureManager.TextureWrapMode.Repeat, true, 0, 0, 0, 0);
 										TextureManager.UseTexture(Textures[j], TextureManager.UseMode.Normal);
 										break;
 								}
@@ -4293,8 +4347,8 @@ namespace OpenBve {
 			int CurrentTrackLength = 0;
 			int PreviousFogElement = -1;
 			int PreviousFogEvent = -1;
-			Game.Fog PreviousFog = new Game.Fog((float)(World.BackgroundImageDistance + World.ExtraViewingDistance), (float)(World.BackgroundImageDistance + 2.0 * World.ExtraViewingDistance), new World.ColorRGB(128, 128, 128), -Data.BlockInterval);
-			Game.Fog CurrentFog = new Game.Fog((float)(World.BackgroundImageDistance + World.ExtraViewingDistance), (float)(World.BackgroundImageDistance + 2.0 * World.ExtraViewingDistance), new World.ColorRGB(128, 128, 128), 0.0);
+			Game.Fog PreviousFog = new Game.Fog(1100.0f, 1200.0f, new World.ColorRGB(128, 128, 128), -Data.BlockInterval);
+			Game.Fog CurrentFog = new Game.Fog(1100.0f, 1200.0f, new World.ColorRGB(128, 128, 128), 0.0);
 			int CurrentBrightnessElement = -1;
 			int CurrentBrightnessEvent = -1;
 			float CurrentBrightnessValue = 1.0f;
@@ -5062,7 +5116,7 @@ namespace OpenBve {
 												if (qs & qg) {
 													ObjectManager.StaticObject so = ObjectManager.CloneObject(b4sd.BaseObject, b4sd.SignalTextures[l], -1);
 													ObjectManager.StaticObject go = ObjectManager.CloneObject(b4sd.GlowObject, b4sd.GlowTextures[l], -1);
-													ObjectManager.JoinObjects(so, go);
+													ObjectManager.JoinObjects(ref so, go);
 													aoc.Objects[0].States[zi].Object = so;
 												} else if (qs) {
 													ObjectManager.StaticObject so = ObjectManager.CloneObject(b4sd.BaseObject, b4sd.SignalTextures[l], -1);
@@ -5177,7 +5231,7 @@ namespace OpenBve {
 											int d0 = (int)Math.Round(lim);
 											int o = ObjectManager.CreateStaticObject(LimitOneDigit, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos, b, true);
 											if (ObjectManager.Objects[o].Mesh.Materials.Length >= 1) {
-												ObjectManager.Objects[o].Mesh.Materials[0].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d0 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, false);
+												ObjectManager.Objects[o].Mesh.Materials[0].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d0 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 											}
 										} else if (lim < 100.0) {
 											int d1 = (int)Math.Round(lim);
@@ -5185,10 +5239,10 @@ namespace OpenBve {
 											d1 /= 10;
 											int o = ObjectManager.CreateStaticObject(LimitTwoDigits, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos, b, true);
 											if (ObjectManager.Objects[o].Mesh.Materials.Length >= 1) {
-												ObjectManager.Objects[o].Mesh.Materials[0].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d1 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, false);
+												ObjectManager.Objects[o].Mesh.Materials[0].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d1 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 											}
 											if (ObjectManager.Objects[o].Mesh.Materials.Length >= 2) {
-												ObjectManager.Objects[o].Mesh.Materials[1].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d0 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, false);
+												ObjectManager.Objects[o].Mesh.Materials[1].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d0 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 											}
 										} else {
 											int d2 = (int)Math.Round(lim);
@@ -5197,13 +5251,13 @@ namespace OpenBve {
 											d2 /= 100;
 											int o = ObjectManager.CreateStaticObject(LimitThreeDigits, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos, b, true);
 											if (ObjectManager.Objects[o].Mesh.Materials.Length >= 1) {
-												ObjectManager.Objects[o].Mesh.Materials[0].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d2 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, false);
+												ObjectManager.Objects[o].Mesh.Materials[0].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d2 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 											}
 											if (ObjectManager.Objects[o].Mesh.Materials.Length >= 2) {
-												ObjectManager.Objects[o].Mesh.Materials[1].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d1 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, false);
+												ObjectManager.Objects[o].Mesh.Materials[1].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d1 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 											}
 											if (ObjectManager.Objects[o].Mesh.Materials.Length >= 3) {
-												ObjectManager.Objects[o].Mesh.Materials[2].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d0 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, false);
+												ObjectManager.Objects[o].Mesh.Materials[2].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d0 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 											}
 										}
 									}

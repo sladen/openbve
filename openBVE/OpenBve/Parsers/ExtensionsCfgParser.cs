@@ -89,6 +89,7 @@ namespace OpenBve {
 																	if (double.TryParse(b, System.Globalization.NumberStyles.Float, Culture, out m)) {
 																		if (m > 0.0) {
 																			Train.Cars[n].Length = m;
+																			Train.Cars[n].BeaconReceiverPosition = 0.5 * m;
 																			DefinedLength = true;
 																		} else {
 																			Interface.AddMessage(Interface.MessageType.Error, false, "Value is expected to be a positive floating-point number in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
@@ -103,16 +104,16 @@ namespace OpenBve {
 																	if (k >= 0) {
 																		string c = b.Substring(0, k).TrimEnd();
 																		string d = b.Substring(k + 1).TrimStart();
-																		double x, y;
-																		if (!double.TryParse(c, System.Globalization.NumberStyles.Float, Culture, out x)) {
+																		double rear, front;
+																		if (!double.TryParse(c, System.Globalization.NumberStyles.Float, Culture, out rear)) {
 																			Interface.AddMessage(Interface.MessageType.Error, false, "Rear is expected to be a floating-point number in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-																		} else if (!double.TryParse(d, System.Globalization.NumberStyles.Float, Culture, out y)) {
+																		} else if (!double.TryParse(d, System.Globalization.NumberStyles.Float, Culture, out front)) {
 																			Interface.AddMessage(Interface.MessageType.Error, false, "Front is expected to be a floating-point number in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-																		} else if (x >= y) {
+																		} else if (rear >= front) {
 																			Interface.AddMessage(Interface.MessageType.Error, false, "Rear is expected to be less than Front in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 																		} else {
-																			Train.Cars[n].RearAxlePosition = x;
-																			Train.Cars[n].FrontAxlePosition = y;
+																			Train.Cars[n].RearAxlePosition = rear;
+																			Train.Cars[n].FrontAxlePosition = front;
 																			DefinedAxles = true;
 																		}
 																	} else {
@@ -157,16 +158,16 @@ namespace OpenBve {
 																	if (k >= 0) {
 																		string c = b.Substring(0, k).TrimEnd();
 																		string d = b.Substring(k + 1).TrimStart();
-																		double x, y;
-																		if (!double.TryParse(c, System.Globalization.NumberStyles.Float, Culture, out x)) {
+																		double min, max;
+																		if (!double.TryParse(c, System.Globalization.NumberStyles.Float, Culture, out min)) {
 																			Interface.AddMessage(Interface.MessageType.Error, false, "Minimum is expected to be a floating-point number in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-																		} else if (!double.TryParse(d, System.Globalization.NumberStyles.Float, Culture, out y)) {
+																		} else if (!double.TryParse(d, System.Globalization.NumberStyles.Float, Culture, out max)) {
 																			Interface.AddMessage(Interface.MessageType.Error, false, "Maximum is expected to be a floating-point number in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-																		} else if (x > y) {
+																		} else if (min > max) {
 																			Interface.AddMessage(Interface.MessageType.Error, false, "Minimum is expected to be less than Maximum in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 																		} else {
-																			Train.Couplers[n].MinimumDistanceBetweenCars = x;
-																			Train.Couplers[n].MaximumDistanceBetweenCars = y;
+																			Train.Couplers[n].MinimumDistanceBetweenCars = min;
+																			Train.Couplers[n].MaximumDistanceBetweenCars = max;
 																		}
 																	} else {
 																		Interface.AddMessage(Interface.MessageType.Error, false, "An argument-separating comma is expected in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
