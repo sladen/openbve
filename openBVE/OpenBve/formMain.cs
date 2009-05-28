@@ -440,7 +440,6 @@ namespace OpenBve {
 			checkboxTrainDefault.Text = Interface.GetInterfaceString("start_train_usedefault");
 			groupboxTrainDetails.Text = Interface.GetInterfaceString("start_train_details");
 			tabpageTrainDescription.Text = Interface.GetInterfaceString("start_train_description");
-			///tabpageTrainSpecs.Text = Interface.GetInterfaceString("start_train_specs");
 			tabpageTrainSettings.Text = Interface.GetInterfaceString("start_train_settings");
 			labelTrainEncoding.Text = Interface.GetInterfaceString("start_train_settings_encoding");
 			comboboxTrainEncoding.Items[0] = Interface.GetInterfaceString("(UTF-8)");
@@ -745,7 +744,7 @@ namespace OpenBve {
 						string Name = Code;
 						for (int j = 0; j < Lines.Length; j++) {
 							Lines[j] = Lines[j].Trim();
-							if (Lines[j].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[j].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+							if (Lines[j].StartsWith("[", StringComparison.Ordinal) & Lines[j].EndsWith("]", StringComparison.Ordinal)) {
 								Section = Lines[j].Substring(1, Lines[j].Length - 2).Trim().ToLowerInvariant();
 							} else if (!Lines[j].StartsWith(";", StringComparison.OrdinalIgnoreCase)) {
 								int k = Lines[j].IndexOf('=');
@@ -996,11 +995,11 @@ namespace OpenBve {
 						Array.Sort<string>(Folders);
 						for (int i = 0; i < Folders.Length; i++) {
 							string Name = System.IO.Path.GetFileName(Folders[i]);
-							if (Name[0] == '.') continue;
-							if (Name.Length == 0) Name = Folders[i];
-							ListViewItem Item = listviewRouteFiles.Items.Add(Name);
-							Item.ImageKey = "folder";
-							Item.Tag = Folders[i];
+							if (Name.Length != 0 && Name[0] != '.') {
+								ListViewItem Item = listviewRouteFiles.Items.Add(Name);
+								Item.ImageKey = "folder";
+								Item.Tag = Folders[i];
+							}
 						}
 					} catch { }
 					// files
@@ -1013,11 +1012,11 @@ namespace OpenBve {
 								case ".rw":
 								case ".csv":
 									string Name = System.IO.Path.GetFileName(Files[i]);
-									if (Name[0] == '.') continue;
-									if (Name.Length == 0) Name = Files[i];
-									ListViewItem Item = listviewRouteFiles.Items.Add(Name);
-									Item.ImageKey = "route";
-									Item.Tag = Files[i];
+									if (Name.Length != 0 && Name[0] != '.') {
+										ListViewItem Item = listviewRouteFiles.Items.Add(Name);
+										Item.ImageKey = "route";
+										Item.Tag = Files[i];
+									}
 									break;
 							}
 						}
@@ -1178,15 +1177,15 @@ namespace OpenBve {
 							try {
 								string File = Interface.GetCombinedFileName(Folders[i], "train.dat");
 								string Name = System.IO.Path.GetFileName(Folders[i]);
-								if (Name[0] == '.') continue;
-								if (Name.Length == 0) Name = Folders[i];
-								ListViewItem Item = listviewTrainFolders.Items.Add(Name);
-								if (System.IO.File.Exists(File)) {
-									Item.ImageKey = "train";
-								} else {
-									Item.ImageKey = "folder";
+								if (Name.Length != 0 && Name[0] != '.') {
+									ListViewItem Item = listviewTrainFolders.Items.Add(Name);
+									if (System.IO.File.Exists(File)) {
+										Item.ImageKey = "train";
+									} else {
+										Item.ImageKey = "folder";
+									}
+									Item.Tag = Folders[i];
 								}
-								Item.Tag = Folders[i];
 							} catch { }
 						}
 					} catch { }
@@ -2179,6 +2178,11 @@ namespace OpenBve {
 						textboxRouteDescription.Text = System.IO.Path.GetFileNameWithoutExtension(Result.RouteFile);
 					}
 					textboxRouteEncodingPreview.Text = Interface.ConvertNewlinesToCrLf(Description);
+					if (Game.TrainName != null) {
+						checkboxTrainDefault.Text = Interface.GetInterfaceString("start_train_usedefault") + " (" + Game.TrainName + ")";
+					} else {
+						checkboxTrainDefault.Text = Interface.GetInterfaceString("start_train_usedefault");
+					}
 				} catch (Exception ex) {
 					// error
 					TryLoadImage(pictureboxRouteImage, "route_error.png");
@@ -2187,6 +2191,7 @@ namespace OpenBve {
 					pictureboxRouteMap.Image = null;
 					pictureboxRouteGradient.Image = null;
 					Result.RouteFile = null;
+					checkboxTrainDefault.Text = Interface.GetInterfaceString("start_train_usedefault");
 				}
 				groupboxRouteDetails.Visible = true;
 				if (checkboxTrainDefault.Checked) {
@@ -2254,7 +2259,8 @@ namespace OpenBve {
 				}
 				comboboxTrainEncoding.Tag = null;
 			}
-			{ /// train image
+			{ 
+				// train image
 				string File = Interface.GetCombinedFileName(Result.TrainFolder, "train.png");
 				if (!System.IO.File.Exists(File)) {
 					File = Interface.GetCombinedFileName(Result.TrainFolder, "train.bmp");
@@ -2270,7 +2276,8 @@ namespace OpenBve {
 					TryLoadImage(pictureboxTrainImage, "train_unknown.png");
 				}
 			}
-			{ /// train description
+			{ 
+				// train description
 				string File = Interface.GetCombinedFileName(Result.TrainFolder, "train.txt");
 				if (System.IO.File.Exists(File)) {
 					try {
@@ -2285,6 +2292,13 @@ namespace OpenBve {
 				} else {
 					textboxTrainDescription.Text = System.IO.Path.GetFileName(Result.TrainFolder);
 					textboxTrainEncodingPreview.Text = "";
+				}
+			}
+			if (Program.CurrentPlatform != Program.Platform.Windows) {
+				// plugin
+				string File = Interface.GetCombinedFileName(Result.TrainFolder, "ats.cfg");
+				if (System.IO.File.Exists(File)) {
+					textboxTrainDescription.Text = Interface.GetInterfaceString("start_train_pluginnotsupported") + "\r\n\r\n" + textboxTrainDescription.Text;
 				}
 			}
 			groupboxTrainDetails.Visible = true;

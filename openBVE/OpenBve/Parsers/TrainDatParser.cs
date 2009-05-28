@@ -20,11 +20,13 @@ namespace OpenBve {
 			bool ver1220000 = false;
 			for (int i = 0; i < Lines.Length; i++) {
 				if (Lines[i].Length > 0) {
-					if (Lines[i].ToLowerInvariant() == "bve1220000") {
+					string t = Lines[i].ToLowerInvariant();
+					if (t == "bve1220000") {
 						ver1220000 = true;
-					} else if (Lines[i].ToLowerInvariant() != "bve2000000") {
+					} else if (t != "bve2000000" & t != "openbve") {
 						Interface.AddMessage(Interface.MessageType.Error, false, "The train.dat format " + Lines[0].ToLowerInvariant() + " is not supported in " + Interface.GetCombinedFileName(TrainPath, "train.dat"));
-					} break;
+					}
+					break;
 				}
 			}
 			// initialize
@@ -86,7 +88,7 @@ namespace OpenBve {
 				int n = 0;
 				switch (Lines[i].ToLowerInvariant()) {
 					case "#acceleration":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							Array.Resize<TrainManager.AccelerationCurve>(ref AccelerationCurves, n + 1);
 							string t = Lines[i] + ",";
 							int m = 0;
@@ -134,6 +136,9 @@ namespace OpenBve {
 													} else {
 														const double c = 4.439346232277577;
 														AccelerationCurves[n].StageTwoExponent = 1.0 - Math.Log(a) * AccelerationCurves[n].StageTwoSpeed * c;
+														if (AccelerationCurves[n].StageTwoExponent > 4.0) {
+															AccelerationCurves[n].StageTwoExponent = 4.0;
+														}
 													}
 												} else {
 													AccelerationCurves[n].StageTwoExponent = a;
@@ -145,7 +150,7 @@ namespace OpenBve {
 						} i--; break;
 					case "#performance":
 					case "#deceleration":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 									case 0:
@@ -176,7 +181,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#delay":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 										case 0: Train.Specs.DelayPowerUp = a; break;
@@ -187,7 +192,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#move":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 										case 0: JerkPowerUp = 0.01 * a; break;
@@ -200,7 +205,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#brake":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 									case 0:
@@ -228,7 +233,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#pressure":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 									case 0:
@@ -265,7 +270,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#handle":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							int a; if (Interface.TryParseIntVb6(Lines[i], out a)) {
 								switch (n) {
 										case 0: Train.Specs.SingleHandle = a == 1; break;
@@ -277,7 +282,7 @@ namespace OpenBve {
 						} i--; break;
 					case "#cockpit":
 					case "#cab":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 										case 0: DriverX = 0.001 * a; break;
@@ -287,7 +292,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#car":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 									case 0:
@@ -351,7 +356,7 @@ namespace OpenBve {
 							} i++; n++;
 						} i--; break;
 					case "#device":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 									case 0:
@@ -418,7 +423,7 @@ namespace OpenBve {
 									case "#motor_b1": msi = TrainManager.MotorSound.MotorB1; break;
 									case "#motor_b2": msi = TrainManager.MotorSound.MotorB2; break;
 							} i++;
-							while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.OrdinalIgnoreCase)) {
+							while (i < Lines.Length && !Lines[i].StartsWith("#", StringComparison.Ordinal)) {
 								int u = Tables[msi].Entries.Length;
 								if (n >= u) {
 									Array.Resize<TrainManager.MotorSoundTableEntry>(ref Tables[msi].Entries, 2 * u);
@@ -647,6 +652,8 @@ namespace OpenBve {
 				TrainManager.ChangeCarSection(Train, i, -1);
 				Train.Cars[i].FrontAxle.Follower.TriggerType = i == 0 ? TrackManager.EventTriggerType.FrontCarFrontAxle : TrackManager.EventTriggerType.OtherCarFrontAxle;
 				Train.Cars[i].RearAxle.Follower.TriggerType = i == Cars - 1 ? TrackManager.EventTriggerType.RearCarRearAxle : TrackManager.EventTriggerType.OtherCarRearAxle;
+				Train.Cars[i].BeaconReceiver.TriggerType = i == 0 ? TrackManager.EventTriggerType.BeaconReceiver : TrackManager.EventTriggerType.None;
+				Train.Cars[i].BeaconReceiverPosition = 0.5 * CarLength;
 				Train.Cars[i].FrontAxle.Follower.CarIndex = i;
 				Train.Cars[i].RearAxle.Follower.CarIndex = i;
 				Train.Cars[i].FrontAxlePosition = AxleDistance;

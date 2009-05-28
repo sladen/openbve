@@ -37,12 +37,12 @@ namespace OpenBve {
 			// parse lines for panel
 			for (int i = 0; i < Lines.Length; i++) {
 				if (Lines[i].Length > 0) {
-					if (Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+					if (Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 						string Section = Lines[i].Substring(1, Lines[i].Length - 2).Trim();
 						switch (Section.ToLowerInvariant()) {
 								// panel
 							case "this":
-								i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+								i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 									int j = Lines[i].IndexOf('='); if (j >= 0) {
 										string Key = Lines[i].Substring(0, j).TrimEnd();
 										string Value = Lines[i].Substring(j + 1).TrimStart();
@@ -69,18 +69,28 @@ namespace OpenBve {
 												} break;
 											case "daytimeimage":
 												if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-												PanelDaytimeImage = Interface.GetCombinedFileName(TrainPath, Value);
-												if (!System.IO.File.Exists(PanelDaytimeImage)) {
-													Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + PanelDaytimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-													PanelDaytimeImage = null;
-												} break;
+												if (Interface.ContainsInvalidPathChars(Value)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+												} else {
+													PanelDaytimeImage = Interface.GetCombinedFileName(TrainPath, Value);
+													if (!System.IO.File.Exists(PanelDaytimeImage)) {
+														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + PanelDaytimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+														PanelDaytimeImage = null;
+													}
+												}
+												break;
 											case "nighttimeimage":
 												if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-												PanelNighttimeImage = Interface.GetCombinedFileName(TrainPath, Value);
-												if (!System.IO.File.Exists(PanelNighttimeImage)) {
-													Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + PanelNighttimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-													PanelNighttimeImage = null;
-												} break;
+												if (Interface.ContainsInvalidPathChars(Value)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+												} else {
+													PanelNighttimeImage = Interface.GetCombinedFileName(TrainPath, Value);
+													if (!System.IO.File.Exists(PanelNighttimeImage)) {
+														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + PanelNighttimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+														PanelNighttimeImage = null;
+													}
+												}
+												break;
 											case "transparentcolor":
 												if (Value.Length != 0 && !Interface.TryParseHexColor(Value, out PanelTransparentColor)) {
 													Interface.AddMessage(Interface.MessageType.Error, false, "HexColor is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
@@ -148,14 +158,14 @@ namespace OpenBve {
 					Interface.AddMessage(Interface.MessageType.Error, true, "The daytime panel bitmap could not be found in " + FileName);
 					PanelDaytimeImage = null;
 				} else {
-					int tday = TextureManager.RegisterTexture(PanelDaytimeImage, PanelTransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+					int tday = TextureManager.RegisterTexture(PanelDaytimeImage, PanelTransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 					int tnight = -1;
 					if (PanelNighttimeImage != null) {
 						if (!System.IO.File.Exists(PanelNighttimeImage)) {
 							Interface.AddMessage(Interface.MessageType.Error, true, "The nighttime panel bitmap could not be found in " + FileName);
 							PanelNighttimeImage = null;
 						} else {
-							tnight = TextureManager.RegisterTexture(PanelNighttimeImage, PanelTransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+							tnight = TextureManager.RegisterTexture(PanelNighttimeImage, PanelTransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 						}
 					}
 					TextureManager.UseTexture(tday, TextureManager.UseMode.QueryDimensions);
@@ -173,7 +183,7 @@ namespace OpenBve {
 					if (Loading.Cancel) return;
 				}
 				if (Lines[i].Length > 0) {
-					if (Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+					if (Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 						string Section = Lines[i].Substring(1, Lines[i].Length - 2).Trim();
 						switch (Section.ToLowerInvariant()) {
 								// pilotlamp
@@ -184,7 +194,7 @@ namespace OpenBve {
 									string DaytimeImage = null, NighttimeImage = null;
 									World.ColorRGB TransparentColor = new World.ColorRGB(0, 0, 255);
 									int Layer = 0;
-									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 										int j = Lines[i].IndexOf('=');
 										if (j >= 0) {
 											string Key = Lines[i].Substring(0, j).TrimEnd();
@@ -209,18 +219,28 @@ namespace OpenBve {
 													} break;
 												case "daytimeimage":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													DaytimeImage = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(DaytimeImage)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + DaytimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														DaytimeImage = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														DaytimeImage = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(DaytimeImage)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + DaytimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															DaytimeImage = null;
+														}
+													}
+													break;
 												case "nighttimeimage":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													NighttimeImage = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(NighttimeImage)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + NighttimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														NighttimeImage = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														NighttimeImage = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(NighttimeImage)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + NighttimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															NighttimeImage = null;
+														}
+													}
+													break;
 												case "transparentcolor":
 													if (Value.Length != 0 && !Interface.TryParseHexColor(Value, out TransparentColor)) {
 														Interface.AddMessage(Interface.MessageType.Error, false, "HexColor is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
@@ -237,10 +257,10 @@ namespace OpenBve {
 									}
 									// create element
 									if (DaytimeImage != null) {
-										int tday = TextureManager.RegisterTexture(DaytimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int tday = TextureManager.RegisterTexture(DaytimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										int tnight = -1;
 										if (NighttimeImage != null) {
-											tnight = TextureManager.RegisterTexture(NighttimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+											tnight = TextureManager.RegisterTexture(NighttimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										}
 										TextureManager.UseTexture(tday, TextureManager.UseMode.QueryDimensions);
 										int w = TextureManager.Textures[tday].ClipWidth;
@@ -264,7 +284,7 @@ namespace OpenBve {
 									double InitialAngle = -2.0943951023932, LastAngle = 2.0943951023932;
 									double Minimum = 0.0, Maximum = 1000.0;
 									double NaturalFrequency = -1.0, DampingRatio = -1.0;
-									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 										int j = Lines[i].IndexOf('=');
 										if (j >= 0) {
 											string Key = Lines[i].Substring(0, j).TrimEnd();
@@ -298,18 +318,28 @@ namespace OpenBve {
 													} break;
 												case "daytimeimage":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													DaytimeImage = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(DaytimeImage)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + DaytimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														DaytimeImage = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														DaytimeImage = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(DaytimeImage)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + DaytimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															DaytimeImage = null;
+														}
+													}
+													break;
 												case "nighttimeimage":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													NighttimeImage = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(NighttimeImage)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + NighttimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														NighttimeImage = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														NighttimeImage = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(NighttimeImage)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + NighttimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															NighttimeImage = null;
+														}
+													}
+													break;
 												case "color":
 													if (Value.Length != 0 && !Interface.TryParseHexColor(Value, out Color)) {
 														Interface.AddMessage(Interface.MessageType.Error, false, "HexColor is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
@@ -378,10 +408,10 @@ namespace OpenBve {
 									}
 									// create element
 									if (DaytimeImage != null) {
-										int tday = TextureManager.RegisterTexture(DaytimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+										int tday = TextureManager.RegisterTexture(DaytimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										int tnight = -1;
 										if (NighttimeImage != null) {
-											tnight = TextureManager.RegisterTexture(NighttimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, true);
+											tnight = TextureManager.RegisterTexture(NighttimeImage, TransparentColor, 1, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										}
 										TextureManager.UseTexture(tday, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[tday].ClipWidth;
@@ -433,7 +463,7 @@ namespace OpenBve {
 									string DaytimeImage = null, NighttimeImage = null;
 									World.ColorRGB TransparentColor = new World.ColorRGB(0, 0, 255);
 									double Layer = 0.0; int Interval = 0;
-									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 										int j = Lines[i].IndexOf('=');
 										if (j >= 0) {
 											string Key = Lines[i].Substring(0, j).TrimEnd();
@@ -458,18 +488,28 @@ namespace OpenBve {
 													} break;
 												case "daytimeimage":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													DaytimeImage = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(DaytimeImage)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + DaytimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														DaytimeImage = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														DaytimeImage = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(DaytimeImage)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + DaytimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															DaytimeImage = null;
+														}
+													}
+													break;
 												case "nighttimeimage":
 													if (!System.IO.Path.HasExtension(Value)) Value += ".bmp";
-													NighttimeImage = Interface.GetCombinedFileName(TrainPath, Value);
-													if (!System.IO.File.Exists(NighttimeImage)) {
-														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + NighttimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
-														NighttimeImage = null;
-													} break;
+													if (Interface.ContainsInvalidPathChars(Value)) {
+														Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+													} else {
+														NighttimeImage = Interface.GetCombinedFileName(TrainPath, Value);
+														if (!System.IO.File.Exists(NighttimeImage)) {
+															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + NighttimeImage + " could not be found in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+															NighttimeImage = null;
+														}
+													}
+													break;
 												case "transparentcolor":
 													if (Value.Length != 0 && !Interface.TryParseHexColor(Value, out TransparentColor)) {
 														Interface.AddMessage(Interface.MessageType.Error, false, "HexColor is invalid in " + Key + " in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
@@ -500,7 +540,7 @@ namespace OpenBve {
 										int[] tday = new int[nday];
 										int[] tnight;
 										for (int k = 0; k < nday; k++) {
-											tday[k] = TextureManager.RegisterTexture(DaytimeImage, TransparentColor, 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, true, 0, k * Interval, wday, Interval);
+											tday[k] = TextureManager.RegisterTexture(DaytimeImage, TransparentColor, 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true, 0, k * Interval, wday, Interval);
 											TextureManager.UseTexture(tday[k], TextureManager.UseMode.Normal);
 										}
 										if (NighttimeImage != null) {
@@ -509,7 +549,7 @@ namespace OpenBve {
 											if (nnight > nday) nnight = nday;
 											tnight = new int[nday];
 											for (int k = 0; k < nnight; k++) {
-												tnight[k] = TextureManager.RegisterTexture(NighttimeImage, TransparentColor, 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, true, 0, k * Interval, wday, Interval);
+												tnight[k] = TextureManager.RegisterTexture(NighttimeImage, TransparentColor, 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true, 0, k * Interval, wday, Interval);
 												TextureManager.UseTexture(tnight[k], TextureManager.UseMode.Normal);
 											}
 											for (int k = nnight; k < nday; k++) {
@@ -541,7 +581,7 @@ namespace OpenBve {
 									double InitialAngle = -2.0943951023932, LastAngle = 2.0943951023932;
 									double Minimum = 0.0, Maximum = 1000.0;
 									double Step = 0.0;
-									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 										int j = Lines[i].IndexOf('=');
 										if (j >= 0) {
 											string Key = Lines[i].Substring(0, j).TrimEnd();
@@ -673,7 +713,7 @@ namespace OpenBve {
 									double Width = 0.0, Height = 0.0;
 									World.ColorRGB TransparentColor = new World.ColorRGB(0, 0, 255);
 									double Layer = 0.0;
-									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase))) {
+									i++; while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 										int j = Lines[i].IndexOf('=');
 										if (j >= 0) {
 											string Key = Lines[i].Substring(0, j).TrimEnd();
@@ -753,16 +793,18 @@ namespace OpenBve {
 					if (a < 48 | a > 57) break;
 				}
 				if (i >= 0 & i < Subject.Length - 1) {
-					if (string.Equals(Subject.Substring(i, 1), "d", StringComparison.InvariantCultureIgnoreCase)) {
+					if (Subject[i] == 'd' | Subject[i] == 'D') {
 						int n;
 						if (int.TryParse(Subject.Substring(i + 1), System.Globalization.NumberStyles.Integer, Culture, out n)) {
 							if (n == 0) {
 								Suffix = " floor 10 mod";
 							} else {
-								string t = Math.Pow(10.0, (double)-n).ToString(Culture);
-								Suffix = " " + t + " * floor 10 mod";
+								string t0 = Math.Pow(10.0, (double)n).ToString(Culture);
+								string t1 = Math.Pow(10.0, (double)-n).ToString(Culture);
+								Suffix = " ~ " + t0 + " >= <> " + t1 + " * floor 10 mod 10 ?";
 							}
 							Subject = Subject.Substring(0, i);
+							i--;
 						}
 					}
 				}

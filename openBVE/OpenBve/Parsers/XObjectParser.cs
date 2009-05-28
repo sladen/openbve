@@ -258,7 +258,7 @@ namespace OpenBve {
 							}
 						} Position++;
 					} m--;
-				} else if (Template.Members[m].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+				} else if (Template.Members[m].EndsWith("]", StringComparison.Ordinal)) {
 					// inlined array expected
 					string r = Template.Members[m].Substring(0, Template.Members[m].Length - 1);
 					int h = r.IndexOf('[');
@@ -756,7 +756,7 @@ namespace OpenBve {
 							Interface.AddMessage(Interface.MessageType.Error, false, "TOKEN_NAME or TOKEN_CBRACE expected at position 0x" + Reader.BaseStream.Position.ToString("X", Culture) + " in binary X object file " + FileName);
 							return false;
 					} m--;
-				} else if (Template.Members[m].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+				} else if (Template.Members[m].EndsWith("]", StringComparison.Ordinal)) {
 					// inlined array expected
 					string r = Template.Members[m].Substring(0, Template.Members[m].Length - 1);
 					int h = r.IndexOf('[');
@@ -1362,11 +1362,15 @@ namespace OpenBve {
 																		return false;
 																	}
 																	string filename = (string)e.Data[0];
-																	string File = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), filename);
-																	if (System.IO.File.Exists(File)) {
-																		Materials[MaterialIndex].TextureFilename = File;
+																	if (Interface.ContainsInvalidPathChars(filename)) {
+																		Interface.AddMessage(Interface.MessageType.Error, false, "filename contains illegal characters in TextureFilename in Material in MeshMaterialList in Mesh in x object file " + FileName);
 																	} else {
-																		Interface.AddMessage(Interface.MessageType.Error, true, "The texture file " + File + " could not be found in TextureFilename in Material in MeshMaterialList in Mesh in x object file " + FileName);
+																		string File = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), filename);
+																		if (System.IO.File.Exists(File)) {
+																			Materials[MaterialIndex].TextureFilename = File;
+																		} else {
+																			Interface.AddMessage(Interface.MessageType.Error, true, "The texture file " + File + " could not be found in TextureFilename in Material in MeshMaterialList in Mesh in x object file " + FileName);
+																		}
 																	}
 																} break;
 															default:
@@ -1559,21 +1563,25 @@ namespace OpenBve {
 								bool emissive = Materials[j].emissiveColor.R != 0 | Materials[j].emissiveColor.G != 0 | Materials[j].emissiveColor.B != 0;
 								bool transparent;
 								if (Materials[j].TextureFilename != null) {
-									TextureManager.TextureWrapMode Wrap;
+									TextureManager.TextureWrapMode WrapX, WrapY;
 									if (ForceTextureRepeat) {
-										Wrap = TextureManager.TextureWrapMode.Repeat;
+										WrapX = TextureManager.TextureWrapMode.Repeat;
+										WrapY = TextureManager.TextureWrapMode.Repeat;
 									} else {
-										Wrap = TextureManager.TextureWrapMode.ClampToEdge;
+										WrapX = TextureManager.TextureWrapMode.ClampToEdge;
+										WrapY = TextureManager.TextureWrapMode.ClampToEdge;
 										for (int k = 0; k < nFaces; k++) {
-											int h; for (h = 0; h < Faces[k].Length; h++) {
-												if (Vertices[Faces[k][h]].TextureCoordinates.X < 0.0 | Vertices[Faces[k][h]].TextureCoordinates.X > 1.0 | Vertices[Faces[k][h]].TextureCoordinates.Y < 0.0 | Vertices[Faces[k][h]].TextureCoordinates.Y > 1.0) {
-													Wrap = TextureManager.TextureWrapMode.Repeat;
-													break;
+											for (int h = 0; h < Faces[k].Length; h++) {
+												if (Vertices[Faces[k][h]].TextureCoordinates.X < 0.0 | Vertices[Faces[k][h]].TextureCoordinates.X > 1.0) {
+													WrapX = TextureManager.TextureWrapMode.Repeat;
 												}
-											} if (h < Faces[k].Length) break;
+												if (Vertices[Faces[k][h]].TextureCoordinates.Y < 0.0 | Vertices[Faces[k][h]].TextureCoordinates.Y > 1.0) {
+													WrapY = TextureManager.TextureWrapMode.Repeat;
+												}
+											}
 										}
 									}
-									int tday = TextureManager.RegisterTexture(Materials[j].TextureFilename, new World.ColorRGB(0, 0, 0), 1, TextureManager.TextureLoadMode.Normal, Wrap, LoadMode != ObjectManager.ObjectLoadMode.Normal, 0, 0, 0, 0);
+									int tday = TextureManager.RegisterTexture(Materials[j].TextureFilename, new World.ColorRGB(0, 0, 0), 1, TextureManager.TextureLoadMode.Normal, WrapX, WrapY, LoadMode != ObjectManager.ObjectLoadMode.Normal, 0, 0, 0, 0);
 									if (LoadMode == ObjectManager.ObjectLoadMode.PreloadTextures) {
 										TextureManager.UseTexture(tday, TextureManager.UseMode.Normal);
 									}

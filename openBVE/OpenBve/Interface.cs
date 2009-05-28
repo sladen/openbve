@@ -123,7 +123,6 @@ namespace OpenBve {
 			internal Renderer.TransparencyMode TransparencyMode;
 			internal int AnisotropicFilteringLevel;
 			internal int AnisotropicFilteringMaximum;
-			internal bool AlternativeLighting;
 			internal int ViewingDistance;
 			internal MotionBlurMode MotionBlur;
 			internal bool Toppling;
@@ -159,7 +158,6 @@ namespace OpenBve {
 				this.TransparencyMode = Renderer.TransparencyMode.Sharp;
 				this.AnisotropicFilteringLevel = 0;
 				this.AnisotropicFilteringMaximum = 0;
-				this.AlternativeLighting = false;
 				this.ViewingDistance = 600;
 				this.MotionBlur = MotionBlurMode.None;
 				this.Toppling = true;
@@ -196,7 +194,7 @@ namespace OpenBve {
 				for (int i = 0; i < Lines.Length; i++) {
 					Lines[i] = Lines[i].Trim();
 					if (Lines[i].Length != 0 && !Lines[i].StartsWith(";", StringComparison.OrdinalIgnoreCase)) {
-						if (Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+						if (Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 							Section = Lines[i].Substring(1, Lines[i].Length - 2).Trim().ToLowerInvariant();
 						} else {
 							int j = Lines[i].IndexOf("=", StringComparison.OrdinalIgnoreCase);
@@ -274,13 +272,9 @@ namespace OpenBve {
 											} break;
 										case "transparencymode":
 											switch (Value.ToLowerInvariant()) {
-													case "sharp": Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Sharp; break;
 													case "smooth": Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Smooth; break;
 													default: Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Sharp; break;
 											} break;
-										case "alternativelighting":
-											Interface.CurrentOptions.AlternativeLighting = string.Compare(Value, "false", StringComparison.OrdinalIgnoreCase) != 0;
-											break;
 										case "viewingdistance":
 											{
 												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
@@ -409,16 +403,17 @@ namespace OpenBve {
 				if (System.IO.File.Exists(File)) {
 					CurrentOptions.LanguageCode = Code;
 				} else {
-					int i = Code.IndexOf("-", StringComparison.Ordinal);
-					if (i > 0) {
-						Code = Code.Substring(0, i);
-						try {
-						Console.Error.WriteLine("GetCorrectedFileName(\"" + Code + ".cfg\");");
-						File = GetCorrectedFileName(Code + ".cfg");
-						if (System.IO.File.Exists(File)) {
-							CurrentOptions.LanguageCode = Code;
+					try {
+						int i = Code.IndexOf("-", StringComparison.Ordinal);
+						if (i > 0) {
+							Code = Code.Substring(0, i);
+							File = GetCombinedFileName(GetDataFolder("Languages"), Code + ".cfg");
+							if (System.IO.File.Exists(File)) {
+								CurrentOptions.LanguageCode = Code;
+							}
 						}
-						} catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
+					} catch {
+						CurrentOptions.LanguageCode = "en-US";
 					}
 				}
 			}
@@ -461,13 +456,11 @@ namespace OpenBve {
 			Builder.AppendLine("anisotropicfilteringmaximum = " + CurrentOptions.AnisotropicFilteringMaximum.ToString(Culture));
 			{
 				string t; switch (CurrentOptions.TransparencyMode) {
-						case Renderer.TransparencyMode.Sharp: t = "sharp"; break;
 						case Renderer.TransparencyMode.Smooth: t = "smooth"; break;
 						default: t = "sharp"; break;
 				}
 				Builder.AppendLine("transparencymode = " + t);
 			}
-			Builder.AppendLine("alternativelighting = " + (CurrentOptions.AlternativeLighting ? "true" : "false"));
 			Builder.AppendLine("viewingdistance = " + CurrentOptions.ViewingDistance.ToString(Culture));
 			{
 				string t; switch (CurrentOptions.MotionBlur) {
@@ -1081,7 +1074,7 @@ namespace OpenBve {
 			for (int i = 0; i < Lines.Length; i++) {
 				Lines[i] = Lines[i].Trim();
 				if (!Lines[i].StartsWith(";")) {
-					if (Lines[i].StartsWith("[", StringComparison.OrdinalIgnoreCase) & Lines[i].EndsWith("]", StringComparison.OrdinalIgnoreCase)) {
+					if (Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal)) {
 						Section = Lines[i].Substring(1, Lines[i].Length - 2).Trim().ToLowerInvariant();
 					} else {
 						int j = Lines[i].IndexOf('=');
@@ -1160,7 +1153,8 @@ namespace OpenBve {
 			CameraRotateLeft, CameraRotateRight, CameraRotateUp, CameraRotateDown, CameraRotateCCW, CameraRotateCW,
 			CameraZoomIn, CameraZoomOut, CameraPreviousPOI, CameraNextPOI, CameraReset, CameraRestriction,
 			TimetableToggle, TimetableUp, TimetableDown,
-			MiscClock, MiscSpeed, MiscFps, MiscAI, MiscInterfaceMode, MiscBackfaceCulling, MiscCPUMode, MiscPause, MiscFullscreen, MiscQuit,
+			MiscClock, MiscSpeed, MiscFps, MiscAI, MiscInterfaceMode, MiscBackfaceCulling, MiscCPUMode,
+			MiscTimeFactor, MiscPause, MiscMute, MiscFullscreen, MiscQuit,
 			MenuActivate, MenuUp, MenuDown, MenuEnter, MenuBack,
 			DebugWireframe, DebugNormals, DebugBrakeSystems
 		}
@@ -1439,7 +1433,9 @@ namespace OpenBve {
 			new CommandInfo(Command.MiscFps, CommandType.Digital, "MISC_FPS"),
 			new CommandInfo(Command.MiscAI, CommandType.Digital, "MISC_AI"),
 			new CommandInfo(Command.MiscFullscreen, CommandType.Digital, "MISC_FULLSCREEN"),
+			new CommandInfo(Command.MiscMute, CommandType.Digital, "MISC_MUTE"),
 			new CommandInfo(Command.MiscPause, CommandType.Digital, "MISC_PAUSE"),
+			new CommandInfo(Command.MiscTimeFactor, CommandType.Digital, "MISC_TIMEFACTOR"),
 			new CommandInfo(Command.MiscQuit, CommandType.Digital, "MISC_QUIT"),
 			new CommandInfo(Command.MiscInterfaceMode, CommandType.Digital, "MISC_INTERFACE"),
 			new CommandInfo(Command.MiscBackfaceCulling, CommandType.Digital, "MISC_BACKFACE"),
@@ -1824,10 +1820,10 @@ namespace OpenBve {
 										case "topleft":
 											if (Arguments.Length == 2) {
 												if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].TopLeft.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].TopLeft.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 												if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].TopLeft.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].TopLeft.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 											} else {
 												System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + File);
@@ -1835,10 +1831,10 @@ namespace OpenBve {
 										case "topmiddle":
 											if (Arguments.Length == 2) {
 												if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].TopMiddle.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].TopMiddle.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 												if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].TopMiddle.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].TopMiddle.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 											} else {
 												System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + File);
@@ -1846,10 +1842,10 @@ namespace OpenBve {
 										case "topright":
 											if (Arguments.Length == 2) {
 												if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].TopRight.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].TopRight.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 												if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].TopRight.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].TopRight.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 											} else {
 												System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + File);
@@ -1857,10 +1853,10 @@ namespace OpenBve {
 										case "centerleft":
 											if (Arguments.Length == 2) {
 												if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].CenterLeft.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].CenterLeft.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 												if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].CenterLeft.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].CenterLeft.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 											} else {
 												System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + File);
@@ -1868,10 +1864,10 @@ namespace OpenBve {
 										case "centermiddle":
 											if (Arguments.Length == 2) {
 												if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].CenterMiddle.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].CenterMiddle.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 												if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].CenterMiddle.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].CenterMiddle.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 											} else {
 												System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + File);
@@ -1879,10 +1875,10 @@ namespace OpenBve {
 										case "centerright":
 											if (Arguments.Length == 2) {
 												if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].CenterRight.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].CenterRight.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 												if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].CenterRight.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].CenterRight.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 											} else {
 												System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + File);
@@ -1890,10 +1886,10 @@ namespace OpenBve {
 										case "bottomleft":
 											if (Arguments.Length == 2) {
 												if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].BottomLeft.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].BottomLeft.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 												if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].BottomLeft.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].BottomLeft.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 											} else {
 												System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + File);
@@ -1901,10 +1897,10 @@ namespace OpenBve {
 										case "bottommiddle":
 											if (Arguments.Length == 2) {
 												if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].BottomMiddle.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].BottomMiddle.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 												if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].BottomMiddle.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].BottomMiddle.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 											} else {
 												System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + File);
@@ -1912,10 +1908,10 @@ namespace OpenBve {
 										case "bottomright":
 											if (Arguments.Length == 2) {
 												if (Arguments[0].Length != 0 & !Arguments[0].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].BottomRight.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].BottomRight.BackgroundTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[0]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 												if (Arguments[1].Length != 0 & !Arguments[1].Equals("null", StringComparison.OrdinalIgnoreCase)) {
-													CurrentHudElements[Length - 1].BottomRight.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, true);
+													CurrentHudElements[Length - 1].BottomRight.OverlayTextureIndex = TextureManager.RegisterTexture(GetCombinedFileName(Folder, Arguments[1]), TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												}
 											} else {
 												System.Windows.Forms.MessageBox.Show("Incorrect number of arguments supplied in " + Command + " at line " + (i + 1).ToString(Culture) + " in " + File);
@@ -2171,21 +2167,6 @@ namespace OpenBve {
 				if (double.TryParse(Expression.Substring(0, n), NumberStyles.Float, Culture, out a)) {
 					if (a >= -2147483648.0 & a <= 2147483647.0) {
 						Value = (int)Math.Round(a);
-						return true;
-					} else break;
-				}
-			}
-			Value = 0;
-			return false;
-		}
-		internal static bool TryParseByteVb6(string Expression, out byte Value) {
-			Expression = TrimInside(Expression);
-			CultureInfo Culture = CultureInfo.InvariantCulture;
-			for (int n = Expression.Length; n > 0; n--) {
-				double a;
-				if (double.TryParse(Expression.Substring(0, n), NumberStyles.Float, Culture, out a)) {
-					if (a >= 0.0 & a <= 255.0) {
-						Value = (byte)Math.Round(a);
 						return true;
 					} else break;
 				}
@@ -2501,10 +2482,12 @@ namespace OpenBve {
 			}
 		}
 
-		// get corected folder and file names
+		// get corected folder name
 		internal static string GetCorrectedFolderName(string Folder) {
-			if (Program.CurrentPlatform == Program.Platform.Linux) {
-				/// find folder case-insensitively
+			if (Folder.Length == 0) {
+				return "";
+			} else if (Program.CurrentPlatform == Program.Platform.Linux) {
+				// find folder case-insensitively
 				if (System.IO.Directory.Exists(Folder)) {
 					return Folder;
 				} else {
@@ -2528,9 +2511,13 @@ namespace OpenBve {
 				return Folder;
 			}
 		}
+		
+		// get corrected file name
 		internal static string GetCorrectedFileName(string File) {
-			if (Program.CurrentPlatform == Program.Platform.Linux) {
-				/// find file case-insensitively
+			if (File.Length == 0) {
+				return "";
+			} else if (Program.CurrentPlatform == Program.Platform.Linux) {
+				// find file case-insensitively
 				if (System.IO.File.Exists(File)) {
 					return File;
 				} else {
@@ -2559,9 +2546,28 @@ namespace OpenBve {
 		internal static string GetCombinedFileName(string SafeFolderPart, string UnsafeFilePart) {
 			return GetCorrectedFileName(System.IO.Path.Combine(SafeFolderPart, GetCorrectedPathSeparation(UnsafeFilePart)));
 		}
+		
 		// get combined folder name
 		internal static string GetCombinedFolderName(string SafeFolderPart, string UnsafeFolderPart) {
 			return GetCorrectedFolderName(System.IO.Path.Combine(SafeFolderPart, GetCorrectedPathSeparation(UnsafeFolderPart)));
+		}
+		
+		// contains invalid path characters
+		internal static bool ContainsInvalidPathChars(string Expression) {
+			char[] a = System.IO.Path.GetInvalidFileNameChars();
+			char[] b = System.IO.Path.GetInvalidPathChars();
+			for (int i = 0; i < Expression.Length; i++) {
+				for (int j = 0; j < a.Length; j++) {
+					if (Expression[i] == a[j]) {
+						for (int k = 0; k < b.Length; k++) {
+							if (Expression[i] == b[k]) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+			return false;
 		}
 
 	}

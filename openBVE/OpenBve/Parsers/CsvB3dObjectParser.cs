@@ -346,28 +346,40 @@ namespace OpenBve {
 								if (Arguments.Length > 4) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 4 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
-								byte r = 0, g = 0, b = 0, a = 255;
-								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseByteVb6(Arguments[0], out r)) {
+								int r = 0, g = 0, b = 0, a = 255;
+								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseIntVb6(Arguments[0], out r)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Red in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									r = 0;
+								} else if (r < 0 | r > 255) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Red is required to be within the range from 0 to 255 in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									r = r < 0 ? 0 : 255;
 								}
-								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseByteVb6(Arguments[1], out g)) {
+								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out g)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Green in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									g = 0;
+								} else if (g < 0 | g > 255) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Green is required to be within the range from 0 to 255 in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									g = g < 0 ? 0 : 255;
 								}
-								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out b)) {
+								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out b)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Blue in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									b = 0;
+								} else if (b < 0 | b > 255) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Blue is required to be within the range from 0 to 255 in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									b = b < 0 ? 0 : 255;
 								}
-								if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseByteVb6(Arguments[3], out a)) {
+								if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseIntVb6(Arguments[3], out a)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Alpha in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									a = 255;
+								} else if (a < 0 | a > 255) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Alpha is required to be within the range from 0 to 255 in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									a = a < 0 ? 0 : 255;
 								}
 								int m = Builder.Materials.Length;
 								Array.Resize<Material>(ref Builder.Materials, m << 1);
 								for (int j = m; j < Builder.Materials.Length; j++) {
 									Builder.Materials[j] = new Material(Builder.Materials[j - m]);
-									Builder.Materials[j].Color = new World.ColorRGBA(r, g, b, a);
+									Builder.Materials[j].Color = new World.ColorRGBA((byte)r, (byte)g, (byte)b, (byte)a);
 									Builder.Materials[j].BlendMode = Builder.Materials[0].BlendMode;
 									Builder.Materials[j].GlowAttenuationData = Builder.Materials[0].GlowAttenuationData;
 									Builder.Materials[j].DaytimeTexture = Builder.Materials[0].DaytimeTexture;
@@ -385,24 +397,33 @@ namespace OpenBve {
 								if (Arguments.Length > 3) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 3 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
-								byte r = 0, g = 0, b = 0;
-								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseByteVb6(Arguments[0], out r)) {
+								int r = 0, g = 0, b = 0;
+								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseIntVb6(Arguments[0], out r)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Red in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									r = 0;
+								} else if (r < 0 | r > 255) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Red is required to be within the range from 0 to 255 in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									r = r < 0 ? 0 : 255;
 								}
-								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseByteVb6(Arguments[1], out g)) {
+								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out g)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Green in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									g = 0;
+								} else if (g < 0 | g > 255) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Green is required to be within the range from 0 to 255 in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									g = g < 0 ? 0 : 255;
 								}
-								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out b)) {
+								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out b)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Blue in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									b = 0;
+								} else if (b < 0 | b > 255) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Blue is required to be within the range from 0 to 255 in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									b = b < 0 ? 0 : 255;
 								}
 								int m = Builder.Materials.Length;
 								Array.Resize<Material>(ref Builder.Materials, m << 1);
 								for (int j = m; j < Builder.Materials.Length; j++) {
 									Builder.Materials[j] = new Material(Builder.Materials[j - m]);
-									Builder.Materials[j].EmissiveColor = new World.ColorRGB(r, g, b);
+									Builder.Materials[j].EmissiveColor = new World.ColorRGB((byte)r, (byte)g, (byte)b);
 									Builder.Materials[j].EmissiveColorUsed = true;
 									Builder.Materials[j].BlendMode = Builder.Materials[0].BlendMode;
 									Builder.Materials[j].GlowAttenuationData = Builder.Materials[0].GlowAttenuationData;
@@ -421,21 +442,30 @@ namespace OpenBve {
 								if (Arguments.Length > 3) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 3 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
-								byte r = 0, g = 0, b = 0;
-								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseByteVb6(Arguments[0], out r)) {
+								int r = 0, g = 0, b = 0;
+								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseIntVb6(Arguments[0], out r)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Red in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									r = 0;
+								} else if (r < 0 | r > 255) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Red is required to be within the range from 0 to 255 in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									r = r < 0 ? 0 : 255;
 								}
-								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseByteVb6(Arguments[1], out g)) {
+								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out g)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Green in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									g = 0;
+								} else if (g < 0 | g > 255) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Green is required to be within the range from 0 to 255 in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									g = g < 0 ? 0 : 255;
 								}
-								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseByteVb6(Arguments[2], out b)) {
+								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out b)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Blue in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									b = 0;
+								} else if (b < 0 | b > 255) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Blue is required to be within the range from 0 to 255 in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									b = b < 0 ? 0 : 255;
 								}
 								for (int j = 0; j < Builder.Materials.Length; j++) {
-									Builder.Materials[j].TransparentColor = new World.ColorRGB(r, g, b);
+									Builder.Materials[j].TransparentColor = new World.ColorRGB((byte)r, (byte)g, (byte)b);
 									Builder.Materials[j].TransparentColorUsed = true;
 								}
 							} break;
@@ -484,20 +514,28 @@ namespace OpenBve {
 								}
 								string tday = null, tnight = null;
 								if (Arguments.Length >= 1 && Arguments[0].Length != 0) {
-									tday = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), Arguments[0]);
-									if (!System.IO.File.Exists(tday)) {
-										Interface.AddMessage(Interface.MessageType.Error, true, "The DaytimeTexture " + tday + " could not be found in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-										tday = null;
+									if (Interface.ContainsInvalidPathChars(Arguments[0])) {
+										Interface.AddMessage(Interface.MessageType.Error, false, "DaytimeTexture contains illegal characters in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									} else {
+										tday = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), Arguments[0]);
+										if (!System.IO.File.Exists(tday)) {
+											Interface.AddMessage(Interface.MessageType.Error, true, "DaytimeTexture " + tday + " could not be found in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+											tday = null;
+										}
 									}
 								}
 								if (Arguments.Length >= 2 && Arguments[1].Length != 0) {
 									if (Arguments[0].Length == 0) {
 										Interface.AddMessage(Interface.MessageType.Error, true, "DaytimeTexture is required to be specified in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									} else {
-										tnight = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), Arguments[1]);
-										if (!System.IO.File.Exists(tnight)) {
-											Interface.AddMessage(Interface.MessageType.Error, true, "The NighttimeTexture " + tnight + " could not be found in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-											tnight = null;
+										if (Interface.ContainsInvalidPathChars(Arguments[1])) {
+											Interface.AddMessage(Interface.MessageType.Error, false, "NighttimeTexture contains illegal characters in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+										} else {
+											tnight = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), Arguments[1]);
+											if (!System.IO.File.Exists(tnight)) {
+												Interface.AddMessage(Interface.MessageType.Error, true, "The NighttimeTexture " + tnight + " could not be found in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+												tnight = null;
+											}
 										}
 									}
 								}
@@ -772,20 +810,24 @@ namespace OpenBve {
 					Object.Mesh.Materials[mm + i].Flags = (byte)((Builder.Materials[i].EmissiveColorUsed ? World.MeshMaterial.EmissiveColorMask : 0) | (Builder.Materials[i].TransparentColorUsed ? World.MeshMaterial.TransparentColorMask : 0));
 					Object.Mesh.Materials[mm + i].Color = Builder.Materials[i].Color;
 					Object.Mesh.Materials[mm + i].TransparentColor = Builder.Materials[i].TransparentColor;
-					TextureManager.TextureWrapMode Wrap;
+					TextureManager.TextureWrapMode WrapX, WrapY;
 					if (ForceTextureRepeat) {
-						Wrap = TextureManager.TextureWrapMode.Repeat;
+						WrapX = TextureManager.TextureWrapMode.Repeat;
+						WrapY = TextureManager.TextureWrapMode.Repeat;
 					} else {
-						Wrap = TextureManager.TextureWrapMode.ClampToEdge;
+						WrapX = TextureManager.TextureWrapMode.ClampToEdge;
+						WrapY = TextureManager.TextureWrapMode.ClampToEdge;
 						for (int j = 0; j < Builder.Vertices.Length; j++) {
-							if (Builder.Vertices[j].TextureCoordinates.X < 0.0 | Builder.Vertices[j].TextureCoordinates.X > 1.0 | Builder.Vertices[j].TextureCoordinates.Y < 0.0 | Builder.Vertices[j].TextureCoordinates.Y > 1.0) {
-								Wrap = TextureManager.TextureWrapMode.Repeat;
-								break;
+							if (Builder.Vertices[j].TextureCoordinates.X < 0.0 | Builder.Vertices[j].TextureCoordinates.X > 1.0) {
+								WrapX = TextureManager.TextureWrapMode.Repeat;
+							}
+							if (Builder.Vertices[j].TextureCoordinates.Y < 0.0 | Builder.Vertices[j].TextureCoordinates.Y > 1.0) {
+								WrapY = TextureManager.TextureWrapMode.Repeat;
 							}
 						}
 					}
 					if (Builder.Materials[i].DaytimeTexture != null) {
-						int tday = TextureManager.RegisterTexture(Builder.Materials[i].DaytimeTexture, Builder.Materials[i].TransparentColor, Builder.Materials[i].TransparentColorUsed ? (byte)1 : (byte)0, Wrap, LoadMode != ObjectManager.ObjectLoadMode.Normal);
+						int tday = TextureManager.RegisterTexture(Builder.Materials[i].DaytimeTexture, Builder.Materials[i].TransparentColor, Builder.Materials[i].TransparentColorUsed ? (byte)1 : (byte)0, WrapX, WrapY, LoadMode != ObjectManager.ObjectLoadMode.Normal);
 						if (LoadMode == ObjectManager.ObjectLoadMode.PreloadTextures) {
 							TextureManager.UseTexture(tday, TextureManager.UseMode.Normal);
 						}
@@ -795,7 +837,7 @@ namespace OpenBve {
 					}
 					Object.Mesh.Materials[mm + i].EmissiveColor = Builder.Materials[i].EmissiveColor;
 					if (Builder.Materials[i].NighttimeTexture != null) {
-						int tnight = TextureManager.RegisterTexture(Builder.Materials[i].NighttimeTexture, Builder.Materials[i].TransparentColor, Builder.Materials[i].TransparentColorUsed ? (byte)1 : (byte)0, Wrap, LoadMode != ObjectManager.ObjectLoadMode.Normal);
+						int tnight = TextureManager.RegisterTexture(Builder.Materials[i].NighttimeTexture, Builder.Materials[i].TransparentColor, Builder.Materials[i].TransparentColorUsed ? (byte)1 : (byte)0, WrapX, WrapY, LoadMode != ObjectManager.ObjectLoadMode.Normal);
 						if (LoadMode == ObjectManager.ObjectLoadMode.PreloadTextures) {
 							TextureManager.UseTexture(tnight, TextureManager.UseMode.Normal);
 						}

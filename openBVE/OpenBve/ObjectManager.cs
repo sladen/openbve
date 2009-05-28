@@ -155,7 +155,7 @@ namespace OpenBve {
 			int i = Object.ObjectIndex;
 			Renderer.HideObject(i);
 			int t = StateIndex;
-			if (t >= 0) {
+			if (t >= 0 && Object.States[t].Object != null) {
 				int m = Object.States[t].Object.Mesh.Vertices.Length;
 				ObjectManager.Objects[i].Mesh.Vertices = new World.Vertex[m];
 				for (int k = 0; k < m; k++) {
@@ -321,6 +321,10 @@ namespace OpenBve {
 			} else {
 				ledangle = 0.0;
 			}
+			// null object
+			if (Object.States[s].Object == null) {
+				return;
+			}
 			// initialize vertices
 			for (int k = 0; k < Object.States[s].Object.Mesh.Vertices.Length; k++) {
 				ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates = Object.States[s].Object.Mesh.Vertices[k].Coordinates;
@@ -477,9 +481,9 @@ namespace OpenBve {
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Y += Object.States[s].Position.Y - Position.Y;
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Z += Object.States[s].Position.Z - Position.Z;
 					World.Rotate(ref ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.X, ref ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Y, ref ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Z, World.AbsoluteCameraDirection.X, World.AbsoluteCameraDirection.Y, World.AbsoluteCameraDirection.Z, World.AbsoluteCameraUp.X, World.AbsoluteCameraUp.Y, World.AbsoluteCameraUp.Z, World.AbsoluteCameraSide.X, World.AbsoluteCameraSide.Y, World.AbsoluteCameraSide.Z);
-					double dx = -Math.Tan(World.CameraCurrentAlignment.Yaw) - World.CameraCurrentAlignment.TrackOffset.X;
-					double dy = -Math.Tan(World.CameraCurrentAlignment.Pitch) - World.CameraCurrentAlignment.TrackOffset.Y;
-					double dz = -World.CameraCurrentAlignment.TrackOffset.Z;
+					double dx = -Math.Tan(World.CameraCurrentAlignment.Yaw) - World.CameraCurrentAlignment.Position.X;
+					double dy = -Math.Tan(World.CameraCurrentAlignment.Pitch) - World.CameraCurrentAlignment.Position.Y;
+					double dz = -World.CameraCurrentAlignment.Position.Z;
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.X += World.AbsoluteCameraPosition.X + dx * World.AbsoluteCameraSide.X + dy * World.AbsoluteCameraUp.X + dz * World.AbsoluteCameraDirection.X;
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Y += World.AbsoluteCameraPosition.Y + dx * World.AbsoluteCameraSide.Y + dy * World.AbsoluteCameraUp.Y + dz * World.AbsoluteCameraDirection.Y;
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Z += World.AbsoluteCameraPosition.Z + dx * World.AbsoluteCameraSide.Z + dy * World.AbsoluteCameraUp.Z + dz * World.AbsoluteCameraDirection.Z;
@@ -665,8 +669,17 @@ namespace OpenBve {
 			AnimatedWorldObjects[a].Object.ObjectIndex = CreateDynamicObject();
 			AnimatedWorldObjects[a].SectionIndex = SectionIndex;
 			AnimatedWorldObjects[a].TrackPosition = TrackPosition;
+			for (int i = 0; i < AnimatedWorldObjects[a].Object.States.Length; i++) {
+				if (AnimatedWorldObjects[a].Object.States[i].Object == null) {
+					AnimatedWorldObjects[a].Object.States[i].Object = new StaticObject();
+					AnimatedWorldObjects[a].Object.States[i].Object.Mesh.Faces = new World.MeshFace[] { };
+					AnimatedWorldObjects[a].Object.States[i].Object.Mesh.Materials = new World.MeshMaterial[] { };
+					AnimatedWorldObjects[a].Object.States[i].Object.Mesh.Vertices = new World.Vertex[] { };
+					AnimatedWorldObjects[a].Object.States[i].Object.RendererIndex = -1;
+				}
+			}
 			double r = 0.0;
-			for (int i = 0; i < Prototype.States.Length; i++) {
+			for (int i = 0; i < AnimatedWorldObjects[a].Object.States.Length; i++) {
 				for (int j = 0; j < AnimatedWorldObjects[a].Object.States[i].Object.Mesh.Materials.Length; j++) {
 					AnimatedWorldObjects[a].Object.States[i].Object.Mesh.Materials[j].Color.R = (byte)Math.Round((double)Prototype.States[i].Object.Mesh.Materials[j].Color.R * Brightness);
 					AnimatedWorldObjects[a].Object.States[i].Object.Mesh.Materials[j].Color.G = (byte)Math.Round((double)Prototype.States[i].Object.Mesh.Materials[j].Color.G * Brightness);
@@ -926,25 +939,31 @@ namespace OpenBve {
 		}
 
 		// join objects
-		internal static void JoinObjects(StaticObject Base, StaticObject Add) {
-			int mf = Base.Mesh.Faces.Length;
-			int mm = Base.Mesh.Materials.Length;
-			int mv = Base.Mesh.Vertices.Length;
-			Array.Resize<World.MeshFace>(ref Base.Mesh.Faces, mf + Add.Mesh.Faces.Length);
-			Array.Resize<World.MeshMaterial>(ref Base.Mesh.Materials, mm + Add.Mesh.Materials.Length);
-			Array.Resize<World.Vertex>(ref Base.Mesh.Vertices, mv + Add.Mesh.Vertices.Length);
-			for (int i = 0; i < Add.Mesh.Faces.Length; i++) {
-				Base.Mesh.Faces[mf + i] = Add.Mesh.Faces[i];
-				for (int j = 0; j < Base.Mesh.Faces[mf + i].Vertices.Length; j++) {
-					Base.Mesh.Faces[mf + i].Vertices[j].Index += (ushort)mv;
+		internal static void JoinObjects(ref StaticObject Base, StaticObject Add) {
+			if (Base == null & Add == null) {
+				return;
+			} else if (Base == null) {
+				Base = CloneObject(Add);
+			} else if (Add != null) {
+				int mf = Base.Mesh.Faces.Length;
+				int mm = Base.Mesh.Materials.Length;
+				int mv = Base.Mesh.Vertices.Length;
+				Array.Resize<World.MeshFace>(ref Base.Mesh.Faces, mf + Add.Mesh.Faces.Length);
+				Array.Resize<World.MeshMaterial>(ref Base.Mesh.Materials, mm + Add.Mesh.Materials.Length);
+				Array.Resize<World.Vertex>(ref Base.Mesh.Vertices, mv + Add.Mesh.Vertices.Length);
+				for (int i = 0; i < Add.Mesh.Faces.Length; i++) {
+					Base.Mesh.Faces[mf + i] = Add.Mesh.Faces[i];
+					for (int j = 0; j < Base.Mesh.Faces[mf + i].Vertices.Length; j++) {
+						Base.Mesh.Faces[mf + i].Vertices[j].Index += (ushort)mv;
+					}
+					Base.Mesh.Faces[mf + i].Material += (ushort)mm;
 				}
-				Base.Mesh.Faces[mf + i].Material += (ushort)mm;
-			}
-			for (int i = 0; i < Add.Mesh.Materials.Length; i++) {
-				Base.Mesh.Materials[mm + i] = Add.Mesh.Materials[i];
-			}
-			for (int i = 0; i < Add.Mesh.Vertices.Length; i++) {
-				Base.Mesh.Vertices[mv + i] = Add.Mesh.Vertices[i];
+				for (int i = 0; i < Add.Mesh.Materials.Length; i++) {
+					Base.Mesh.Materials[mm + i] = Add.Mesh.Materials[i];
+				}
+				for (int i = 0; i < Add.Mesh.Vertices.Length; i++) {
+					Base.Mesh.Vertices[mv + i] = Add.Mesh.Vertices[i];
+				}
 			}
 		}
 
@@ -1121,7 +1140,7 @@ namespace OpenBve {
 			ObjectsSortedByStartPointer = 0;
 			ObjectsSortedByEndPointer = 0;
 			// initial visiblity
-			double p = World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.TrackOffset.Z;
+			double p = World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z;
 			for (int i = 0; i < ObjectsUsed; i++) {
 				if (Objects[i].StartingDistance <= p + World.ForwardViewingDistance & Objects[i].EndingDistance >= p - World.BackwardViewingDistance) {
 					Renderer.ShowObject(i, false);
@@ -1143,7 +1162,7 @@ namespace OpenBve {
 		internal static void UpdateVisibility(double TrackPosition) {
 			double d = TrackPosition - LastUpdatedTrackPosition;
 			int n = ObjectsSortedByStart.Length;
-			double p = World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.TrackOffset.Z;
+			double p = World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z;
 			if (d < 0.0) {
 				if (ObjectsSortedByStartPointer >= n) ObjectsSortedByStartPointer = n - 1;
 				if (ObjectsSortedByEndPointer >= n) ObjectsSortedByEndPointer = n - 1;

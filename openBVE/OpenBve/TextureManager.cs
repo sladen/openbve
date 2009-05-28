@@ -25,7 +25,8 @@ namespace OpenBve {
 			internal bool Loaded;
 			internal string FileName;
 			internal TextureLoadMode LoadMode;
-			internal TextureWrapMode WrapMode;
+			internal TextureWrapMode WrapModeX;
+			internal TextureWrapMode WrapModeY;
 			internal World.ColorRGB TransparentColor;
 			internal byte TransparentColorUsed;
 			internal TextureTransparencyMode Transparency;
@@ -137,13 +138,23 @@ namespace OpenBve {
 		// load texture data
 		private static void LoadTextureData(int TextureIndex) {
 			if (Textures[TextureIndex].FileName != null && System.IO.File.Exists(Textures[TextureIndex].FileName)) {
-				Bitmap Bitmap = (Bitmap)Image.FromFile(Textures[TextureIndex].FileName);
-				if (Textures[TextureIndex].IsRGBA) {
-					LoadTextureRGBAforData(Bitmap, Textures[TextureIndex].TransparentColor, Textures[TextureIndex].TransparentColorUsed, TextureIndex);
-				} else {
-					LoadTextureRGBforData(Bitmap, TextureIndex);
+				try {
+					using (Bitmap Bitmap = (Bitmap)Image.FromFile(Textures[TextureIndex].FileName)) {
+						if (Textures[TextureIndex].IsRGBA) {
+							LoadTextureRGBAforData(Bitmap, Textures[TextureIndex].TransparentColor, Textures[TextureIndex].TransparentColorUsed, TextureIndex);
+						} else {
+							LoadTextureRGBforData(Bitmap, TextureIndex);
+						}
+					}
+				} catch {
+					using (Bitmap Bitmap = new Bitmap(1, 1, PixelFormat.Format24bppRgb)) {
+						if (Textures[TextureIndex].IsRGBA) {
+							LoadTextureRGBAforData(Bitmap, Textures[TextureIndex].TransparentColor, Textures[TextureIndex].TransparentColorUsed, TextureIndex);
+						} else {
+							LoadTextureRGBforData(Bitmap, TextureIndex);
+						}
+					}
 				}
-				Bitmap.Dispose();
 			} else {
 				Textures[TextureIndex].Loaded = true;
 				Textures[TextureIndex].Data = null;
@@ -174,14 +185,14 @@ namespace OpenBve {
 		}
 
 		// register texture
-		internal static int RegisterTexture(string FileName, TextureWrapMode WrapMode, bool DontAllowUnload) {
-			return RegisterTexture(FileName, new World.ColorRGB(0, 0, 0), 0, TextureLoadMode.Normal, WrapMode, DontAllowUnload, 0, 0, 0, 0);
+		internal static int RegisterTexture(string FileName, TextureWrapMode WrapModeX, TextureWrapMode WrapModeY, bool DontAllowUnload) {
+			return RegisterTexture(FileName, new World.ColorRGB(0, 0, 0), 0, TextureLoadMode.Normal, WrapModeX, WrapModeY, DontAllowUnload, 0, 0, 0, 0);
 		}
-		internal static int RegisterTexture(string FileName, World.ColorRGB TransparentColor, byte TransparentColorUsed, TextureWrapMode WrapMode, bool DontAllowUnload) {
-			return RegisterTexture(FileName, TransparentColor, TransparentColorUsed, TextureLoadMode.Normal, WrapMode, DontAllowUnload, 0, 0, 0, 0);
+		internal static int RegisterTexture(string FileName, World.ColorRGB TransparentColor, byte TransparentColorUsed, TextureWrapMode WrapModeX, TextureWrapMode WrapModeY, bool DontAllowUnload) {
+			return RegisterTexture(FileName, TransparentColor, TransparentColorUsed, TextureLoadMode.Normal, WrapModeX, WrapModeY, DontAllowUnload, 0, 0, 0, 0);
 		}
-		internal static int RegisterTexture(string FileName, World.ColorRGB TransparentColor, byte TransparentColorUsed, TextureLoadMode LoadMode, TextureWrapMode WrapMode, bool DontAllowUnload, int ClipLeft, int ClipTop, int ClipWidth, int ClipHeight) {
-			int i = FindTexture(FileName, TransparentColor, TransparentColorUsed, LoadMode, WrapMode, ClipLeft, ClipTop, ClipWidth, ClipHeight);
+		internal static int RegisterTexture(string FileName, World.ColorRGB TransparentColor, byte TransparentColorUsed, TextureLoadMode LoadMode, TextureWrapMode WrapModeX, TextureWrapMode WrapModeY, bool DontAllowUnload, int ClipLeft, int ClipTop, int ClipWidth, int ClipHeight) {
+			int i = FindTexture(FileName, TransparentColor, TransparentColorUsed, LoadMode, WrapModeX, WrapModeY, ClipLeft, ClipTop, ClipWidth, ClipHeight);
 			if (i >= 0) {
 				return i;
 			} else {
@@ -193,7 +204,8 @@ namespace OpenBve {
 				Textures[i].TransparentColor = TransparentColor;
 				Textures[i].TransparentColorUsed = TransparentColorUsed;
 				Textures[i].LoadMode = LoadMode;
-				Textures[i].WrapMode = WrapMode;
+				Textures[i].WrapModeX = WrapModeX;
+				Textures[i].WrapModeY = WrapModeY;
 				Textures[i].ClipLeft = ClipLeft;
 				Textures[i].ClipTop = ClipTop;
 				Textures[i].ClipWidth = ClipWidth;
@@ -205,11 +217,6 @@ namespace OpenBve {
 				switch (System.IO.Path.GetExtension(Textures[i].FileName).ToLowerInvariant()) {
 					case ".gif":
 					case ".png":
-//						if (System.IO.File.Exists(Textures[i].FileName)) {
-//							Bitmap b = (Bitmap)Image.FromFile(Textures[i].FileName);
-//							alpha = (b.PixelFormat & PixelFormat.Alpha) != 0 | (b.PixelFormat & PixelFormat.PAlpha) != 0 | (b.PixelFormat & PixelFormat.Indexed) != 0;
-//							b.Dispose();
-//						}
 						alpha = true;
 						Textures[i].LoadImmediately = true;
 						break;
@@ -257,11 +264,11 @@ namespace OpenBve {
 		}
 
 		// find texture
-		private static int FindTexture(string FileName, World.ColorRGB TransparentColor, byte TransparentColorUsed, TextureLoadMode LoadMode, TextureWrapMode WrapMode, int ClipLeft, int ClipTop, int ClipWidth, int ClipHeight) {
+		private static int FindTexture(string FileName, World.ColorRGB TransparentColor, byte TransparentColorUsed, TextureLoadMode LoadMode, TextureWrapMode WrapModeX, TextureWrapMode WrapModeY, int ClipLeft, int ClipTop, int ClipWidth, int ClipHeight) {
 			for (int i = 1; i < Textures.Length; i++) {
 				if (Textures[i] != null && Textures[i].FileName != null) {
 					if (string.Compare(Textures[i].FileName, FileName, StringComparison.OrdinalIgnoreCase) == 0) {
-						if (Textures[i].LoadMode == LoadMode & Textures[i].WrapMode == WrapMode) {
+						if (Textures[i].LoadMode == LoadMode & Textures[i].WrapModeX == WrapModeX & Textures[i].WrapModeY == WrapModeY) {
 							if (Textures[i].ClipLeft == ClipLeft & Textures[i].ClipTop == ClipTop & Textures[i].ClipWidth == ClipWidth & Textures[i].ClipHeight == ClipHeight) {
 								if (TransparentColorUsed == 0) {
 									if (Textures[i].TransparentColorUsed == 0) {
@@ -356,11 +363,14 @@ namespace OpenBve {
 				if (Interface.CurrentOptions.AnisotropicFilteringLevel > 0) {
 					Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, Interface.CurrentOptions.AnisotropicFilteringLevel);
 				}
-				if (Textures[TextureIndex].WrapMode == TextureWrapMode.Repeat) {
+				if (Textures[TextureIndex].WrapModeX == TextureWrapMode.Repeat) {
 					Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT);
-					Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT);
 				} else {
 					Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_CLAMP_TO_EDGE);
+				}
+				if (Textures[TextureIndex].WrapModeY == TextureWrapMode.Repeat) {
+					Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT);
+				} else {
 					Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_CLAMP_TO_EDGE);
 				}
 				byte[] Data = Textures[TextureIndex].Data;
@@ -609,11 +619,14 @@ namespace OpenBve {
 				if (Interface.CurrentOptions.AnisotropicFilteringLevel > 0) {
 					Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, Interface.CurrentOptions.AnisotropicFilteringLevel);
 				}
-				if (Textures[TextureIndex].WrapMode == TextureWrapMode.Repeat) {
+				if (Textures[TextureIndex].WrapModeX == TextureWrapMode.Repeat) {
 					Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT);
-					Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT);
 				} else {
 					Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_CLAMP_TO_EDGE);
+				}
+				if (Textures[TextureIndex].WrapModeY == TextureWrapMode.Repeat) {
+					Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT);
+				} else {
 					Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_CLAMP_TO_EDGE);
 				}
 				byte[] Data = Textures[TextureIndex].Data;
