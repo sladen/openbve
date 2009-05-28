@@ -63,10 +63,10 @@ namespace OpenBve {
 			}
 			#endif
 			// deinitialize
-			TextureManager.UnuseAllTextures();
 			if(SdlWindowCreated & Interface.CurrentOptions.FullscreenMode) {
 				Sdl.SDL_SetVideoMode(Interface.CurrentOptions.WindowWidth, Interface.CurrentOptions.WindowHeight, 32, Sdl.SDL_OPENGL | Sdl.SDL_DOUBLEBUF);
 			}
+			TextureManager.UnuseAllTextures();
 			Asynchronous.Deinitialize();
 			PluginManager.UnloadPlugin();
 			SoundManager.Deinitialize();
