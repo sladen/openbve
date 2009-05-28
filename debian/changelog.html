@@ -3,35 +3,35 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="SHORTCUT ICON" href="../common/favicon.png" />
+<link rel="SHORTCUT ICON" href="common/favicon.png" />
 <meta name="keywords" content="openBVE,homepage" />
 <title>Changelog</title>
 </head>
 <body style="font-family:sans-serif;font-size:small">
 <table width="100%" cellspacing="0" style="min-width:1090px">
 <tr>
-<td bgcolor="#000000" height="96"><a href="index.html"><img style="border: none;" src="../common/homepage_logo.png" alt="Logo" /></a></td>
+<td bgcolor="#000000" height="96"><a href="index.html"><img style="border: none;" src="common/homepage_logo.png" alt="Logo" /></a></td>
 <td bgcolor="#000000" width="100%">
-<a href="about/index.html"><img style="border: none;" src="button_about.png" alt="About" /></a>
-&nbsp;<a href="screenshots.html"><img style="border: none;" src="button_screenshots.png" alt="Screenshots" /></a>
-&nbsp;<a href="use/index.html"><img style="border: none;" src="button_using.png" alt="Using" /></a>
-&nbsp;<a href="develop/index.html"><img style="border: none;" src="button_developing.png" alt="Developing" /></a>
-&nbsp;<a href="blog/index.html"><img style="border: none;" src="button_blog.png" alt="Blog" /></a>
-&nbsp;<a href="http://openbve.freeforums.org"><img style="border: none;" src="button_forum.png" alt="Forum" /></a>
-&nbsp;<a href="downloads.html"><img style="border: none;" src="button_downloads.png" alt="Download" /></a>
+<a href="about/index.html"><img style="border: none;" src="common/button_about.png" alt="About" /></a>
+&nbsp;<a href="screenshots.html"><img style="border: none;" src="common/button_screenshots.png" alt="Screenshots" /></a>
+&nbsp;<a href="use/index.html"><img style="border: none;" src="common/button_using.png" alt="Using" /></a>
+&nbsp;<a href="develop/index.html"><img style="border: none;" src="common/button_developing.png" alt="Developing" /></a>
+&nbsp;<a href="blog/index.html"><img style="border: none;" src="common/button_blog.png" alt="Blog" /></a>
+&nbsp;<a href="http://openbve.freeforums.org"><img style="border: none;" src="common/button_forum.png" alt="Forum" /></a>
+&nbsp;<a href="downloads.html"><img style="border: none;" src="common/button_downloads.png" alt="Download" /></a>
 </td>
 </tr>
-<tr><td bgcolor="#808080" height="16" style="background-image:url(../common/gradient_16.png)" colspan="2"></td></tr>
+<tr><td bgcolor="#808080" height="16" style="background-image:url(common/gradient_16.png)" colspan="2"></td></tr>
 <tr><td bgcolor="#E0E0E0" height="10" colspan="2"></td></tr>
 <tr><td bgcolor="#E0E0E0" colspan="2"><table cellspacing="15" width="100%"><tr><td>
 <table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0">
-<tr><td bgcolor="#808080" height="4" style="background-image:url(../common/gradient_04_inverted.png)">
+<tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04_inverted.png)">
 </td></tr>
 <tr><td height="24">
 <font color="#0060A0" size="+1"><b>Changelog&nbsp;</b></font>
 </td></tr>
-<tr><td bgcolor="#808080" height="4" style="background-image:url(../common/gradient_04.png)">
+<tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04.png)">
 </td></tr>
 </table><br />
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -39,19 +39,169 @@
 ↷ <a href="#history09">0.9 series (development)</a><br />
 <br /><a name="history10" />
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF"><b>&nbsp;1.0 series (stable)&nbsp;</b></font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.0.6.0 (2009-05-24)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Renderer:</b> The quality of the <em>Smooth</em> transparency mode has been radically improved at the expence of some performance.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Simulation:</b> The A.I. now takes a bit less time trying to stop smoothly at stations.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Simulation:</b> ATC now works in 200 meter long blocks instead of calculating a brake curve to the preceding train continuously. Previously, the continuous update could create too frequent changes of the allowed speed, leading to a lot of successive ding sounds.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Interface:</b> A command to accelerate time has been added, MISC_TIMEFACTOR, which defaults to CTRL+J.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Interface:</b> A command to mute/resume sound has been added, MISC_MUTE, which defaults to CTRL+M.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Interface:</b> Non-Windows users now get a warning message in a train's description box if that train uses a Windows-only safety system plugin.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Developing:</b> If the $Chr/$Rnd/$Sub preprocessor in CSV/RW routes creates a leading semicolon in an expression, that expression is now considered a comment. Previously, stripping away comments was only done before the preprocessor, which made it impossible to dynamically create comments.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Bugfix:</b> The cab and exterior objects were placed incorrectly if the car had an asymmetric axle setup.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Bugfix:</b> Fog on the background image now produces a consistent look regardless of the viewing distance. Previously, the background image could look differently depending on the viewing distance.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.0.5.0 (2009-05-03)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Passenger-related door lock is now simulated. This is based on the <em>PassengerRatio</em> parameter in the <em>Track.Sta</em> command, and more probable to occur on crowded trains.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The A.I. has been fine-tuned. It makes use of cruising, holding speed by selecting a suitable power notch, and can react to wheel slip by restricting use of certain power notches.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Added translation for the Czech language.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Added new options to the <em>Doors</em> parameter in the <em>Track.Sta</em> command.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Bugfix: The route parser could previously accept , and ; as an argument separator for either CSV or RW formats, even though only one of these characters is used by either format. This could seldom lead to parsing problems, but is corrected now anyway.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Bugfix: The background image was not correctly aligned vertically if the <em>Texture.Background(BackgroundTextureIndex).Aspect</em> option was set to 1 (keep aspect ratio) in route files.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Bugfix: Version 1.0.4.0 introduced the peculiar behavior of rolling the external view at startup, which is corrected now.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.0.4.0 (2009-04-26)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>In route files, commands from namespaces other than <em>Track</em> are now processed first, then the track position is reset to 0, then commands from the <em>Track</em> namespace are processed. This is to increase compatibility with routes which use track positions before using commands from the <em>Track</em> namespace.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Bugfix: All parsers now validate file names, as otherwise, the program could crash when any format referenced a file name which included invalid characters.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Rephrased all error messages in the CSV/RW route parser to match the terminology of the documentation.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.0.3.0 (2009-04-12)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>For compatibility reasons, the exponent <em>e</em> in the acceleration section of train.dat versions 1.22 is now clipped at 4 after converting to a 2.0 exponent.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>The default camera locations of the exterior and track/fly-by modes are now at the top-left of the rear of first car again.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Resetting the camera view in the fly-by modes reflects the current speed of the train by placing the camera further away from the train the higher the speed is.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Renamed the en-UK language to en-GB. The reason is simply that GB stands for United Kingdom, while UK stands for Ukraine.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Updated the URLs used inside the program to point to the new homepage. This has also been done for Train Editor.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Renamed OpenBve64.exe to OpenBveAllCpu.exe, which is now compiled against any CPU instead of AMD x64.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td>Some minor Linux-specific things to increase portability.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v1.0.2.0 (2009-04-05)&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>If a train does not explicitly specify the operating pressure of the brake pipe, it is now assumed to be 490 kPa if applicable. The train.dat documentation describes this in more detail.</td>
+<td>If a train does not explicitly specify the operating pressure of the brake pipe, it is now assumed to be 490 kPa if applicable.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
@@ -69,7 +219,7 @@
 <td>Bugfix: Beacons which appeared before the starting position were not triggered, causing some trains to operate incorrectly on some routes.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v1.0.1.0 (2009-03-29)&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -139,14 +289,14 @@
 <td>Bugfix: In animated objects, texture clamping was disabled and could lead to visual artifacts at the edges of some textures.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v1.0.0.0 (2009-03-23)&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug that made the train topple and derail to the wrong side when driving backward.</td>
+<td>Bugfix: The train toppled and derailed to the wrong side when driving backward.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
@@ -160,19 +310,19 @@
 </tr></table>
 <br /><a name="history09" />
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF"><b>&nbsp;0.9 series (development)&nbsp;</b></font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.7.0&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug that made digital gauges (LEDs) appear incorrectly since 0.9.6.0.</td>
+<td>Bugfix: Digital gauges (LEDs) appeared incorrectly since 0.9.6.0.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
@@ -185,7 +335,7 @@
 <td>The A.I. now drives at 80%-100% of the route speed, depending on a random initial choice. This adds some slight variation to the preceding train.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.6.0&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -212,7 +362,7 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug that caused a crash when colliding backward with buffer stop.</td>
+<td>Bugfix: A crash could occur when colliding backward with buffer stop.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
@@ -245,7 +395,7 @@
 <td>A frame rate command has been introduced as MISC_FPS. The default key combination to show/hide it is CTRL+X.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.5.5&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -262,15 +412,15 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug that forced cars to run into the front car when the front car was prevented to move by a buffer stop.</td>
+<td>Bugfix: Cars could run into the front car when the front car was prevented to move by a buffer stop.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed some bugs related to animated objects. In particular, the <em>pluginstate</em> variable was affected and did not work correctly.</td>
+<td>Bugfix: A series of things relatd to animated objects. Most prominently, the <em>pluginstate</em> variable was affected and did not work correctly.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.5.0&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -295,7 +445,7 @@
 <td>The call to the HornBlow function in DLL plugins is now actually made. By accident, it was never implemented before.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.4.2&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -312,15 +462,15 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug that prevented arguments enclosed by parantheses in CSV routes from being recognized whenever a space preceded the argument's parantheses and no other parantheses were used in the same expression.</td>
+<td>Bugfix: Arguments enclosed by parantheses in CSV routes were not recognized whenever a space preceded the argument's parantheses and no other parantheses were used in the same expression.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug that prevented != from being recognized in functions (animated objects).</td>
+<td>Bugfix: The != operator was not recognized in functions (animated objects).</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.4.0&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -337,17 +487,17 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug that prevented the motor sound volumes read from the train.dat from being correctly applied. Additionally, the volume curve has been further adjusted to produce output more similar to BVE Trainsim.</td>
+<td>Bugfix: The motor sound volumes read from the train.dat was incorrectly applied. Additionally, the volume curve has been further adjusted for compatibility reasons.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug and a compatibility issue that caused train plugins to receive wrong values regarding brake notches when the train was equipped with a hold brake system. The effect was mainly that the emergency brake could not be applied on those trains.</td>
+<td>Bugfix: Train plugins received wrong values regarding brake notches when the train was equipped with a hold brake system. The effect was mainly that the emergency brake could not be applied on those trains.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug that could cause custom timetable images to appear in the exterior view whenever the timetable was instructed to update but the user was not in the cab.</td>
+<td>Bugfix: Custom timetable images could appear in the exterior view whenever the timetable was instructed to update but the user was not in the cab.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
@@ -360,7 +510,7 @@
 <td>Added the <em>rev</em> subject to the panel2.cfg in order to allow showing the state of the reverser.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.3.7&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -387,15 +537,15 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug in the function script optimizer that prevented certain combinations of additions and multiplications from producing working code.</td>
+<td>Bugfix: The function script optimizer prevented certain combinations of additions and multiplications from producing working code.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug that prevented the Texture.Background(<em>index</em>).Aspect command from being recognized.</td>
+<td>Bugfix: The Texture.Background(<em>index</em>).Aspect command was not recognized.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.3.3&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -407,12 +557,12 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug that caused the route parser to crash when a signal was used before the first station.</td>
+<td>Bugfix: The route parser crashed when a signal was used before the first station.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Fixed a bug that caused a departure signal to jump back to red once the train left the station area but did not pass the signal yet.</td>
+<td>Bugfix: Departure signals could jump back to red once the train left the station area but did not pass the respective signal yet.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
@@ -420,7 +570,7 @@
 <td>Added a version check facility to the main menu. The version check, once clicked, informs the user of possible updates available, but does not automatically download them.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.3.0&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -455,7 +605,7 @@
 <td>Added new default keyboard configuration for notebooks (without keypad). This configuration remaps the keys that are normally assigned to the keypad to other keys instead. The configuration can be imported within the <em>Customize controls</em> tab in the main menu. Please inspect the list of commands to see which keys have been remapped.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.2.6&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -467,7 +617,7 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Some admendments to the file formats have been made, including Japanese names of BVE 1 legacy for arguments in the panel.cfg, a compatibility fix regarding Track.Rail for route files  and some alterations to Option.UnitOfLength and Option.UnitOfSpeed behavior for route files.</td>
+<td>Some admendments to the file formats have been made, including Japanese names for arguments in the panel.cfg, a compatibility fix regarding Track.Rail for route files  and some alterations to Option.UnitOfLength and Option.UnitOfSpeed behavior for route files.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
@@ -475,7 +625,7 @@
 <td>Slight changes in brake behavior for automatic air brakes; some optimizations for function scripts.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.2.3&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -500,7 +650,7 @@
 <td>In previous versions, some sounds were modified in volume by a quadratic formula which only worked in the range from 0 to 1. As openBVE uses some sort of high dynamic range volume, occasionally volumes higher than 1 are encountered and incorrectly modified, forcing such high-volume sounds to become essentially mute instead. This has been resolved by not making use of such quadratic formulas any longer.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.2.2&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -515,7 +665,7 @@
 <td>If a route file referenced objects without file extensions, files of B3D, CSV and X types would be looked for in this order. This caused some signals to not load correctly if both an X file and B3D/CSV files of the same base name were present in the respective folder, but the developer intended to load the X file for the signal. As such, the precedence order is now reversed so that X files are looked for first, then CSV and finally B3D.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.2.1&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -530,7 +680,7 @@
 <td>Removed in-game debug output that was not intended to show up in the public release.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(../common/gradient_24.png)">
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v0.9.2.0&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -562,19 +712,11 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>A bug in the panel2.cfg parser has been fixed which previously inverted the yaw, so that the driver would be looking left instead of right or vice versa.</td>
+<td>Bugfix: The panel2.cfg parser inverted the yaw, so that the driver would be looking left instead of right or vice versa.</td>
 </tr></table>
 
 </td></tr></table>
 </td></tr>
 </table>
 </body>
-</html><script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-<script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-950416-50");
-pageTracker._trackPageview();
-} catch(err) {}</script>
+</html>
