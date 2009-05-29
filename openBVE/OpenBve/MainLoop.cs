@@ -166,8 +166,12 @@ namespace OpenBve {
 					System.Threading.Thread.Sleep(10);
 				}
 			}
-			Interface.SaveLogs();
-			Interface.SaveOptions();
+			try {
+				Interface.SaveLogs();
+			} catch { }
+			try {
+				Interface.SaveOptions();
+			} catch { }
 		}
 
 		//// --------------------------------

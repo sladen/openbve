@@ -663,8 +663,12 @@ namespace OpenBve {
 				Interface.CurrentOptions.TrainEncodings = a;
 			}
 			// finish
-			Interface.SaveOptions();
-			Interface.SaveControls(null);
+			try {
+				Interface.SaveOptions();
+			} catch { }
+			try {
+				Interface.SaveControls(null);
+			} catch { }
 		}
 
 		// resize
@@ -2259,7 +2263,7 @@ namespace OpenBve {
 				}
 				comboboxTrainEncoding.Tag = null;
 			}
-			{ 
+			{
 				// train image
 				string File = Interface.GetCombinedFileName(Result.TrainFolder, "train.png");
 				if (!System.IO.File.Exists(File)) {
@@ -2276,7 +2280,7 @@ namespace OpenBve {
 					TryLoadImage(pictureboxTrainImage, "train_unknown.png");
 				}
 			}
-			{ 
+			{
 				// train description
 				string File = Interface.GetCombinedFileName(Result.TrainFolder, "train.txt");
 				if (System.IO.File.Exists(File)) {

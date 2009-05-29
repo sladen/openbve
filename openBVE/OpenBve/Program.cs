@@ -79,6 +79,9 @@ namespace OpenBve {
 			// restart
 			if (RestartProcessArguments != null) {
 				System.Reflection.Assembly Assembly = System.Reflection.Assembly.GetExecutingAssembly();
+				if (Program.UseFilesystemHierarchyStandard) {
+					RestartProcessArguments += " /fhs";
+				}
 				System.Diagnostics.Process.Start(Assembly.Location, RestartProcessArguments);
 			}
 		}

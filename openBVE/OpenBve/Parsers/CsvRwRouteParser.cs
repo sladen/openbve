@@ -241,8 +241,8 @@ namespace OpenBve {
 			if (!PreviewOnly) {
 				Data.Blocks[0].Background = 0;
 				Data.Blocks[0].Brightness = new Brightness[] { };
-				Data.Blocks[0].Fog.Start = 1200.0f;
-				Data.Blocks[0].Fog.End = 1100.0f;
+				Data.Blocks[0].Fog.Start = Game.NoFogStart;
+				Data.Blocks[0].Fog.End = Game.NoFogEnd;
 				Data.Blocks[0].Fog.Color = new World.ColorRGB(128, 128, 128);
 				Data.Blocks[0].Cycle = new int[] { -1 };
 				Data.Blocks[0].Height = IsRW ? 0.3 : 0.0;
@@ -2728,12 +2728,21 @@ namespace OpenBve {
 												Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is required to be within the range from 0 to 255 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												b = b < 0 ? 0 : 255;
 											}
-											if (end <= 0.0 | start >= end) {
-												start = World.BackgroundImageDistance + World.ExtraViewingDistance;
-												end = World.BackgroundImageDistance + 2.0 * World.ExtraViewingDistance;
+											if (start < end & start < 600.0) {
+												if (start < 0.0) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "StartingDistance is expected to be non-negative in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													start = 0.0;
+												}
+												if (end < 0.0) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "EndingDistance is expected to be non-negative in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													end = 0.0;
+												}
+												Data.Blocks[BlockIndex].Fog.Start = (float)start;
+												Data.Blocks[BlockIndex].Fog.End = (float)end;
+											} else {
+												Data.Blocks[BlockIndex].Fog.Start = Game.NoFogStart;
+												Data.Blocks[BlockIndex].Fog.End = Game.NoFogEnd;
 											}
-											Data.Blocks[BlockIndex].Fog.Start = (float)start;
-											Data.Blocks[BlockIndex].Fog.End = (float)end;
 											Data.Blocks[BlockIndex].Fog.Color = new World.ColorRGB((byte)r, (byte)g, (byte)b);
 											Data.Blocks[BlockIndex].FogDefined = true;
 										}
@@ -4359,8 +4368,8 @@ namespace OpenBve {
 			int CurrentTrackLength = 0;
 			int PreviousFogElement = -1;
 			int PreviousFogEvent = -1;
-			Game.Fog PreviousFog = new Game.Fog(1100.0f, 1200.0f, new World.ColorRGB(128, 128, 128), -Data.BlockInterval);
-			Game.Fog CurrentFog = new Game.Fog(1100.0f, 1200.0f, new World.ColorRGB(128, 128, 128), 0.0);
+			Game.Fog PreviousFog = new Game.Fog(Game.NoFogStart, Game.NoFogEnd, new World.ColorRGB(128, 128, 128), -Data.BlockInterval);
+			Game.Fog CurrentFog = new Game.Fog(Game.NoFogStart, Game.NoFogEnd, new World.ColorRGB(128, 128, 128), 0.0);
 			int CurrentBrightnessElement = -1;
 			int CurrentBrightnessEvent = -1;
 			float CurrentBrightnessValue = 1.0f;
