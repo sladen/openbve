@@ -523,10 +523,7 @@ namespace OpenBve {
 				Builder.AppendLine(CurrentOptions.TrainEncodings[i].Codepage.ToString(Culture) + " = " + CurrentOptions.TrainEncodings[i].Value);
 			}
 			string File = Interface.GetCombinedFileName(GetSettingsFolder(), "options.cfg");
-			try {
-			Console.Error.WriteLine("Writing to:'" + File + "'");
 			System.IO.File.WriteAllText(File, Builder.ToString(), new System.Text.UTF8Encoding(true));
-			} catch (Exception exp) { Console.Error.WriteLine(exp.Message); }
 		}
 
 		// ================================
