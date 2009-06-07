@@ -1,3 +1,9 @@
+openbve (1.0.6.7-0ubuntu1) unreleased; urgency=low
+
+  * New upstream version (1.0.6.7)
+
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Sun,  7 Jun 2009 02:54:00 +0000
+
 openbve (1.0.6.2-0ubuntu1) unreleased; urgency=low
 
   * New upstream version (1.0.6.2)
