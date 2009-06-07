@@ -262,13 +262,13 @@ namespace OpenBve {
 				string PoleFolder = Interface.GetCombinedFolderName(CompatibilityFolder, "Poles");
 				Data.Structure.Poles = new ObjectManager.UnifiedObject[][] {
 					new ObjectManager.UnifiedObject[] {
-						ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (PoleFolder, "pole_1.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false)
+						ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (PoleFolder, "pole_1.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 					}, new ObjectManager.UnifiedObject[] {
-						ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (PoleFolder, "pole_2.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false)
+						ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (PoleFolder, "pole_2.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 					}, new ObjectManager.UnifiedObject[] {
-						ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (PoleFolder, "pole_3.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false)
+						ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (PoleFolder, "pole_3.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 					}, new ObjectManager.UnifiedObject[] {
-						ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (PoleFolder, "pole_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false)
+						ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (PoleFolder, "pole_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 					}
 				};
 				Data.Structure.Rail = new ObjectManager.UnifiedObject[] { };
@@ -299,81 +299,81 @@ namespace OpenBve {
 				string SignalFolder = Interface.GetCombinedFolderName(CompatibilityFolder, "Signals");
 				Data.SignalData = new SignalData[7];
 				Data.SignalData[3] = new CompatibilitySignalData(new int[] { 0, 2, 4 }, new ObjectManager.StaticObject[] {
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_3_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_3_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_3_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_3_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_3_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_3_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                 });
 				Data.SignalData[4] = new CompatibilitySignalData(new int[] { 0, 1, 2, 4 }, new ObjectManager.StaticObject[] {
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4a_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4a_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4a_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4a_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                 });
 				Data.SignalData[5] = new CompatibilitySignalData(new int[] { 0, 1, 2, 3, 4 }, new ObjectManager.StaticObject[] {
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                 });
 				Data.SignalData[6] = new CompatibilitySignalData(new int[] { 0, 3, 4 }, new ObjectManager.StaticObject[] {
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                 });
 				// compatibility signals
 				Data.CompatibilitySignalData = new CompatibilitySignalData[9];
 				Data.CompatibilitySignalData[0] = new CompatibilitySignalData(new int[] { 0, 2 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2a_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2a_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[1] = new CompatibilitySignalData(new int[] { 0, 4 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2b_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2b_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[2] = new CompatibilitySignalData(new int[] { 0, 2, 4 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_3_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_3_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_3_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_3_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_3_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_3_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[3] = new CompatibilitySignalData(new int[] { 0, 1, 2, 4 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4a_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4a_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4a_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4a_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[4] = new CompatibilitySignalData(new int[] { 0, 2, 3, 4 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4b_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4b_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4b_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4b_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4b_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4b_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[5] = new CompatibilitySignalData(new int[] { 0, 1, 2, 3, 4 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[6] = new CompatibilitySignalData(new int[] { 0, 2, 3, 4, 5 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5b_5.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5b_5.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[7] = new CompatibilitySignalData(new int[] { 0, 1, 2, 3, 4, 5 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_5.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_5.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[8] = new CompatibilitySignalData(new int[] { 0, 3, 4 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
 				                                                              });
 				// game data
 				Game.Sections = new Game.Section[1];
@@ -542,7 +542,7 @@ namespace OpenBve {
 									case ')':
 										l--;
 										if (l < 0) {
-											err = true; Interface.AddMessage(Interface.MessageType.Error, false, "Invalid paranthesis structure in " + t + Epilog);
+											err = true; Interface.AddMessage(Interface.MessageType.Error, false, "Invalid parenthesis structure in " + t + Epilog);
 										}
 										break;
 								}
@@ -550,7 +550,7 @@ namespace OpenBve {
 							}
 							if (err) break;
 							if (l != 0) {
-								Interface.AddMessage(Interface.MessageType.Error, false, "Invalid paranthesis structure in " + t + Epilog);
+								Interface.AddMessage(Interface.MessageType.Error, false, "Invalid parenthesis structure in " + t + Epilog);
 								err = true; break;
 							}
 							string s = Expressions[i].Text.Substring(k + 1, h - k - 1).Trim();
@@ -911,7 +911,7 @@ namespace OpenBve {
 					i++; while (i < Expression.Text.Length) {
 						if (Expression.Text[i] == '(') {
 							if (RaiseErrors & !openingerror) {
-								Interface.AddMessage(Interface.MessageType.Error, false, "Invalid opening parantheses encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
+								Interface.AddMessage(Interface.MessageType.Error, false, "Invalid opening parenthesis encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
 								openingerror = true;
 							}
 						} else if (Expression.Text[i] == ')') {
@@ -920,14 +920,14 @@ namespace OpenBve {
 					}
 					if (!found) {
 						if (RaiseErrors & !closingerror) {
-							Interface.AddMessage(Interface.MessageType.Error, false, "Missing closing parantheses encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
+							Interface.AddMessage(Interface.MessageType.Error, false, "Missing closing parenthesis encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
 							closingerror = true;
 						}
 						Expression.Text += ")";
 					}
 				} else if (Expression.Text[i] == ')') {
 					if (RaiseErrors & !closingerror) {
-						Interface.AddMessage(Interface.MessageType.Error, false, "Invalid closing parantheses encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
+						Interface.AddMessage(Interface.MessageType.Error, false, "Invalid closing parenthesis encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
 						closingerror = true;
 					}
 				} else if (char.IsWhiteSpace(Expression.Text[i])) {
@@ -937,31 +937,31 @@ namespace OpenBve {
 				}
 			}
 			if (i < Expression.Text.Length) {
-				// space was found outside of parantheses
+				// space was found outside of parentheses
 				string a = Expression.Text.Substring(0, i);
 				if (a.IndexOf('(') >= 0 & a.IndexOf(')') >= 0) {
 					// indices found not separated from the command by spaces
 					Command = Expression.Text.Substring(0, i).TrimEnd();
 					ArgumentSequence = Expression.Text.Substring(i + 1).TrimStart();
 					if (ArgumentSequence.StartsWith("(") & ArgumentSequence.EndsWith(")")) {
-						// arguments are enclosed by parantheses
+						// arguments are enclosed by parentheses
 						ArgumentSequence = ArgumentSequence.Substring(1, ArgumentSequence.Length - 2).Trim();
 					} else if (ArgumentSequence.StartsWith("(")) {
-						// only opening parantheses found
+						// only opening parenthesis found
 						if (RaiseErrors & !closingerror) {
-							Interface.AddMessage(Interface.MessageType.Error, false, "Missing closing parantheses encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
+							Interface.AddMessage(Interface.MessageType.Error, false, "Missing closing parenthesis encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
 						}
 						ArgumentSequence = ArgumentSequence.Substring(1).TrimStart();
 					}
 				} else {
 					// no indices found before the space
 					if (i < Expression.Text.Length - 1 && Expression.Text[i + 1] == '(') {
-						// opening parantheses follows the space
+						// opening parenthesis follows the space
 						int j = Expression.Text.IndexOf(')', i + 1);
 						if (j > i + 1) {
-							// closing parantheses found
+							// closing parenthesis found
 							if (j == Expression.Text.Length - 1) {
-								// only closing parantheses found at the end of the expression
+								// only closing parenthesis found at the end of the expression
 								Command = Expression.Text.Substring(0, i).TrimEnd();
 								ArgumentSequence = Expression.Text.Substring(i + 2, j - i - 2).Trim();
 							} else {
@@ -989,20 +989,20 @@ namespace OpenBve {
 									ArgumentSequence = "";
 								}
 								if (ArgumentSequence.StartsWith("(") & ArgumentSequence.EndsWith(")")) {
-									// arguments are enclosed by parantheses
+									// arguments are enclosed by parentheses
 									ArgumentSequence = ArgumentSequence.Substring(1, ArgumentSequence.Length - 2).Trim();
 								} else if (ArgumentSequence.StartsWith("(")) {
-									// only opening parantheses found
+									// only opening parenthesis found
 									if (RaiseErrors & !closingerror) {
-										Interface.AddMessage(Interface.MessageType.Error, false, "Missing closing parantheses encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
+										Interface.AddMessage(Interface.MessageType.Error, false, "Missing closing parenthesis encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
 									}
 									ArgumentSequence = ArgumentSequence.Substring(1).TrimStart();
 								}
 							}
 						} else {
-							// no closing parantheses found
+							// no closing parenthesis found
 							if (RaiseErrors & !closingerror) {
-								Interface.AddMessage(Interface.MessageType.Error, false, "Missing closing parantheses encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
+								Interface.AddMessage(Interface.MessageType.Error, false, "Missing closing parenthesis encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
 							}
 							Command = Expression.Text.Substring(0, i).TrimEnd();
 							ArgumentSequence = Expression.Text.Substring(i + 2).TrimStart();
@@ -1012,12 +1012,12 @@ namespace OpenBve {
 						Command = Expression.Text.Substring(0, i).TrimEnd();
 						ArgumentSequence = Expression.Text.Substring(i + 1).TrimStart();
 						if (ArgumentSequence.StartsWith("(") & ArgumentSequence.EndsWith(")")) {
-							// arguments are enclosed by parantheses
+							// arguments are enclosed by parentheses
 							ArgumentSequence = ArgumentSequence.Substring(1, ArgumentSequence.Length - 2).Trim();
 						} else if (ArgumentSequence.StartsWith("(")) {
-							// only opening parantheses found
+							// only opening parenthesis found
 							if (RaiseErrors & !closingerror) {
-								Interface.AddMessage(Interface.MessageType.Error, false, "Missing closing parantheses encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
+								Interface.AddMessage(Interface.MessageType.Error, false, "Missing closing parenthesis encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
 							}
 							ArgumentSequence = ArgumentSequence.Substring(1).TrimStart();
 						}
@@ -1038,7 +1038,7 @@ namespace OpenBve {
 					i = Expression.Text.IndexOf('(');
 					if (i >= 0) {
 						if (RaiseErrors & !closingerror) {
-							Interface.AddMessage(Interface.MessageType.Error, false, "Missing closing parantheses encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
+							Interface.AddMessage(Interface.MessageType.Error, false, "Missing closing parenthesis encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
 						}
 						Command = Expression.Text.Substring(0, i).TrimEnd();
 						ArgumentSequence = Expression.Text.Substring(i + 1).TrimStart();
@@ -1046,7 +1046,7 @@ namespace OpenBve {
 						if (RaiseErrors) {
 							i = Expression.Text.IndexOf(')');
 							if (i >= 0 & !closingerror) {
-								Interface.AddMessage(Interface.MessageType.Error, false, "Invalid closing parantheses encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
+								Interface.AddMessage(Interface.MessageType.Error, false, "Invalid closing parenthesis encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
 							}
 						}
 						Command = Expression.Text;
@@ -1602,7 +1602,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.Rail[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														Data.Structure.Rail[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 													}
 												}
 											}
@@ -1626,7 +1626,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.Beacon[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														Data.Structure.Beacon[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 													}
 												}
 											}
@@ -1657,7 +1657,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.Poles[CommandIndex1][CommandIndex2] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														Data.Structure.Poles[CommandIndex1][CommandIndex2] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 													}
 												}
 											}
@@ -1681,7 +1681,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.Ground[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														Data.Structure.Ground[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 													}
 												}
 											}
@@ -1705,7 +1705,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.WallL[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														Data.Structure.WallL[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 													}
 												}
 											}
@@ -1729,7 +1729,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.WallR[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														Data.Structure.WallR[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 													}
 												}
 											}
@@ -1753,7 +1753,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.DikeL[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														Data.Structure.DikeL[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 													}
 												}
 											}
@@ -1777,7 +1777,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.DikeR[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														Data.Structure.DikeR[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 													}
 												}
 											}
@@ -1801,7 +1801,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.FormL[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														Data.Structure.FormL[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 													}
 												}
 											}
@@ -1825,7 +1825,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.FormR[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														Data.Structure.FormR[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 													}
 												}
 											}
@@ -1849,7 +1849,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.FormCL[CommandIndex1] = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, true, false);
+														Data.Structure.FormCL[CommandIndex1] = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, true, false, false);
 													}
 												}
 											}
@@ -1873,7 +1873,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.FormCR[CommandIndex1] = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, true, false);
+														Data.Structure.FormCR[CommandIndex1] = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, true, false, false);
 													}
 												}
 											}
@@ -1904,7 +1904,7 @@ namespace OpenBve {
 														if (!System.IO.File.Exists(f)) {
 															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 														} else {
-															Data.Structure.RoofL[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+															Data.Structure.RoofL[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 														}
 													}
 												}
@@ -1936,7 +1936,7 @@ namespace OpenBve {
 														if (!System.IO.File.Exists(f)) {
 															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 														} else {
-															Data.Structure.RoofR[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+															Data.Structure.RoofR[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 														}
 													}
 												}
@@ -1968,7 +1968,7 @@ namespace OpenBve {
 														if (!System.IO.File.Exists(f)) {
 															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 														} else {
-															Data.Structure.RoofCL[CommandIndex1] = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, true, false);
+															Data.Structure.RoofCL[CommandIndex1] = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, true, false, false);
 														}
 													}
 												}
@@ -2000,7 +2000,7 @@ namespace OpenBve {
 														if (!System.IO.File.Exists(f)) {
 															Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 														} else {
-															Data.Structure.RoofCR[CommandIndex1] = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, true, false);
+															Data.Structure.RoofCR[CommandIndex1] = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, true, false, false);
 														}
 													}
 												}
@@ -2025,7 +2025,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.CrackL[CommandIndex1] = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, true, false);
+														Data.Structure.CrackL[CommandIndex1] = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, true, false, false);
 													}
 												}
 											}
@@ -2049,7 +2049,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.CrackR[CommandIndex1] = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, true, false);
+														Data.Structure.CrackR[CommandIndex1] = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, true, false, false);
 													}
 												}
 											}
@@ -2073,7 +2073,7 @@ namespace OpenBve {
 													if (!System.IO.File.Exists(f)) {
 														Interface.AddMessage(Interface.MessageType.Error, true, "FileName " + f + " could not be found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													} else {
-														Data.Structure.FreeObj[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														Data.Structure.FreeObj[CommandIndex1] = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 													}
 												}
 											}
@@ -2100,7 +2100,7 @@ namespace OpenBve {
 														if (!System.IO.File.Exists(f)) {
 															Interface.AddMessage(Interface.MessageType.Error, true, "SignalFileWithoutExtension " + f + " not found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 														} else {
-															ObjectManager.UnifiedObject Object = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+															ObjectManager.UnifiedObject Object = ObjectManager.LoadObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 															if (Object is ObjectManager.AnimatedObjectCollection) {
 																AnimatedObjectSignalData Signal = new AnimatedObjectSignalData();
 																Signal.Objects = (ObjectManager.AnimatedObjectCollection)Object;
@@ -2120,7 +2120,7 @@ namespace OpenBve {
 														/// <info>System.IO.Path.Combine is used here as only a base file name is provided and thus does not exist anyway</info>
 														string f = System.IO.Path.Combine(ObjectPath, Interface.GetCorrectedPathSeparation(Arguments[0]));
 														Bve4SignalData Signal = new Bve4SignalData();
-														Signal.BaseObject = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+														Signal.BaseObject = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 														Signal.GlowObject = null;
 														string Folder = Interface.GetCorrectedFolderName(System.IO.Path.GetDirectoryName(f));
 														if (!System.IO.Directory.Exists(Folder)) {
@@ -2134,7 +2134,7 @@ namespace OpenBve {
 																} else {
 																	/// <info>System.IO.Path.Combine is used here as only a base file name is provided and thus does not exist anyway</info>
 																	f = System.IO.Path.Combine(ObjectPath, Interface.GetCorrectedPathSeparation(Arguments[1]));
-																	Signal.GlowObject = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+																	Signal.GlowObject = ObjectManager.LoadStaticObject(f, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 																	Signal.GlowTextures = LoadAllTextures(f, new World.ColorRGB(0, 0, 0), 1, TextureManager.TextureLoadMode.Bve4SignalGlow);
 																	if (Signal.GlowObject != null) {
 																		for (int p = 0; p < Signal.GlowObject.Mesh.Materials.Length; p++) {
@@ -2686,15 +2686,15 @@ namespace OpenBve {
 									{
 										if (!PreviewOnly) {
 											double start = 0.0, end = 0.0;
-											if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], UnitOfLength, out start)) {
+											int r = 128, g = 128, b = 128;
+											if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out start)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "StartingDistance is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												start = 0.0;
 											}
-											if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], UnitOfLength, out end)) {
+											if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out end)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "EndingDistance is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												end = 0.0;
 											}
-											int r = 128, g = 128, b = 128;
 											if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out r)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "RedValue is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												r = 128;
@@ -2716,15 +2716,7 @@ namespace OpenBve {
 												Interface.AddMessage(Interface.MessageType.Error, false, "BlueValue is required to be within the range from 0 to 255 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												b = b < 0 ? 0 : 255;
 											}
-											if (start < end & start < 600.0) {
-												if (start < 0.0) {
-													Interface.AddMessage(Interface.MessageType.Error, false, "StartingDistance is expected to be non-negative in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-													start = 0.0;
-												}
-												if (end < 0.0) {
-													Interface.AddMessage(Interface.MessageType.Error, false, "EndingDistance is expected to be non-negative in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-													end = 0.0;
-												}
+											if (start < end) {
 												Data.Blocks[BlockIndex].Fog.Start = (float)start;
 												Data.Blocks[BlockIndex].Fog.End = (float)end;
 											} else {
@@ -4267,23 +4259,23 @@ namespace OpenBve {
 				string CompatibilityFolder = Interface.GetDataFolder("Compatibility");
 				// load compatibility objects
 				SignalPath = Interface.GetCombinedFolderName(CompatibilityFolder, "Signals");
-				SignalPost = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalPath, "signal_post.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+				SignalPost = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalPath, "signal_post.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 				LimitPath = Interface.GetCombinedFolderName(CompatibilityFolder, "Limits");
 				LimitGraphicsPath = Interface.GetCombinedFolderName(LimitPath, "Graphics");
-				LimitPostStraight = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_straight.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
-				LimitPostLeft = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_left.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
-				LimitPostRight = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_right.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
-				LimitPostInfinite = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_infinite.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
-				LimitOneDigit = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_1_digit.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
-				LimitTwoDigits = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_2_digits.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
-				LimitThreeDigits = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_3_digits.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
-				StopPost = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(CompatibilityFolder, "stop.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+				LimitPostStraight = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_straight.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
+				LimitPostLeft = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_left.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
+				LimitPostRight = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_right.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
+				LimitPostInfinite = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_infinite.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
+				LimitOneDigit = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_1_digit.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
+				LimitTwoDigits = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_2_digits.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
+				LimitThreeDigits = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(LimitPath, "limit_3_digits.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
+				StopPost = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(CompatibilityFolder, "stop.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 				TransponderPath = Interface.GetCombinedFolderName(CompatibilityFolder, "Transponders");
-				TransponderS = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(TransponderPath, "s.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
-				TransponderSN = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(TransponderPath, "sn.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
-				TransponderFalseStart = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(TransponderPath, "falsestart.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
-				TransponderPOrigin = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(TransponderPath, "porigin.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
-				TransponderPStop = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(TransponderPath, "pstop.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+				TransponderS = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(TransponderPath, "s.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
+				TransponderSN = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(TransponderPath, "sn.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
+				TransponderFalseStart = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(TransponderPath, "falsestart.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
+				TransponderPOrigin = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(TransponderPath, "porigin.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
+				TransponderPStop = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(TransponderPath, "pstop.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 			} else {
 				SignalPath = null;
 				LimitPath = null;

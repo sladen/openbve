@@ -55,7 +55,7 @@ namespace OpenBve {
 		/// <param name="LoadMode">The texture load mode.</param>
 		/// <param name="ForceTextureRepeat">Whether to force TextureWrapMode.Repeat for referenced textures.</param>
 		/// <returns>The object loaded.</returns>
-		internal static ObjectManager.StaticObject ReadObject(string FileName, System.Text.Encoding Encoding, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeat) {
+		internal static ObjectManager.StaticObject ReadObject(string FileName, System.Text.Encoding Encoding, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeatX, bool ForceTextureRepeatY) {
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
 			bool IsB3D = string.Equals(System.IO.Path.GetExtension(FileName), ".b3d", StringComparison.OrdinalIgnoreCase);
 			// initialize object
@@ -118,7 +118,7 @@ namespace OpenBve {
 								if (Arguments.Length > 0) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "0 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
-								ApplyMeshBuilder(ref Object, Builder, LoadMode, ForceTextureRepeat);
+								ApplyMeshBuilder(ref Object, Builder, LoadMode, ForceTextureRepeatX, ForceTextureRepeatY);
 								Builder = new MeshBuilder();
 							} break;
 						case "addvertex":
@@ -576,7 +576,8 @@ namespace OpenBve {
 				}
 			}
 			// finalize object
-			ApplyMeshBuilder(ref Object, Builder, LoadMode, ForceTextureRepeat);
+			ApplyMeshBuilder(ref Object, Builder, LoadMode, ForceTextureRepeatX, ForceTextureRepeatY);
+			World.CreateNormals(ref Object.Mesh);
 			return Object;
 		}
 
@@ -649,7 +650,6 @@ namespace OpenBve {
 				int i2 = 2 * i + 1;
 				int i3 = 2 * i;
 				Builder.Faces[f + i].Vertices = new World.MeshFaceVertex[] { new World.MeshFaceVertex(v + i0, Normals[i0]), new World.MeshFaceVertex(v + i1, Normals[i1]), new World.MeshFaceVertex(v + i2, Normals[i2]), new World.MeshFaceVertex(v + i3, Normals[i3]) };
-				Builder.Faces[f + i].Flags = World.MeshFace.NormalValueAllExplicit;
 			}
 			for (int i = 0; i < m; i++) {
 				Builder.Faces[f + n + i].Vertices = new World.MeshFaceVertex[n];
@@ -788,7 +788,7 @@ namespace OpenBve {
 		}
 
 		// apply mesh builder
-		private static void ApplyMeshBuilder(ref ObjectManager.StaticObject Object, MeshBuilder Builder, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeat) {
+		private static void ApplyMeshBuilder(ref ObjectManager.StaticObject Object, MeshBuilder Builder, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeatX, bool ForceTextureRepeatY) {
 			if (Builder.Faces.Length != 0) {
 				int mf = Object.Mesh.Faces.Length;
 				int mm = Object.Mesh.Materials.Length;
@@ -811,12 +811,17 @@ namespace OpenBve {
 					Object.Mesh.Materials[mm + i].Color = Builder.Materials[i].Color;
 					Object.Mesh.Materials[mm + i].TransparentColor = Builder.Materials[i].TransparentColor;
 					TextureManager.TextureWrapMode WrapX, WrapY;
-					if (ForceTextureRepeat) {
+					if (ForceTextureRepeatX) {
 						WrapX = TextureManager.TextureWrapMode.Repeat;
-						WrapY = TextureManager.TextureWrapMode.Repeat;
 					} else {
 						WrapX = TextureManager.TextureWrapMode.ClampToEdge;
+					}
+					if (ForceTextureRepeatY) {
+						WrapY = TextureManager.TextureWrapMode.Repeat;
+					} else {
 						WrapY = TextureManager.TextureWrapMode.ClampToEdge;
+					}
+					if (WrapX != TextureManager.TextureWrapMode.Repeat | WrapY != TextureManager.TextureWrapMode.Repeat) {
 						for (int j = 0; j < Builder.Vertices.Length; j++) {
 							if (Builder.Vertices[j].TextureCoordinates.X < 0.0 | Builder.Vertices[j].TextureCoordinates.X > 1.0) {
 								WrapX = TextureManager.TextureWrapMode.Repeat;

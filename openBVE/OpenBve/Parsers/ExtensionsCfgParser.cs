@@ -12,11 +12,14 @@ namespace OpenBve {
 				// load file
 				string[] Lines = System.IO.File.ReadAllLines(FileName, Encoding);
 				for (int i = 0; i < Lines.Length; i++) {
-					Lines[i] = Lines[i].Trim();
-					int h = Lines[i].IndexOf(";");
-					if (h >= 0) {
-						Lines[i].Substring(0, h).TrimEnd();
+					int j = Lines[i].IndexOf(';');
+					if (j >= 0) {
+						Lines[i] = Lines[i].Substring(0, j).Trim();
+					} else {
+						Lines[i] = Lines[i].Trim();
 					}
+				}
+				for (int i = 0; i < Lines.Length; i++) {
 					if (Lines[i].Length != 0) {
 						switch (Lines[i].ToLowerInvariant()) {
 							case "[exterior]":
@@ -36,7 +39,7 @@ namespace OpenBve {
 													} else {
 														string File = Interface.GetCombinedFileName(TrainPath, b);
 														if (System.IO.File.Exists(File)) {
-															CarObjects[n] = ObjectManager.LoadObject(File, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+															CarObjects[n] = ObjectManager.LoadObject(File, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 														} else {
 															Interface.AddMessage(Interface.MessageType.Error, true, "The car object " + File + " does not exist at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 														}
@@ -77,7 +80,7 @@ namespace OpenBve {
 																} else {
 																	string File = Interface.GetCombinedFileName(TrainPath, b);
 																	if (System.IO.File.Exists(File)) {
-																		CarObjects[n] = ObjectManager.LoadObject(File, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false);
+																		CarObjects[n] = ObjectManager.LoadObject(File, Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 																	} else {
 																		Interface.AddMessage(Interface.MessageType.Error, true, "The car object " + File + " does not exist at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 																	}

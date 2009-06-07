@@ -643,7 +643,7 @@ namespace OpenBve {
 					}
 				}
 			}
-			// parantheses
+			// parentheses
 			{
 				int i = Expression.IndexOf('(');
 				if (i >= 0) {
@@ -657,7 +657,7 @@ namespace OpenBve {
 							case ')':
 								n--;
 								if (n < 0) {
-									throw new System.IO.InvalidDataException("Unexpected closing parantheses encountered in " + Expression);
+									throw new System.IO.InvalidDataException("Unexpected closing parenthesis encountered in " + Expression);
 								} else if (n == 0) {
 									string a = Expression.Substring(0, i).Trim();
 									string b = Expression.Substring(i + 1, j - i - 1).Trim();
@@ -666,11 +666,11 @@ namespace OpenBve {
 								} break;
 						} j++;
 					}
-					throw new System.IO.InvalidDataException("No closing parantheses found in " + Expression);
+					throw new System.IO.InvalidDataException("No closing parenthesis found in " + Expression);
 				} else {
 					i = Expression.IndexOf(')');
 					if (i >= 0) {
-						throw new System.IO.InvalidDataException("Unexpected closing parantheses encountered in " + Expression);
+						throw new System.IO.InvalidDataException("Unexpected closing parenthesis encountered in " + Expression);
 					}
 				}
 			}

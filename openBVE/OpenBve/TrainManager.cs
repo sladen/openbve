@@ -2039,21 +2039,29 @@ namespace OpenBve {
 						}
 					} else if (Transponder.Type == TrackManager.TransponderType.AtsPPatternOrigin | Transponder.Type == TrackManager.TransponderType.AtsPImmediateStop) {
 						if (s >= 0) {
-							if (Transponder.Type == TrackManager.TransponderType.AtsPImmediateStop) {
-								if (Game.Sections[s].Aspects[Game.Sections[s].CurrentAspect].Speed == 0.0) {
-									Train.Specs.Security.Ats.AtsPDistance = 0.0;
-								} else {
-									Train.Specs.Security.Ats.AtsPDistance = double.PositiveInfinity;
-								}
+							int k = s;
+							if (Game.Sections[k].Aspects[Game.Sections[k].CurrentAspect].Speed == 0.0) {
+								Train.Specs.Security.Ats.AtsPDistance = Game.Sections[k].TrackPosition - Train.Cars[0].FrontAxle.Follower.TrackPosition - 20.0;
 							} else {
 								Train.Specs.Security.Ats.AtsPDistance = double.PositiveInfinity;
-								int k = s; do {
-									if (!Game.Sections[k].Invisible & Game.Sections[k].Aspects[Game.Sections[k].CurrentAspect].Speed == 0.0) {
-										Train.Specs.Security.Ats.AtsPDistance = Game.Sections[k].TrackPosition - Train.Cars[0].FrontAxle.Follower.TrackPosition - 25.0;
-										break;
-									} k = Game.Sections[k].NextSection;
-								} while (k >= 0);
 							}
+							bool q = false;
+							do {
+								if (Game.Sections[k].Exists(Train)) {
+									if (q & Transponder.Type == TrackManager.TransponderType.AtsPImmediateStop) {
+										Train.Specs.Security.Ats.AtsPDistance = 0.0;
+									}
+									break;
+								}
+								if (Game.Sections[k].Aspects[Game.Sections[k].CurrentAspect].Speed == 0.0) {
+									Train.Specs.Security.Ats.AtsPDistance = Game.Sections[k].TrackPosition - Train.Cars[0].FrontAxle.Follower.TrackPosition - 20.0;
+									if (Train.Specs.Security.Ats.AtsPDistance < 0.0) break;
+									q = true;
+								} else {
+									q = false;
+								}
+								k = Game.Sections[k].PreviousSection;
+							} while (k >= 0);
 						} else {
 							Train.Specs.Security.Ats.AtsPDistance = double.PositiveInfinity;
 						}
