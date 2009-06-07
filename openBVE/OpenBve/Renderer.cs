@@ -14,7 +14,7 @@ namespace OpenBve {
 
 		// transparency
 		internal enum TransparencyMode {
-			/// <summary>Produces a crisp result for color-key textures and takes no special provisions for alpha textures</summary>
+			/// <summary>Produces a crisp result for color-key textures and takes no special provisions for alpha textures.</summary>
 			Sharp = 0,
 			/// <summary>Produces a smooth result for color-key textures and tries to eliminate fringes occuring as a result of bad depth sorting.</summary>
 			Smooth = 1
@@ -43,18 +43,18 @@ namespace OpenBve {
 			internal int ObjectIndex;
 			internal int FaceIndex;
 		}
-		/// opaque
+		// opaque
 		private static ObjectFace[] OpaqueList = new ObjectFace[256];
 		internal static int OpaqueListCount = 0;
-		/// transparent color
+		// transparent color
 		private static ObjectFace[] TransparentColorList = new ObjectFace[256];
 		private static double[] TransparentColorListDistance = new double[256];
 		internal static int TransparentColorListCount = 0;
-		/// alpha
+		// alpha
 		private static ObjectFace[] AlphaList = new ObjectFace[256];
 		private static double[] AlphaListDistance = new double[256];
 		internal static int AlphaListCount = 0;
-		/// overlay
+		// overlay
 		private static ObjectFace[] OverlayList = new ObjectFace[256];
 		private static double[] OverlayListDistance = new double[256];
 		internal static int OverlayListCount = 0;
@@ -461,7 +461,24 @@ namespace OpenBve {
 				}
 			}
 			// render daytime polygon
-			Gl.glBegin(Gl.GL_POLYGON);
+			int FaceType = Face.Flags & World.MeshFace.FaceTypeMask;
+			switch (FaceType) {
+				case World.MeshFace.FaceTypeTriangles:
+					Gl.glBegin(Gl.GL_TRIANGLES);
+					break;
+				case World.MeshFace.FaceTypeTriangleStrip:
+					Gl.glBegin(Gl.GL_TRIANGLE_STRIP);
+					break;
+				case World.MeshFace.FaceTypeQuads:
+					Gl.glBegin(Gl.GL_QUADS);
+					break;
+				case World.MeshFace.FaceTypeQuadStrip:
+					Gl.glBegin(Gl.GL_QUAD_STRIP);
+					break;
+				default:
+					Gl.glBegin(Gl.GL_POLYGON);
+					break;
+			}
 			if (Material.GlowAttenuationData != 0) {
 				float alphafactor = (float)GetDistanceFactor(Vertices, ref Face, Material.GlowAttenuationData, CameraX, CameraY, CameraZ);
 				Gl.glColor4f(inv255 * (float)Material.Color.R * factor, inv255 * Material.Color.G * factor, inv255 * (float)Material.Color.B * factor, inv255 * (float)Material.Color.A * alphafactor);
@@ -513,7 +530,23 @@ namespace OpenBve {
 				Gl.glBindTexture(Gl.GL_TEXTURE_2D, OpenGlNighttimeTextureIndex);
 				LastBoundTexture = 0;
 				Gl.glAlphaFunc(Gl.GL_GREATER, 0.0f);
-				Gl.glBegin(Gl.GL_POLYGON);
+				switch (FaceType) {
+					case World.MeshFace.FaceTypeTriangles:
+						Gl.glBegin(Gl.GL_TRIANGLES);
+						break;
+					case World.MeshFace.FaceTypeTriangleStrip:
+						Gl.glBegin(Gl.GL_TRIANGLE_STRIP);
+						break;
+					case World.MeshFace.FaceTypeQuads:
+						Gl.glBegin(Gl.GL_QUADS);
+						break;
+					case World.MeshFace.FaceTypeQuadStrip:
+						Gl.glBegin(Gl.GL_QUAD_STRIP);
+						break;
+					default:
+						Gl.glBegin(Gl.GL_POLYGON);
+						break;
+				}
 				float alphafactor;
 				if (Material.GlowAttenuationData != 0) {
 					alphafactor = (float)GetDistanceFactor(Vertices, ref Face, Material.GlowAttenuationData, CameraX, CameraY, CameraZ);
@@ -1964,7 +1997,7 @@ namespace OpenBve {
 										t = Interface.CurrentHudElements[i].Text;
 										break;
 								}
-								/// transitions
+								// transitions
 								float alpha = 1.0f;
 								if ((Interface.CurrentHudElements[i].Transition & Interface.HudTransition.Move) != 0) {
 									double s = Interface.CurrentHudElements[i].TransitionState;
@@ -1978,7 +2011,7 @@ namespace OpenBve {
 								}
 								/// render
 								if (alpha != 0.0f) {
-									/// background
+									// background
 									if (Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex >= 0) {
 										int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex, TextureManager.UseMode.LoadImmediately);
 										float r, g, b, a;
@@ -1986,7 +2019,7 @@ namespace OpenBve {
 										Gl.glColor4f(r, g, b, a * alpha);
 										RenderOverlayTexture(Interface.CurrentHudElements[i].CenterMiddle.BackgroundTextureIndex, x, y, x + w, y + h);
 									}
-									{ /// text
+									{ // text
 										float u, v;
 										MeasureString(t, Interface.CurrentHudElements[i].TextSize, out u, out v);
 										double p = Math.Round(Interface.CurrentHudElements[i].TextAlignment.X < 0 ? x : Interface.CurrentHudElements[i].TextAlignment.X == 0 ? x + 0.5 * (w - u) : x + w - u);
@@ -1997,7 +2030,7 @@ namespace OpenBve {
 										CreateTextColor(Interface.CurrentHudElements[i].TextColor, sc, out r, out g, out b, out a);
 										RenderString(p, q, Interface.CurrentHudElements[i].TextSize, t, -1, r, g, b, a * alpha, Interface.CurrentHudElements[i].TextShadow);
 									}
-									/// overlay
+									// overlay
 									if (Interface.CurrentHudElements[i].CenterMiddle.OverlayTextureIndex >= 0) {
 										int OpenGlTextureIndex = TextureManager.UseTexture(Interface.CurrentHudElements[i].CenterMiddle.OverlayTextureIndex, TextureManager.UseMode.LoadImmediately);
 										float r, g, b, a;
@@ -2034,6 +2067,9 @@ namespace OpenBve {
 					}
 				}
 			} else if (CurrentOutputMode == OutputMode.Debug) {
+				// debug
+				Gl.glColor4d(0.5, 0.5, 0.5, 0.5);
+				RenderOverlaySolid(0.0f, 0.0f, (double)ScreenWidth, (double)ScreenHeight);
 				// actual handles
 				{
 					string t = "actual: " + (TrainManager.PlayerTrain.Specs.CurrentReverser.Actual == -1 ? "B" : TrainManager.PlayerTrain.Specs.CurrentReverser.Actual == 1 ? "F" : "N");
@@ -2077,49 +2113,97 @@ namespace OpenBve {
 					RenderString(2.0, ScreenHeight - 18.0, Fonts.FontType.Small, t, -1, 1.0f, 1.0f, 1.0f, true);
 				}
 				// debug information
-				for (int y = 0; y < 11; y++) {
-					string t = "";
-					switch (y) {
-						case 0:
-							t = Game.InfoFrameRate.ToString("0.0", Culture) + " frames/s" + (MainLoop.LimitFramerate ? " (low cpu)" : "");
-							break;
-						case 1:
-							t += "speed: " + (Math.Abs(TrainManager.PlayerTrain.Specs.CurrentAverageSpeed) * 3.6).ToString("0.00", Culture) + " km/h - power: " + TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].Specs.CurrentAccelerationOutput.ToString("0.0000", Culture) + " m/s² - acc: " + TrainManager.PlayerTrain.Specs.CurrentAverageAcceleration.ToString("0.0000", Culture) + " m/s²";
-							break;
-						case 2:
-							t = "route limit: " + (TrainManager.PlayerTrain.CurrentRouteLimit == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.CurrentRouteLimit * 3.6).ToString("0.0", Culture) + " km/h"));
-							t += ", signal limit: " + (TrainManager.PlayerTrain.CurrentSectionLimit == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.CurrentSectionLimit * 3.6).ToString("0.0", Culture) + " km/h"));
-							if (TrainManager.PlayerTrain.Specs.Security.Atc.Available) {
-								t += ", atc limit: " + (TrainManager.PlayerTrain.Specs.Security.Atc.SpeedRestriction == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.Specs.Security.Atc.SpeedRestriction * 3.6).ToString("0.0", Culture) + " km/h"));
-							}
-							break;
-						case 3:
-							t = "score: " + Game.CurrentScore.Value.ToString(Culture);
-							break;
-						case 4:
-							t = "positions: " + World.CameraTrackFollower.TrackPosition.ToString("0.00", Culture) + " m (camera), " + (TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition - TrainManager.PlayerTrain.Cars[0].FrontAxlePosition + 0.5 * TrainManager.PlayerTrain.Cars[0].Length).ToString("0.00", Culture) + " m (train front)";
-							break;
-						case 5:
-							t = "objects: " + ObjectManager.ObjectsUsed.ToString(Culture) + " normal + " + ObjectManager.AnimatedWorldObjectsUsed.ToString(Culture) + " animated";
-							break;
-						case 6:
-							t = "polygons: " + OpaqueListCount.ToString(Culture) + " opaque + " + TransparentColorListCount.ToString(Culture) + " transparent + " + AlphaListCount.ToString(Culture) + " alpha + " + OverlayListCount.ToString(Culture) + " overlay";
-							break;
-						case 7:
-							t = "textures: " + Game.InfoTexturesLoaded.ToString(Culture) + " loaded / " + Game.InfoTexturesRegistered.ToString(Culture) + " registered";
-							break;
-						case 8:
-							t = "sound sources: " + Game.InfoSoundSourcesPlaying.ToString(Culture) + " playing / " + Game.InfoSoundSourcesRegistered.ToString(Culture) + " registered, outerradiusfactor: " + SoundManager.OuterRadiusFactor.ToString("0.00");
-							break;
-						case 9:
-							int d = TrainManager.PlayerTrain.DriverCar;
-							t = "elevation: " + (Game.RouteInitialElevation + TrainManager.PlayerTrain.Cars[d].FrontAxle.Follower.WorldPosition.Y).ToString("0.00", Culture) + " m, temperature: " + (TrainManager.PlayerTrain.Specs.CurrentAirTemperature - 273.15).ToString("0.00", Culture) + "[" + (Game.RouteSeaLevelAirTemperature - 273.15).ToString("0.00", Culture) + "] °C, pressure: " + (0.001 * TrainManager.PlayerTrain.Specs.CurrentAirPressure).ToString("0.00", Culture) + "[" + (0.001 * Game.RouteSeaLevelAirPressure).ToString("0.00", Culture) + "] kPa, density: " + TrainManager.PlayerTrain.Specs.CurrentAirDensity.ToString("0.0000", Culture) + " kg/m³";
-							break;
-						case 10:
-							t = Game.InfoDebugString;
-							break;
+				int texturesLoaded = 0;
+				int texturesRegistered = 0;
+				for (int i = 0; i < TextureManager.Textures.Length; i++) {
+					if (TextureManager.Textures[i] != null) {
+						if (TextureManager.Textures[i].Loaded) {
+							texturesLoaded++;
+						}
+						texturesRegistered++;
 					}
-					RenderString(2.0, 2.0 + 14.0 * y, Fonts.FontType.Small, t, -1, 1.0f, 1.0f, 1.0f, true);
+				}
+				int soundsPlaying = 0;
+				int soundsRegistered = 0;
+				for (int i = 0; i < SoundManager.SoundSources.Length; i++) {
+					if (SoundManager.SoundSources[i] != null) {
+						if (!SoundManager.SoundSources[i].Suppressed) {
+							soundsPlaying++;
+						}
+						soundsRegistered++;
+					}
+				}
+				int car = 0;
+				for (int i = 0; i < TrainManager.PlayerTrain.Cars.Length; i++) {
+					if (TrainManager.PlayerTrain.Cars[i].Specs.IsMotorCar) {
+						car = i;
+						break;
+					}
+				}
+				string[] Lines = new string[] {
+					"=system",
+					"fps: " + Game.InfoFrameRate.ToString("0.0", Culture) + (MainLoop.LimitFramerate ? " (low cpu)" : ""),
+					"score: " + Game.CurrentScore.Value.ToString(Culture),
+					"",
+					"=train",
+					"speed: " + (Math.Abs(TrainManager.PlayerTrain.Specs.CurrentAverageSpeed) * 3.6).ToString("0.00", Culture) + " km/h",
+					"power (car " + car.ToString(Culture) +  "): " + TrainManager.PlayerTrain.Cars[car].Specs.CurrentAccelerationOutput.ToString("0.0000", Culture) + " m/s²",
+					"acceleration: " + TrainManager.PlayerTrain.Specs.CurrentAverageAcceleration.ToString("0.0000", Culture) + " m/s²",
+					"position: " + (TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition - TrainManager.PlayerTrain.Cars[0].FrontAxlePosition + 0.5 * TrainManager.PlayerTrain.Cars[0].Length).ToString("0.00", Culture) + " m",
+					"elevation: " + (Game.RouteInitialElevation + TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].FrontAxle.Follower.WorldPosition.Y).ToString("0.00", Culture) + " m",
+					"temperature: " + (TrainManager.PlayerTrain.Specs.CurrentAirTemperature - 273.15).ToString("0.00", Culture) + " °C",
+					"air pressure: " + (0.001 * TrainManager.PlayerTrain.Specs.CurrentAirPressure).ToString("0.00", Culture) + " kPa",
+					"air density: " + TrainManager.PlayerTrain.Specs.CurrentAirDensity.ToString("0.0000", Culture) + " kg/m³",
+					"",
+					"=route",
+					"track limit: " + (TrainManager.PlayerTrain.CurrentRouteLimit == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.CurrentRouteLimit * 3.6).ToString("0.0", Culture) + " km/h")),
+					"signal limit: " + (TrainManager.PlayerTrain.CurrentSectionLimit == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.CurrentSectionLimit * 3.6).ToString("0.0", Culture) + " km/h")),
+					"atc limit: " + (TrainManager.PlayerTrain.Specs.Security.Atc.Available ? (TrainManager.PlayerTrain.Specs.Security.Atc.SpeedRestriction == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.Specs.Security.Atc.SpeedRestriction * 3.6).ToString("0.0", Culture) + " km/h")) : "N/A"),
+					"total static objects: " + ObjectManager.ObjectsUsed.ToString(Culture),
+					"total static GL_TRIANGLES: " + Game.InfoTotalTriangles.ToString(Culture),
+					"total static GL_TRIANGLE_STRIP: " + Game.InfoTotalTriangleStrip.ToString(Culture),
+					"total static GL_QUADS: " + Game.InfoTotalQuads.ToString(Culture),
+					"total static GL_QUAD_STRIP: " + Game.InfoTotalQuadStrip.ToString(Culture),
+					"total static GL_POLYGON: " + Game.InfoTotalPolygon.ToString(Culture),
+					"total animated objects: " + ObjectManager.AnimatedWorldObjectsUsed.ToString(Culture),
+					"",
+					"=renderer",
+					"opaque faces: " + OpaqueListCount.ToString(Culture),
+					"transparent faces: " + TransparentColorListCount.ToString(Culture),
+					"alpha faces: " + AlphaListCount.ToString(Culture),
+					"overlay faces: " + OverlayListCount.ToString(Culture),
+					"textures loaded: " + texturesLoaded.ToString(Culture),
+					"textures registered: " + texturesRegistered.ToString(Culture),
+					"camera: " + World.CameraTrackFollower.TrackPosition.ToString("0.00", Culture) + " m",
+					"",
+					"=sound",
+					"sounds playing: " + soundsPlaying.ToString(Culture),
+					"sounds registered: " + soundsRegistered.ToString(Culture),
+					"outer radius factor: " + SoundManager.OuterRadiusFactor.ToString("0.00"),
+					"",
+					Game.InfoDebugString ?? ""
+				};
+				double x = 4.0;
+				double y = 4.0;
+				for (int i = 0; i < Lines.Length; i++) {
+					if (Lines[i].Length != 0) {
+						if (Lines[i][0] == '=') {
+							string text = Lines[i].Substring(1);
+							float width, height;
+							MeasureString(text, Fonts.FontType.Small, out width, out height);
+							Gl.glColor4f(0.5f, 0.5f, 0.7f, 0.7f);
+							RenderOverlaySolid(x, y, x + width + 4.0f, y + height + 2.0f);
+							RenderString(x, y, Fonts.FontType.Small, text, -1, 1.0f, 1.0f, 1.0f, false);
+						} else {
+							RenderString(x, y, Fonts.FontType.Small, Lines[i], -1, 1.0f, 1.0f, 1.0f, true);
+						}
+						y += 14.0;
+					} else if (y >= (double)ScreenHeight - 240.0) {
+						x += 280.0;
+						y = 4.0;
+					} else {
+						y += 14.0;
+					}
 				}
 			}
 			// air brake debug output
@@ -2128,7 +2212,7 @@ namespace OpenBve {
 				bool[] heading = new bool[6];
 				for (int i = 0; i < TrainManager.PlayerTrain.Cars.Length; i++) {
 					double x = 96.0, w = 128.0;
-					/// brake pipe
+					// brake pipe
 					if (TrainManager.PlayerTrain.Cars[i].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake | TrainManager.PlayerTrain.Cars[i].Specs.BrakeType == TrainManager.CarBrakeType.ElectromagneticStraightAirBrake) {
 						if (!heading[0]) {
 							RenderString(x, oy - 16.0, Fonts.FontType.Small, "Brake pipe", -1, 1.0f, 1.0f, 0.0f, true);
@@ -2141,7 +2225,7 @@ namespace OpenBve {
 						Gl.glColor3f(1.0f, 1.0f, 0.0f);
 						RenderOverlaySolid(x, y, x + r * w, y + h);
 					} x += w + 8.0;
-					/// auxillary reservoir
+					// auxillary reservoir
 					if (TrainManager.PlayerTrain.Cars[i].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake | TrainManager.PlayerTrain.Cars[i].Specs.BrakeType == TrainManager.CarBrakeType.ElectromagneticStraightAirBrake) {
 						if (!heading[1]) {
 							RenderString(x, oy - 16.0, Fonts.FontType.Small, "Auxillary reservoir", -1, 0.75f, 0.75f, 0.75f, true);
@@ -2154,7 +2238,7 @@ namespace OpenBve {
 						Gl.glColor3f(0.5f, 0.5f, 0.5f);
 						RenderOverlaySolid(x, y, x + r * w, y + h);
 					} x += w + 8.0;
-					/// brake cylinder
+					// brake cylinder
 					{
 						if (!heading[2]) {
 							RenderString(x, oy - 16.0, Fonts.FontType.Small, "Brake cylinder", -1, 0.75f, 0.5f, 0.25f, true);
@@ -2167,7 +2251,7 @@ namespace OpenBve {
 						Gl.glColor3f(0.75f, 0.5f, 0.25f);
 						RenderOverlaySolid(x, y, x + r * w, y + h);
 					} x += w + 8.0;
-					/// main reservoir
+					// main reservoir
 					if (TrainManager.PlayerTrain.Cars[i].Specs.AirBrake.Type == TrainManager.AirBrakeType.Main) {
 						if (!heading[3]) {
 							RenderString(x, oy - 16.0, Fonts.FontType.Small, "Main reservoir", -1, 1.0f, 0.0f, 0.0f, true);
@@ -2180,7 +2264,7 @@ namespace OpenBve {
 						Gl.glColor3f(1.0f, 0.0f, 0.0f);
 						RenderOverlaySolid(x, y, x + r * w, y + h);
 					} x += w + 8.0;
-					/// equalizing reservoir
+					// equalizing reservoir
 					if (TrainManager.PlayerTrain.Cars[i].Specs.AirBrake.Type == TrainManager.AirBrakeType.Main) {
 						if (!heading[4]) {
 							RenderString(x, oy - 16.0, Fonts.FontType.Small, "Equalizing reservoir", -1, 0.0f, 0.75f, 0.0f, true);
@@ -2193,7 +2277,7 @@ namespace OpenBve {
 						Gl.glColor3f(0.0f, 0.75f, 0.0f);
 						RenderOverlaySolid(x, y, x + r * w, y + h);
 					} x += w + 8.0;
-					/// straight air pipe
+					// straight air pipe
 					if (TrainManager.PlayerTrain.Cars[i].Specs.BrakeType == TrainManager.CarBrakeType.ElectromagneticStraightAirBrake & TrainManager.PlayerTrain.Cars[i].Specs.AirBrake.Type == TrainManager.AirBrakeType.Main) {
 						if (!heading[5]) {
 							RenderString(x, oy - 16.0, Fonts.FontType.Small, "Straight air pipe", -1, 0.0f, 0.75f, 1.0f, true);
@@ -2507,7 +2591,7 @@ namespace OpenBve {
 			Gl.glEnd();
 		}
 
-		// readd objects
+		// re-add objects
 		private static void ReAddObjects() {
 			Object[] List = new Object[ObjectListCount];
 			for (int i = 0; i < ObjectListCount; i++) {
@@ -2535,7 +2619,7 @@ namespace OpenBve {
 				ObjectList[ObjectListCount].FaceListIndices = new int[f];
 				for (int i = 0; i < f; i++) {
 					if (Overlay) {
-						/// overlay
+						// overlay
 						if (OverlayListCount >= OverlayList.Length) {
 							Array.Resize(ref OverlayList, OverlayList.Length << 1);
 							Array.Resize(ref OverlayListDistance, OverlayList.Length);
@@ -2575,7 +2659,7 @@ namespace OpenBve {
 							}
 						}
 						if (alpha) {
-							/// alpha
+							// alpha
 							if (AlphaListCount >= AlphaList.Length) {
 								Array.Resize(ref AlphaList, AlphaList.Length << 1);
 								Array.Resize(ref AlphaListDistance, AlphaList.Length);
@@ -2586,7 +2670,7 @@ namespace OpenBve {
 							ObjectList[ObjectListCount].FaceListIndices[i] = (AlphaListCount << 2) + 2;
 							AlphaListCount++;
 						} else if (transparentcolor) {
-							/// transparent color
+							// transparent color
 							if (TransparentColorListCount >= TransparentColorList.Length) {
 								Array.Resize(ref TransparentColorList, TransparentColorList.Length << 1);
 								Array.Resize(ref TransparentColorListDistance, TransparentColorList.Length);
@@ -2597,7 +2681,7 @@ namespace OpenBve {
 							ObjectList[ObjectListCount].FaceListIndices[i] = (TransparentColorListCount << 2) + 1;
 							TransparentColorListCount++;
 						} else {
-							/// opaque
+							// opaque
 							if (OpaqueListCount >= OpaqueList.Length) {
 								Array.Resize(ref OpaqueList, OpaqueList.Length << 1);
 							}
@@ -2625,25 +2709,25 @@ namespace OpenBve {
 					int hi = h >> 2;
 					switch (h & 3) {
 						case 0:
-							/// opaque
+							// opaque
 							OpaqueList[hi] = OpaqueList[OpaqueListCount - 1];
 							OpaqueListCount--;
 							ObjectList[OpaqueList[hi].ObjectListIndex].FaceListIndices[OpaqueList[hi].FaceIndex] = h;
 							break;
 						case 1:
-							/// transparent color
+							// transparent color
 							TransparentColorList[hi] = TransparentColorList[TransparentColorListCount - 1];
 							TransparentColorListCount--;
 							ObjectList[TransparentColorList[hi].ObjectListIndex].FaceListIndices[TransparentColorList[hi].FaceIndex] = h;
 							break;
 						case 2:
-							/// alpha
+							// alpha
 							AlphaList[hi] = AlphaList[AlphaListCount - 1];
 							AlphaListCount--;
 							ObjectList[AlphaList[hi].ObjectListIndex].FaceListIndices[AlphaList[hi].FaceIndex] = h;
 							break;
 						case 3:
-							/// overlay
+							// overlay
 							OverlayList[hi] = OverlayList[OverlayListCount - 1];
 							OverlayListCount--;
 							ObjectList[OverlayList[hi].ObjectListIndex].FaceListIndices[OverlayList[hi].FaceIndex] = h;

@@ -81,26 +81,8 @@ namespace OpenBve {
 					}
 					TotalTimeElapsedForSectionUpdate = 0.0;
 				}
-				if (TotalTimeElapsedForInfo >= 0.25) {
+				if (TotalTimeElapsedForInfo >= 0.2) {
 					Game.InfoFrameRate = (double)TotalFramesElapsed / TotalTimeElapsedForInfo;
-					Game.InfoTexturesLoaded = 0;
-					Game.InfoTexturesRegistered = 0;
-					for (int i = 0; i < TextureManager.Textures.Length; i++) {
-						if (TextureManager.Textures[i] != null) {
-							if (TextureManager.Textures[i].Loaded) Game.InfoTexturesLoaded++;
-							Game.InfoTexturesRegistered++;
-						}
-					}
-					Game.InfoSoundSourcesRegistered = 0;
-					Game.InfoSoundSourcesPlaying = 0;
-					for (int i = 0; i < SoundManager.SoundSources.Length; i++) {
-						if (SoundManager.SoundSources[i] != null) {
-							Game.InfoSoundSourcesRegistered++;
-							if (!SoundManager.SoundSources[i].Suppressed) {
-								Game.InfoSoundSourcesPlaying++;
-							}
-						}
-					}
 					TotalTimeElapsedForInfo = 0.0;
 					TotalFramesElapsed = 0;
 				}

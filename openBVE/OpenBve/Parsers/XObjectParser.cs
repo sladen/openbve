@@ -6,7 +6,7 @@ namespace OpenBve {
 	internal static class XObjectParser {
 
 		// read object
-		internal static ObjectManager.StaticObject ReadObject(string FileName, System.Text.Encoding Encoding, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeat) {
+		internal static ObjectManager.StaticObject ReadObject(string FileName, System.Text.Encoding Encoding, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeatX, bool ForceTextureRepeatY) {
 			byte[] Data = System.IO.File.ReadAllBytes(FileName);
 			if (Data.Length < 16 || Data[0] != 120 | Data[1] != 111 | Data[2] != 102 | Data[3] != 32) {
 				// not an x object
@@ -32,10 +32,10 @@ namespace OpenBve {
 			// supported floating point format
 			if (Data[8] == 116 & Data[9] == 120 & Data[10] == 116 & Data[11] == 32) {
 				// textual flavor
-				return LoadTextualX(FileName, System.IO.File.ReadAllText(FileName), Encoding, LoadMode, ForceTextureRepeat);
+				return LoadTextualX(FileName, System.IO.File.ReadAllText(FileName), Encoding, LoadMode, ForceTextureRepeatX, ForceTextureRepeatY);
 			} else if (Data[8] == 98 & Data[9] == 105 & Data[10] == 110 & Data[11] == 32) {
 				// binary flavor
-				return LoadBinaryX(FileName, Data, 16, Encoding, FloatingPointSize, LoadMode, ForceTextureRepeat);
+				return LoadBinaryX(FileName, Data, 16, Encoding, FloatingPointSize, LoadMode, ForceTextureRepeatX, ForceTextureRepeatY);
 			} else if (Data[8] == 116 & Data[9] == 122 & Data[10] == 105 & Data[11] == 112) {
 				// compressed textual flavor
 				#if !DEBUG
@@ -43,7 +43,7 @@ namespace OpenBve {
 					#endif
 					byte[] Uncompressed = Decompress(Data);
 					string Text = Encoding.GetString(Uncompressed);
-					return LoadTextualX(FileName, Text, Encoding, LoadMode, ForceTextureRepeat);
+					return LoadTextualX(FileName, Text, Encoding, LoadMode, ForceTextureRepeatX, ForceTextureRepeatY);
 					#if !DEBUG
 				} catch (Exception ex) {
 					Interface.AddMessage(Interface.MessageType.Error, false, "An unexpected error occured (" + ex.Message + ") while attempting to decompress the binary X object file encountered in " + FileName);
@@ -56,7 +56,7 @@ namespace OpenBve {
 				try {
 					#endif
 					byte[] Uncompressed = Decompress(Data);
-					return LoadBinaryX(FileName, Uncompressed, 0, Encoding, FloatingPointSize, LoadMode, ForceTextureRepeat);
+					return LoadBinaryX(FileName, Uncompressed, 0, Encoding, FloatingPointSize, LoadMode, ForceTextureRepeatX, ForceTextureRepeatY);
 					#if !DEBUG
 				} catch (Exception ex) {
 					Interface.AddMessage(Interface.MessageType.Error, false, "An unexpected error occured (" + ex.Message + ") while attempting to decompress the binary X object file encountered in " + FileName);
@@ -146,7 +146,7 @@ namespace OpenBve {
 		// ================================
 
 		// load textual x
-		private static ObjectManager.StaticObject LoadTextualX(string FileName, string Text, System.Text.Encoding Encoding, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeat) {
+		private static ObjectManager.StaticObject LoadTextualX(string FileName, string Text, System.Text.Encoding Encoding, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeatX, bool ForceTextureRepeatY) {
 			// load
 			string[] Lines = Text.Replace("\u000D\u000A", "\u2028").Split(new char[] { '\u000A', '\u000C', '\u000D', '\u0085', '\u2028', '\u2029' }, StringSplitOptions.None);
 			// strip away comments
@@ -182,7 +182,7 @@ namespace OpenBve {
 			}
 			// process structure
 			ObjectManager.StaticObject Object;
-			if (!ProcessStructure(FileName, Structure, out Object, LoadMode, ForceTextureRepeat)) {
+			if (!ProcessStructure(FileName, Structure, out Object, LoadMode, ForceTextureRepeatX, ForceTextureRepeatY)) {
 				return null;
 			}
 			return Object;
@@ -591,7 +591,7 @@ namespace OpenBve {
 		// ================================
 
 		// load binary x
-		private static ObjectManager.StaticObject LoadBinaryX(string FileName, byte[] Data, int StartingPosition, System.Text.Encoding Encoding, int FloatingPointSize, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeat) {
+		private static ObjectManager.StaticObject LoadBinaryX(string FileName, byte[] Data, int StartingPosition, System.Text.Encoding Encoding, int FloatingPointSize, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeatX, bool ForceTextureRepeatY) {
 			// parse file
 			Structure Structure;
 			try {
@@ -615,7 +615,7 @@ namespace OpenBve {
 			}
 			// process structure
 			ObjectManager.StaticObject Object;
-			if (!ProcessStructure(FileName, Structure, out Object, LoadMode, ForceTextureRepeat)) {
+			if (!ProcessStructure(FileName, Structure, out Object, LoadMode, ForceTextureRepeatX, ForceTextureRepeatY)) {
 				return null;
 			} return Object;
 		}
@@ -1028,7 +1028,7 @@ namespace OpenBve {
 		}
 
 		// process structure
-		private static bool ProcessStructure(string FileName, Structure Structure, out ObjectManager.StaticObject Object, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeat) {
+		private static bool ProcessStructure(string FileName, Structure Structure, out ObjectManager.StaticObject Object, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeatX, bool ForceTextureRepeatY) {
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
 			Object = new ObjectManager.StaticObject();
 			Object.Mesh.Faces = new World.MeshFace[] { };
@@ -1564,12 +1564,17 @@ namespace OpenBve {
 								bool transparent;
 								if (Materials[j].TextureFilename != null) {
 									TextureManager.TextureWrapMode WrapX, WrapY;
-									if (ForceTextureRepeat) {
+									if (ForceTextureRepeatX) {
 										WrapX = TextureManager.TextureWrapMode.Repeat;
-										WrapY = TextureManager.TextureWrapMode.Repeat;
 									} else {
 										WrapX = TextureManager.TextureWrapMode.ClampToEdge;
+									}
+									if (ForceTextureRepeatY) {
+										WrapY = TextureManager.TextureWrapMode.Repeat;
+									} else {
 										WrapY = TextureManager.TextureWrapMode.ClampToEdge;
+									}
+									if (WrapX != TextureManager.TextureWrapMode.Repeat | WrapY != TextureManager.TextureWrapMode.Repeat) {
 										for (int k = 0; k < nFaces; k++) {
 											for (int h = 0; h < Faces[k].Length; h++) {
 												if (Vertices[Faces[k][h]].TextureCoordinates.X < 0.0 | Vertices[Faces[k][h]].TextureCoordinates.X > 1.0) {
@@ -1602,16 +1607,9 @@ namespace OpenBve {
 							for (int j = 0; j < nFaces; j++) {
 								Object.Mesh.Faces[mf + j].Material = (ushort)FaceMaterials[j];
 								Object.Mesh.Faces[mf + j].Vertices = new World.MeshFaceVertex[Faces[j].Length];
-								bool impl = false, expl = false;
 								for (int k = 0; k < Faces[j].Length; k++) {
 									Object.Mesh.Faces[mf + j].Vertices[mv + k] = new World.MeshFaceVertex(mv + Faces[j][k], FaceNormals[j][k]);
-									if (FaceNormals[j][k].IsZero()) {
-										impl = true;
-									} else {
-										expl = true;
-									}
 								}
-								Object.Mesh.Faces[mf + j].Flags = impl & expl ? (byte)World.MeshFace.NormalValueMixed : expl ? (byte)World.MeshFace.NormalValueAllExplicit : (byte)World.MeshFace.NormalValueAllImplicit;
 							}
 							for (int j = 0; j < Vertices.Length; j++) {
 								Object.Mesh.Vertices[mv + j] = Vertices[j];
@@ -1627,6 +1625,7 @@ namespace OpenBve {
 				}
 			}
 			// return
+			World.CreateNormals(ref Object.Mesh);
 			return true;
 		}
 

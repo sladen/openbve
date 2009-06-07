@@ -414,7 +414,7 @@ namespace OpenBve {
 			ObjectManager.UpdateVisibility(World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z);
 			World.CameraSavedInterior = new World.CameraAlignment();
 			World.CameraSavedExterior = new World.CameraAlignment(new World.Vector3D(-2.5, 1.5, -15.0), 0.3, -0.2, 0.0, FirstStationPosition, 1.0);
-			World.CameraSavedTrack = new World.CameraAlignment(new World.Vector3D(-3.0, 2.5, -10.0), 0.3, 0.0, 0.0, TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition, 1.0);
+			World.CameraSavedTrack = new World.CameraAlignment(new World.Vector3D(-3.0, 2.5, 0.0), 0.3, 0.0, 0.0, TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition - 10.0, 1.0);
 		}
 
 	}

@@ -43,6 +43,7 @@ namespace OpenBve {
 							Result.Objects[Objects].RefreshRate = 0.0;
 							Result.Objects[Objects].ObjectIndex = -1;
 							World.Vector3D Position = new World.Vector3D(0.0, 0.0, 0.0);
+							string[] StateFiles = null;
 							while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 								if (Lines[i].Length != 0) {
 									int j = Lines[i].IndexOf("=", StringComparison.Ordinal);
@@ -73,18 +74,17 @@ namespace OpenBve {
 													string[] s = b.Split(',');
 													if (s.Length >= 1) {
 														string Folder = System.IO.Path.GetDirectoryName(FileName);
-														Result.Objects[Objects].States = new ObjectManager.AnimatedObjectState[s.Length];
+														StateFiles = new string[s.Length];
 														for (int k = 0; k < s.Length; k++) {
 															s[k] = s[k].Trim();
 															if (Interface.ContainsInvalidPathChars(s[k])) {
 																Interface.AddMessage(Interface.MessageType.Error, false, "File" + k.ToString(Culture) + " contains illegal characters in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+																StateFiles[k] = null;
 															} else {
-																string f = Interface.GetCombinedFileName(Folder, s[k]);
-																Result.Objects[Objects].States[k].Position = new World.Vector3D(0.0, 0.0, 0.0);
-																if (System.IO.File.Exists(f)) {
-																	Result.Objects[Objects].States[k].Object = ObjectManager.LoadStaticObject(f, Encoding, LoadMode, false, false);
-																} else {
-																	Interface.AddMessage(Interface.MessageType.Error, true, "Object file " + f + " not found in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+																StateFiles[k] = Interface.GetCombinedFileName(Folder, s[k]);
+																if (!System.IO.File.Exists(StateFiles[k])) {
+																	Interface.AddMessage(Interface.MessageType.Error, true, "File " + StateFiles[k] + " not found in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+																	StateFiles[k] = null;
 																}
 															}
 														}
@@ -338,10 +338,29 @@ namespace OpenBve {
 										Interface.AddMessage(Interface.MessageType.Error, false, "Invalid statement " + Lines[i] + " encountered at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 										return null;
 									}
-								} i++;
-							} i--;
-							for (int j = 0; j < Result.Objects[Objects].States.Length; j++) {
-								Result.Objects[Objects].States[j].Position = Position;
+								}
+								i++;
+							}
+							i--;
+							if (StateFiles != null) {
+								Result.Objects[Objects].States = new ObjectManager.AnimatedObjectState[StateFiles.Length];
+								bool ForceTextureRepeatX = Result.Objects[Objects].TextureShiftXFunction != null & Result.Objects[Objects].TextureShiftXDirection.X != 0.0 |
+									Result.Objects[Objects].TextureShiftYFunction != null & Result.Objects[Objects].TextureShiftYDirection.Y != 0.0;
+								bool ForceTextureRepeatY = Result.Objects[Objects].TextureShiftXFunction != null & Result.Objects[Objects].TextureShiftXDirection.X != 0.0 |
+									Result.Objects[Objects].TextureShiftYFunction != null & Result.Objects[Objects].TextureShiftYDirection.Y != 0.0;
+								for (int k = 0; k < StateFiles.Length; k++) {
+									Result.Objects[Objects].States[k].Position = new World.Vector3D(0.0, 0.0, 0.0);
+									if (StateFiles[k] != null) {
+										Result.Objects[Objects].States[k].Object = ObjectManager.LoadStaticObject(StateFiles[k], Encoding, LoadMode, false, ForceTextureRepeatX, ForceTextureRepeatY);
+									} else {
+										Result.Objects[Objects].States[k].Object = null;
+									}
+									for (int j = 0; j < Result.Objects[Objects].States.Length; j++) {
+										Result.Objects[Objects].States[j].Position = Position;
+									}
+								}
+							} else {
+								Result.Objects[Objects].States = new ObjectManager.AnimatedObjectState[] { };
 							}
 							Objects++;
 							break;

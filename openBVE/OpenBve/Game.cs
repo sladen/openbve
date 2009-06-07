@@ -27,8 +27,8 @@ namespace OpenBve {
 		internal static Fog PreviousFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 0.0);
 		internal static Fog CurrentFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 0.5);
 		internal static Fog NextFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 1.0);
-		internal const float NoFogStart = 800.0f;
-		internal const float NoFogEnd = 1600.0f;
+		internal static float NoFogStart = 800.0f;
+		internal static float NoFogEnd = 1600.0f;
 		
 		// route constants
 		internal static string RouteComment = "";
@@ -101,18 +101,13 @@ namespace OpenBve {
 		internal static string TrainName = "";
 
 		// information
-		internal enum OutputMode {
-			Default = 0,
-			Fps = 1,
-			Debug = 2,
-			None = 3
-		}
 		internal static double InfoFrameRate = 1.0;
-		internal static int InfoTexturesRegistered = 0;
-		internal static int InfoTexturesLoaded = 0;
-		internal static int InfoSoundSourcesRegistered = 0;
-		internal static int InfoSoundSourcesPlaying = 0;
 		internal static string InfoDebugString = "";
+		internal static int InfoTotalTriangles = 0;
+		internal static int InfoTotalTriangleStrip = 0;
+		internal static int InfoTotalQuadStrip = 0;
+		internal static int InfoTotalQuads = 0;
+		internal static int InfoTotalPolygon = 0;
 
 		// ================================
 
@@ -246,6 +241,13 @@ namespace OpenBve {
 			PreviousFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 0.0);
 			CurrentFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 0.5);
 			NextFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 1.0);
+			NoFogStart = (float)World.BackgroundImageDistance + 200.0f;
+			NoFogEnd = 2.0f * NoFogStart;
+			InfoTotalTriangles = 0;
+			InfoTotalTriangleStrip = 0;
+			InfoTotalQuads = 0;
+			InfoTotalQuadStrip = 0;
+			InfoTotalPolygon = 0;
 			if (ResetLogs) {
 				LogRouteName = "";
 				LogTrainName = "";
@@ -1198,6 +1200,8 @@ namespace OpenBve {
 						double BrakeDeceleration = Train.Cars[Train.DriverCar].Specs.BrakeDecelerationAtServiceMaximumPressure;
 						if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake | Train.Specs.MaximumBrakeNotch <= 0) {
 							dectol = 0.1 * BrakeDeceleration;
+						} else if (Train.Specs.MaximumBrakeNotch <= 2) {
+							dectol = 0.3 * BrakeDeceleration;
 						} else {
 							dectol = 0.9 * BrakeDeceleration / (double)Train.Specs.MaximumBrakeNotch;
 						}
