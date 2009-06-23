@@ -45,6 +45,61 @@
 <table><tr style="height: 4px;"><td /></tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.0.7.2 (2009-06-17)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Bugfix:</b> Some objects did not load correctly since 1.0.7.0 and would produce a message about an unexpected error.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.0.7.1 (2009-06-14)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Renderer:</b> Rendering is now noticably faster.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Renderer:</b> Minor improvements to reduce artifacts related to depth sorting.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Renderer:</b> Circumvented an OpenGL glitch that could cause erratic polygons to appear whenever fullscreen was toggled on or off.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Interface:</b> For users who experience long loading times, <a href="use/hidden.html">hidden options</a> have been introduced to reduce or disable the object optimization process.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Simulation:</b> Fully rewritten ATS-P results in more realistic brake curves.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Developing routes:</b> New options for <em>ArrivalTime</em> in the <em>Track.Sta</em> and <em>Track.Station</em> commands make it possible for the player to stop at a station, but not the preceding train, or vise versa.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Developing objects:</b> New arguments for <em>AddVertex</em> (CSV) and <em>Vertex</em> (B3D) allow for providing custom normals.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><b>Developing objects:</b> Added the <em>Shear</em> and <em>ShearAll</em> commands to allow for shear mapping (skewing).</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v1.0.6.2 (2009-05-28)&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -96,7 +151,7 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Developing:</b> If the $Chr/$Rnd/$Sub preprocessor in CSV/RW routes creates a leading semicolon in an expression, that expression is now considered a comment. Previously, stripping away comments was only done before the preprocessor, which made it impossible to dynamically create comments.</td>
+<td><b>Developing routes:</b> If the $Chr/$Rnd/$Sub preprocessor creates a leading semicolon in an expression, that expression is now considered a comment. Previously, stripping away comments was only done before the preprocessor, which made it impossible to dynamically create comments.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>

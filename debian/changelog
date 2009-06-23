@@ -1,6 +1,7 @@
 openbve (1.0.7.2-0ubuntu1) unreleased; urgency=low
 
   * New upstream version (1.0.7.2)
+  * Update changelog.html (1.0.7.2)
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Tue, 23 Jun 2009 20:20:00 +0000
 
