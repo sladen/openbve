@@ -112,10 +112,16 @@ namespace OpenBve {
 				}
 				// parse terms
 				if (Command != null) {
-					switch (Command.ToLowerInvariant()) {
+					string cmd = Command.ToLowerInvariant();
+					switch(cmd) {
 						case "createmeshbuilder":
 						case "[meshbuilder]":
 							{
+								if (cmd == "createmeshbuilder" & IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "CreateMeshBuilder is not a supported command - did you mean [MeshBuilder]? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								} else if (cmd == "[meshbuilder]" & !IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "[MeshBuilder] is not a supported command - did you mean CreateMeshBuilder? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								}
 								if (Arguments.Length > 0) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "0 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
@@ -126,6 +132,11 @@ namespace OpenBve {
 						case "addvertex":
 						case "vertex":
 							{
+								if (cmd == "addvertex" & IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "AddVertex is not a supported command - did you mean Vertex? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								} else if (cmd == "vertex" & !IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "Vertex is not a supported command - did you mean AddVertex? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								}
 								if (Arguments.Length > 6) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 6 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
@@ -168,6 +179,19 @@ namespace OpenBve {
 						case "face":
 						case "face2":
 							{
+								if (IsB3D) {
+									if (cmd == "addface") {
+										Interface.AddMessage(Interface.MessageType.Warning, false, "AddFace is not a supported command - did you mean Face? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									} else if (cmd == "addface2") {
+										Interface.AddMessage(Interface.MessageType.Warning, false, "AddFace2 is not a supported command - did you mean Face2? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									}
+								} else {
+									if (cmd == "face") {
+										Interface.AddMessage(Interface.MessageType.Warning, false, "Face is not a supported command - did you mean AddFace? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									} else if (cmd == "face2") {
+										Interface.AddMessage(Interface.MessageType.Warning, false, "Face2 is not a supported command - did you mean AddFace2? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									}
+								}
 								if (Arguments.Length < 3) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "At least 3 arguments are required in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
@@ -193,18 +217,15 @@ namespace OpenBve {
 										Array.Resize<World.MeshFace>(ref Builder.Faces, f + 1);
 										Builder.Faces[f] = new World.MeshFace();
 										Builder.Faces[f].Vertices = new World.MeshFaceVertex[Arguments.Length];
+										while (Builder.Vertices.Length > Normals.Length) {
+											Array.Resize<World.Vector3Df>(ref Normals, Normals.Length << 1);
+										}
 										for (int j = 0; j < Arguments.Length; j++) {
 											Builder.Faces[f].Vertices[j].Index = (ushort)a[j];
 											Builder.Faces[f].Vertices[j].Normal = Normals[a[j]];
 										}
-										switch (Command.ToLowerInvariant()) {
-											case "face2":
-											case "addface2":
-												Builder.Faces[f].Flags = (byte)World.MeshFace.Face2Mask;
-												break;
-											default:
-												Builder.Faces[f].Flags = 0;
-												break;
+										if (cmd == "addface2" | cmd == "face2") {
+											Builder.Faces[f].Flags = (byte)World.MeshFace.Face2Mask;
 										}
 									}
 								}
@@ -259,6 +280,22 @@ namespace OpenBve {
 								}
 								CreateCylinder(ref Builder, n, r1, r2, h);
 							} break;
+						case "rectangle":
+							{
+								if (Arguments.Length > 2) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 2 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								}
+								double x = 0.0, y = 0.0;
+								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out x)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Width in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									x = 1.0;
+								}
+								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out y)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Height in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									y = 1.0;
+								}
+								CreateRectangle(ref Builder, x, y);
+							} break;
 						case "translate":
 						case "translateall":
 							{
@@ -279,8 +316,83 @@ namespace OpenBve {
 									z = 0.0;
 								}
 								ApplyTranslation(Builder, x, y, z);
-								if (Command.ToLowerInvariant() == "translateall") {
+								if (cmd == "translateall") {
 									ApplyTranslation(Object, x, y, z);
+								}
+							} break;
+						case "scale":
+						case "scaleall":
+							{
+								if (Arguments.Length > 3) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 3 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								}
+								double x = 1.0, y = 1.0, z = 1.0;
+								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out x)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument X in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									x = 1.0;
+								} else if (x == 0.0) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "X is required to be different from zero in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									x = 1.0;
+								}
+								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out y)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Y in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									y = 1.0;
+								} else if (y == 0.0) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Y is required to be different from zero in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									y = 1.0;
+								}
+								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[2], out z)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Z in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									z = 1.0;
+								} else if (z == 0.0) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Z is required to be different from zero in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									z = 1.0;
+								}
+								ApplyScale(Builder, x, y, z);
+								if (cmd == "scaleall") {
+									ApplyScale(Object, x, y, z);
+								}
+							} break;
+						case "rotate":
+						case "rotateall":
+							{
+								if (Arguments.Length > 4) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 4 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								}
+								double x = 0.0, y = 0.0, z = 0.0, a = 0.0;
+								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out x)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument X in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									x = 0.0;
+								}
+								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out y)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Y in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									y = 0.0;
+								}
+								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[2], out z)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Z in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									z = 0.0;
+								}
+								if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[3], out a)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Angle in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									a = 0.0;
+								}
+								double t = x * x + y * y + z * z;
+								if (t == 0.0) {
+									x = 1.0;
+									y = 0.0;
+									z = 0.0;
+									t = 1.0;
+								}
+								if (a != 0.0) {
+									t = 1.0 / Math.Sqrt(t);
+									x *= t;
+									y *= t;
+									z *= t;
+									a *= 0.0174532925199433;
+									ApplyRotation(Builder, x, y, z, a);
+									if (cmd == "rotateall") {
+										ApplyRotation(Object, x, y, z, a);
+									}
 								}
 							} break;
 						case "shear":
@@ -323,91 +435,26 @@ namespace OpenBve {
 								World.Normalize(ref dx, ref dy, ref dz);
 								World.Normalize(ref sx, ref sy, ref sz);
 								ApplyShear(Builder, dx, dy, dz, sx, sy, sz, r);
-								if (Command.ToLowerInvariant() == "shearall") {
+								if (cmd == "shearall") {
 									ApplyShear(Object, dx, dy, dz, sx, sy, sz, r);
-								}
-							} break;
-						case "scale":
-						case "scaleall":
-							{
-								if (Arguments.Length > 3) {
-									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 3 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-								}
-								double x = 1.0, y = 1.0, z = 1.0;
-								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out x)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument X in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									x = 1.0;
-								} else if (x == 0.0) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "X is required to be different from zero in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									x = 1.0;
-								}
-								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out y)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Y in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									y = 1.0;
-								} else if (y == 0.0) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Y is required to be different from zero in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									y = 1.0;
-								}
-								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[2], out z)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Z in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									z = 1.0;
-								} else if (z == 0.0) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Z is required to be different from zero in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									z = 1.0;
-								}
-								ApplyScale(Builder, x, y, z);
-								if (Command.ToLowerInvariant() == "scaleall") {
-									ApplyScale(Object, x, y, z);
-								}
-							} break;
-						case "rotate":
-						case "rotateall":
-							{
-								if (Arguments.Length > 4) {
-									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 4 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-								}
-								double x = 0.0, y = 0.0, z = 0.0, a = 0.0;
-								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out x)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument X in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									x = 0.0;
-								}
-								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out y)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Y in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									y = 0.0;
-								}
-								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[2], out z)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Z in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									z = 0.0;
-								}
-								if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[3], out a)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Angle in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									a = 0.0;
-								}
-								double t = x * x + y * y + z * z;
-								if (t == 0.0) {
-									x = 1.0;
-									y = 0.0;
-									z = 0.0;
-									t = 1.0;
-								}
-								if (a != 0.0) {
-									t = 1.0 / Math.Sqrt(t);
-									x *= t;
-									y *= t;
-									z *= t;
-									a *= 0.0174532925199433;
-									ApplyRotation(Builder, x, y, z, a);
-									if (Command.ToLowerInvariant() == "rotateall") {
-										ApplyRotation(Object, x, y, z, a);
-									}
 								}
 							} break;
 						case "generatenormals":
 						case "[texture]":
+							if (cmd == "generatenormals" & IsB3D) {
+								Interface.AddMessage(Interface.MessageType.Warning, false, "GenerateNormals is not a supported command - did you mean [Texture]? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+							} else if (cmd == "[texture]" & !IsB3D) {
+								Interface.AddMessage(Interface.MessageType.Warning, false, "[Texture] is not a supported command - did you mean GenerateNormals? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+							}
 							break;
 						case "setcolor":
 						case "color":
 							{
+								if (cmd == "setcolor" & IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "SetColor is not a supported command - did you mean Color? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								} else if (cmd == "color" & !IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "Color is not a supported command - did you mean SetColor? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								}
 								if (Arguments.Length > 4) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 4 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
@@ -459,6 +506,11 @@ namespace OpenBve {
 						case "setemissivecolor":
 						case "emissivecolor":
 							{
+								if (cmd == "setemissivecolor" & IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "SetEmissiveColor is not a supported command - did you mean EmissiveColor? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								} else if (cmd == "emissivecolor" & !IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "EmissiveColor is not a supported command - did you mean SetEmissiveColor? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								}
 								if (Arguments.Length > 3) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 3 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
@@ -504,6 +556,11 @@ namespace OpenBve {
 						case "setdecaltransparentcolor":
 						case "transparent":
 							{
+								if (cmd == "setdecaltransparentcolor" & IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "SetDecalTransparentColor is not a supported command - did you mean Transparent? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								} else if (cmd == "transparent" & !IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "Transparent is not a supported command - did you mean SetDecalTransparentColor? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								}
 								if (Arguments.Length > 3) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 3 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
@@ -537,6 +594,11 @@ namespace OpenBve {
 						case "setblendmode":
 						case "blendmode":
 							{
+								if (cmd == "setblendmode" & IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "SetBlendMode is not a supported command - did you mean BlendMode? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								} else if (cmd == "blendmode" & !IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "BlendMode is not a supported command - did you mean SetBlendMode? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								}
 								if (Arguments.Length > 3) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 3 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
@@ -574,6 +636,11 @@ namespace OpenBve {
 						case "loadtexture":
 						case "load":
 							{
+								if (cmd == "loadtexture" & IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "LoadTexture is not a supported command - did you mean Texture? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								} else if (cmd == "load" & !IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "Texture is not a supported command - did you mean LoadTexture? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								}
 								if (Arguments.Length > 2) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 2 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
@@ -612,6 +679,11 @@ namespace OpenBve {
 						case "settexturecoordinates":
 						case "coordinates":
 							{
+								if (cmd == "settexturecoordinates" & IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "SetTextureCoordinates is not a supported command - did you mean Coordinates? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								} else if (cmd == "coordinates" & !IsB3D) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "Coordinates is not a supported command - did you mean SetTextureCoordinates? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								}
 								if (Arguments.Length > 3) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 3 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
@@ -635,7 +707,7 @@ namespace OpenBve {
 								}
 							} break;
 						default:
-							Interface.AddMessage(Interface.MessageType.Warning, false, "The command " + Command + " is not supported at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+							Interface.AddMessage(Interface.MessageType.Error, false, "The command " + Command + " is not supported at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 							break;
 					}
 				}
@@ -728,6 +800,21 @@ namespace OpenBve {
 					}
 				}
 			}
+		}
+		
+		// create rectangle
+		private static void CreateRectangle(ref MeshBuilder Builder, double Width, double Height) {
+			int v = Builder.Vertices.Length;
+			Array.Resize<World.Vertex>(ref Builder.Vertices, v + 4);
+			double x = 0.5 * Width;
+			double y = 0.5 * Height;
+			Builder.Vertices[v + 0] = new World.Vertex(new World.Vector3D(-x, -y, 0.0), new World.Vector2Df(0.0f, 1.0f));
+			Builder.Vertices[v + 1] = new World.Vertex(new World.Vector3D(-x, y, 0.0), new World.Vector2Df(0.0f, 0.0f));
+			Builder.Vertices[v + 2] = new World.Vertex(new World.Vector3D(x, y, 0.0), new World.Vector2Df(1.0f, 0.0f));
+			Builder.Vertices[v + 3] = new World.Vertex(new World.Vector3D(x, -y, 0.0), new World.Vector2Df(1.0f, 1.0f));
+			int f = Builder.Faces.Length;
+			Array.Resize<World.MeshFace>(ref Builder.Faces, f + 1);
+			Builder.Faces[f].Vertices = new World.MeshFaceVertex[] { new World.MeshFaceVertex(v), new World.MeshFaceVertex(v + 1), new World.MeshFaceVertex(v + 2), new World.MeshFaceVertex(v + 3) };
 		}
 
 		// apply translation
