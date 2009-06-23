@@ -908,14 +908,17 @@ namespace OpenBve {
 			double t = x * x + y * y;
 			if (t != 0.0) {
 				t = 1.0 / Math.Sqrt(t);
-				x *= t; y *= t;
+				x *= t;
+				y *= t;
 			}
 		}
 		internal static void Normalize(ref double x, ref double y, ref double z) {
 			double t = x * x + y * y + z * z;
 			if (t != 0.0) {
 				t = 1.0 / Math.Sqrt(t);
-				x *= t; y *= t; z *= t;
+				x *= t;
+				y *= t;
+				z *= t;
 			}
 		}
 

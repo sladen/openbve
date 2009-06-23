@@ -1404,7 +1404,7 @@ namespace OpenBve {
 				}
 				if (Train.StationState == TrainStopState.Pending) {
 					Train.StationDepartureSoundPlayed = false;
-					if (Game.Stations[i].StopAtStation) {
+					if (Game.StopsAtStation(i, Train)) {
 						Train.StationDepartureSoundPlayed = false;
 						// automatically open doors
 						if (Train.Specs.DoorOpenMode != DoorMode.Manual) {
@@ -2010,16 +2010,16 @@ namespace OpenBve {
 					}
 				} else if (Train.Specs.Security.Mode == SecuritySystem.AtsP) {
 					// ats-p
-					bool brkrel = Game.SecondsSinceMidnight - Train.Specs.Security.Ats.AtsPOverrideTime < 60.0;
-					if (brkrel != Train.Specs.Security.Ats.AtsPOverride) {
-						Train.Specs.Security.Ats.AtsPOverride = brkrel;
+					bool brakeRelease = Game.SecondsSinceMidnight - Train.Specs.Security.Ats.AtsPOverrideTime < 60.0;
+					if (brakeRelease != Train.Specs.Security.Ats.AtsPOverride) {
+						Train.Specs.Security.Ats.AtsPOverride = brakeRelease;
 						int snd = Train.Cars[Train.DriverCar].Sounds.Ding.SoundBufferIndex;
 						if (snd >= 0) {
 							World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.Ding.Position;
 							SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
 						}
 					}
-					if (!brkrel) {
+					if (!brakeRelease) {
 						Train.Specs.Security.Ats.AtsPOverrideTime = double.NegativeInfinity;
 					}
 					if (Train.Specs.Security.State == SecurityState.Ringing | Train.Specs.Security.State == SecurityState.Emergency) {
@@ -2041,7 +2041,8 @@ namespace OpenBve {
 						if (s >= 0) {
 							int k = s;
 							if (Game.Sections[k].Aspects[Game.Sections[k].CurrentAspect].Speed == 0.0) {
-								Train.Specs.Security.Ats.AtsPDistance = Game.Sections[k].TrackPosition - Train.Cars[0].FrontAxle.Follower.TrackPosition - 20.0;
+								const double signalStopDistance = 0.0;
+								Train.Specs.Security.Ats.AtsPDistance = Game.Sections[k].TrackPosition - Train.Cars[0].FrontAxle.Follower.TrackPosition - signalStopDistance;
 							} else {
 								Train.Specs.Security.Ats.AtsPDistance = double.PositiveInfinity;
 							}
@@ -2081,105 +2082,130 @@ namespace OpenBve {
 						}
 					}
 					if (Train.Specs.Security.ModeChange != SecuritySystem.AtsSN) {
-						if (Train.Specs.Security.Ats.AtsPDistance <= 0.0) {
-							Train.Specs.Security.State = SecurityState.Service;
-							Train.Specs.CurrentBrakeNotch.Security = Train.Specs.MaximumBrakeNotch;
-							Train.Specs.AirBrake.Handle.Security = AirBrakeHandleState.Service;
+						double trainSpeed = Math.Abs(Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed);
+						double signalDistance = Train.Specs.Security.Ats.AtsPDistance;
+						// pattern
+						double speedApplication;
+						double speedPattern;
+						double speedNormal;
+						if (signalDistance != double.PositiveInfinity) {
+							{ // normal
+								double t = -52.65740740740741 + 1.531172839506173 * signalDistance;
+								if (t > 0.0) {
+									speedNormal = -4.888888888888889 + Math.Sqrt(t);
+								} else {
+									speedNormal = 0.0;
+								}
+							}
+							{ // pattern
+								double t = 23.90123456790123 + 1.275977366255144 * signalDistance;
+								if (t > 0.0) {
+									speedPattern = -4.888888888888889 + Math.Sqrt(t);
+								} else {
+									speedPattern = 0.0;
+								}
+							}
+							{ // application
+								double t = signalDistance;
+								if (t > 0.0) {
+									speedApplication = 1.138738321874893 * Math.Sqrt(t);
+								} else {
+									speedApplication = 0.0;
+								}
+							}
 						} else {
-							double spd = Math.Abs(Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed);
-							double dist = Train.Specs.Security.Ats.AtsPDistance;
-							double patmax = double.PositiveInfinity;
-							double patmin = double.PositiveInfinity;
-							const double fac = 1.1547;
-							const double invfac = 1.0 / fac;
-							{
-								// scan for temporary speed restrictions
-								int i0 = Train.Cars[Train.DriverCar].FrontAxle.Follower.LastTrackElement;
-								double p0 = Train.Cars[Train.DriverCar].FrontAxle.Follower.TrackPosition;
-								double p = p0;
-								double d = invfac * spd * spd + 50.0;
-								double p1 = p + d;
-								double Deceleration = 1.0 * Train.Cars[Train.DriverCar].Specs.BrakeDecelerationAtServiceMaximumPressure;
-								double LookAhead = 100.0 + (spd * spd) / (2.0 * Deceleration);
-								for (int i = i0; i < TrackManager.CurrentTrack.Elements.Length; i++) {
-									double stp = TrackManager.CurrentTrack.Elements[i].StartingTrackPosition;
-									if (p0 + LookAhead <= stp) break;
-									p = TrackManager.CurrentTrack.Elements[i].StartingTrackPosition;
-									for (int j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
-										TrackManager.TransponderEvent e = TrackManager.CurrentTrack.Elements[i].Events[j] as TrackManager.TransponderEvent;
-										if (e != null) {
-											if (e.Type == TrackManager.TransponderType.AtsPTemporarySpeedRestriction) {
-												double pe = p + e.TrackPositionDelta;
-												if (pe > p0 & pe < p1) {
-													double r = e.OptionalFloat * invfac;
-													r = r * r + 50.0 + pe - p0;
-													if (r < dist) dist = r;
+							speedNormal = double.PositiveInfinity;
+							speedPattern = double.PositiveInfinity;
+							speedApplication = double.PositiveInfinity;
+						}
+						// temporary speed restriction
+						{
+							double deceleration = 1.0 * Train.Cars[Train.DriverCar].Specs.BrakeDecelerationAtServiceMaximumPressure;
+							double lookAhead = 100.0 + (trainSpeed * trainSpeed) / (2.0 * deceleration);
+							int i0 = Train.Cars[Train.DriverCar].FrontAxle.Follower.LastTrackElement;
+							double p0 = Train.Cars[Train.DriverCar].FrontAxle.Follower.TrackPosition;
+							double p = p0;
+							for (int i = i0; i < TrackManager.CurrentTrack.Elements.Length; i++) {
+								double stp = TrackManager.CurrentTrack.Elements[i].StartingTrackPosition;
+								if (p0 + lookAhead <= stp) break;
+								p = TrackManager.CurrentTrack.Elements[i].StartingTrackPosition;
+								for (int j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
+									TrackManager.TransponderEvent e = TrackManager.CurrentTrack.Elements[i].Events[j] as TrackManager.TransponderEvent;
+									if (e != null) {
+										if (e.Type == TrackManager.TransponderType.AtsPTemporarySpeedRestriction) {
+											double pe = p + e.TrackPositionDelta;
+											double distance = pe - p0;
+											if (distance > 0.0 & trainSpeed > e.OptionalFloat) {
+												{ // normal
+													double speed;
+													double t = -52.65740740740741 + 1.531172839506173 * distance;
+													if (t > 0.0) {
+														speed = -4.888888888888889 + Math.Sqrt(t) + e.OptionalFloat;
+													} else {
+														speed = e.OptionalFloat;
+													}
+													if (speed < speedNormal) speedNormal = speed;
+												}
+												{ // pattern
+													double speed;
+													double t = 23.90123456790123 + 1.275977366255144 * distance;
+													if (t > 0.0) {
+														speed = -4.888888888888889 + Math.Sqrt(t) + e.OptionalFloat;
+													} else {
+														speed = e.OptionalFloat;
+													}
+													if (speed < speedPattern) speedPattern = speed;
+												}
+												{ // application
+													double speed = 1.138738321874893 * Math.Sqrt(distance) + e.OptionalFloat;
+													if (speed < speedApplication) speedApplication = speed;
 												}
 											}
 										}
 									}
-									if (p > p1) break;
 								}
 							}
-							if (dist != double.PositiveInfinity) {
-								patmin = dist > 50.0 ? fac * Math.Sqrt(dist - 50.0) : 0.0;
-								patmax = dist > 0.0 ? fac * Math.Sqrt(dist) : 0.0;
-								if (dist > 0.0 & Train.Cars[Train.DriverCar].Specs.BrakeDecelerationAtServiceMaximumPressure > 0.0) {
-									double patmin0 = dist > 50.0 ? Math.Sqrt(2.0 * (dist - 50.0) * Train.Cars[Train.DriverCar].Specs.BrakeDecelerationAtServiceMaximumPressure) : 0.0;
-									double patmax0 = Math.Sqrt(2.0 * dist * Train.Cars[Train.DriverCar].Specs.BrakeDecelerationAtServiceMaximumPressure);
-									if (patmin0 < patmin) patmin = patmin0;
-									if (patmax0 < patmax) patmax = patmax0;
-								}
+						}
+						// permanent speed restriction
+						if (trainSpeed > Train.Specs.Security.Ats.AtsPPermanentSpeed) {
+							if (Train.Specs.Security.Ats.AtsPPermanentSpeed < speedNormal) speedNormal = Train.Specs.Security.Ats.AtsPPermanentSpeed;
+							if (Train.Specs.Security.Ats.AtsPPermanentSpeed < speedPattern) speedPattern = Train.Specs.Security.Ats.AtsPPermanentSpeed;
+							if (Train.Specs.Security.Ats.AtsPPermanentSpeed < speedApplication) speedApplication = Train.Specs.Security.Ats.AtsPPermanentSpeed;
+						}
+						// determine state
+						if (trainSpeed >= speedApplication) {
+							if (Train.Specs.Security.State != SecurityState.Service) {
+								Train.Specs.Security.State = SecurityState.Service;
 							}
-							if (patmin > Train.Specs.Security.Ats.AtsPPermanentSpeed) {
-								patmin = Train.Specs.Security.Ats.AtsPPermanentSpeed;
-								double max = patmin + 1.4;
-								if (patmax > max) patmax = max;
+						} else if (trainSpeed >= speedPattern) {
+							if (Train.Specs.Security.State == SecurityState.Normal) {
+								Train.Specs.Security.State = SecurityState.Pattern;
 							}
-							if (spd < Train.Specs.Security.Ats.AtsPTemporarySpeed) {
-								Train.Specs.Security.Ats.AtsPTemporarySpeed = double.PositiveInfinity;
-							}
-							if (patmin > Train.Specs.Security.Ats.AtsPTemporarySpeed) {
-								patmin = Train.Specs.Security.Ats.AtsPTemporarySpeed;
-								double max = patmin + 1.4;
-								if (patmax > max) patmax = max;
-							}
+						} else if (trainSpeed >= speedNormal) {
 							if (Train.Specs.Security.State == SecurityState.Service) {
-								if (spd < patmin) {
-									Train.Specs.Security.State = SecurityState.Normal;
-								} else {
-									Train.Specs.CurrentBrakeNotch.Security = Train.Specs.MaximumBrakeNotch;
-									Train.Specs.AirBrake.Handle.Security = AirBrakeHandleState.Service;
-								}
-							} else if (spd > patmin) {
-								if (spd > patmax) {
-									Train.Specs.Security.State = SecurityState.Service;
-									Train.Specs.CurrentBrakeNotch.Security = Train.Specs.MaximumBrakeNotch;
-									Train.Specs.AirBrake.Handle.Security = AirBrakeHandleState.Service;
-								} else {
-									Train.Specs.Security.State = SecurityState.Pattern;
-								}
-							} else {
+								Train.Specs.Security.State = SecurityState.Pattern;
+							}
+						} else {
+							if (Train.Specs.Security.State != SecurityState.Normal) {
 								Train.Specs.Security.State = SecurityState.Normal;
 							}
-							if (Train.Specs.Security.Ats.AtsPDistance != double.PositiveInfinity) {
-								Train.Specs.Security.Ats.AtsPDistance -= Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed * TimeElapsed;
-							}
 						}
-						if (Train.Specs.Security.State != state) {
-							bool q = Train.Specs.Security.State == SecurityState.Service & state == SecurityState.Pattern | Train.Specs.Security.State == SecurityState.Pattern & state == SecurityState.Service;
-							if (!q | !brkrel) {
-								int snd = Train.Cars[Train.DriverCar].Sounds.Ding.SoundBufferIndex;
-								if (snd >= 0) {
-									World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.Ding.Position;
-									SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
-								}
-							}
-						}
-						if (brkrel) {
-							Train.Specs.CurrentBrakeNotch.Security = Train.Specs.CurrentBrakeNotch.Driver;
+						// apply state
+						if (Train.Specs.Security.State == SecurityState.Service & !brakeRelease) {
+							Train.Specs.CurrentBrakeNotch.Security = Train.Specs.MaximumBrakeNotch;
 							Train.Specs.AirBrake.Handle.Security = AirBrakeHandleState.Service;
-							Train.Specs.CurrentEmergencyBrake.Security = Train.Specs.CurrentEmergencyBrake.Driver;
+						}
+						if (Train.Specs.Security.Ats.AtsPDistance != double.PositiveInfinity) {
+							Train.Specs.Security.Ats.AtsPDistance -= Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed * TimeElapsed;
+						}
+						// play ding
+						bool q = Train.Specs.Security.State == SecurityState.Normal | state == SecurityState.Normal;
+						if (Train.Specs.Security.State != state & (q | !brakeRelease)) {
+							int snd = Train.Cars[Train.DriverCar].Sounds.Ding.SoundBufferIndex;
+							if (snd >= 0) {
+								World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.Ding.Position;
+								SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
+							}
 						}
 					}
 				} else if (Train.Specs.Security.Mode == SecuritySystem.Atc) {

@@ -67,6 +67,7 @@ namespace OpenBve {
 			string[] Lines = System.IO.File.ReadAllLines(FileName, Encoding);
 			// parse lines
 			MeshBuilder Builder = new MeshBuilder();
+			World.Vector3Df[] Normals = new World.Vector3Df[4];
 			for (int i = 0; i < Lines.Length; i++) {
 				{ // strip away comments
 					int j = Lines[i].IndexOf(';');
@@ -120,28 +121,47 @@ namespace OpenBve {
 								}
 								ApplyMeshBuilder(ref Object, Builder, LoadMode, ForceTextureRepeatX, ForceTextureRepeatY);
 								Builder = new MeshBuilder();
+								Normals = new World.Vector3Df[4];
 							} break;
 						case "addvertex":
 						case "vertex":
 							{
-								if (Arguments.Length > 3) {
-									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 3 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (Arguments.Length > 6) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 6 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
-								double x = 0.0, y = 0.0, z = 0.0;
-								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out x)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument X in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									x = 0.0;
+								double vx = 0.0, vy = 0.0, vz = 0.0;
+								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out vx)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument vX in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									vx = 0.0;
 								}
-								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out y)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Y in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									y = 0.0;
+								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out vy)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument vY in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									vy = 0.0;
 								}
-								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[2], out z)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Z in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									z = 0.0;
+								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[2], out vz)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument vZ in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									vz = 0.0;
 								}
+								double nx = 0.0, ny = 0.0, nz = 0.0;
+								if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[3], out nx)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument nX in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									nx = 0.0;
+								}
+								if (Arguments.Length >= 5 && Arguments[4].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[4], out ny)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument nY in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									ny = 0.0;
+								}
+								if (Arguments.Length >= 6 && Arguments[5].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[5], out nz)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument nZ in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									nz = 0.0;
+								}
+								World.Normalize(ref nx, ref ny, ref nz);
 								Array.Resize<World.Vertex>(ref Builder.Vertices, Builder.Vertices.Length + 1);
-								Builder.Vertices[Builder.Vertices.Length - 1].Coordinates = new World.Vector3D(x, y, z);
+								while (Builder.Vertices.Length >= Normals.Length) {
+									Array.Resize<World.Vector3Df>(ref Normals, Normals.Length << 1);
+								}
+								Builder.Vertices[Builder.Vertices.Length - 1].Coordinates = new World.Vector3D(vx, vy, vz);
+								Normals[Builder.Vertices.Length - 1] = new World.Vector3Df((float)nx, (float)ny, (float)nz);
 							} break;
 						case "addface":
 						case "addface2":
@@ -163,7 +183,7 @@ namespace OpenBve {
 											q = false;
 											break;
 										} else if (a[j] > 65535) {
-											Interface.AddMessage(Interface.MessageType.Error, false, "v" + j.ToString(Culture) + " indexes a vertex index above 65535 which the current implementation does not support in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+											Interface.AddMessage(Interface.MessageType.Error, false, "v" + j.ToString(Culture) + " indexes a vertex above 65535 which is not currently supported in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 											q = false;
 											break;
 										}
@@ -175,7 +195,7 @@ namespace OpenBve {
 										Builder.Faces[f].Vertices = new World.MeshFaceVertex[Arguments.Length];
 										for (int j = 0; j < Arguments.Length; j++) {
 											Builder.Faces[f].Vertices[j].Index = (ushort)a[j];
-											Builder.Faces[f].Vertices[j].Normal = new World.Vector3Df(0.0f, 0.0f, 0.0f);
+											Builder.Faces[f].Vertices[j].Normal = Normals[a[j]];
 										}
 										switch (Command.ToLowerInvariant()) {
 											case "face2":
@@ -263,6 +283,50 @@ namespace OpenBve {
 									ApplyTranslation(Object, x, y, z);
 								}
 							} break;
+						case "shear":
+						case "shearall":
+							{
+								if (Arguments.Length > 7) {
+									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 7 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								}
+								double dx = 0.0, dy = 0.0, dz = 0.0;
+								double sx = 0.0, sy = 0.0, sz = 0.0;
+								double r = 0.0;
+								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out dx)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument dX in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									dx = 0.0;
+								}
+								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out dy)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument dY in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									dy = 0.0;
+								}
+								if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[2], out dz)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument dZ in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									dz = 0.0;
+								}
+								if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[3], out sx)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument sX in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									sx = 0.0;
+								}
+								if (Arguments.Length >= 5 && Arguments[4].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[4], out sy)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument sY in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									sy = 0.0;
+								}
+								if (Arguments.Length >= 6 && Arguments[5].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[5], out sz)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument sZ in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									sz = 0.0;
+								}
+								if (Arguments.Length >= 7 && Arguments[6].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[6], out r)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Ratio in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									r = 0.0;
+								}
+								World.Normalize(ref dx, ref dy, ref dz);
+								World.Normalize(ref sx, ref sy, ref sz);
+								ApplyShear(Builder, dx, dy, dz, sx, sy, sz, r);
+								if (Command.ToLowerInvariant() == "shearall") {
+									ApplyShear(Object, dx, dy, dz, sx, sy, sz, r);
+								}
+							} break;
 						case "scale":
 						case "scaleall":
 							{
@@ -321,16 +385,17 @@ namespace OpenBve {
 								}
 								double t = x * x + y * y + z * z;
 								if (t == 0.0) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "The direction indicated by X, Y and Z is expected to be non-zero in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 									x = 1.0;
 									y = 0.0;
 									z = 0.0;
 									t = 1.0;
 								}
 								if (a != 0.0) {
+									t = 1.0 / Math.Sqrt(t);
+									x *= t;
+									y *= t;
+									z *= t;
 									a *= 0.0174532925199433;
-									t = 1.0 / t;
-									x *= t; y *= t; z *= t;
 									ApplyRotation(Builder, x, y, z, a);
 									if (Command.ToLowerInvariant() == "rotateall") {
 										ApplyRotation(Object, x, y, z, a);
@@ -787,6 +852,60 @@ namespace OpenBve {
 			}
 		}
 
+		// apply shear
+		private static void ApplyShear(MeshBuilder Builder, double dx, double dy, double dz, double sx, double sy, double sz, double r) {
+			for (int j = 0; j < Builder.Vertices.Length; j++) {
+				double n = r * (dx * Builder.Vertices[j].Coordinates.X + dy * Builder.Vertices[j].Coordinates.Y + dz * Builder.Vertices[j].Coordinates.Z);
+				Builder.Vertices[j].Coordinates.X += sx * n;
+				Builder.Vertices[j].Coordinates.Y += sy * n;
+				Builder.Vertices[j].Coordinates.Z += sz * n;
+			}
+			for (int j = 0; j < Builder.Faces.Length; j++) {
+				for (int k = 0; k < Builder.Faces[j].Vertices.Length; k++) {
+					if (Builder.Faces[j].Vertices[k].Normal.X != 0.0f | Builder.Faces[j].Vertices[k].Normal.Y != 0.0f | Builder.Faces[j].Vertices[k].Normal.Z != 0.0f) {
+						double nx = (double)Builder.Faces[j].Vertices[k].Normal.X;
+						double ny = (double)Builder.Faces[j].Vertices[k].Normal.Y;
+						double nz = (double)Builder.Faces[j].Vertices[k].Normal.Z;
+						double n = r * (sx * nx + sy * ny + sz * nz);
+						nx -= dx * n;
+						ny -= dy * n;
+						nz -= dz * n;
+						World.Normalize(ref nx, ref ny, ref nz);
+						Builder.Faces[j].Vertices[k].Normal.X = (float)nx;
+						Builder.Faces[j].Vertices[k].Normal.Y = (float)ny;
+						Builder.Faces[j].Vertices[k].Normal.Z = (float)nz;
+					}
+				}
+			}
+		}
+		private static void ApplyShear(ObjectManager.StaticObject Object, double dx, double dy, double dz, double sx, double sy, double sz, double r) {
+			for (int j = 0; j < Object.Mesh.Vertices.Length; j++) {
+				double n = r * (dx * Object.Mesh.Vertices[j].Coordinates.X + dy * Object.Mesh.Vertices[j].Coordinates.Y + dz * Object.Mesh.Vertices[j].Coordinates.Z);
+				Object.Mesh.Vertices[j].Coordinates.X += sx * n;
+				Object.Mesh.Vertices[j].Coordinates.Y += sy * n;
+				Object.Mesh.Vertices[j].Coordinates.Z += sz * n;
+			}
+			double ux, uy, uz;
+			World.Cross(sx, sy, sz, dx, dy, dz, out ux, out uy, out uz);
+			for (int j = 0; j < Object.Mesh.Faces.Length; j++) {
+				for (int k = 0; k < Object.Mesh.Faces[j].Vertices.Length; k++) {
+					if (Object.Mesh.Faces[j].Vertices[k].Normal.X != 0.0f | Object.Mesh.Faces[j].Vertices[k].Normal.Y != 0.0f | Object.Mesh.Faces[j].Vertices[k].Normal.Z != 0.0f) {
+						double nx = (double)Object.Mesh.Faces[j].Vertices[k].Normal.X;
+						double ny = (double)Object.Mesh.Faces[j].Vertices[k].Normal.Y;
+						double nz = (double)Object.Mesh.Faces[j].Vertices[k].Normal.Z;
+						double n = r * (sx * nx + sy * ny + sz * nz);
+						nx -= dx * n;
+						ny -= dy * n;
+						nz -= dz * n;
+						World.Normalize(ref nx, ref ny, ref nz);
+						Object.Mesh.Faces[j].Vertices[k].Normal.X = (float)nx;
+						Object.Mesh.Faces[j].Vertices[k].Normal.Y = (float)ny;
+						Object.Mesh.Faces[j].Vertices[k].Normal.Z = (float)nz;
+					}
+				}
+			}
+		}
+		
 		// apply mesh builder
 		private static void ApplyMeshBuilder(ref ObjectManager.StaticObject Object, MeshBuilder Builder, ObjectManager.ObjectLoadMode LoadMode, bool ForceTextureRepeatX, bool ForceTextureRepeatY) {
 			if (Builder.Faces.Length != 0) {

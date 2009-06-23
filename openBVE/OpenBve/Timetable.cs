@@ -64,11 +64,12 @@ namespace OpenBve {
                         }
                         Table.Stations[n].Name = Game.Stations[sse.StationIndex].Name;
                         Table.Stations[n].NameJapanese = Interface.IsJapanese(Game.Stations[sse.StationIndex].Name);
-                        Table.Stations[n].Pass = !Game.Stations[sse.StationIndex].StopAtStation;
+                        Table.Stations[n].Pass = !Game.StopsAtStation(sse.StationIndex);
                         Table.Stations[n].Terminal = Game.Stations[sse.StationIndex].IsTerminalStation;
                         double x;
                         if (Game.Stations[sse.StationIndex].ArrivalTime >= 0.0) {
                             x = Game.Stations[sse.StationIndex].ArrivalTime;
+                            x -= 86400.0 * Math.Floor(x / 86400.0);
                             int hours = (int)Math.Floor(x / 3600.0);
                             x -= 3600.0 * (double)hours;
                             int minutes = (int)Math.Floor(x / 60.0);
@@ -85,6 +86,7 @@ namespace OpenBve {
                         }
                         if (Game.Stations[sse.StationIndex].DepartureTime >= 0.0) {
                             x = Game.Stations[sse.StationIndex].DepartureTime;
+                            x -= 86400.0 * Math.Floor(x / 86400.0);
                             int hours = (int)Math.Floor(x / 3600.0);
                             x -= 3600.0 * (double)hours;
                             int minutes = (int)Math.Floor(x / 60.0);

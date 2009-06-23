@@ -119,6 +119,8 @@ namespace OpenBve {
 			internal int AnisotropicFilteringMaximum;
 			internal int ViewingDistance;
 			internal MotionBlurMode MotionBlur;
+			internal int ObjectOptimizationBasicThreshold;
+			internal int ObjectOptimizationFullThreshold;
 			internal bool Toppling;
 			internal bool Collisions;
 			internal bool Derailments;
@@ -167,6 +169,8 @@ namespace OpenBve {
 				this.SoundNumber = 16;
 				this.ShowWarningMessages = true;
 				this.ShowErrorMessages = true;
+				this.ObjectOptimizationBasicThreshold = 30000;
+				this.ObjectOptimizationFullThreshold = 10000;
 				this.RouteFolder = "";
 				this.TrainFolder = "";
 				this.RecentlyUsedRoutes = new string[] { };
@@ -280,6 +284,19 @@ namespace OpenBve {
 													case "medium": Interface.CurrentOptions.MotionBlur = MotionBlurMode.Medium; break;
 													case "high": Interface.CurrentOptions.MotionBlur = MotionBlurMode.High; break;
 													default: Interface.CurrentOptions.MotionBlur = MotionBlurMode.None; break;
+											} break;
+									} break;
+								case "objectoptimization":
+									switch (Key) {
+										case "basicthreshold":
+											{
+												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												Interface.CurrentOptions.ObjectOptimizationBasicThreshold = a;
+											} break;
+										case "fullthreshold":
+											{
+												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												Interface.CurrentOptions.ObjectOptimizationFullThreshold = a;
 											} break;
 									} break;
 								case "simulation":
@@ -465,6 +482,10 @@ namespace OpenBve {
 				}
 				Builder.AppendLine("motionblur = " + t);
 			}
+			Builder.AppendLine();
+			Builder.AppendLine("[objectoptimization]");
+			Builder.AppendLine("basicthreshold = " + CurrentOptions.ObjectOptimizationBasicThreshold.ToString(Culture));
+			Builder.AppendLine("fullthreshold = " + CurrentOptions.ObjectOptimizationFullThreshold.ToString(Culture));
 			Builder.AppendLine();
 			Builder.AppendLine("[simulation]");
 			Builder.AppendLine("toppling = " + (CurrentOptions.Toppling ? "true" : "false"));
