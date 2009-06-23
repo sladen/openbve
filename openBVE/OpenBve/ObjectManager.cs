@@ -841,6 +841,7 @@ namespace OpenBve {
 			int v = Prototype.Mesh.Vertices.Length;
 			int m = Prototype.Mesh.Materials.Length;
 			int f = Prototype.Mesh.Faces.Length;
+			if (f >= Interface.CurrentOptions.ObjectOptimizationBasicThreshold) return;
 			// eliminate invalid faces and reduce incomplete faces
 			for (int i = 0; i < f; i++) {
 				int type = Prototype.Mesh.Faces[i].Flags & World.MeshFace.FaceTypeMask;
@@ -935,20 +936,12 @@ namespace OpenBve {
 				}
 			}
 			// eliminate unused materials
+			bool[] materialUsed = new bool[m];
+			for (int i = 0; i < f; i++) {
+				materialUsed[Prototype.Mesh.Faces[i].Material] = true;
+			}
 			for (int i = 0; i < m; i++) {
-				bool keep = false;
-				for (int j = 0; j < f; j++) {
-					for (int k = 0; k < Prototype.Mesh.Faces[j].Vertices.Length; k++) {
-						if (Prototype.Mesh.Faces[j].Material == i) {
-							keep = true;
-							break;
-						}
-					}
-					if (keep) {
-						break;
-					}
-				}
-				if (!keep) {
+				if (!materialUsed[i]) {
 					for (int j = 0; j < f; j++) {
 						if (Prototype.Mesh.Faces[j].Material > i) {
 							Prototype.Mesh.Faces[j].Material--;
@@ -956,6 +949,7 @@ namespace OpenBve {
 					}
 					for (int j = i; j < m - 1; j++) {
 						Prototype.Mesh.Materials[j] = Prototype.Mesh.Materials[j + 1];
+						materialUsed[j] = materialUsed[j + 1];
 					}
 					m--;
 					i--;
@@ -981,7 +975,7 @@ namespace OpenBve {
 				}
 			}
 			// structure optimization
-			if (!PreserveVertices) {
+			if (!PreserveVertices & f < Interface.CurrentOptions.ObjectOptimizationFullThreshold) {
 				// create TRIANGLES and QUADS from POLYGON
 				for (int i = 0; i < f; i++) {
 					int type = Prototype.Mesh.Faces[i].Flags & World.MeshFace.FaceTypeMask;
@@ -1274,12 +1268,6 @@ namespace OpenBve {
 			if (f != Prototype.Mesh.Faces.Length) {
 				Array.Resize<World.MeshFace>(ref Prototype.Mesh.Faces, f);
 			}
-			// sort faces by material
-			int[] key = new int[f];
-			for (int i = 0; i < f; i++) {
-				key[i] = Prototype.Mesh.Faces[i].Material;
-			}
-			Array.Sort<int, World.MeshFace>(key, Prototype.Mesh.Faces);
 		}
 
 		// join objects

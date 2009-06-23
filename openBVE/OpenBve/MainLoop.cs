@@ -1436,9 +1436,9 @@ namespace OpenBve {
 			World.VerticalViewingAngle = World.OriginalVerticalViewingAngle;
 		}
 
-		//// --------------------------------
+		// --------------------------------
 
-		//// toggle fullscreen
+		// toggle fullscreen
 		internal static void ToggleFullscreen() {
 			Interface.CurrentOptions.FullscreenMode = !Interface.CurrentOptions.FullscreenMode;
 			Gl.glDisable(Gl.GL_FOG); Renderer.FogEnabled = false;
@@ -1462,7 +1462,7 @@ namespace OpenBve {
 			World.InitializeCameraRestriction();
 		}
 
-		//// update viewport
+		// update viewport
 		internal static void UpdateViewport() {
 			Gl.glViewport(0, 0, Renderer.ScreenWidth, Renderer.ScreenHeight);
 			World.AspectRatio = (double)Renderer.ScreenWidth / (double)Renderer.ScreenHeight;

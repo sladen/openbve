@@ -191,19 +191,17 @@ namespace OpenBve {
 				Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { inv255 * (float)OptionAmbientColor.R, inv255 * (float)OptionAmbientColor.G, inv255 * (float)OptionAmbientColor.B, 1.0f });
 				Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { inv255 * (float)OptionDiffuseColor.R, inv255 * (float)OptionDiffuseColor.G, inv255 * (float)OptionDiffuseColor.B, 1.0f });
 				Gl.glLightModelfv(Gl.GL_LIGHT_MODEL_AMBIENT, new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
-				Gl.glCullFace(Gl.GL_FRONT); CullEnabled = true;
-				Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
+				Gl.glCullFace(Gl.GL_FRONT); CullEnabled = true; // possibly undocumented, but required for correct lighting
 				Gl.glEnable(Gl.GL_LIGHT0);
 				Gl.glEnable(Gl.GL_COLOR_MATERIAL);
 				Gl.glColorMaterial(Gl.GL_FRONT_AND_BACK, Gl.GL_AMBIENT_AND_DIFFUSE);
 				Gl.glShadeModel(Gl.GL_SMOOTH);
 				float x = ((float)OptionAmbientColor.R + (float)OptionAmbientColor.G + (float)OptionAmbientColor.B);
 				float y = ((float)OptionDiffuseColor.R + (float)OptionDiffuseColor.G + (float)OptionDiffuseColor.B);
-				if (x < y) {
-					x = y;
-				}
+				if (x < y) x = y;
 				OptionLightingResultingAmount = 0.00208333333333333f * x;
 				if (OptionLightingResultingAmount > 1.0f) OptionLightingResultingAmount = 1.0f;
+				Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
 			} else {
 				Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
 			}
@@ -321,15 +319,25 @@ namespace OpenBve {
 			SortPolygons(AlphaList, AlphaListCount, AlphaListDistance, 2, TimeElapsed);
 			if (Interface.CurrentOptions.TransparencyMode == TransparencyMode.Smooth) {
 				BlendEnabled = true; Gl.glEnable(Gl.GL_BLEND);
-				Gl.glDepthMask(Gl.GL_FALSE);
+				bool depthMask = true;
 				for (int i = 0; i < AlphaListCount; i++) {
 					int r = (int)ObjectManager.Objects[AlphaList[i].ObjectIndex].Mesh.Faces[AlphaList[i].FaceIndex].Material;
 					if (ObjectManager.Objects[AlphaList[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Additive) {
+						if (depthMask) {
+							Gl.glDepthMask(Gl.GL_FALSE);
+							depthMask = false;
+						}
 						SetAlphaFunc(Gl.GL_GREATER, 0.0f);
 						RenderFace(ref AlphaList[i], cx, cy, cz);
 					} else {
+						if (depthMask) {
+							Gl.glDepthMask(Gl.GL_FALSE);
+							depthMask = false;
+						}
 						SetAlphaFunc(Gl.GL_LESS, 1.0f);
 						RenderFace(ref AlphaList[i], cx, cy, cz);
+						Gl.glDepthMask(Gl.GL_TRUE);
+						depthMask = true;
 						SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
 						RenderFace(ref AlphaList[i], cx, cy, cz);
 					}
@@ -1862,7 +1870,7 @@ namespace OpenBve {
 									case "stopnone":
 										{
 											int s = TrainManager.PlayerTrain.Station;
-											if (s >= 0 && Game.Stations[s].StopAtStation && Interface.CurrentOptions.GameMode != Interface.GameMode.Expert) {
+											if (s >= 0 && Game.StopsAtStation(s) && Interface.CurrentOptions.GameMode != Interface.GameMode.Expert) {
 												bool cond;
 												if (Command == "stopleft") {
 													cond = Game.Stations[s].OpenLeftDoors;
@@ -1889,7 +1897,7 @@ namespace OpenBve {
 									case "stopnonetick":
 										{
 											int s = TrainManager.PlayerTrain.Station;
-											if (s >= 0 && Game.Stations[s].StopAtStation && Interface.CurrentOptions.GameMode != Interface.GameMode.Expert) {
+											if (s >= 0 && Game.StopsAtStation(s) && Interface.CurrentOptions.GameMode != Interface.GameMode.Expert) {
 												int c = Game.GetStopIndex(s, TrainManager.PlayerTrain.Cars.Length);
 												if (c >= 0) {
 													bool cond;

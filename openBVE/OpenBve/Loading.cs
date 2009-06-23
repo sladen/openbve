@@ -340,7 +340,7 @@ namespace OpenBve {
 			Game.CurrentScore.DepartureStation = FirstStationIndex;
 			Game.CurrentScore.Maximum = 0;
 			for (int i = 0; i < Game.Stations.Length; i++) {
-				if (i != FirstStationIndex & Game.Stations[i].StopAtStation) {
+				if (i != FirstStationIndex & Game.StopsAtStation(i)) {
 					Game.CurrentScore.Maximum += Game.ScoreValueStationArrival;
 				}
 			}

@@ -101,9 +101,9 @@ namespace OpenBve {
                         double y = TrackManager.CurrentTrack.Elements[i].WorldPosition.Z;
                         x = ox + w * (x - x0) * xd;
                         y = oy + h + h * zd * (z0 - y);
-                        /// station circle
+                        // station circle
                         RectangleF r = new RectangleF((float)x - 4.0f, (float)y - 4.0f, 8.0f, 8.0f);
-                        bool q = Game.Stations[e.StationIndex].StopAtStation;
+                        bool q = Game.StopsAtStation(e.StationIndex);
                         g.FillEllipse(q ? Brushes.SkyBlue : Brushes.LightGray, r);
                         g.DrawEllipse(q ? Pens.Black : Pens.Gray, r);
                     }
@@ -122,33 +122,33 @@ namespace OpenBve {
                             x = ox + w * (x - x0) * xd;
                             y = oy + h + h * zd * (z0 - y);
                             RectangleF r = new RectangleF((float)x - 4.0f, (float)y - 4.0f, 8.0f, 8.0f);
-                            bool q = Game.Stations[e.StationIndex].StopAtStation;
+                            bool q = Game.StopsAtStation(e.StationIndex);
                             string t = Game.Stations[e.StationIndex].Name;
                             SizeF m = g.MeasureString(t, f, Width, StringFormat.GenericDefault);
                             double sx = TrackManager.CurrentTrack.Elements[i].WorldSide.X;
                             double sz = TrackManager.CurrentTrack.Elements[i].WorldSide.Z;
                             double xt, yt;
                             if (Math.Sign(sx) == Math.Sign(sz)) {
-                                /// descending
+                                // descending
                                 bool o = (x - ox) * (h - y) <= (w - x) * (y - oy);
                                 if (o) {
-                                    /// up-right
+                                    // up-right
                                     xt = x + 6.0;
                                     yt = y - 6.0 - m.Height;
                                 } else {
-                                    /// down-left
+                                    // down-left
                                     xt = x - 6.0 - m.Width;
                                     yt = y + 6.0;
                                 }
                             } else {
-                                /// ascending
+                                // ascending
                                 bool o = (h - y) * (w - x) <= (x - ox) * (y - oy);
                                 if (o) {
-                                    /// up-left
+                                    // up-left
                                     xt = x - 6.0 - m.Width;
                                     yt = y - 6.0 - m.Height;
                                 } else {
-                                    /// down-right
+                                    // down-right
                                     xt = x + 6.0;
                                     yt = y + 6.0;
                                 }
@@ -245,7 +245,7 @@ namespace OpenBve {
                     for (int j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
                         if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.StationStartEvent) {
                             TrackManager.StationStartEvent e = (TrackManager.StationStartEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
-                            bool stop = Game.Stations[e.StationIndex].StopAtStation;
+                            bool stop = Game.StopsAtStation(e.StationIndex);
                             if (Interface.IsJapanese(Game.Stations[e.StationIndex].Name)) {
                                 m.Alignment = StringAlignment.Near;
                                 m.LineAlignment = StringAlignment.Near;
