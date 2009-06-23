@@ -1,5 +1,6 @@
 openbve (1.0.6.7-0ubuntu1) unreleased; urgency=low
 
+  * Add WatchdogExit() to take care of deadlocks in library shutdown
   * New upstream version (1.0.6.7)
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Sun,  7 Jun 2009 02:54:00 +0000

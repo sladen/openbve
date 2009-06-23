@@ -1,6 +1,7 @@
 ﻿using System;
 using Tao.OpenGl;
 using Tao.Sdl;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace OpenBve {
@@ -13,6 +14,15 @@ namespace OpenBve {
 		internal static bool CurrentlyRunOnMono = false;
 		internal static bool UseFilesystemHierarchyStandard = false;
 		private static bool SdlWindowCreated = false;
+
+		internal static void WatchdogExit()
+		{
+			int delay = 5000; // milliseconds
+			Console.Error.WriteLine("WatchdogExit: starting timer");
+			System.Threading.Thread.Sleep(delay);
+			Console.Error.WriteLine("WatchdogExit: Something did not shutdown quickly enough, forcing exit");
+			Environment.Exit(1);
+		}
 
 		//// main
 		[STAThread]
@@ -66,6 +76,13 @@ namespace OpenBve {
 			if(SdlWindowCreated & Interface.CurrentOptions.FullscreenMode) {
 				Sdl.SDL_SetVideoMode(Interface.CurrentOptions.WindowWidth, Interface.CurrentOptions.WindowHeight, 32, Sdl.SDL_OPENGL | Sdl.SDL_DOUBLEBUF);
 			}
+
+			// Start a watchdog timer, so that even if SDL/OpenAL hang freeing buffers,
+			// the program will still successfully force a quit.
+			Thread Watchdog = new Thread(new ThreadStart(WatchdogExit));
+			Watchdog.IsBackground = true;
+			Watchdog.Start();
+
 			TextureManager.UnuseAllTextures();
 			Asynchronous.Deinitialize();
 			PluginManager.UnloadPlugin();
@@ -84,6 +101,7 @@ namespace OpenBve {
 				}
 				System.Diagnostics.Process.Start(Assembly.Location, RestartProcessArguments);
 			}
+			Environment.Exit(0);
 		}
 
 		//// get exception text
