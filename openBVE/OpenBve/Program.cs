@@ -7,7 +7,7 @@ using System.Windows.Forms;
 namespace OpenBve {
 	internal static class Program {
 
-		//// system
+		// system
 		internal static string RestartProcessArguments = null;
 		internal enum Platform { Windows, Linux, Mac }
 		internal static Platform CurrentPlatform = Platform.Windows;
@@ -24,7 +24,7 @@ namespace OpenBve {
 			Environment.Exit(1);
 		}
 
-		//// main
+		// main
 		[STAThread]
 		internal static void Main(string[] Args) {
 			Application.EnableVisualStyles();
@@ -104,7 +104,7 @@ namespace OpenBve {
 			Environment.Exit(0);
 		}
 
-		//// get exception text
+		// get exception text
 		/// <summary>Returns a textual representation of an exception and its inner exceptions.</summary>
 		/// <param name="ex">The exception to serialize.</param>
 		/// <param name="Levels">The amount of inner exceptions to include.</param>
@@ -116,7 +116,7 @@ namespace OpenBve {
 			}
 		}
 
-		//// start
+		// start
 		private static void Start(string[] Args) {
 			// initialize sdl video
 			if (Sdl.SDL_Init(Sdl.SDL_INIT_VIDEO) != 0) {
@@ -272,6 +272,7 @@ namespace OpenBve {
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_GREEN_SIZE, 8);
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_BLUE_SIZE, 8);
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_ALPHA_SIZE, 8);
+			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_SWAP_CONTROL, Interface.CurrentOptions.VerticalSynchronization ? 1 : 0);
 			Sdl.SDL_ShowCursor(Sdl.SDL_DISABLE);
 			SdlWindowCreated = true;
 			int Bits = Interface.CurrentOptions.FullscreenMode ? Interface.CurrentOptions.FullscreenBits : 32;

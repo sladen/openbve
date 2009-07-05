@@ -3,12 +3,12 @@
 namespace OpenBve {
 	internal static class PanelCfgParser {
 
-		//// constants
+		// constants
 		internal static double StackDistance = 0.000001;
 		/// <remarks>EyeDistance is required to be 1.0 by UpdateCarSectionElement and by UpdateCameraRestriction, thus cannot be easily changed</remarks>
 		internal const double EyeDistance = 1.0;
 
-		//// parse panel config
+		// parse panel config
 		internal static void ParsePanelConfig(string TrainPath, System.Text.Encoding Encoding, TrainManager.Train Train) {
 			// read lines
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
@@ -577,7 +577,7 @@ namespace OpenBve {
 												CreateElement(Train, x, y, (double)h, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 4.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), true);
 											}
 										}
-										Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("atcstate");
+										Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("14 pluginstate");
 									}
 									if (Type == 0) {
 										// needle
@@ -1006,17 +1006,17 @@ namespace OpenBve {
 										if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
 											int maxpow = Train.Specs.MaximumPowerNotch;
 											int em = maxpow + 3;
-											Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("handleemergencybrake " + em.ToString(Culture) + " handleairbrakenotch 0 > " + maxpow.ToString(Culture) + " handleairbrakenotch + " + maxpow.ToString(Culture) + " handlepowernotch - ? ?");
+											Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("emergencyBrake " + em.ToString(Culture) + " brakeNotch 0 > " + maxpow.ToString(Culture) + " BrakeNotch + " + maxpow.ToString(Culture) + " powerNotch - ? ?");
 										} else {
 											if (Train.Specs.HasHoldBrake) {
 												int em = Train.Specs.MaximumPowerNotch + 2 + Train.Specs.MaximumBrakeNotch;
 												int maxpow = Train.Specs.MaximumPowerNotch;
 												int maxpowp1 = maxpow + 1;
-												Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("handleemergencybrake " + em.ToString(Culture) + " handleholdbrake " + maxpowp1.ToString(Culture) + " handlebrakenotch 0 > handlebrakenotch " + maxpowp1.ToString(Culture) + " + " + maxpow.ToString(Culture) + " handlepowernotch - ? ? ?");
+												Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("emergencyBrake " + em.ToString(Culture) + " holdBrake " + maxpowp1.ToString(Culture) + " brakeNotch 0 > brakeNotch " + maxpowp1.ToString(Culture) + " + " + maxpow.ToString(Culture) + " powerNotch - ? ? ?");
 											} else {
 												int em = Train.Specs.MaximumPowerNotch + 1 + Train.Specs.MaximumBrakeNotch;
 												int maxpow = Train.Specs.MaximumPowerNotch;
-												Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("handleemergencybrake " + em.ToString(Culture) + " handlebrakenotch 0 > handlebrakenotch " + maxpow.ToString(Culture) + " + " + maxpow.ToString(Culture) + " handlepowernotch - ? ?");
+												Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("emergencyBrake " + em.ToString(Culture) + " brakeNotch 0 > brakeNotch " + maxpow.ToString(Culture) + " + " + maxpow.ToString(Culture) + " powerNotch - ? ?");
 											}
 										}
 									}
@@ -1027,7 +1027,7 @@ namespace OpenBve {
 			}
 		}
 
-		//// get arguments
+		// get arguments
 		private static string[] GetArguments(string Expression) {
 			string[] Arguments = new string[16];
 			int UsedArguments = 0;
@@ -1051,7 +1051,7 @@ namespace OpenBve {
 			return Arguments;
 		}
 
-		//// create element
+		// create element
 		private static int CreateElement(TrainManager.Train Train, double Left, double Top, double Width, double Height, double FullWidth, double FullHeight, double WorldLeft, double WorldTop, double WorldWidth, double WorldHeight, double WorldZ, double DriverX, double DriverY, double DriverZ, int TextureIndex, World.ColorRGBA Color, bool AddStateToLastElement) {
 			// create object
 			ObjectManager.StaticObject Object = new ObjectManager.StaticObject();

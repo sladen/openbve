@@ -107,6 +107,7 @@ namespace OpenBve {
 		internal class Options {
 			internal string LanguageCode;
 			internal bool FullscreenMode;
+			internal bool VerticalSynchronization;
 			internal int WindowWidth;
 			internal int WindowHeight;
 			internal int FullscreenWidth;
@@ -144,6 +145,7 @@ namespace OpenBve {
 			internal Options() {
 				this.LanguageCode = "en-US";
 				this.FullscreenMode = false;
+				this.VerticalSynchronization = true;
 				this.WindowWidth = 960;
 				this.WindowHeight = 600;
 				this.FullscreenWidth = 1024;
@@ -219,7 +221,12 @@ namespace OpenBve {
 									} break;
 								case "display":
 									switch (Key) {
-											case "mode": Interface.CurrentOptions.FullscreenMode = string.Compare(Value, "fullscreen", StringComparison.OrdinalIgnoreCase) == 0; break;
+										case "mode":
+											Interface.CurrentOptions.FullscreenMode = string.Compare(Value, "fullscreen", StringComparison.OrdinalIgnoreCase) == 0;
+											break;
+										case "vsync":
+											Interface.CurrentOptions.VerticalSynchronization = string.Compare(Value, "false", StringComparison.OrdinalIgnoreCase) != 0;
+											break;
 										case "windowwidth":
 											{
 												int a = 960; int.TryParse(Value, NumberStyles.Integer, Culture, out a);

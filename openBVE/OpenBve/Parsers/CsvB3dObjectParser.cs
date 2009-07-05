@@ -280,22 +280,22 @@ namespace OpenBve {
 								}
 								CreateCylinder(ref Builder, n, r1, r2, h);
 							} break;
-						case "rectangle":
-							{
-								if (Arguments.Length > 2) {
-									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 2 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-								}
-								double x = 0.0, y = 0.0;
-								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out x)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Width in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									x = 1.0;
-								}
-								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out y)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Height in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-									y = 1.0;
-								}
-								CreateRectangle(ref Builder, x, y);
-							} break;
+//						case "rectangle":
+//							{
+//								if (Arguments.Length > 2) {
+//									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 2 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+//								}
+//								double x = 0.0, y = 0.0;
+//								if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out x)) {
+//									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Width in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+//									x = 1.0;
+//								}
+//								if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out y)) {
+//									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid argument Height in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+//									y = 1.0;
+//								}
+//								CreateRectangle(ref Builder, x, y);
+//							} break;
 						case "translate":
 						case "translateall":
 							{
@@ -637,9 +637,9 @@ namespace OpenBve {
 						case "load":
 							{
 								if (cmd == "loadtexture" & IsB3D) {
-									Interface.AddMessage(Interface.MessageType.Warning, false, "LoadTexture is not a supported command - did you mean Texture? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									Interface.AddMessage(Interface.MessageType.Warning, false, "LoadTexture is not a supported command - did you mean Load? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else if (cmd == "load" & !IsB3D) {
-									Interface.AddMessage(Interface.MessageType.Warning, false, "Texture is not a supported command - did you mean LoadTexture? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+									Interface.AddMessage(Interface.MessageType.Warning, false, "Load is not a supported command - did you mean LoadTexture? - at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								}
 								if (Arguments.Length > 2) {
 									Interface.AddMessage(Interface.MessageType.Warning, false, "At most 2 arguments are expected in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
@@ -802,20 +802,20 @@ namespace OpenBve {
 			}
 		}
 		
-		// create rectangle
-		private static void CreateRectangle(ref MeshBuilder Builder, double Width, double Height) {
-			int v = Builder.Vertices.Length;
-			Array.Resize<World.Vertex>(ref Builder.Vertices, v + 4);
-			double x = 0.5 * Width;
-			double y = 0.5 * Height;
-			Builder.Vertices[v + 0] = new World.Vertex(new World.Vector3D(-x, -y, 0.0), new World.Vector2Df(0.0f, 1.0f));
-			Builder.Vertices[v + 1] = new World.Vertex(new World.Vector3D(-x, y, 0.0), new World.Vector2Df(0.0f, 0.0f));
-			Builder.Vertices[v + 2] = new World.Vertex(new World.Vector3D(x, y, 0.0), new World.Vector2Df(1.0f, 0.0f));
-			Builder.Vertices[v + 3] = new World.Vertex(new World.Vector3D(x, -y, 0.0), new World.Vector2Df(1.0f, 1.0f));
-			int f = Builder.Faces.Length;
-			Array.Resize<World.MeshFace>(ref Builder.Faces, f + 1);
-			Builder.Faces[f].Vertices = new World.MeshFaceVertex[] { new World.MeshFaceVertex(v), new World.MeshFaceVertex(v + 1), new World.MeshFaceVertex(v + 2), new World.MeshFaceVertex(v + 3) };
-		}
+//		// create rectangle
+//		private static void CreateRectangle(ref MeshBuilder Builder, double Width, double Height) {
+//			int v = Builder.Vertices.Length;
+//			Array.Resize<World.Vertex>(ref Builder.Vertices, v + 4);
+//			double x = 0.5 * Width;
+//			double y = 0.5 * Height;
+//			Builder.Vertices[v + 0] = new World.Vertex(new World.Vector3D(-x, -y, 0.0), new World.Vector2Df(0.0f, 1.0f));
+//			Builder.Vertices[v + 1] = new World.Vertex(new World.Vector3D(-x, y, 0.0), new World.Vector2Df(0.0f, 0.0f));
+//			Builder.Vertices[v + 2] = new World.Vertex(new World.Vector3D(x, y, 0.0), new World.Vector2Df(1.0f, 0.0f));
+//			Builder.Vertices[v + 3] = new World.Vertex(new World.Vector3D(x, -y, 0.0), new World.Vector2Df(1.0f, 1.0f));
+//			int f = Builder.Faces.Length;
+//			Array.Resize<World.MeshFace>(ref Builder.Faces, f + 1);
+//			Builder.Faces[f].Vertices = new World.MeshFaceVertex[] { new World.MeshFaceVertex(v), new World.MeshFaceVertex(v + 1), new World.MeshFaceVertex(v + 2), new World.MeshFaceVertex(v + 3) };
+//		}
 
 		// apply translation
 		private static void ApplyTranslation(MeshBuilder Builder, double x, double y, double z) {
@@ -861,14 +861,8 @@ namespace OpenBve {
 				}
 			}
 			if (x * y * z < 0.0) {
-				// reverse face vertex order
 				for (int i = 0; i < Builder.Faces.Length; i++) {
-					for (int j = 0; j < (Builder.Faces[i].Vertices.Length >> 1); j++) {
-						int k = Builder.Faces[i].Vertices.Length - j - 1;
-						World.MeshFaceVertex v = Builder.Faces[i].Vertices[j];
-						Builder.Faces[i].Vertices[j] = Builder.Faces[i].Vertices[k];
-						Builder.Faces[i].Vertices[k] = v;
-					}
+					Builder.Faces[i].Flip();
 				}
 			}
 		}
@@ -897,18 +891,11 @@ namespace OpenBve {
 						Object.Mesh.Faces[j].Vertices[k].Normal.Y *= ry * u;
 						Object.Mesh.Faces[j].Vertices[k].Normal.Z *= rz * u;
 					}
-
 				}
 			}
 			if (reverse) {
-				// reverse face vertex order
 				for (int j = 0; j < Object.Mesh.Faces.Length; j++) {
-					for (int k = 0; k < (Object.Mesh.Faces[j].Vertices.Length >> 1); k++) {
-						int h = Object.Mesh.Faces[j].Vertices.Length - k - 1;
-						World.MeshFaceVertex v = Object.Mesh.Faces[j].Vertices[k];
-						Object.Mesh.Faces[j].Vertices[k] = Object.Mesh.Faces[j].Vertices[h];
-						Object.Mesh.Faces[j].Vertices[h] = v;
-					}
+					Object.Mesh.Faces[j].Flip();
 				}
 			}
 		}

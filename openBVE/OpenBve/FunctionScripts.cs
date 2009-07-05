@@ -16,11 +16,13 @@ namespace OpenBve {
 			TimeSecondsSinceMidnight, CameraDistance,
 			TrainCars, TrainSpeed, TrainSpeedometer,
 			TrainDistance, TrainDistanceToCar, TrainTrackDistance, TrainTrackDistanceToCar,
-			DoorAll, DoorAllLeft, DoorAllRight, DoorSpecificCarAllLeft, DoorSpecificCarAllRight,
-			DoorAllLeftTarget, DoorAllRightTarget,
-			HandleReverser, HandlePowerNotch, HandleAirBrakeNotch, HandleBrakeNotch, HandleHoldBrake, HandleEmergencyBrake, HandleConstSpeed,
+			Doors, DoorsIndex,
+			LeftDoors, LeftDoorsIndex, RightDoors, RightDoorsIndex,
+			LeftDoorsTarget, LeftDoorsTargetIndex, RightDoorsTarget, RightDoorsTargetIndex,
+			ReverserNotch, PowerNotch, PowerNotches, BrakeNotch, BrakeNotches, BrakeNotchLinear, BrakeNotchesLinear, EmergencyBrake,
+			HasAirBrake, HoldBrake, HasHoldBrake, ConstSpeed, HasConstSpeed,
 			BrakeMainReservoir, BrakeEqualizingReservoir, BrakeBrakePipe, BrakeBrakeCylinder, StraightAirPipe,
-			SecurityAtcState, SecurityPluginState,
+			SecurityPluginState,
 			TimetableVisible,
 			SectionAspectNumber
 		}
@@ -324,7 +326,7 @@ namespace OpenBve {
 						}
 						break;
 						// door
-					case Instructions.DoorAll:
+					case Instructions.Doors:
 						if (Train != null) {
 							double a = 0.0;
 							for (int j = 0; j < Train.Cars.Length; j++) {
@@ -339,7 +341,24 @@ namespace OpenBve {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
-					case Instructions.DoorAllLeft:
+					case Instructions.DoorsIndex:
+						if (Train != null) {
+							double a = 0.0;
+							int j = (int)Math.Round(Function.Stack[s - 1]);
+							if (j < 0) j += Train.Cars.Length;
+							if (j >= 0 & j < Train.Cars.Length) {
+								for (int k = 0; k < Train.Cars[j].Specs.Doors.Length; k++) {
+									if (Train.Cars[j].Specs.Doors[k].State > a) {
+										a = Train.Cars[j].Specs.Doors[k].State;
+									}
+								}
+							}
+							Function.Stack[s - 1] = a;
+						} else {
+							Function.Stack[s - 1] = 0.0;
+						}
+						break;
+					case Instructions.LeftDoors:
 						if (Train != null) {
 							double a = 0.0;
 							for (int j = 0; j < Train.Cars.Length; j++) {
@@ -354,22 +373,7 @@ namespace OpenBve {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
-					case Instructions.DoorAllRight:
-						if (Train != null) {
-							double a = 0.0;
-							for (int j = 0; j < Train.Cars.Length; j++) {
-								for (int k = 0; k < Train.Cars[j].Specs.Doors.Length; k++) {
-									if (Train.Cars[j].Specs.Doors[k].Direction == 1 & Train.Cars[j].Specs.Doors[k].State > a) {
-										a = Train.Cars[j].Specs.Doors[k].State;
-									}
-								}
-							}
-							Function.Stack[s] = a;
-						} else {
-							Function.Stack[s] = 0.0;
-						}
-						s++; break;
-					case Instructions.DoorSpecificCarAllLeft:
+					case Instructions.LeftDoorsIndex:
 						if (Train != null) {
 							double a = 0.0;
 							int j = (int)Math.Round(Function.Stack[s - 1]);
@@ -386,7 +390,22 @@ namespace OpenBve {
 							Function.Stack[s - 1] = 0.0;
 						}
 						break;
-					case Instructions.DoorSpecificCarAllRight:
+					case Instructions.RightDoors:
+						if (Train != null) {
+							double a = 0.0;
+							for (int j = 0; j < Train.Cars.Length; j++) {
+								for (int k = 0; k < Train.Cars[j].Specs.Doors.Length; k++) {
+									if (Train.Cars[j].Specs.Doors[k].Direction == 1 & Train.Cars[j].Specs.Doors[k].State > a) {
+										a = Train.Cars[j].Specs.Doors[k].State;
+									}
+								}
+							}
+							Function.Stack[s] = a;
+						} else {
+							Function.Stack[s] = 0.0;
+						}
+						s++; break;
+					case Instructions.RightDoorsIndex:
 						if (Train != null) {
 							double a = 0.0;
 							int j = (int)Math.Round(Function.Stack[s - 1]);
@@ -403,7 +422,7 @@ namespace OpenBve {
 							Function.Stack[s - 1] = 0.0;
 						}
 						break;
-					case Instructions.DoorAllLeftTarget:
+					case Instructions.LeftDoorsTarget:
 						if (Train != null) {
 							bool q = false;
 							for (int j = 0; j < Train.Cars.Length; j++) {
@@ -417,7 +436,25 @@ namespace OpenBve {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
-					case Instructions.DoorAllRightTarget:
+					case Instructions.LeftDoorsTargetIndex:
+						if (Train != null) {
+							bool q = false;
+							int j = (int)Math.Round(Function.Stack[s - 1]);
+							if (j < 0) j += Train.Cars.Length;
+							if (j >= 0 & j < Train.Cars.Length) {
+								for (int k = 0; k < Train.Cars[j].Specs.Doors.Length; k++) {
+									if (Train.Cars[j].Specs.AnticipatedLeftDoorsOpened) {
+										q = true;
+										break;
+									}
+								}
+							}
+							Function.Stack[s] = q ? 1.0 : 0.0;
+						} else {
+							Function.Stack[s - 1] = 0.0;
+						}
+						break;
+					case Instructions.RightDoorsTarget:
 						if (Train != null) {
 							bool q = false;
 							for (int j = 0; j < Train.Cars.Length; j++) {
@@ -431,52 +468,146 @@ namespace OpenBve {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
+					case Instructions.RightDoorsTargetIndex:
+						if (Train != null) {
+							bool q = false;
+							int j = (int)Math.Round(Function.Stack[s - 1]);
+							if (j < 0) j += Train.Cars.Length;
+							if (j >= 0 & j < Train.Cars.Length) {
+								for (int k = 0; k < Train.Cars[j].Specs.Doors.Length; k++) {
+									if (Train.Cars[j].Specs.AnticipatedRightDoorsOpened) {
+										q = true;
+										break;
+									}
+								}
+							}
+							Function.Stack[s] = q ? 1.0 : 0.0;
+						} else {
+							Function.Stack[s - 1] = 0.0;
+						}
+						break;
 						// handles
-					case Instructions.HandleReverser:
+					case Instructions.ReverserNotch:
 						if (Train != null) {
 							Function.Stack[s] = (double)Train.Specs.CurrentReverser.Driver;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
-					case Instructions.HandlePowerNotch:
+					case Instructions.PowerNotch:
 						if (Train != null) {
 							Function.Stack[s] = (double)Train.Specs.CurrentPowerNotch.Driver;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
-					case Instructions.HandleBrakeNotch:
+					case Instructions.PowerNotches:
 						if (Train != null) {
-							Function.Stack[s] = (double)Train.Specs.CurrentBrakeNotch.Driver;
+							Function.Stack[s] = (double)Train.Specs.MaximumPowerNotch;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
-					case Instructions.HandleAirBrakeNotch:
+					case Instructions.BrakeNotch:
 						if (Train != null) {
-							Function.Stack[s] = (double)Train.Specs.AirBrake.Handle.Driver;
+							if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
+								Function.Stack[s] = (double)Train.Specs.AirBrake.Handle.Driver;
+							} else {
+								Function.Stack[s] = (double)Train.Specs.CurrentBrakeNotch.Driver;
+							}
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
-					case Instructions.HandleHoldBrake:
+					case Instructions.BrakeNotches:
 						if (Train != null) {
-							Function.Stack[s] = Train.Specs.CurrentHoldBrake.Driver ? 1.0 : 0.0;
+							if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
+								Function.Stack[s] = 2.0;
+							} else {
+								Function.Stack[s] = (double)Train.Specs.MaximumBrakeNotch;
+							}
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
-					case Instructions.HandleEmergencyBrake:
+					case Instructions.BrakeNotchLinear:
+						if (Train != null) {
+							if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
+								if (Train.Specs.CurrentEmergencyBrake.Driver) {
+									Function.Stack[s] = 3.0;
+								} else {
+									Function.Stack[s] = (double)Train.Specs.AirBrake.Handle.Driver;
+								}
+							} else if (Train.Specs.HasHoldBrake) {
+								if (Train.Specs.CurrentEmergencyBrake.Driver) {
+									Function.Stack[s] = (double)Train.Specs.MaximumBrakeNotch + 2.0;
+								} else if (Train.Specs.CurrentBrakeNotch.Driver > 0) {
+									Function.Stack[s] = (double)Train.Specs.CurrentBrakeNotch.Driver + 1.0;
+								} else {
+									Function.Stack[s] = Train.Specs.CurrentHoldBrake.Driver ? 1.0 : 0.0;
+								}
+							} else {
+								if (Train.Specs.CurrentEmergencyBrake.Driver) {
+									Function.Stack[s] = (double)Train.Specs.MaximumBrakeNotch + 1.0;
+								} else {
+									Function.Stack[s] = (double)Train.Specs.CurrentBrakeNotch.Driver;
+								}
+							}
+						} else {
+							Function.Stack[s] = 0.0;
+						}
+						s++; break;
+					case Instructions.BrakeNotchesLinear:
+						if (Train != null) {
+							if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
+								Function.Stack[s] = 3.0;
+							} else if (Train.Specs.HasHoldBrake) {
+								Function.Stack[s] = Train.Specs.MaximumBrakeNotch + 2.0;
+							} else {
+								Function.Stack[s] = Train.Specs.MaximumBrakeNotch + 1.0;
+							}
+						} else {
+							Function.Stack[s] = 0.0;
+						}
+						s++; break;
+					case Instructions.EmergencyBrake:
 						if (Train != null) {
 							Function.Stack[s] = Train.Specs.CurrentEmergencyBrake.Driver ? 1.0 : 0.0;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
-					case Instructions.HandleConstSpeed:
+					case Instructions.HasAirBrake:
+						if (Train != null) {
+							Function.Stack[s] = Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake ? 1.0 : 0.0;
+						} else {
+							Function.Stack[s] = 0.0;
+						}
+						s++; break;
+					case Instructions.HoldBrake:
+						if (Train != null) {
+							Function.Stack[s] = Train.Specs.CurrentHoldBrake.Driver ? 1.0 : 0.0;
+						} else {
+							Function.Stack[s] = 0.0;
+						}
+						s++; break;
+					case Instructions.HasHoldBrake:
+						if (Train != null) {
+							Function.Stack[s] = Train.Specs.HasHoldBrake ? 1.0 : 0.0;
+						} else {
+							Function.Stack[s] = 0.0;
+						}
+						s++; break;
+					case Instructions.ConstSpeed:
 						if (Train != null) {
 							Function.Stack[s] = Train.Specs.CurrentConstSpeed ? 1.0 : 0.0;
+						} else {
+							Function.Stack[s] = 0.0;
+						}
+						s++; break;
+					case Instructions.HasConstSpeed:
+						if (Train != null) {
+							Function.Stack[s] = Train.Specs.HasConstSpeed ? 1.0 : 0.0;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
@@ -518,46 +649,151 @@ namespace OpenBve {
 						}
 						s++; break;
 						// security
-					case Instructions.SecurityAtcState:
-						if (Train != null && Train.Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
-							if (!Train.Specs.Security.Atc.Transmitting) {
-								Function.Stack[s] = 0.0;
-							} else {
-								if (Train.Specs.Security.Atc.SpeedRestriction < 4.1666) {
-									Function.Stack[s] = 1.0;
-								} else if (Train.Specs.Security.Atc.SpeedRestriction < 6.9443) {
-									Function.Stack[s] = 2.0;
-								} else if (Train.Specs.Security.Atc.SpeedRestriction < 12.4999) {
-									Function.Stack[s] = 3.0;
-								} else if (Train.Specs.Security.Atc.SpeedRestriction < 15.2777) {
-									Function.Stack[s] = 4.0;
-								} else if (Train.Specs.Security.Atc.SpeedRestriction < 18.0555) {
-									Function.Stack[s] = 5.0;
-								} else if (Train.Specs.Security.Atc.SpeedRestriction < 20.8333) {
-									Function.Stack[s] = 6.0;
-								} else if (Train.Specs.Security.Atc.SpeedRestriction < 24.9999) {
-									Function.Stack[s] = 7.0;
-								} else if (Train.Specs.Security.Atc.SpeedRestriction < 27.7777) {
-									Function.Stack[s] = 8.0;
-								} else if (Train.Specs.Security.Atc.SpeedRestriction < 30.5555) {
-									Function.Stack[s] = 9.0;
-								} else if (Train.Specs.Security.Atc.SpeedRestriction < 33.3333) {
-									Function.Stack[s] = 10.0;
-								} else {
-									Function.Stack[s] = 11.0;
-								}
-							}
-						} else {
-							Function.Stack[s] = 12.0;
-						}
-						s++; break;
 					case Instructions.SecurityPluginState:
-						{
+						if (Train == null) {
+							Function.Stack[s - 1] = 0.0;
+						} else {
 							int n = (int)Math.Round(Function.Stack[s - 1]);
-							if (n >= 0 & n < PluginManager.PluginPanel.Length) {
-								Function.Stack[s - 1] = (double)PluginManager.PluginPanel[n];
+							if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.Bve4Plugin) {
+								if (n >= 0 & n < PluginManager.PluginPanel.Length) {
+									Function.Stack[s - 1] = (double)PluginManager.PluginPanel[n];
+								} else {
+									Function.Stack[s - 1] = 0.0;
+								}
 							} else {
 								Function.Stack[s - 1] = 0.0;
+								switch(n) {
+									case 0:
+										// ATS
+										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
+											if (Train.Specs.Security.State == TrainManager.SecurityState.Normal | Train.Specs.Security.State == TrainManager.SecurityState.Initialization) {
+												Function.Stack[s - 1] = 1.0;
+											}
+										} break;
+									case 1:
+										// ATS RUN
+										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
+											if (Train.Specs.Security.State == TrainManager.SecurityState.Ringing) {
+												Function.Stack[s - 1] = 1.0;
+											} else if (Train.Specs.Security.State == TrainManager.SecurityState.Emergency | Train.Specs.Security.State == TrainManager.SecurityState.Pattern | Train.Specs.Security.State == TrainManager.SecurityState.Service) {
+												Function.Stack[s - 1] = 2.0;
+											}
+										} break;
+									case 2:
+										// P POWER
+										if ((Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN | Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) & Train.Specs.Security.Ats.AtsPAvailable) {
+											Function.Stack[s - 1] = 1.0;
+										} break;
+									case 3:
+										// PATTERN APPROACH
+										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+											if (Train.Specs.Security.State == TrainManager.SecurityState.Pattern | Train.Specs.Security.State == TrainManager.SecurityState.Service) {
+												Function.Stack[s - 1] = 1.0;
+											}
+										} break;
+									case 4:
+										// BRAKE RELEASE
+										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+											if (Train.Specs.Security.Ats.AtsPOverride) {
+												Function.Stack[s - 1] = 1.0;
+											}
+										} break;
+									case 5:
+										// BRAKE OPERATION
+										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+											if (Train.Specs.Security.State == TrainManager.SecurityState.Service & !Train.Specs.Security.Ats.AtsPOverride) {
+												Function.Stack[s - 1] = 1.0;
+											}
+										} break;
+									case 6:
+										// ATS-P
+										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+											Function.Stack[s - 1] = 1.0;
+										} break;
+									case 7:
+										// FAILURE
+										if (Train.Specs.Security.Mode != TrainManager.SecuritySystem.None) {
+											if (Train.Specs.Security.State == TrainManager.SecurityState.Initialization) {
+												Function.Stack[s - 1] = 1.0;
+											} else if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+												if (Train.Specs.Security.State == TrainManager.SecurityState.Ringing | Train.Specs.Security.State == TrainManager.SecurityState.Emergency) {
+													Function.Stack[s - 1] = 1.0;
+												}
+											}
+										} break;
+									case 8:
+										// ATC
+										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
+											Function.Stack[s - 1] = 1.0;
+										} break;
+									case 9:
+										// ATC POWER
+										if ((Train.Specs.Security.Mode == TrainManager.SecuritySystem.Atc | Train.Specs.Security.Mode != TrainManager.SecuritySystem.None & Train.Specs.Security.Atc.AutomaticSwitch)) {
+											Function.Stack[s - 1] = 1.0;
+										} break;
+									case 10:
+										// ATC SERVICE
+										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
+											if (Train.Specs.Security.State == TrainManager.SecurityState.Service) {
+												Function.Stack[s - 1] = 1.0;
+											}
+										} break;
+									case 11:
+										// ATC EMERGENCY
+										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
+											if (!Train.Specs.Security.Atc.Transmitting) {
+												Function.Stack[s - 1] = 1.0;
+											}
+										} break;
+									case 12:
+										// EB
+										if (Train.Specs.Security.Mode != TrainManager.SecuritySystem.None) {
+											if (Train.Specs.Security.Eb.BellState == TrainManager.SecurityState.Ringing) {
+												Function.Stack[s - 1] = 1.0;
+											}
+										} break;
+									case 13:
+										// CONST SPEED
+										if (Train.Specs.HasConstSpeed) {
+											if (Train.Specs.CurrentConstSpeed) {
+												Function.Stack[s - 1] = 1.0;
+											}
+										} break;
+									case 14:
+										// atc speedometer state
+										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
+											if (!Train.Specs.Security.Atc.Transmitting) {
+												Function.Stack[s - 1] = 0.0;
+											} else {
+												if (Train.Specs.Security.Atc.SpeedRestriction < 4.1666) {
+													Function.Stack[s - 1] = 1.0;
+												} else if (Train.Specs.Security.Atc.SpeedRestriction < 6.9443) {
+													Function.Stack[s - 1] = 2.0;
+												} else if (Train.Specs.Security.Atc.SpeedRestriction < 12.4999) {
+													Function.Stack[s - 1] = 3.0;
+												} else if (Train.Specs.Security.Atc.SpeedRestriction < 15.2777) {
+													Function.Stack[s - 1] = 4.0;
+												} else if (Train.Specs.Security.Atc.SpeedRestriction < 18.0555) {
+													Function.Stack[s - 1] = 5.0;
+												} else if (Train.Specs.Security.Atc.SpeedRestriction < 20.8333) {
+													Function.Stack[s - 1] = 6.0;
+												} else if (Train.Specs.Security.Atc.SpeedRestriction < 24.9999) {
+													Function.Stack[s - 1] = 7.0;
+												} else if (Train.Specs.Security.Atc.SpeedRestriction < 27.7777) {
+													Function.Stack[s - 1] = 8.0;
+												} else if (Train.Specs.Security.Atc.SpeedRestriction < 30.5555) {
+													Function.Stack[s - 1] = 9.0;
+												} else if (Train.Specs.Security.Atc.SpeedRestriction < 33.3333) {
+													Function.Stack[s - 1] = 10.0;
+												} else {
+													Function.Stack[s - 1] = 11.0;
+												}
+											}
+										} else {
+											Function.Stack[s - 1] = 12.0;
+										} break;
+
+								}
 							}
 						} break;
 						// timetable
@@ -1024,15 +1260,33 @@ namespace OpenBve {
 					} else {
 						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
 					}
+				case "doors":
+					if (n == 1) {
+						return a[0] + " doorsindex";
+					} else {
+						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
+					}
 				case "leftdoors":
 					if (n == 1) {
-						return a[0] + " leftdoorsofcar";
+						return a[0] + " leftdoorsindex";
+					} else {
+						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
+					}
+				case "rightdoorstarget":
+					if (n == 1) {
+						return a[0] + " rightdoorstargetindex";
+					} else {
+						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
+					}
+				case "leftdoorstarget":
+					if (n == 1) {
+						return a[0] + " leftdoorstargetindex";
 					} else {
 						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
 					}
 				case "rightdoors":
 					if (n == 1) {
-						return a[0] + " rightdoorsofcar";
+						return a[0] + " rightdoorsindex";
 					} else {
 						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
 					}
@@ -1544,7 +1798,6 @@ namespace OpenBve {
 				if (i != 0) Builder.Append(' ');
 				Builder.Append(Stack[i]);
 			}
-			///System.IO.File.AppendAllText(@"C:\debug.txt", Expression.Trim() + "\n" + Builder.ToString() + "\n\n");
 			return Builder.ToString();
 		}
 
@@ -1829,62 +2082,101 @@ namespace OpenBve {
 							// train: doors
 						case "doors":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.DoorAll;
+							Result.Instructions[n] = Instructions.Doors;
 							n++; s++; if (s >= m) m = s; break;
+						case "doorsindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.DoorsIndex;
+							n++; break;
 						case "leftdoors":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.DoorAllLeft;
+							Result.Instructions[n] = Instructions.LeftDoors;
 							n++; s++; if (s >= m) m = s; break;
+						case "leftdoorsindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.LeftDoorsIndex;
+							n++; break;
 						case "rightdoors":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.DoorAllRight;
+							Result.Instructions[n] = Instructions.RightDoors;
 							n++; s++; if (s >= m) m = s; break;
-						case "leftdoorsofcar":
+						case "rightdoorsindex":
 							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.DoorSpecificCarAllLeft;
-							n++; break;
-						case "rightdoorsofcar":
-							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
-							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.DoorSpecificCarAllRight;
+							Result.Instructions[n] = Instructions.RightDoorsIndex;
 							n++; break;
 						case "leftdoorstarget":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.DoorAllLeftTarget;
+							Result.Instructions[n] = Instructions.LeftDoorsTarget;
 							n++; s++; if (s >= m) m = s; break;
+						case "leftdoorstargetindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.LeftDoorsTargetIndex;
+							n++; break;
 						case "rightdoorstarget":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.DoorAllRightTarget;
+							Result.Instructions[n] = Instructions.RightDoorsTarget;
 							n++; s++; if (s >= m) m = s; break;
+						case "rightdoorstargetindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.RightDoorsTargetIndex;
+							n++; break;
 							// train: handles
-						case "handlereverser":
+						case "reversernotch":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.HandleReverser;
+							Result.Instructions[n] = Instructions.ReverserNotch;
 							n++; s++; if (s >= m) m = s; break;
-						case "handlepowernotch":
+						case "powernotch":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.HandlePowerNotch;
+							Result.Instructions[n] = Instructions.PowerNotch;
 							n++; s++; if (s >= m) m = s; break;
-						case "handlebrakenotch":
+						case "powernotches":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.HandleBrakeNotch;
+							Result.Instructions[n] = Instructions.PowerNotches;
 							n++; s++; if (s >= m) m = s; break;
-						case "handleairbrakenotch":
+						case "brakenotch":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.HandleAirBrakeNotch;
+							Result.Instructions[n] = Instructions.BrakeNotch;
 							n++; s++; if (s >= m) m = s; break;
-						case "handleholdbrake":
+						case "brakenotches":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.HandleHoldBrake;
+							Result.Instructions[n] = Instructions.BrakeNotches;
 							n++; s++; if (s >= m) m = s; break;
-						case "handleemergencybrake":
+						case "brakenotchlinear":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.HandleEmergencyBrake;
+							Result.Instructions[n] = Instructions.BrakeNotchLinear;
 							n++; s++; if (s >= m) m = s; break;
-						case "handleconstspeed":
+						case "brakenotcheslinear":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.HandleConstSpeed;
+							Result.Instructions[n] = Instructions.BrakeNotchesLinear;
+							n++; s++; if (s >= m) m = s; break;
+						case "emergencybrake":
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.EmergencyBrake;
+							n++; s++; if (s >= m) m = s; break;
+						case "hasairbrake":
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.HasAirBrake;
+							n++; s++; if (s >= m) m = s; break;
+						case "holdbrake":
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.HoldBrake;
+							n++; s++; if (s >= m) m = s; break;
+						case "hasholdbrake":
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.HasHoldBrake;
+							n++; s++; if (s >= m) m = s; break;
+						case "constspeed":
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.ConstSpeed;
+							n++; s++; if (s >= m) m = s; break;
+						case "hasconstspeed":
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.HasConstSpeed;
 							n++; s++; if (s >= m) m = s; break;
 							// train: brake
 						case "mainreservoir":
@@ -1908,10 +2200,6 @@ namespace OpenBve {
 							Result.Instructions[n] = Instructions.StraightAirPipe;
 							n++; s++; if (s >= m) m = s; break;
 							// train: security
-						case "atcstate":
-							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.SecurityAtcState;
-							n++; s++; if (s >= m) m = s; break;
 						case "pluginstate":
 							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);

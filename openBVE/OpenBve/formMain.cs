@@ -261,6 +261,10 @@ namespace OpenBve {
 			} else {
 				radiobuttonWindow.Checked = true;
 			}
+			comboboxVSync.Items.Clear();
+			comboboxVSync.Items.Add("");
+			comboboxVSync.Items.Add("");
+			comboboxVSync.SelectedIndex = Interface.CurrentOptions.VerticalSynchronization ? 1 : 0;
 			updownWindowWidth.Value = (decimal)Interface.CurrentOptions.WindowWidth;
 			updownWindowHeight.Value = (decimal)Interface.CurrentOptions.WindowHeight;
 			updownFullscreenWidth.Value = (decimal)Interface.CurrentOptions.FullscreenWidth;
@@ -371,6 +375,9 @@ namespace OpenBve {
 			groupboxDisplayMode.Text = Interface.GetInterfaceString("options_display_mode");
 			radiobuttonWindow.Text = Interface.GetInterfaceString("options_display_mode_window");
 			radiobuttonFullscreen.Text = Interface.GetInterfaceString("options_display_mode_fullscreen");
+			labelVSync.Text = Interface.GetInterfaceString("options_display_vsync");
+			comboboxVSync.Items[0] = Interface.GetInterfaceString("options_display_vsync_off");
+			comboboxVSync.Items[1] = Interface.GetInterfaceString("options_display_vsync_on");
 			groupboxWindow.Text = Interface.GetInterfaceString("options_display_window");
 			labelWindowWidth.Text = Interface.GetInterfaceString("options_display_window_width");
 			labelWindowHeight.Text = Interface.GetInterfaceString("options_display_window_height");
@@ -549,6 +556,7 @@ namespace OpenBve {
 		private void formMain_FormClosing(object sender, FormClosingEventArgs e) {
 			Interface.CurrentOptions.LanguageCode = CurrentLanguageCode;
 			Interface.CurrentOptions.FullscreenMode = radiobuttonFullscreen.Checked;
+			Interface.CurrentOptions.VerticalSynchronization = comboboxVSync.SelectedIndex == 1;
 			Interface.CurrentOptions.WindowWidth = (int)Math.Round(updownWindowWidth.Value);
 			Interface.CurrentOptions.WindowHeight = (int)Math.Round(updownWindowHeight.Value);
 			Interface.CurrentOptions.FullscreenWidth = (int)Math.Round(updownFullscreenWidth.Value);

@@ -522,14 +522,27 @@ namespace OpenBve {
 
 		// parse panel config
 		internal static void ParsePanelConfig(string TrainPath, System.Text.Encoding Encoding, TrainManager.Train Train, bool OverlayMode) {
-			string File = Interface.GetCombinedFileName(TrainPath, "panel2.cfg");
+			string File = Interface.GetCombinedFileName(TrainPath, "panel.animated");
 			if (System.IO.File.Exists(File)) {
-				Panel2CfgParser.ParsePanel2Config(TrainPath, Encoding, Train);
+				ObjectManager.AnimatedObjectCollection a = AnimatedObjectParser.ReadObject(File, Encoding, ObjectManager.ObjectLoadMode.DontAllowUnloadOfTextures);
+				for (int i = 0; i < a.Objects.Length; i++) {
+					a.Objects[i].ObjectIndex = ObjectManager.CreateDynamicObject();
+				}
+				Train.Cars[Train.DriverCar].Sections[0].Elements = a.Objects;
+				World.CameraRestriction = World.CameraRestrictionMode.NotAvailable;
 			} else {
-				File = Interface.GetCombinedFileName(TrainPath, "panel.cfg");
+				File = Interface.GetCombinedFileName(TrainPath, "panel2.cfg");
 				if (System.IO.File.Exists(File)) {
-					PanelCfgParser.ParsePanelConfig(TrainPath, Encoding, Train);
+					Panel2CfgParser.ParsePanel2Config(TrainPath, Encoding, Train);
+					World.CameraRestriction = World.CameraRestrictionMode.On;
 				} else {
+					File = Interface.GetCombinedFileName(TrainPath, "panel.cfg");
+					if (System.IO.File.Exists(File)) {
+						PanelCfgParser.ParsePanelConfig(TrainPath, Encoding, Train);
+						World.CameraRestriction = World.CameraRestrictionMode.On;
+					} else {
+						World.CameraRestriction = World.CameraRestrictionMode.NotAvailable;
+					}
 				}
 			}
 		}
@@ -1054,7 +1067,7 @@ namespace OpenBve {
 			// update current section
 			int s = Train.Cars[c].CurrentSection;
 			if (s >= 0) {
-				if (World.CameraMode == World.CameraViewMode.Interior & Train.Cars[c].Sections[s].Overlay) {
+				if ((World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) & Train.Cars[c].Sections[s].Overlay) {
 					UpdateCamera(Train);
 					World.UpdateAbsoluteCamera(TimeElapsed);
 				}
@@ -1093,7 +1106,7 @@ namespace OpenBve {
 		// update car section element
 		private static void UpdateCarSectionElement(Train Train, int CarIndex, int SectionIndex, int ElementIndex, World.Vector3D Position, World.Vector3D Direction, World.Vector3D Up, World.Vector3D Side, ObjectManager.VisibilityChangeMode Visibility, double TimeElapsed) {
 			World.Vector3D p;
-			if (Train.Cars[CarIndex].Sections[SectionIndex].Overlay) {
+			if (Train.Cars[CarIndex].Sections[SectionIndex].Overlay & World.CameraRestriction != World.CameraRestrictionMode.NotAvailable) {
 				p = new World.Vector3D(Train.Cars[CarIndex].DriverX, Train.Cars[CarIndex].DriverY, Train.Cars[CarIndex].DriverZ);
 			} else {
 				p = Position;
@@ -2365,7 +2378,7 @@ namespace OpenBve {
 								if (spd == 0.0) {
 									Train.Specs.CurrentBrakeNotch.Security = Train.Specs.MaximumBrakeNotch;
 								} else {
-									int n = (int)Math.Ceiling(3.0 * (Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed - spd));
+									int n = (int)Math.Ceiling(10.0 * (Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed - spd));
 									if (n < Train.Specs.CurrentBrakeNotch.Driver) {
 										n = Train.Specs.CurrentBrakeNotch.Driver;
 									}
@@ -2490,7 +2503,7 @@ namespace OpenBve {
 				UpdateBrakeSystem(Train, i, TimeElapsed, out DecelerationDueToBrake[i], out DecelerationDueToMotor[i]);
 			}
 
-			//// brake pipe pressure distribution
+			// brake pipe pressure distribution
 			//double[] NewBrakePipePressure = new double[Train.Cars.Length];
 			//for (int i = 0; i < Train.Cars.Length; i++) {
 			//    NewBrakePipePressure[i] = Train.Cars[i].Specs.AirBrake.BrakePipeCurrentPressure;
@@ -2545,7 +2558,7 @@ namespace OpenBve {
 			//        NewBrakePipePressure[i] = 0.0;
 			//    }
 			//}
-			//// apply
+			// apply
 			//for (int i = 0; i < Train.Cars.Length; i++) {
 			//    if (NewBrakePipePressure[i] < 0.0) NewBrakePipePressure[i] = 0.0;
 			//    Train.Cars[i].Specs.AirBrake.BrakePipeCurrentPressure = NewBrakePipePressure[i];
@@ -3852,8 +3865,8 @@ namespace OpenBve {
 			}
 			// update camera
 			if (!Game.MinimalisticSimulation & Train == PlayerTrain) {
-				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.Exterior) {
-					if (World.CameraMode != World.CameraViewMode.Interior | !TrainManager.PlayerTrain.Cars[0].Sections[0].Overlay) {
+				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
+					if ((World.CameraMode != World.CameraViewMode.Interior & World.CameraMode != World.CameraViewMode.InteriorLookAhead) | !TrainManager.PlayerTrain.Cars[0].Sections[0].Overlay) {
 						UpdateCamera(Train);
 					}
 				}
