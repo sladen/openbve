@@ -24,7 +24,6 @@ namespace OpenBve {
 
 		// animated objects
 		internal class Damping {
-			internal bool DirectMode;
 			internal double NaturalFrequency;
 			internal double NaturalTime;
 			internal double DampingRatio;
@@ -33,34 +32,31 @@ namespace OpenBve {
 			internal double OriginalDerivative;
 			internal double TargetAngle;
 			internal double CurrentAngle;
-			internal double CurrentDerivative;
 			internal double CurrentValue;
-			internal double LastUpdated;
 			internal double CurrentTimeDelta;
-			internal int CurrentTicks;
-			internal int CurrentCounter;
 			internal Damping(double NaturalFrequency, double DampingRatio) {
-				this.DirectMode = true;
-				this.NaturalFrequency = NaturalFrequency;
-				this.NaturalTime = 1.0 / NaturalFrequency;
-				this.DampingRatio = DampingRatio;
-				if (DampingRatio < 1.0) {
-					this.NaturalDampingFrequency = NaturalFrequency * Math.Sqrt(1.0 - DampingRatio * DampingRatio);
-				} else if (DampingRatio == 1.0) {
-					this.NaturalDampingFrequency = NaturalFrequency;
+				if (NaturalFrequency < 0.0) {
+					throw new ArgumentException("NaturalFrequency must be non-negative in the constructor of the Damping class.");
+				} else if (DampingRatio < 0.0) {
+					throw new ArgumentException("DampingRatio must be non-negative in the constructor of the Damping class.");
 				} else {
-					this.NaturalDampingFrequency = NaturalFrequency * Math.Sqrt(DampingRatio * DampingRatio - 1.0);
+					this.NaturalFrequency = NaturalFrequency;
+					this.NaturalTime = NaturalFrequency != 0.0 ? 1.0 / NaturalFrequency : 0.0;
+					this.DampingRatio = DampingRatio;
+					if (DampingRatio < 1.0) {
+						this.NaturalDampingFrequency = NaturalFrequency * Math.Sqrt(1.0 - DampingRatio * DampingRatio);
+					} else if (DampingRatio == 1.0) {
+						this.NaturalDampingFrequency = NaturalFrequency;
+					} else {
+						this.NaturalDampingFrequency = NaturalFrequency * Math.Sqrt(DampingRatio * DampingRatio - 1.0);
+					}
+					this.OriginalAngle = 0.0;
+					this.OriginalDerivative = 0.0;
+					this.TargetAngle = 0.0;
+					this.CurrentAngle = 0.0;
+					this.CurrentValue = 1.0;
+					this.CurrentTimeDelta = 0.0;
 				}
-				this.OriginalAngle = 0.0;
-				this.OriginalDerivative = 0.0;
-				this.TargetAngle = 0.0;
-				this.CurrentAngle = 0.0;
-				this.CurrentDerivative = 0.0;
-				this.CurrentValue = 1.0;
-				this.LastUpdated = Game.SecondsSinceMidnight;
-				this.CurrentTimeDelta = 0.0;
-				this.CurrentTicks = 0;
-				this.CurrentCounter = 0;
 			}
 			internal Damping Clone() {
 				return (Damping)this.MemberwiseClone();
@@ -524,83 +520,54 @@ namespace OpenBve {
 				}
 			}
 		}
+		
+		// update damping
 		internal static void UpdateDamping(ref Damping Damping, double TimeElapsed, ref double Angle) {
 			if (Damping != null) {
-				if (Damping.CurrentTimeDelta < 0.0) {
-					Damping.CurrentTimeDelta = 0.0;
+				if (Damping.CurrentTimeDelta > Damping.NaturalTime) {
+					// update
+					double newDerivative;
+					if (Damping.NaturalFrequency == 0.0) {
+						newDerivative = 0.0;
+					} else if (Damping.DampingRatio == 0.0) {
+						newDerivative = Damping.OriginalDerivative * Math.Cos(Damping.NaturalFrequency * Damping.CurrentTimeDelta) - Damping.NaturalFrequency * Math.Sin(Damping.NaturalFrequency * Damping.CurrentTimeDelta);
+					} else if (Damping.DampingRatio < 1.0) {
+						newDerivative = Math.Exp(-Damping.DampingRatio * Damping.NaturalFrequency * Damping.CurrentTimeDelta) * (Damping.NaturalDampingFrequency * Damping.OriginalDerivative * Math.Cos(Damping.NaturalDampingFrequency * Damping.CurrentTimeDelta) - (Damping.NaturalDampingFrequency * Damping.NaturalDampingFrequency + Damping.DampingRatio * Damping.NaturalFrequency * (Damping.DampingRatio * Damping.NaturalFrequency + Damping.OriginalDerivative)) * Math.Sin(Damping.NaturalDampingFrequency * Damping.CurrentTimeDelta)) / Damping.NaturalDampingFrequency;
+					} else if (Damping.DampingRatio == 1.0) {
+						newDerivative = Math.Exp(-Damping.NaturalFrequency * Damping.CurrentTimeDelta) * (Damping.OriginalDerivative - Damping.NaturalFrequency * (Damping.NaturalFrequency + Damping.OriginalDerivative) * Damping.CurrentTimeDelta);
+					} else {
+						newDerivative = Math.Exp(-Damping.DampingRatio * Damping.NaturalFrequency * Damping.CurrentTimeDelta) * (Damping.NaturalDampingFrequency * Damping.OriginalDerivative * Math.Cosh(Damping.NaturalDampingFrequency * Damping.CurrentTimeDelta) + (Damping.NaturalDampingFrequency * Damping.NaturalDampingFrequency - Damping.DampingRatio * Damping.NaturalFrequency * (Damping.DampingRatio * Damping.NaturalFrequency + Damping.OriginalDerivative)) * Math.Sinh(Damping.NaturalDampingFrequency * Damping.CurrentTimeDelta)) / Damping.NaturalDampingFrequency;
+					}
+					double a = Damping.TargetAngle - Damping.OriginalAngle;
+					Damping.OriginalAngle = Damping.CurrentAngle;
+					Damping.TargetAngle = Angle;
+					double b = Damping.TargetAngle - Damping.OriginalAngle;
+					double r = b == 0.0 ? 1.0 : a / b;
+					Damping.OriginalDerivative = newDerivative * r;
+					while (Damping.CurrentTimeDelta > Damping.NaturalTime) {
+						Damping.CurrentTimeDelta -= Damping.NaturalTime;
+					}
 				}
-				if (Damping.DirectMode) {
-					// direct mode
-					bool immediate = Math.Abs(Angle - Damping.CurrentAngle) > 0.1;
-					if (immediate | Damping.CurrentAngle == Angle) {
-						Damping.CurrentTicks++;
-						if (immediate | Damping.CurrentTicks >= 3) {
-							Damping.DirectMode = false;
-							Damping.OriginalAngle = Damping.CurrentAngle;
-							Damping.TargetAngle = Angle;
-							Damping.CurrentValue = 0.0;
-							Damping.OriginalDerivative = 0.0;
-							Damping.CurrentDerivative = 0.0;
-							Damping.CurrentTimeDelta = 0.0;
-							Damping.CurrentTicks = 0;
-						}
+				{
+					// perform
+					double newValue;
+					if (Damping.NaturalFrequency == 0.0) {
+						newValue = 1.0;
+					} else if (Damping.DampingRatio == 0.0) {
+						newValue = Math.Cos(Damping.NaturalFrequency * Damping.CurrentTimeDelta) + Damping.OriginalDerivative * Math.Sin(Damping.NaturalFrequency * Damping.CurrentTimeDelta) / Damping.NaturalFrequency;
+					} else if (Damping.DampingRatio < 1.0) {
+						double n = (Damping.OriginalDerivative + Damping.NaturalFrequency * Damping.DampingRatio) / Damping.NaturalDampingFrequency;
+						newValue = Math.Exp(-Damping.DampingRatio * Damping.NaturalFrequency * Damping.CurrentTimeDelta) * (Math.Cos(Damping.NaturalDampingFrequency * Damping.CurrentTimeDelta) + n * Math.Sin(Damping.NaturalDampingFrequency * Damping.CurrentTimeDelta));
+					} else if (Damping.DampingRatio == 1.0) {
+						newValue = Math.Exp(-Damping.NaturalFrequency * Damping.CurrentTimeDelta) * (1.0 + (Damping.OriginalDerivative + Damping.NaturalFrequency) * Damping.CurrentTimeDelta);
 					} else {
-						Damping.CurrentAngle = Angle;
-						Damping.CurrentTicks = 0;
+						double n = (Damping.OriginalDerivative + Damping.NaturalFrequency * Damping.DampingRatio) / Damping.NaturalDampingFrequency;
+						newValue = Math.Exp(-Damping.DampingRatio * Damping.NaturalFrequency * Damping.CurrentTimeDelta) * (Math.Cosh(Damping.NaturalDampingFrequency * Damping.CurrentTimeDelta) + n * Math.Sinh(Damping.NaturalDampingFrequency * Damping.CurrentTimeDelta));
 					}
-				} else {
-					// damping mode
-					if (Angle != Damping.TargetAngle) {
-						Damping.CurrentCounter++;
-					} else {
-						Damping.CurrentCounter >>= 1;
-					}
-					if (Damping.CurrentCounter >= 3 && Math.Abs(Angle - Damping.CurrentAngle) < 0.1 & Math.Abs(Damping.CurrentDerivative) < 0.01) {
-						Damping.DirectMode = true;
-						Damping.CurrentAngle = Angle;
-						Damping.CurrentTicks = 0;
-					} else {
-						// update target angle
-						double nf = Damping.NaturalFrequency;
-						double dr = Damping.DampingRatio;
-						double ndf = Damping.NaturalDampingFrequency;
-						if (Damping.CurrentTicks >= 3 && (Damping.CurrentTimeDelta > Damping.NaturalTime || Math.Abs(Angle - Damping.TargetAngle) > 0.1)) {
-							double a = Damping.TargetAngle - Damping.OriginalAngle;
-							Damping.OriginalAngle = Damping.CurrentAngle;
-							Damping.TargetAngle = Angle;
-							double b = Damping.TargetAngle - Damping.OriginalAngle;
-							double r = b == 0.0 ? 1.0 : a / b;
-							Damping.CurrentTimeDelta = 0.0;
-							Damping.OriginalDerivative = Damping.CurrentDerivative * r;
-							Damping.CurrentTicks = 0;
-						}
-						// update variables
-						{
-							double t = Damping.CurrentTimeDelta;
-							double b;
-							if (nf == 0.0) {
-								b = 1.0;
-							} else if (dr == 0.0) {
-								b = Math.Cos(nf * t) + Damping.OriginalDerivative * Math.Sin(nf * t) / nf;
-							} else if (dr < 1.0) {
-								double n = (Damping.OriginalDerivative + nf * dr) / ndf;
-								b = Math.Exp(-dr * nf * t) * (Math.Cos(ndf * t) + n * Math.Sin(ndf * t));
-							} else if (dr == 1.0) {
-								b = Math.Exp(-nf * t);
-							} else {
-								double n = (Damping.OriginalDerivative + nf * dr) / ndf;
-								b = Math.Exp(-dr * nf * t) * (Math.Cosh(ndf * t) + n * Math.Sinh(ndf * t));
-							}
-							if (TimeElapsed >= 0.001) {
-								Damping.CurrentDerivative = (b - Damping.CurrentValue) / TimeElapsed;
-							}
-							Damping.CurrentValue = b;
-							Angle = Damping.TargetAngle * (1.0 - b) + Damping.OriginalAngle * b;
-							Damping.CurrentAngle = Angle;
-							Damping.CurrentTimeDelta += TimeElapsed;
-							Damping.CurrentTicks++;
-						}
-					}
+					Damping.CurrentValue = newValue;
+					Damping.CurrentAngle = Damping.TargetAngle * (1.0 - newValue) + Damping.OriginalAngle * newValue;
+					Damping.CurrentTimeDelta += TimeElapsed;
+					Angle = Damping.CurrentAngle;
 				}
 			}
 		}

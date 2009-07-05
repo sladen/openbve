@@ -94,7 +94,7 @@ namespace OpenBve {
 				ProcessEvents();
 				World.CameraAlignmentDirection = new World.CameraAlignment();
 				ProcessControls(TimeElapsed);
-				if (World.CameraMode == World.CameraViewMode.Interior) {
+				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) {
 					World.UpdateAbsoluteCamera(TimeElapsed);
 				}
 				if (Quit) break;
@@ -108,7 +108,7 @@ namespace OpenBve {
 						double a = World.CameraTrackFollower.TrackPosition;
 						TrainManager.UpdateTrains(v);
 						double b = World.CameraTrackFollower.TrackPosition;
-						if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.Exterior) {
+						if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
 							World.CameraTrackFollower.TrackPosition = a;
 							TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, b, false, false);
 						}
@@ -117,14 +117,17 @@ namespace OpenBve {
 				}
 				// update in one piece
 				ObjectManager.UpdateAnimatedWorldObjects(TimeElapsed, false);
-				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.Exterior) {
+				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
 					ObjectManager.UpdateVisibility(World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z);
 					int d = TrainManager.PlayerTrain.DriverCar;
 					World.CameraSpeed = TrainManager.PlayerTrain.Cars[d].Specs.CurrentSpeed;
 				} else {
 					World.CameraSpeed = 0.0;
 				}
-				if (World.CameraMode != World.CameraViewMode.Interior) {
+				if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
+					World.UpdateDriverHead(TimeElapsed);
+					World.UpdateAbsoluteCamera(TimeElapsed);
+				} else if (World.CameraMode != World.CameraViewMode.Interior) {
 					World.UpdateAbsoluteCamera(TimeElapsed);
 				}
 				Game.UpdateScore(TimeElapsed);
@@ -316,7 +319,7 @@ namespace OpenBve {
 						} break;
 					case Sdl.SDL_MOUSEBUTTONDOWN:
 						// mouse button down
-						if (Event.button.button == Sdl.SDL_BUTTON_LEFT) {
+						if (Event.button.button == Sdl.SDL_BUTTON_RIGHT) {
 							MouseGrab = !MouseGrab;
 							if (MouseGrab) {
 								Sdl.SDL_WM_GrabInput(Sdl.SDL_GRAB_ON);
@@ -651,16 +654,16 @@ namespace OpenBve {
 										} break;
 									case Interface.Command.CameraMoveForward:
 										// camera move forward
-										if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.Exterior) {
-											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopSpeed : World.CameraExteriorTopSpeed;
+										if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
+											double s = World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead ? World.CameraInteriorTopSpeed : World.CameraExteriorTopSpeed;
 											World.CameraAlignmentDirection.Position.Z = s * Interface.CurrentControls[i].AnalogState;
 										} else {
 											World.CameraAlignmentDirection.TrackPosition = World.CameraExteriorTopSpeed * Interface.CurrentControls[i].AnalogState;
 										} break;
 									case Interface.Command.CameraMoveBackward:
 										// camera move backward
-										if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.Exterior) {
-											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopSpeed : World.CameraExteriorTopSpeed;
+										if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
+											double s = World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead ? World.CameraInteriorTopSpeed : World.CameraExteriorTopSpeed;
 											World.CameraAlignmentDirection.Position.Z = -s * Interface.CurrentControls[i].AnalogState;
 										} else {
 											World.CameraAlignmentDirection.TrackPosition = -World.CameraExteriorTopSpeed * Interface.CurrentControls[i].AnalogState;
@@ -668,61 +671,61 @@ namespace OpenBve {
 									case Interface.Command.CameraMoveLeft:
 										// camera move left
 										{
-											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopSpeed : World.CameraExteriorTopSpeed;
+											double s = World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead ? World.CameraInteriorTopSpeed : World.CameraExteriorTopSpeed;
 											World.CameraAlignmentDirection.Position.X = -s * Interface.CurrentControls[i].AnalogState;
 										} break;
 									case Interface.Command.CameraMoveRight:
 										// camera move right
 										{
-											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopSpeed : World.CameraExteriorTopSpeed;
+											double s = World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead ? World.CameraInteriorTopSpeed : World.CameraExteriorTopSpeed;
 											World.CameraAlignmentDirection.Position.X = s * Interface.CurrentControls[i].AnalogState;
 										} break;
 									case Interface.Command.CameraMoveUp:
 										// camera move up
 										{
-											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopSpeed : World.CameraExteriorTopSpeed;
+											double s = World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead ? World.CameraInteriorTopSpeed : World.CameraExteriorTopSpeed;
 											World.CameraAlignmentDirection.Position.Y = s * Interface.CurrentControls[i].AnalogState;
 										} break;
 									case Interface.Command.CameraMoveDown:
 										// camera move down
 										{
-											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopSpeed : World.CameraExteriorTopSpeed;
+											double s = World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead ? World.CameraInteriorTopSpeed : World.CameraExteriorTopSpeed;
 											World.CameraAlignmentDirection.Position.Y = -s * Interface.CurrentControls[i].AnalogState;
 										} break;
 									case Interface.Command.CameraRotateLeft:
 										// camera rotate left
 										{
-											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
+											double s = World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
 											World.CameraAlignmentDirection.Yaw = -s * Interface.CurrentControls[i].AnalogState;
 										} break;
 									case Interface.Command.CameraRotateRight:
 										// camera rotate right
 										{
-											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
+											double s = World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
 											World.CameraAlignmentDirection.Yaw = s * Interface.CurrentControls[i].AnalogState;
 										} break;
 									case Interface.Command.CameraRotateUp:
 										// camera rotate up
 										{
-											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
+											double s = World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
 											World.CameraAlignmentDirection.Pitch = s * Interface.CurrentControls[i].AnalogState;
 										} break;
 									case Interface.Command.CameraRotateDown:
 										// camera rotate down
 										{
-											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
+											double s = World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
 											World.CameraAlignmentDirection.Pitch = -s * Interface.CurrentControls[i].AnalogState;
 										} break;
 									case Interface.Command.CameraRotateCCW:
 										// camera rotate ccw
-										if (World.CameraMode != World.CameraViewMode.Interior | World.CameraRestriction != World.CameraRestrictionMode.On) {
-											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
+										if ((World.CameraMode != World.CameraViewMode.Interior & World.CameraMode != World.CameraViewMode.InteriorLookAhead) | World.CameraRestriction != World.CameraRestrictionMode.On) {
+											double s = World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
 											World.CameraAlignmentDirection.Roll = -s * Interface.CurrentControls[i].AnalogState;
 										} break;
 									case Interface.Command.CameraRotateCW:
 										// camera rotate cw
-										if (World.CameraMode != World.CameraViewMode.Interior | World.CameraRestriction != World.CameraRestrictionMode.On) {
-											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
+										if ((World.CameraMode != World.CameraViewMode.Interior & World.CameraMode != World.CameraViewMode.InteriorLookAhead) | World.CameraRestriction != World.CameraRestrictionMode.On) {
+											double s = World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
 											World.CameraAlignmentDirection.Roll = s * Interface.CurrentControls[i].AnalogState;
 										} break;
 									case Interface.Command.CameraZoomIn:
@@ -761,9 +764,14 @@ namespace OpenBve {
 										break;
 									case Interface.Command.CameraInterior:
 										// camera: interior
-										Game.AddMessage(Interface.GetInterfaceString("notification_interior"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 2.0);
 										SaveCameraSettings();
-										World.CameraMode = World.CameraViewMode.Interior;
+										if (World.CameraMode == World.CameraViewMode.Interior & World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
+											World.CameraMode = World.CameraViewMode.InteriorLookAhead;
+											Game.AddMessage(Interface.GetInterfaceString("notification_interior_lookahead"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 2.0);
+										} else {
+											World.CameraMode = World.CameraViewMode.Interior;
+											Game.AddMessage(Interface.GetInterfaceString("notification_interior"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 2.0);
+										}
 										RestoreCameraSettings();
 										if (TrainManager.PlayerTrain.Cars.Length >= 1 && TrainManager.PlayerTrain.Cars[0].Sections.Length >= 1) {
 											TrainManager.ChangeCarSection(TrainManager.PlayerTrain, 0, 0);
@@ -908,7 +916,7 @@ namespace OpenBve {
 										} break;
 									case Interface.Command.CameraReset:
 										// camera: reset
-										if (World.CameraMode == World.CameraViewMode.Interior) {
+										if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) {
 											World.CameraCurrentAlignment.Position = new World.Vector3D(0.0, 0.0, 0.0);
 										}
 										World.CameraCurrentAlignment.Yaw = 0.0;
@@ -933,7 +941,7 @@ namespace OpenBve {
 										UpdateViewport();
 										World.UpdateAbsoluteCamera(TimeElapsed);
 										World.UpdateViewingDistances();
-										if (World.CameraMode == World.CameraViewMode.Interior & World.CameraRestriction == World.CameraRestrictionMode.On) {
+										if ((World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) & World.CameraRestriction == World.CameraRestrictionMode.On) {
 											if (!World.PerformCameraRestrictionTest()) {
 												World.InitializeCameraRestriction();
 											}
@@ -1445,6 +1453,7 @@ namespace OpenBve {
 		private static void SaveCameraSettings() {
 			switch (World.CameraMode) {
 				case World.CameraViewMode.Interior:
+				case World.CameraViewMode.InteriorLookAhead:
 					World.CameraSavedInterior = World.CameraCurrentAlignment;
 					break;
 				case World.CameraViewMode.Exterior:
@@ -1462,6 +1471,7 @@ namespace OpenBve {
 		private static void RestoreCameraSettings() {
 			switch (World.CameraMode) {
 				case World.CameraViewMode.Interior:
+				case World.CameraViewMode.InteriorLookAhead:
 					World.CameraCurrentAlignment = World.CameraSavedInterior;
 					break;
 				case World.CameraViewMode.Exterior:

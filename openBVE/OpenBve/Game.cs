@@ -1004,7 +1004,7 @@ namespace OpenBve {
 				this.BrakeMode = false;
 				this.PersonalitySpeedFactor = 0.92 + 0.08 * Generator.NextDouble();
 				this.PowerNotchAtWhichWheelSlipIsObserved = Train.Specs.MaximumPowerNotch + 1;
-				this.AtsChimeCancelPosition = double.NegativeInfinity;
+				this.AtsChimeCancelPosition = Train.Cars[0].FrontAxle.Follower.TrackPosition + 600.0;
 				this.AtsChimeCancelSection = -1;
 			}
 			internal override void Trigger(TrainManager.Train Train) {
@@ -1025,7 +1025,7 @@ namespace OpenBve {
 					if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.None) {
 						// none
 						Train.Specs.Security.ModeChange = TrainManager.SecuritySystem.AtsSN;
-						this.AtsChimeCancelPosition = double.PositiveInfinity;
+						this.AtsChimeCancelPosition = Train.Cars[0].FrontAxle.Follower.TrackPosition + 600.0;
 						this.AtsChimeCancelSection = -1;
 					} else if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
 						// ats-s

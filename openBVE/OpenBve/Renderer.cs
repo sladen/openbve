@@ -211,15 +211,26 @@ namespace OpenBve {
 			// initialize
 			Gl.glEnable(Gl.GL_DEPTH_TEST);
 			Gl.glDepthMask(Gl.GL_TRUE);
-			if (OptionWireframe | World.CurrentBackground.Texture == -1) {
+			int OpenGlTextureIndex = 0;
+			if (World.CurrentBackground.Texture >= 0) {
+				OpenGlTextureIndex = TextureManager.UseTexture(World.CurrentBackground.Texture, TextureManager.UseMode.Normal);
+			}
+			if (OptionWireframe | OpenGlTextureIndex == 0) {
+				//Gl.glDisable(Gl.GL_DEPTH_TEST);
+				//SetAlphaFunc(Gl.GL_GREATER, 0.9f);
+				if (Game.CurrentFog.Start < Game.CurrentFog.End) {
+					const float fogdistance = 600.0f;
+					float n = (fogdistance - Game.CurrentFog.Start) / (Game.CurrentFog.End - Game.CurrentFog.Start);
+					float cr = n * inv255 * (float)Game.CurrentFog.Color.R;
+					float cg = n * inv255 * (float)Game.CurrentFog.Color.G;
+					float cb = n * inv255 * (float)Game.CurrentFog.Color.B;
+					Gl.glClearColor(cr, cg, cb, 1.0f);
+				} else {
+					Gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+				}
 				Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 			} else {
-				int OpenGlTextureIndex = TextureManager.UseTexture(World.CurrentBackground.Texture, TextureManager.UseMode.Normal);
-				if (OpenGlTextureIndex > 0) {
-					Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
-				} else {
-					Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
-				}
+				Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
 			}
 			Gl.glPushMatrix();
 			if (LoadTexturesImmediately == LoadTextureImmediatelyMode.NotYet) {
@@ -302,13 +313,13 @@ namespace OpenBve {
 						// 3d cab
 						Gl.glDepthMask(Gl.GL_TRUE);
 						Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
-					} else {
-						// not a 3d cab
 						if (!LightingEnabled) {
 							Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
 						}
 						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
 						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
+					} else {
+						// not a 3d cab
 						if (!BlendEnabled) {
 							Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 						}

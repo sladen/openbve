@@ -1067,7 +1067,7 @@ namespace OpenBve {
 			// update current section
 			int s = Train.Cars[c].CurrentSection;
 			if (s >= 0) {
-				if (World.CameraMode == World.CameraViewMode.Interior & Train.Cars[c].Sections[s].Overlay) {
+				if ((World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) & Train.Cars[c].Sections[s].Overlay) {
 					UpdateCamera(Train);
 					World.UpdateAbsoluteCamera(TimeElapsed);
 				}
@@ -2378,7 +2378,7 @@ namespace OpenBve {
 								if (spd == 0.0) {
 									Train.Specs.CurrentBrakeNotch.Security = Train.Specs.MaximumBrakeNotch;
 								} else {
-									int n = (int)Math.Ceiling(3.0 * (Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed - spd));
+									int n = (int)Math.Ceiling(10.0 * (Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed - spd));
 									if (n < Train.Specs.CurrentBrakeNotch.Driver) {
 										n = Train.Specs.CurrentBrakeNotch.Driver;
 									}
@@ -3865,8 +3865,8 @@ namespace OpenBve {
 			}
 			// update camera
 			if (!Game.MinimalisticSimulation & Train == PlayerTrain) {
-				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.Exterior) {
-					if (World.CameraMode != World.CameraViewMode.Interior | !TrainManager.PlayerTrain.Cars[0].Sections[0].Overlay) {
+				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
+					if ((World.CameraMode != World.CameraViewMode.Interior & World.CameraMode != World.CameraViewMode.InteriorLookAhead) | !TrainManager.PlayerTrain.Cars[0].Sections[0].Overlay) {
 						UpdateCamera(Train);
 					}
 				}

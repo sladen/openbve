@@ -101,7 +101,7 @@ namespace OpenBve {
 			double vx = World.CameraTrackFollower.WorldDirection.X * World.CameraSpeed;
 			double vy = World.CameraTrackFollower.WorldDirection.Y * World.CameraSpeed;
 			double vz = World.CameraTrackFollower.WorldDirection.Z * World.CameraSpeed;
-			if (World.CameraMode == World.CameraViewMode.Interior) {
+			if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) {
 				ListenerVelocity[0] = 0.0f;
 				ListenerVelocity[1] = 0.0f;
 				ListenerVelocity[2] = 0.0f;
@@ -179,7 +179,7 @@ namespace OpenBve {
 							TrainManager.CreateWorldCoordinates(SoundSources[i].Train, c, rx, ry, rz, out px, out py, out pz, out tx, out ty, out tz);
 							px -= cx; py -= cy; pz -= cz;
 							double sp = SoundSources[i].Train.Specs.CurrentAverageSpeed;
-							if (World.CameraMode != World.CameraViewMode.Interior) {
+							if (World.CameraMode != World.CameraViewMode.Interior & World.CameraMode != World.CameraViewMode.InteriorLookAhead) {
 								SoundSources[i].OpenAlVelocity[0] = (float)(tx * sp);
 								SoundSources[i].OpenAlVelocity[1] = (float)(ty * sp);
 								SoundSources[i].OpenAlVelocity[2] = (float)(tz * sp);
@@ -190,7 +190,7 @@ namespace OpenBve {
 							}
 						} else {
 							px = rx - cx; py = ry - cy; pz = rz - cz;
-							if (World.CameraMode != World.CameraViewMode.Interior) {
+							if (World.CameraMode != World.CameraViewMode.Interior & World.CameraMode != World.CameraViewMode.InteriorLookAhead) {
 								SoundSources[i].OpenAlVelocity[0] = 0.0f;
 								SoundSources[i].OpenAlVelocity[1] = 0.0f;
 								SoundSources[i].OpenAlVelocity[2] = 0.0f;
