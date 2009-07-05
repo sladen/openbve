@@ -1,6 +1,7 @@
 openbve (1.1.1.0-0ubuntu1) unreleased; urgency=low
 
   * New upstream development version (1.1.1.0)
+  * debian/control: rev 'openbve-data' dependency (new strings)
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Sun, 05 Jul 2009 21:10:00 +0000
 
