@@ -1088,7 +1088,7 @@ namespace OpenBve {
 						this.AtsChimeCancelPosition = double.PositiveInfinity;
 						this.AtsChimeCancelSection = -1;
 						if (Train.Specs.Security.State == TrainManager.SecurityState.Service & !Train.Specs.Security.Ats.AtsPOverride) {
-							if (Train.Specs.Security.Ats.AtsPDistance > 50.0) {
+							if (Train.Specs.Security.Ats.AtsPDistance > 50.0 | Train.Station >= 0) {
 								if (Math.Abs(Train.Specs.CurrentAverageSpeed) < 4.16666666666667) {
 									TrainManager.AcknowledgeSecuritySystem(Train, TrainManager.AcknowledgementType.Override);
 									return;
@@ -1167,7 +1167,7 @@ namespace OpenBve {
 							}
 							CurrentInterval = 1.0;
 						}
-					} else if (Train.Station >= 0 && (StopsAtStation(Train.Station, Train) & (Stations[Train.Station].OpenLeftDoors | Stations[Train.Station].OpenRightDoors) & Math.Abs(Train.Specs.CurrentAverageSpeed) < 0.25 & Train.StationState == TrainManager.TrainStopState.Pending)) {
+					} else if (Train.Station >= 0 && Train.StationDistanceToStopPoint < Stations[Train.Station].Stops[GetStopIndex(Train.Station, Train.Cars.Length)].BackwardTolerance && (StopsAtStation(Train.Station, Train) & (Stations[Train.Station].OpenLeftDoors | Stations[Train.Station].OpenRightDoors) & Math.Abs(Train.Specs.CurrentAverageSpeed) < 0.25 & Train.StationState == TrainManager.TrainStopState.Pending)) {
 						// arrived at station - open doors
 						if (Train.Specs.DoorOpenMode != TrainManager.DoorMode.Automatic) {
 							TrainManager.OpenTrainDoors(Train, Stations[Train.Station].OpenLeftDoors, Stations[Train.Station].OpenRightDoors);

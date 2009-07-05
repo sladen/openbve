@@ -6,14 +6,15 @@ using System.Windows.Forms;
 namespace OpenBve {
 	internal static class MainLoop {
 
-		//// declarations
+		// declarations
 		internal static bool LimitFramerate = false;
 		private static bool Quit = false;
 		private static int TimeFactor = 1;
+		private static bool MouseGrab = false;
 
-		//// --------------------------------
+		// --------------------------------
 
-		//// start loop
+		// start loop
 		internal static void StartLoop() {
 			// timer
 			Timers.Initialize();
@@ -65,6 +66,9 @@ namespace OpenBve {
 			Asynchronous.Initialize();
 			World.InitializeCameraRestriction();
 			while (true) {
+				#if DEBUG
+				debugCheckError("MainLoop");
+				#endif
 				// timer
 				double TimeElapsed;
 				if (Game.SecondsSinceMidnight >= Game.StartupTime) {
@@ -156,9 +160,9 @@ namespace OpenBve {
 			} catch { }
 		}
 
-		//// --------------------------------
+		// --------------------------------
 
-		//// process events
+		// process events
 		private static Interface.KeyboardModifier CurrentKeyboardModifier = Interface.KeyboardModifier.None;
 		private static void ProcessEvents() {
 			Sdl.SDL_Event Event;
@@ -310,11 +314,38 @@ namespace OpenBve {
 								}
 							}
 						} break;
+					case Sdl.SDL_MOUSEBUTTONDOWN:
+						// mouse button down
+						if (Event.button.button == Sdl.SDL_BUTTON_LEFT) {
+							MouseGrab = !MouseGrab;
+							if (MouseGrab) {
+								Sdl.SDL_WM_GrabInput(Sdl.SDL_GRAB_ON);
+								Game.AddMessage(Interface.GetInterfaceString("notification_mousegrab_on"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 5.0);
+							} else {
+								Sdl.SDL_WM_GrabInput(Sdl.SDL_GRAB_OFF);
+								Game.AddMessage(Interface.GetInterfaceString("notification_mousegrab_off"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 5.0);
+							}
+						}
+						break;
+					case Sdl.SDL_MOUSEMOTION:
+						// mouse motion
+						if (MouseGrab) {
+							double x = World.CameraCurrentAlignment.Yaw + 0.001 * (double)Event.motion.xrel;
+							double y = World.CameraCurrentAlignment.Pitch - 0.001 * (double)Event.motion.yrel;
+							if (World.CameraRestriction == World.CameraRestrictionMode.On) {
+								World.PerformProgressiveAdjustmentForCameraRestriction(ref World.CameraCurrentAlignment.Yaw, x, false);
+								World.PerformProgressiveAdjustmentForCameraRestriction(ref World.CameraCurrentAlignment.Pitch, y, false);
+							} else {
+								World.CameraCurrentAlignment.Yaw = x;
+								World.CameraCurrentAlignment.Pitch = y;
+							}
+						}
+						break;
 				}
 			}
 		}
 
-		//// process controls
+		// process controls
 		private static void ProcessControls(double TimeElapsed) {
 			switch (Game.CurrentInterface) {
 				case Game.InterfaceType.Pause:
@@ -684,13 +715,13 @@ namespace OpenBve {
 										} break;
 									case Interface.Command.CameraRotateCCW:
 										// camera rotate ccw
-										if (World.CameraMode != World.CameraViewMode.Interior | !World.CameraRestriction) {
+										if (World.CameraMode != World.CameraViewMode.Interior | World.CameraRestriction != World.CameraRestrictionMode.On) {
 											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
 											World.CameraAlignmentDirection.Roll = -s * Interface.CurrentControls[i].AnalogState;
 										} break;
 									case Interface.Command.CameraRotateCW:
 										// camera rotate cw
-										if (World.CameraMode != World.CameraViewMode.Interior | !World.CameraRestriction) {
+										if (World.CameraMode != World.CameraViewMode.Interior | World.CameraRestriction != World.CameraRestrictionMode.On) {
 											double s = World.CameraMode == World.CameraViewMode.Interior ? World.CameraInteriorTopAngularSpeed : World.CameraExteriorTopAngularSpeed;
 											World.CameraAlignmentDirection.Roll = s * Interface.CurrentControls[i].AnalogState;
 										} break;
@@ -747,8 +778,10 @@ namespace OpenBve {
 										UpdateViewport();
 										World.UpdateAbsoluteCamera(TimeElapsed);
 										World.UpdateViewingDistances();
-										if (!World.PerformCameraRestrictionTest()) {
-											World.InitializeCameraRestriction();
+										if (World.CameraRestriction != World.CameraRestrictionMode.NotAvailable) {
+											if (!World.PerformCameraRestrictionTest()) {
+												World.InitializeCameraRestriction();
+											}
 										}
 										break;
 									case Interface.Command.CameraExterior:
@@ -900,7 +933,7 @@ namespace OpenBve {
 										UpdateViewport();
 										World.UpdateAbsoluteCamera(TimeElapsed);
 										World.UpdateViewingDistances();
-										if (World.CameraMode == World.CameraViewMode.Interior & World.CameraRestriction) {
+										if (World.CameraMode == World.CameraViewMode.Interior & World.CameraRestriction == World.CameraRestrictionMode.On) {
 											if (!World.PerformCameraRestrictionTest()) {
 												World.InitializeCameraRestriction();
 											}
@@ -908,9 +941,19 @@ namespace OpenBve {
 										break;
 									case Interface.Command.CameraRestriction:
 										// camera: restriction
-										World.CameraRestriction = !World.CameraRestriction;
-										World.InitializeCameraRestriction();
-										Game.AddMessage(Interface.GetInterfaceString(World.CameraRestriction ? "notification_camerarestriction_on" : "notification_camerarestriction_off"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 2.0);
+										if (World.CameraRestriction != World.CameraRestrictionMode.NotAvailable) {
+											if (World.CameraRestriction == World.CameraRestrictionMode.Off) {
+												World.CameraRestriction = World.CameraRestrictionMode.On;
+											} else {
+												World.CameraRestriction = World.CameraRestrictionMode.Off;
+											}
+											World.InitializeCameraRestriction();
+											if (World.CameraRestriction == World.CameraRestrictionMode.Off) {
+												Game.AddMessage(Interface.GetInterfaceString("notification_camerarestriction_off"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 2.0);
+											} else {
+												Game.AddMessage(Interface.GetInterfaceString("notification_camerarestriction_on"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 2.0);
+											}
+										}
 										break;
 									case Interface.Command.SinglePower:
 										// single power
@@ -1396,9 +1439,9 @@ namespace OpenBve {
 			}
 		}
 		
-		//// --------------------------------
+		// --------------------------------
 
-		//// save camera setting
+		// save camera setting
 		private static void SaveCameraSettings() {
 			switch (World.CameraMode) {
 				case World.CameraViewMode.Interior:
@@ -1415,7 +1458,7 @@ namespace OpenBve {
 			}
 		}
 		
-		//// restore camera setting
+		// restore camera setting
 		private static void RestoreCameraSettings() {
 			switch (World.CameraMode) {
 				case World.CameraViewMode.Interior:
@@ -1475,7 +1518,7 @@ namespace OpenBve {
 			Gl.glLoadIdentity();
 		}
 
-		//// initialize motion blur
+		// initialize motion blur
 		internal static void InitializeMotionBlur() {
 			if (Interface.CurrentOptions.MotionBlur != Interface.MotionBlurMode.None) {
 				if (Renderer.PixelBufferOpenGlTextureIndex != 0) {
@@ -1495,6 +1538,44 @@ namespace OpenBve {
 				Gl.glCopyTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGB, 0, 0, w, h, 0);
 			}
 		}
+		
+		#if DEBUG
+		// check error
+		private static void debugCheckError(string Location) {
+			int error = Gl.glGetError();
+			if (error != Gl.GL_NO_ERROR) {
+				string message = Location + ": ";
+				switch (error) {
+					case Gl.GL_INVALID_ENUM:
+						message += "GL_INVALID_ENUM";
+						break;
+					case Gl.GL_INVALID_VALUE:
+						message += "GL_INVALID_VALUE";
+						break;
+					case Gl.GL_INVALID_OPERATION:
+						message += "GL_INVALID_OPERATION";
+						break;
+					case Gl.GL_STACK_OVERFLOW:
+						message += "GL_STACK_OVERFLOW";
+						break;
+					case Gl.GL_STACK_UNDERFLOW:
+						message += "GL_STACK_UNDERFLOW";
+						break;
+					case Gl.GL_OUT_OF_MEMORY:
+						message += "GL_OUT_OF_MEMORY";
+						break;
+					case Gl.GL_TABLE_TOO_LARGE:
+						message += "GL_TABLE_TOO_LARGE";
+						break;
+					default:
+						message += error.ToString();
+						break;
+				}
+				System.Windows.Forms.MessageBox.Show(message);
+				Quit = true;
+			}
+		}
+		#endif
 
 	}
 }

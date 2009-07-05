@@ -115,6 +115,11 @@ namespace OpenBve {
 			internal int OptionalInteger;
 			internal double OptionalFloat;
 			internal int Section;
+			internal double X;
+			internal double Y;
+			internal double Yaw;
+			internal double Pitch;
+			internal double Roll;
 		}
 		private struct PointOfInterest {
 			internal double TrackPosition;
@@ -1562,7 +1567,7 @@ namespace OpenBve {
 												if (Interface.ContainsInvalidPathChars(Arguments[0])) {
 													Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												} else {
-													if (CommandIndex1 >= Data.TimetableDaytime.Length) {
+													while (CommandIndex1 >= Data.TimetableDaytime.Length) {
 														int n = Data.TimetableDaytime.Length;
 														Array.Resize<int>(ref Data.TimetableDaytime, n << 1);
 														for (int i = n; i < Data.TimetableDaytime.Length; i++) {
@@ -1589,7 +1594,7 @@ namespace OpenBve {
 												if (Interface.ContainsInvalidPathChars(Arguments[0])) {
 													Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												} else {
-													if (CommandIndex1 >= Data.TimetableNighttime.Length) {
+													while (CommandIndex1 >= Data.TimetableNighttime.Length) {
 														int n = Data.TimetableNighttime.Length;
 														Array.Resize<int>(ref Data.TimetableNighttime, n << 1);
 														for (int i = n; i < Data.TimetableNighttime.Length; i++) {
@@ -2560,13 +2565,14 @@ namespace OpenBve {
 														} else {
 															Data.Blocks[BlockIndex].RailType[idx] = sttype;
 														}
-													} else if (BlockIndex > 0) {
-														if (idx < Data.Blocks[BlockIndex - 1].RailType.Length) {
-															Data.Blocks[BlockIndex].RailType[idx] = Data.Blocks[BlockIndex - 1].RailType[idx];
-														} else {
-															Data.Blocks[BlockIndex].RailType[idx] = 0;
-														}
 													}
+//													} else if (BlockIndex > 0) {
+//														if (idx < Data.Blocks[BlockIndex - 1].RailType.Length) {
+//															Data.Blocks[BlockIndex].RailType[idx] = Data.Blocks[BlockIndex - 1].RailType[idx];
+//														} else {
+//															Data.Blocks[BlockIndex].RailType[idx] = 0;
+//														}
+//													}
 												}
 											}
 										}
@@ -2932,7 +2938,7 @@ namespace OpenBve {
 								case "track.beacon":
 									{
 										if (!PreviewOnly) {
-											int type = 0, structure = 0, section = 0, optional = 0;
+											int type = 0;
 											if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseIntVb6(Arguments[0], out type)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "Type is invalid in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												type = 0;
@@ -2940,6 +2946,7 @@ namespace OpenBve {
 											if (type < 0) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "Type is expected to be non-positive in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 											} else {
+												int structure = 0, section = 0, optional = 0;
 												if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out structure)) {
 													Interface.AddMessage(Interface.MessageType.Error, false, "BeaconStructureIndex is invalid in Track.Beacon at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													structure = 0;
@@ -2967,6 +2974,28 @@ namespace OpenBve {
 												} else {
 													section += CurrentSection;
 												}
+												double x = 0.0, y = 0.0;
+												double yaw = 0.0, pitch = 0.0, roll = 0.0;
+												if (Arguments.Length >= 5 && Arguments[4].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[4], UnitOfLength, out x)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "X is invalid in Track.FreeObj at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													x = 0.0;
+												}
+												if (Arguments.Length >= 6 && Arguments[5].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[5], UnitOfLength, out y)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "Y is invalid in Track.FreeObj at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													y = 0.0;
+												}
+												if (Arguments.Length >= 7 && Arguments[6].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[6], out yaw)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "Yaw is invalid in Track.FreeObj at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													yaw = 0.0;
+												}
+												if (Arguments.Length >= 8 && Arguments[7].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[7], out pitch)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "Pitch is invalid in Track.FreeObj at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													pitch = 0.0;
+												}
+												if (Arguments.Length >= 9 && Arguments[8].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[8], out roll)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "Roll is invalid in Track.FreeObj at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													roll = 0.0;
+												}
 												int n = Data.Blocks[BlockIndex].Transponder.Length;
 												Array.Resize<Transponder>(ref Data.Blocks[BlockIndex].Transponder, n + 1);
 												Data.Blocks[BlockIndex].Transponder[n].TrackPosition = Data.TrackPosition;
@@ -2976,6 +3005,11 @@ namespace OpenBve {
 												Data.Blocks[BlockIndex].Transponder[n].Section = section;
 												Data.Blocks[BlockIndex].Transponder[n].SwitchSubsystem = optional != -1;
 												Data.Blocks[BlockIndex].Transponder[n].ShowDefaultObject = false;
+												Data.Blocks[BlockIndex].Transponder[n].X = x;
+												Data.Blocks[BlockIndex].Transponder[n].Y = y;
+												Data.Blocks[BlockIndex].Transponder[n].Yaw = yaw * 0.0174532925199433;
+												Data.Blocks[BlockIndex].Transponder[n].Pitch = pitch * 0.0174532925199433;
+												Data.Blocks[BlockIndex].Transponder[n].Roll = roll * 0.0174532925199433;
 											}
 										}
 									} break;
@@ -3602,6 +3636,10 @@ namespace OpenBve {
 												Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex is invalid in Track.Wall at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												idx = 0;
 											}
+											if (idx < 0) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex is expected to be a non-negative integer in Track.Wall at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												idx = 0;
+											}
 											int dir = 0;
 											if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out dir)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "Direction is invalid in Track.Wall at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
@@ -3610,6 +3648,10 @@ namespace OpenBve {
 											int sttype = 0;
 											if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out sttype)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "WallStructureIndex is invalid in Track.Wall at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												sttype = 0;
+											}
+											if (sttype < 0) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "WallStructureIndex is expected to be a non-negative integer in Track.Wall at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												sttype = 0;
 											}
 											if (dir <= 0 && (sttype >= Data.Structure.WallL.Length || Data.Structure.WallL[sttype] == null) ||
@@ -3658,6 +3700,10 @@ namespace OpenBve {
 												Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex is invalid in Track.Dike at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												idx = 0;
 											}
+											if (idx < 0) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex is expected to be a non-negative integer in Track.Dike at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												idx = 0;
+											}
 											int dir = 0;
 											if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out dir)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "Direction is invalid in Track.Dike at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
@@ -3666,6 +3712,10 @@ namespace OpenBve {
 											int sttype = 0;
 											if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseIntVb6(Arguments[2], out sttype)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "DikeStructureIndex is invalid in Track.Dike at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												sttype = 0;
+											}
+											if (sttype < 0) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "DikeStructureIndex is expected to be a non-negative integer in Track.Wall at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 												sttype = 0;
 											}
 											if (dir <= 0 && (sttype >= Data.Structure.DikeL.Length || Data.Structure.DikeL[sttype] == null) ||
@@ -4175,12 +4225,7 @@ namespace OpenBve {
 				for (int k = 0; k < Result.Mesh.Faces[i].Vertices.Length; k++) {
 					Result.Mesh.Faces[i].Vertices[k].Normal.X = -Result.Mesh.Faces[i].Vertices[k].Normal.X;
 				}
-				for (int j = 0; j < Result.Mesh.Faces[i].Vertices.Length >> 1; j++) {
-					int k = Result.Mesh.Faces[i].Vertices.Length - j - 1;
-					World.MeshFaceVertex t = Result.Mesh.Faces[i].Vertices[j];
-					Result.Mesh.Faces[i].Vertices[j] = Result.Mesh.Faces[i].Vertices[k];
-					Result.Mesh.Faces[i].Vertices[k] = t;
-				}
+				Result.Mesh.Faces[i].Flip();
 			}
 			return Result;
 		}
@@ -5077,17 +5122,19 @@ namespace OpenBve {
 									}
 								}
 								if (obj != null) {
+									double dx = Data.Blocks[i].Transponder[k].X;
+									double dy = Data.Blocks[i].Transponder[k].Y;
 									double dz = Data.Blocks[i].Transponder[k].TrackPosition - StartingDistance;
 									World.Vector3D wpos = pos;
-									wpos.X += dz * RailTransformation.Z.X;
-									wpos.Y += dz * RailTransformation.Z.Y;
-									wpos.Z += dz * RailTransformation.Z.Z;
+									wpos.X += dx * RailTransformation.X.X + dy * RailTransformation.Y.X + dz * RailTransformation.Z.X;
+									wpos.Y += dx * RailTransformation.X.Y + dy * RailTransformation.Y.Y + dz * RailTransformation.Z.Y;
+									wpos.Z += dx * RailTransformation.X.Z + dy * RailTransformation.Y.Z + dz * RailTransformation.Z.Z;
 									double tpos = Data.Blocks[i].Transponder[k].TrackPosition;
 									if (Data.Blocks[i].Transponder[k].ShowDefaultObject) {
 										double b = 0.25 + 0.75 * GetBrightness(ref Data, tpos);
-										ObjectManager.CreateObject(obj, wpos, RailTransformation, NullTransformation, -1, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos, b, false);
+										ObjectManager.CreateObject(obj, wpos, RailTransformation, new World.Transformation(Data.Blocks[i].Transponder[k].Yaw, Data.Blocks[i].Transponder[k].Pitch, Data.Blocks[i].Transponder[k].Roll), -1, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos, b, false);
 									} else {
-										ObjectManager.CreateObject(obj, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos);
+										ObjectManager.CreateObject(obj, wpos, RailTransformation, new World.Transformation(Data.Blocks[i].Transponder[k].Yaw, Data.Blocks[i].Transponder[k].Pitch, Data.Blocks[i].Transponder[k].Roll), Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos);
 									}
 								}
 							}

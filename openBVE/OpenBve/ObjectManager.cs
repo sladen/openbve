@@ -476,7 +476,7 @@ namespace OpenBve {
 					World.Rotate(ref ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.X, ref ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Y, ref ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Z, Object.RotateZDirection.X, Object.RotateZDirection.Y, Object.RotateZDirection.Z, cosZ, sinZ);
 				}
 				// translate
-				if (Overlay) {
+				if (Overlay & World.CameraRestriction != World.CameraRestrictionMode.NotAvailable) {
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.X += Object.States[s].Position.X - Position.X;
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Y += Object.States[s].Position.Y - Position.Y;
 					ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Z += Object.States[s].Position.Z - Position.Z;
@@ -526,8 +526,11 @@ namespace OpenBve {
 		}
 		internal static void UpdateDamping(ref Damping Damping, double TimeElapsed, ref double Angle) {
 			if (Damping != null) {
+				if (Damping.CurrentTimeDelta < 0.0) {
+					Damping.CurrentTimeDelta = 0.0;
+				}
 				if (Damping.DirectMode) {
-					/// direct mode
+					// direct mode
 					bool immediate = Math.Abs(Angle - Damping.CurrentAngle) > 0.1;
 					if (immediate | Damping.CurrentAngle == Angle) {
 						Damping.CurrentTicks++;
@@ -546,7 +549,7 @@ namespace OpenBve {
 						Damping.CurrentTicks = 0;
 					}
 				} else {
-					/// damping mode
+					// damping mode
 					if (Angle != Damping.TargetAngle) {
 						Damping.CurrentCounter++;
 					} else {
@@ -557,7 +560,7 @@ namespace OpenBve {
 						Damping.CurrentAngle = Angle;
 						Damping.CurrentTicks = 0;
 					} else {
-						/// update target angle
+						// update target angle
 						double nf = Damping.NaturalFrequency;
 						double dr = Damping.DampingRatio;
 						double ndf = Damping.NaturalDampingFrequency;
@@ -571,7 +574,7 @@ namespace OpenBve {
 							Damping.OriginalDerivative = Damping.CurrentDerivative * r;
 							Damping.CurrentTicks = 0;
 						}
-						/// update variables
+						// update variables
 						{
 							double t = Damping.CurrentTimeDelta;
 							double b;

@@ -137,6 +137,8 @@
         	this.updownWindowWidth = new System.Windows.Forms.NumericUpDown();
         	this.labelWindowWidth = new System.Windows.Forms.Label();
         	this.groupboxDisplayMode = new System.Windows.Forms.GroupBox();
+        	this.comboboxVSync = new System.Windows.Forms.ComboBox();
+        	this.labelVSync = new System.Windows.Forms.Label();
         	this.radiobuttonFullscreen = new System.Windows.Forms.RadioButton();
         	this.radiobuttonWindow = new System.Windows.Forms.RadioButton();
         	this.labelDisplay = new System.Windows.Forms.Label();
@@ -1731,14 +1733,38 @@
         	// 
         	// groupboxDisplayMode
         	// 
+        	this.groupboxDisplayMode.Controls.Add(this.comboboxVSync);
+        	this.groupboxDisplayMode.Controls.Add(this.labelVSync);
         	this.groupboxDisplayMode.Controls.Add(this.radiobuttonFullscreen);
         	this.groupboxDisplayMode.Controls.Add(this.radiobuttonWindow);
         	this.groupboxDisplayMode.Location = new System.Drawing.Point(16, 144);
         	this.groupboxDisplayMode.Name = "groupboxDisplayMode";
-        	this.groupboxDisplayMode.Size = new System.Drawing.Size(256, 80);
+        	this.groupboxDisplayMode.Size = new System.Drawing.Size(256, 104);
         	this.groupboxDisplayMode.TabIndex = 5;
         	this.groupboxDisplayMode.TabStop = false;
         	this.groupboxDisplayMode.Text = "Display mode";
+        	// 
+        	// comboboxVSync
+        	// 
+        	this.comboboxVSync.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+        	this.comboboxVSync.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+        	this.comboboxVSync.FormattingEnabled = true;
+        	this.comboboxVSync.Location = new System.Drawing.Point(152, 72);
+        	this.comboboxVSync.Name = "comboboxVSync";
+        	this.comboboxVSync.Size = new System.Drawing.Size(96, 21);
+        	this.comboboxVSync.TabIndex = 7;
+        	// 
+        	// labelVSync
+        	// 
+        	this.labelVSync.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+        	        	        	| System.Windows.Forms.AnchorStyles.Right)));
+        	this.labelVSync.AutoEllipsis = true;
+        	this.labelVSync.Location = new System.Drawing.Point(8, 72);
+        	this.labelVSync.Name = "labelVSync";
+        	this.labelVSync.Size = new System.Drawing.Size(144, 16);
+        	this.labelVSync.TabIndex = 2;
+        	this.labelVSync.Text = "Vertical syncronization:";
+        	this.labelVSync.TextAlign = System.Drawing.ContentAlignment.TopRight;
         	// 
         	// radiobuttonFullscreen
         	// 
@@ -2832,10 +2858,10 @@
         	this.Controls.Add(this.labelFillerOne);
         	this.Controls.Add(this.labelFillerTwo);
         	this.Controls.Add(this.labelFillerThree);
-        	this.Controls.Add(this.panelStart);
         	this.Controls.Add(this.panelOptions);
         	this.Controls.Add(this.panelControls);
         	this.Controls.Add(this.panelReview);
+        	this.Controls.Add(this.panelStart);
         	this.KeyPreview = true;
         	this.Name = "formMain";
         	this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -2924,6 +2950,8 @@
         	this.panelInfo.ResumeLayout(false);
         	this.ResumeLayout(false);
         }
+        private System.Windows.Forms.ComboBox comboboxVSync;
+        private System.Windows.Forms.Label labelVSync;
         private System.Windows.Forms.CheckBox checkboxWarningMessages;
         private System.Windows.Forms.CheckBox checkboxErrorMessages;
         private System.Windows.Forms.GroupBox groupboxVerbosity;

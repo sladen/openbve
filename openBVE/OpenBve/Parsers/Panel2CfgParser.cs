@@ -3,12 +3,12 @@
 namespace OpenBve {
 	internal static class Panel2CfgParser {
 
-		//// constants
+		// constants
 		internal static double StackDistance = 0.000001;
 		/// <remarks>EyeDistance is required to be 1.0 by UpdateCarSectionElement and by UpdateCameraRestriction, thus cannot be easily changed</remarks>
 		internal const double EyeDistance = 1.0;
 
-		//// parse panel config
+		// parse panel config
 		internal static void ParsePanel2Config(string TrainPath, System.Text.Encoding Encoding, TrainManager.Train Train) {
 			// read lines
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
@@ -782,7 +782,7 @@ namespace OpenBve {
 			}
 		}
 
-		//// get stack language from subject
+		// get stack language from subject
 		private static string GetStackLanguageFromSubject(TrainManager.Train Train, string Subject, string ErrorLocation) {
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
 			string Suffix = "";
@@ -843,26 +843,30 @@ namespace OpenBve {
 					Code = "1 doors -";
 					break;
 				case "csc":
-					Code = "handleconstspeed";
+					Code = "constSpeed";
 					break;
 				case "power":
-					if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
-						Code = "handleemergencybrake 0 handlepowernotch ?";
-						break;
-					} else {
-						Code = "handleemergencybrake handlebrakenotch 0 > | handleholdbrake | 0 handlepowernotch ?";
-						break;
-					}
+					Code = "brakeNotchLinear 0 powerNotch ?";
+					break;
+//					if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
+//						Code = "emergencyBrake 0 powerNotch ?";
+//						break;
+//					} else {
+//						Code = "emergencyBrake brakeNotch 0 > | holdBrake | 0 powerNotch ?";
+//						break;
+//					}
 				case "brake":
-					if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
-						Code = "handleemergencybrake 3 handleairbrakenotch ?";
-					} else if (Train.Specs.HasHoldBrake) {
-						Code = "handleemergencybrake " + (Train.Specs.MaximumBrakeNotch + 2).ToString(Culture) + " handleholdbrake 1 handlebrakenotch 0 == 0 handlebrakenotch 1 + ? ? ?";
-					} else {
-						Code = "handleemergencybrake " + (Train.Specs.MaximumBrakeNotch + 1).ToString(Culture) + " handlebrakenotch ?";
-					} break;
+					Code = "brakeNotchLinear";
+					break;
+//					if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
+//						Code = "emergencyBrake 3 brakeNotch ?";
+//					} else if (Train.Specs.HasHoldBrake) {
+//						Code = "emergencyBrake " + (Train.Specs.MaximumBrakeNotch + 2).ToString(Culture) + " holdBrake 1 brakeNotch 0 == 0 brakeNotch 1 + ? ? ?";
+//					} else {
+//						Code = "emergencyBrake " + (Train.Specs.MaximumBrakeNotch + 1).ToString(Culture) + " brakeNotch ?";
+//					} break;
 				case "rev":
-					Code = "handlereverser ++";
+					Code = "reverserNotch ++";
 					break;
 				case "hour":
 					Code = "0.000277777777777778 time * 24 mod floor";
@@ -874,7 +878,7 @@ namespace OpenBve {
 					Code = "time 60 mod floor";
 					break;
 				case "atc":
-					Code = "atcstate";
+					Code = "14 pluginstate";
 					break;
 				default:
 					{
@@ -892,7 +896,7 @@ namespace OpenBve {
 							string a = Subject.Substring(5);
 							int n; if (int.TryParse(a, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out n)) {
 								if (n >= 0 & n < Train.Cars.Length) {
-									Code = n.ToString(Culture) + " leftdoorsofcar ceiling";
+									Code = n.ToString(Culture) + " leftdoorsindex ceiling";
 									unsupported = false;
 								}
 							}
@@ -900,7 +904,7 @@ namespace OpenBve {
 							string a = Subject.Substring(5);
 							int n; if (int.TryParse(a, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out n)) {
 								if (n >= 0 & n < Train.Cars.Length) {
-									Code = n.ToString(Culture) + " rightdoorsofcar ceiling";
+									Code = n.ToString(Culture) + " rightdoorsindex ceiling";
 									unsupported = false;
 								}
 							}
@@ -913,7 +917,7 @@ namespace OpenBve {
 			return Code + Suffix;
 		}
 
-		//// create element
+		// create element
 		private static int CreateElement(TrainManager.Train Train, double Left, double Top, double Width, double Height, double RelativeRotationCenterX, double RelativeRotationCenterY, double Distance, double PanelResolution, double PanelLeft, double PanelRight, double PanelTop, double PanelBottom, double PanelBitmapWidth, double PanelBitmapHeight, double PanelCenterX, double PanelCenterY, double PanelOriginX, double PanelOriginY, double DriverX, double DriverY, double DriverZ, int DaytimeTextureIndex, int NighttimeTextureIndex, World.ColorRGBA Color, bool AddStateToLastElement) {
 			double WorldWidth, WorldHeight;
 			if (Renderer.ScreenWidth >= Renderer.ScreenHeight) {

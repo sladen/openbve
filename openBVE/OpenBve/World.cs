@@ -232,13 +232,29 @@ namespace OpenBve {
 				this.Material = 0;
 				this.Flags = 0;
 			}
-            internal const int FaceTypeMask = 7;
-            internal const int FaceTypePolygon = 0;
-            internal const int FaceTypeTriangles = 1;
-            internal const int FaceTypeTriangleStrip = 2;
-            internal const int FaceTypeQuads = 3;
-            internal const int FaceTypeQuadStrip = 4;
-            internal const int Face2Mask = 8;
+			internal void Flip() {
+				if ((this.Flags & FaceTypeMask) == FaceTypeQuadStrip) {
+					for (int i = 0; i < this.Vertices.Length; i += 2) {
+						MeshFaceVertex x = this.Vertices[i];
+						this.Vertices[i] = this.Vertices[i + 1];
+						this.Vertices[i + 1] = x;
+					}
+				} else {
+					int n = this.Vertices.Length;
+					for (int i = 0; i < (n >> 1); i++) {
+						MeshFaceVertex x = this.Vertices[i];
+						this.Vertices[i] = this.Vertices[n - i - 1];
+						this.Vertices[n - i - 1] = x;
+					}
+				}
+			}
+			internal const int FaceTypeMask = 7;
+			internal const int FaceTypePolygon = 0;
+			internal const int FaceTypeTriangles = 1;
+			internal const int FaceTypeTriangleStrip = 2;
+			internal const int FaceTypeQuads = 3;
+			internal const int FaceTypeQuadStrip = 4;
+			internal const int Face2Mask = 8;
 		}
 		
 		// mesh
@@ -366,12 +382,16 @@ namespace OpenBve {
 		internal static CameraAlignment CameraSavedInterior;
 		internal static CameraAlignment CameraSavedExterior;
 		internal static CameraAlignment CameraSavedTrack;
-		//internal static double CameraSavedTrackPosition;
 
 		// camera restriction
 		internal static Vector3D CameraRestrictionBottomLeft = new Vector3D(-1.0, -1.0, 1.0);
 		internal static Vector3D CameraRestrictionTopRight = new Vector3D(1.0, 1.0, 1.0);
-		internal static bool CameraRestriction = true;
+		internal enum CameraRestrictionMode {
+			NotAvailable = -1,
+			Off = 0,
+			On = 1
+		}
+		internal static CameraRestrictionMode CameraRestriction = CameraRestrictionMode.NotAvailable;
 
 		// absolute camera
 		internal static World.Vector3D AbsoluteCameraPosition;
@@ -381,7 +401,7 @@ namespace OpenBve {
 
 		// camera restriction
 		internal static void InitializeCameraRestriction() {
-			if (CameraMode == CameraViewMode.Interior & CameraRestriction) {
+			if (CameraMode == CameraViewMode.Interior & CameraRestriction == CameraRestrictionMode.On) {
 				CameraAlignmentSpeed = new CameraAlignment();
 				UpdateAbsoluteCamera(0.0);
 				if (!PerformCameraRestrictionTest()) {
@@ -417,7 +437,7 @@ namespace OpenBve {
 			}
 		}
 		internal static bool PerformProgressiveAdjustmentForCameraRestriction(ref double Source, double Target, bool Zoom) {
-			if (CameraMode != CameraViewMode.Interior | !CameraRestriction) {
+			if (CameraMode != CameraViewMode.Interior | CameraRestriction != CameraRestrictionMode.On) {
 				Source = Target;
 				return true;
 			} else {
@@ -449,26 +469,30 @@ namespace OpenBve {
 			}
 		}
 		internal static bool PerformCameraRestrictionTest() {
-			Vector3D[] p = new Vector3D[] { CameraRestrictionBottomLeft, CameraRestrictionTopRight };
-			Vector2D[] r = new Vector2D[2];
-			for (int j = 0; j < 2; j++) {
-				// determine relative world coordinates
-				World.Rotate(ref p[j].X, ref p[j].Y, ref p[j].Z, World.AbsoluteCameraDirection.X, World.AbsoluteCameraDirection.Y, World.AbsoluteCameraDirection.Z, World.AbsoluteCameraUp.X, World.AbsoluteCameraUp.Y, World.AbsoluteCameraUp.Z, World.AbsoluteCameraSide.X, World.AbsoluteCameraSide.Y, World.AbsoluteCameraSide.Z);
-				double rx = -Math.Tan(World.CameraCurrentAlignment.Yaw) - World.CameraCurrentAlignment.Position.X;
-				double ry = -Math.Tan(World.CameraCurrentAlignment.Pitch) - World.CameraCurrentAlignment.Position.Y;
-				double rz = -World.CameraCurrentAlignment.Position.Z;
-				p[j].X += rx * World.AbsoluteCameraSide.X + ry * World.AbsoluteCameraUp.X + rz * World.AbsoluteCameraDirection.X;
-				p[j].Y += rx * World.AbsoluteCameraSide.Y + ry * World.AbsoluteCameraUp.Y + rz * World.AbsoluteCameraDirection.Y;
-				p[j].Z += rx * World.AbsoluteCameraSide.Z + ry * World.AbsoluteCameraUp.Z + rz * World.AbsoluteCameraDirection.Z;
-				// determine screen coordinates
-				double ez = AbsoluteCameraDirection.X * p[j].X + AbsoluteCameraDirection.Y * p[j].Y + AbsoluteCameraDirection.Z * p[j].Z;
-				if (ez == 0.0) return false;
-				double ex = AbsoluteCameraSide.X * p[j].X + AbsoluteCameraSide.Y * p[j].Y + AbsoluteCameraSide.Z * p[j].Z;
-				double ey = AbsoluteCameraUp.X * p[j].X + AbsoluteCameraUp.Y * p[j].Y + AbsoluteCameraUp.Z * p[j].Z;
-				r[j].X = ex / (ez * Math.Tan(0.5 * HorizontalViewingAngle));
-				r[j].Y = ey / (ez * Math.Tan(0.5 * VerticalViewingAngle));
+			if (World.CameraRestriction == CameraRestrictionMode.On) {
+				Vector3D[] p = new Vector3D[] { CameraRestrictionBottomLeft, CameraRestrictionTopRight };
+				Vector2D[] r = new Vector2D[2];
+				for (int j = 0; j < 2; j++) {
+					// determine relative world coordinates
+					World.Rotate(ref p[j].X, ref p[j].Y, ref p[j].Z, World.AbsoluteCameraDirection.X, World.AbsoluteCameraDirection.Y, World.AbsoluteCameraDirection.Z, World.AbsoluteCameraUp.X, World.AbsoluteCameraUp.Y, World.AbsoluteCameraUp.Z, World.AbsoluteCameraSide.X, World.AbsoluteCameraSide.Y, World.AbsoluteCameraSide.Z);
+					double rx = -Math.Tan(World.CameraCurrentAlignment.Yaw) - World.CameraCurrentAlignment.Position.X;
+					double ry = -Math.Tan(World.CameraCurrentAlignment.Pitch) - World.CameraCurrentAlignment.Position.Y;
+					double rz = -World.CameraCurrentAlignment.Position.Z;
+					p[j].X += rx * World.AbsoluteCameraSide.X + ry * World.AbsoluteCameraUp.X + rz * World.AbsoluteCameraDirection.X;
+					p[j].Y += rx * World.AbsoluteCameraSide.Y + ry * World.AbsoluteCameraUp.Y + rz * World.AbsoluteCameraDirection.Y;
+					p[j].Z += rx * World.AbsoluteCameraSide.Z + ry * World.AbsoluteCameraUp.Z + rz * World.AbsoluteCameraDirection.Z;
+					// determine screen coordinates
+					double ez = AbsoluteCameraDirection.X * p[j].X + AbsoluteCameraDirection.Y * p[j].Y + AbsoluteCameraDirection.Z * p[j].Z;
+					if (ez == 0.0) return false;
+					double ex = AbsoluteCameraSide.X * p[j].X + AbsoluteCameraSide.Y * p[j].Y + AbsoluteCameraSide.Z * p[j].Z;
+					double ey = AbsoluteCameraUp.X * p[j].X + AbsoluteCameraUp.Y * p[j].Y + AbsoluteCameraUp.Z * p[j].Z;
+					r[j].X = ex / (ez * Math.Tan(0.5 * HorizontalViewingAngle));
+					r[j].Y = ey / (ez * Math.Tan(0.5 * VerticalViewingAngle));
+				}
+				return r[0].X <= -1.0025 & r[1].X >= 1.0025 & r[0].Y <= -1.0025 & r[1].Y >= 1.0025;
+			} else {
+				return true;
 			}
-			return r[0].X <= -1.0025 & r[1].X >= 1.0025 & r[0].Y <= -1.0025 & r[1].Y >= 1.0025;
 		}
 
 		// update absolute camera
@@ -558,7 +582,7 @@ namespace OpenBve {
 				AdjustAlignment(ref World.CameraCurrentAlignment.Position.X, World.CameraAlignmentDirection.Position.X, ref World.CameraAlignmentSpeed.Position.X, TimeElapsed);
 				AdjustAlignment(ref World.CameraCurrentAlignment.Position.Y, World.CameraAlignmentDirection.Position.Y, ref World.CameraAlignmentSpeed.Position.Y, TimeElapsed);
 				AdjustAlignment(ref World.CameraCurrentAlignment.Position.Z, World.CameraAlignmentDirection.Position.Z, ref World.CameraAlignmentSpeed.Position.Z, TimeElapsed);
-				if (CameraMode == CameraViewMode.Interior & CameraRestriction) {
+				if (CameraMode == CameraViewMode.Interior & CameraRestriction == CameraRestrictionMode.On) {
 					if (CameraCurrentAlignment.Position.Z > 0.75) {
 						CameraCurrentAlignment.Position.Z = 0.75;
 					}
@@ -724,11 +748,6 @@ namespace OpenBve {
 		internal static World.Vector3D Cross(Vector3D A, Vector3D B) {
 			Vector3D C; Cross(A.X, A.Y, A.Z, B.X, B.Y, B.Z, out C.X, out C.Y, out C.Z);
 			return C;
-		}
-
-		// translate
-		internal static Vector3D Translate(Vector3D A, Vector3D B) {
-			return new Vector3D(A.X + B.X, A.Y + B.Y, A.Z + B.Z);
 		}
 
 		// transformation
