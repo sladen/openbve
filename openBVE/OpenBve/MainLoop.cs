@@ -125,7 +125,7 @@ namespace OpenBve {
 					World.CameraSpeed = 0.0;
 				}
 				if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
-					World.UpdateDriverHead(TimeElapsed);
+					World.UpdateDriverBody(TimeElapsed);
 					World.UpdateAbsoluteCamera(TimeElapsed);
 				} else if (World.CameraMode != World.CameraViewMode.Interior) {
 					World.UpdateAbsoluteCamera(TimeElapsed);

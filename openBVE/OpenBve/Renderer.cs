@@ -216,8 +216,6 @@ namespace OpenBve {
 				OpenGlTextureIndex = TextureManager.UseTexture(World.CurrentBackground.Texture, TextureManager.UseMode.Normal);
 			}
 			if (OptionWireframe | OpenGlTextureIndex == 0) {
-				//Gl.glDisable(Gl.GL_DEPTH_TEST);
-				//SetAlphaFunc(Gl.GL_GREATER, 0.9f);
 				if (Game.CurrentFog.Start < Game.CurrentFog.End) {
 					const float fogdistance = 600.0f;
 					float n = (fogdistance - Game.CurrentFog.Start) / (Game.CurrentFog.End - Game.CurrentFog.Start);
@@ -316,10 +314,15 @@ namespace OpenBve {
 						if (!LightingEnabled) {
 							Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
 						}
+						OptionLighting = true;
 						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
 						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
 					} else {
 						// not a 3d cab
+						if (LightingEnabled) {
+							Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = true;
+						}
+						OptionLighting = false;
 						if (!BlendEnabled) {
 							Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 						}

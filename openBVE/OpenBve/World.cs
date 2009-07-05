@@ -360,7 +360,7 @@ namespace OpenBve {
 			internal ObjectManager.Damping PitchDamping;
 		}
 		internal static DriverBody CurrentDriverBody;
-		internal static void UpdateDriverHead(double TimeElapsed) {
+		internal static void UpdateDriverBody(double TimeElapsed) {
 			if (CameraRestriction == CameraRestrictionMode.NotAvailable) {
 				{
 					// pitch
@@ -730,7 +730,7 @@ namespace OpenBve {
 				double lookaheadPitch;
 				if (CameraMode == CameraViewMode.InteriorLookAhead) {
 					// look-ahead
-					double d = 10.0;
+					double d = 20.0;
 					if (TrainManager.PlayerTrain.Specs.CurrentAverageSpeed > 0.0) {
 						d += 3.0 * (Math.Sqrt(TrainManager.PlayerTrain.Specs.CurrentAverageSpeed * TrainManager.PlayerTrain.Specs.CurrentAverageSpeed + 1.0) - 1.0);
 					}
@@ -804,7 +804,7 @@ namespace OpenBve {
 					bodyPitch += CurrentDriverBody.Pitch;
 					bodyRoll += CurrentDriverBody.Roll;
 					const double bodyHeight = 0.6;
-					const double headHeight = 0.2;
+					const double headHeight = 0.1;
 					{
 						// body pitch
 						double ry = (Math.Cos(-bodyPitch) - 1.0) * bodyHeight;

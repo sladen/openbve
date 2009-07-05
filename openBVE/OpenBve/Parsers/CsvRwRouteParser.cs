@@ -2862,7 +2862,9 @@ namespace OpenBve {
 														aspects[i] = -1;
 													}
 												}
-												Array.Sort<int>(aspects);
+												if (ValueBasedSections) {
+													Array.Sort<int>(aspects);
+												}
 												int n = Data.Blocks[BlockIndex].Section.Length;
 												Array.Resize<Section>(ref Data.Blocks[BlockIndex].Section, n + 1);
 												Data.Blocks[BlockIndex].Section[n].TrackPosition = Data.TrackPosition;

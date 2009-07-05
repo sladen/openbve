@@ -405,7 +405,7 @@ namespace OpenBve {
 			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			if (Aspect != LastSignalAspect) {
-				//Game.AddMessage("SetSignal (signal=" + Aspect.ToString() + ")", Game.MessageDependency.None, Game.MessageType.Game, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 5.0);
+				//Game.AddMessage("SetSignal (signal=" + Aspect.ToString() + ")", Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 5.0);
 				{
 					PluginError = true;
 					SetSignal(Aspect);
