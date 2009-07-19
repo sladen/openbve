@@ -1279,7 +1279,7 @@ namespace OpenBve {
 						}
 						double cruisedec = 0.01 * BrakeDeceleration;
 						// lookahead
-						double lookahead = 100.0 + (spd * spd) / BrakeDeceleration;
+						double lookahead = (Train.Station >= 0 ? 150.0 : 75.0) + (spd * spd) / BrakeDeceleration;
 						double tp = Train.Cars[0].FrontAxle.Follower.TrackPosition - Train.Cars[0].FrontAxlePosition + 0.5 * Train.Cars[0].Length;
 						{
 							// events
@@ -1308,7 +1308,10 @@ namespace OpenBve {
 														double edec;
 														if (elim == 0.0) {
 															double redstopdist;
-															if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Pending) {
+															if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Completed & dist < 150.0) {
+																dist = 1.0;
+																redstopdist = 25.0;
+															} else if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Pending) {
 																redstopdist = 1.0;
 															} else if (spd > 6.94444444444444) {
 																redstopdist = 85.0;

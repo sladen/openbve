@@ -2316,38 +2316,6 @@ namespace OpenBve {
 											}
 										}
 										limit = true;
-									} else if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.StationEndEvent) {
-										TrackManager.StationEndEvent e = (TrackManager.StationEndEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
-										if (Game.Stations[e.StationIndex].SecuritySystem == Game.SecuritySystem.Ats) {
-											double d = stp + e.TrackPositionDelta - Position;
-											double s = Math.Sqrt(2.0 * Deceleration * d);
-											if (s >= 36.1111111111111) {
-												s = double.PositiveInfinity;
-											} else if (s >= 33.3333333333333) {
-												s = 33.3333333333333;
-											} else if (s >= 30.5555555555555) {
-												s = 30.5555555555555;
-											} else if (s >= 27.7777777777777) {
-												s = 27.7777777777777;
-											} else if (s >= 25.0000000000000) {
-												s = 25.0000000000000;
-											} else if (s >= 20.8333333333333) {
-												s = 20.8333333333333;
-											} else if (s >= 18.0555555555555) {
-												s = 18.0555555555555;
-											} else if (s >= 15.2777777777777) {
-												s = 15.2777777777777;
-											} else if (s >= 12.5000000000000) {
-												s = 12.5000000000000;
-											} else if (s >= 6.94444444444444) {
-												s = 6.94444444444444;
-											} else if (s >= 4.16666666666666) {
-												s = 4.16666666666666;
-											} else {
-												s = 0.0;
-											}
-											if (s < spd - 0.01) spd = s;
-										}
 									}
 								} if (j < TrackManager.CurrentTrack.Elements[i].Events.Length) break;
 							}
