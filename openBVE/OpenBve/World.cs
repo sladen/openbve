@@ -232,13 +232,29 @@ namespace OpenBve {
 				this.Material = 0;
 				this.Flags = 0;
 			}
-            internal const int FaceTypeMask = 7;
-            internal const int FaceTypePolygon = 0;
-            internal const int FaceTypeTriangles = 1;
-            internal const int FaceTypeTriangleStrip = 2;
-            internal const int FaceTypeQuads = 3;
-            internal const int FaceTypeQuadStrip = 4;
-            internal const int Face2Mask = 8;
+			internal void Flip() {
+				if ((this.Flags & FaceTypeMask) == FaceTypeQuadStrip) {
+					for (int i = 0; i < this.Vertices.Length; i += 2) {
+						MeshFaceVertex x = this.Vertices[i];
+						this.Vertices[i] = this.Vertices[i + 1];
+						this.Vertices[i + 1] = x;
+					}
+				} else {
+					int n = this.Vertices.Length;
+					for (int i = 0; i < (n >> 1); i++) {
+						MeshFaceVertex x = this.Vertices[i];
+						this.Vertices[i] = this.Vertices[n - i - 1];
+						this.Vertices[n - i - 1] = x;
+					}
+				}
+			}
+			internal const int FaceTypeMask = 7;
+			internal const int FaceTypePolygon = 0;
+			internal const int FaceTypeTriangles = 1;
+			internal const int FaceTypeTriangleStrip = 2;
+			internal const int FaceTypeQuads = 3;
+			internal const int FaceTypeQuadStrip = 4;
+			internal const int Face2Mask = 8;
 		}
 		
 		// mesh
