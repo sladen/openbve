@@ -1077,7 +1077,9 @@ namespace OpenBve {
 				if (RaiseErrors) {
 					Interface.AddMessage(Interface.MessageType.Error, false, "Invalid trailing semicolon encountered in " + Command + " at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
 				}
-				Command = Command.Substring(0, Command.Length - 1);
+				while (Command.EndsWith(";")) {
+					Command = Command.Substring(0, Command.Length - 1);
+				}
 			}
 		}
 
@@ -1206,6 +1208,10 @@ namespace OpenBve {
 								Command = "train.timetable.day" + Command.Substring(15, Command.Length - 24).Trim();
 							} else if (Command.StartsWith("train.timetable", StringComparison.OrdinalIgnoreCase) & Command.EndsWith(".night.load", StringComparison.OrdinalIgnoreCase)) {
 								Command = "train.timetable.night" + Command.Substring(15, Command.Length - 26).Trim();
+							} else if (Command.StartsWith("train.timetable", StringComparison.OrdinalIgnoreCase) & Command.EndsWith(".day", StringComparison.OrdinalIgnoreCase)) {
+								Command = "train.timetable.day" + Command.Substring(15, Command.Length - 19).Trim();
+							} else if (Command.StartsWith("train.timetable", StringComparison.OrdinalIgnoreCase) & Command.EndsWith(".night", StringComparison.OrdinalIgnoreCase)) {
+								Command = "train.timetable.night" + Command.Substring(15, Command.Length - 21).Trim();
 							} else if (Command.StartsWith("route.signal", StringComparison.OrdinalIgnoreCase) & Command.EndsWith(".set", StringComparison.OrdinalIgnoreCase)) {
 								Command = Command.Substring(0, Command.Length - 4).TrimEnd();
 							}
@@ -1362,22 +1368,14 @@ namespace OpenBve {
 								case "train.interval":
 									{
 										if (!PreviewOnly) {
-											double val = 0.0;
-											if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], out val)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "ValueInSeconds is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												val = 0.0;
+											double[] intervals = new double[Arguments.Length];
+											for (int k = 0; k < Arguments.Length; k++) {
+												if (!Interface.TryParseDoubleVb6(Arguments[k], out intervals[k])) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "Interval" + k.ToString(Culture) + " is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												}
 											}
-											if (val < 0.0) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "ValueInSeconds is expected to be non-negative in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												val = 0.0;
-											}
-											if (val > 0.0) {
-												Game.PretrainInterval = val;
-												Game.PretrainsUsed = 1;
-											} else {
-												Game.PretrainInterval = 0.0;
-												Game.PretrainsUsed = 0;
-											}
+											Array.Sort<double>(intervals);
+											Game.PrecedingTrainTimeDeltas = intervals;
 										}
 									} break;
 								case "route.accelerationduetogravity":
@@ -2328,10 +2326,14 @@ namespace OpenBve {
 					bool NumberCheck = !IsRW || string.Compare(Section, "track", StringComparison.OrdinalIgnoreCase) == 0;
 					if (NumberCheck && Interface.TryParseDouble(Command, UnitOfLength, out Number)) {
 						// track position
-						Data.TrackPosition = Number;
-						BlockIndex = (int)Math.Floor(Number / Data.BlockInterval + 0.001);
-						if (Data.FirstUsedBlock == -1) Data.FirstUsedBlock = BlockIndex;
-						CreateMissingBlocks(ref Data, ref BlocksUsed, BlockIndex, PreviewOnly);
+						if (ArgumentSequence.Length == 0) {
+							Data.TrackPosition = Number;
+							BlockIndex = (int)Math.Floor(Number / Data.BlockInterval + 0.001);
+							if (Data.FirstUsedBlock == -1) Data.FirstUsedBlock = BlockIndex;
+							CreateMissingBlocks(ref Data, ref BlocksUsed, BlockIndex, PreviewOnly);
+						} else {
+							Interface.AddMessage(Interface.MessageType.Error, false, "A track position must not contain any arguments at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+						}
 					} else {
 						// split arguments
 						string[] Arguments;
@@ -2402,6 +2404,10 @@ namespace OpenBve {
 								Command = "train.timetable.day" + Command.Substring(15, Command.Length - 24).Trim();
 							} else if (Command.StartsWith("train.timetable", StringComparison.OrdinalIgnoreCase) & Command.EndsWith(".night.load", StringComparison.OrdinalIgnoreCase)) {
 								Command = "train.timetable.night" + Command.Substring(15, Command.Length - 26).Trim();
+							} else if (Command.StartsWith("train.timetable", StringComparison.OrdinalIgnoreCase) & Command.EndsWith(".day", StringComparison.OrdinalIgnoreCase)) {
+								Command = "train.timetable.day" + Command.Substring(15, Command.Length - 19).Trim();
+							} else if (Command.StartsWith("train.timetable", StringComparison.OrdinalIgnoreCase) & Command.EndsWith(".night", StringComparison.OrdinalIgnoreCase)) {
+								Command = "train.timetable.night" + Command.Substring(15, Command.Length - 21).Trim();
 							} else if (Command.StartsWith("route.signal", StringComparison.OrdinalIgnoreCase) & Command.EndsWith(".set", StringComparison.OrdinalIgnoreCase)) {
 								Command = Command.Substring(0, Command.Length - 4).TrimEnd();
 							}
@@ -2566,13 +2572,6 @@ namespace OpenBve {
 															Data.Blocks[BlockIndex].RailType[idx] = sttype;
 														}
 													}
-//													} else if (BlockIndex > 0) {
-//														if (idx < Data.Blocks[BlockIndex - 1].RailType.Length) {
-//															Data.Blocks[BlockIndex].RailType[idx] = Data.Blocks[BlockIndex - 1].RailType[idx];
-//														} else {
-//															Data.Blocks[BlockIndex].RailType[idx] = 0;
-//														}
-//													}
 												}
 											}
 										}
@@ -4036,7 +4035,6 @@ namespace OpenBve {
 											Array.Resize<Game.BogusPretrainInstruction>(ref Game.BogusPretrainInstructions, n + 1);
 											Game.BogusPretrainInstructions[n].TrackPosition = Data.TrackPosition;
 											Game.BogusPretrainInstructions[n].Time = time;
-											Game.PretrainsUsed = 1;
 										}
 									} break;
 								case "track.pointofinterest":
@@ -4772,25 +4770,85 @@ namespace OpenBve {
 							pos = Position;
 							planar = 0.0;
 							updown = 0.0;
+							RailTransformation = new World.Transformation(TrackTransformation, planar, updown, 0.0);
+							pos = Position;
 						} else {
 							// rails 1-infinity
 							double x = Data.Blocks[i].Rail[j].RailStartX;
 							double y = Data.Blocks[i].Rail[j].RailStartY;
 							World.Vector3D offset = new World.Vector3D(Direction.Y * x, y, -Direction.X * x);
+							pos = World.Vector3D.Add(Position, offset);
 							double dh;
 							if (i < Data.Blocks.Length - 1 && Data.Blocks[i + 1].Rail.Length > j) {
+								// take orientation of upcoming block into account
+								World.Vector2D Direction2 = Direction;
+								World.Vector3D Position2 = Position;
+								Position2.X += Direction.X * c;
+								Position2.Y += h;
+								Position2.Z += Direction.Y * c;
+								if (a != 0.0) {
+									World.Rotate(ref Direction2, Math.Cos(-a), Math.Sin(-a));
+								}
+								if (Data.Blocks[i + 1].Turn != 0.0) {
+									double ag = -Math.Atan(Data.Blocks[i + 1].Turn);
+									double cosag = Math.Cos(ag);
+									double sinag = Math.Sin(ag);
+									World.Rotate(ref Direction2, cosag, sinag);
+								}
+								double a2 = 0.0;
+								double c2 = Data.BlockInterval;
+								double h2 = 0.0;
+								if (Data.Blocks[i + 1].CurrentTrackState.CurveRadius != 0.0 & Data.Blocks[i + 1].Pitch != 0.0) {
+									double d2 = Data.BlockInterval;
+									double p2 = Data.Blocks[i + 1].Pitch;
+									double r2 = Data.Blocks[i + 1].CurrentTrackState.CurveRadius;
+									double s2 = d2 / Math.Sqrt(1.0 + p2 * p2);
+									h2 = s2 * p2;
+									double b2 = s2 / Math.Abs(r2);
+									c2 = Math.Sqrt(2.0 * r2 * r2 * (1.0 - Math.Cos(b2)));
+									a2 = 0.5 * (double)Math.Sign(r2) * b2;
+									World.Rotate(ref Direction2, Math.Cos(-a2), Math.Sin(-a2));
+								} else if (Data.Blocks[i + 1].CurrentTrackState.CurveRadius != 0.0) {
+									double d2 = Data.BlockInterval;
+									double r2 = Data.Blocks[i + 1].CurrentTrackState.CurveRadius;
+									double b2 = d2 / Math.Abs(r2);
+									c2 = Math.Sqrt(2.0 * r2 * r2 * (1.0 - Math.Cos(b2)));
+									a2 = 0.5 * (double)Math.Sign(r2) * b2;
+									World.Rotate(ref Direction2, Math.Cos(-a2), Math.Sin(-a2));
+								} else if (Data.Blocks[i + 1].Pitch != 0.0) {
+									double p2 = Data.Blocks[i + 1].Pitch;
+									double d2 = Data.BlockInterval;
+									c2 = d2 / Math.Sqrt(1.0 + p2 * p2);
+									h2 = c2 * p2;
+								}
+								double TrackYaw2 = Math.Atan2(Direction2.X, Direction2.Y);
+								double TrackPitch2 = Math.Atan(Data.Blocks[i + 1].Pitch);
+								World.Transformation GroundTransformation2 = new World.Transformation(TrackYaw2, 0.0, 0.0);
+								World.Transformation TrackTransformation2 = new World.Transformation(TrackYaw2, TrackPitch2, 0.0);
+								double x2 = Data.Blocks[i + 1].Rail[j].RailEndX;
+								double y2 = Data.Blocks[i + 1].Rail[j].RailEndY;
+								World.Vector3D offset2 = new World.Vector3D(Direction2.Y * x2, y2, -Direction2.X * x2);
+								World.Vector3D pos2 = World.Vector3D.Add(Position2, offset2);
+								double rx = pos2.X - pos.X;
+								double ry = pos2.Y - pos.Y;
+								double rz = pos2.Z - pos.Z;
+								World.Normalize(ref rx, ref ry, ref rz);
+								RailTransformation.Z = new World.Vector3D(rx, ry, rz);
+								RailTransformation.X = new World.Vector3D(rz, 0.0, -rx);
+								World.Normalize(ref RailTransformation.X.X, ref RailTransformation.X.Z);
+								RailTransformation.Y = World.Cross(RailTransformation.Z, RailTransformation.X);
 								double dx = Data.Blocks[i + 1].Rail[j].RailEndX - Data.Blocks[i].Rail[j].RailStartX;
 								double dy = Data.Blocks[i + 1].Rail[j].RailEndY - Data.Blocks[i].Rail[j].RailStartY;
 								planar = Math.Atan(dx / c);
 								dh = dy / c;
+								updown = Math.Atan(dh);
 							} else {
 								planar = 0.0;
 								dh = 0.0;
+								updown = 0.0;
+								RailTransformation = new World.Transformation(TrackTransformation, 0.0, 0.0, 0.0);
 							}
-							pos = World.Vector3D.Add(Position, offset);
-							updown = Math.Atan(dh);
 						}
-						RailTransformation = new World.Transformation(TrackTransformation, planar, updown, 0.0);
 						if (Data.Blocks[i].RailType[j] < Data.Structure.Rail.Length) {
 							if (Data.Structure.Rail[Data.Blocks[i].RailType[j]] != null) {
 								ObjectManager.CreateObject(Data.Structure.Rail[Data.Blocks[i].RailType[j]], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);

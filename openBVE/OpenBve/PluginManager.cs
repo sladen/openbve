@@ -210,17 +210,17 @@ namespace OpenBve {
 			switch (Game.TrainStart) {
 				case Game.TrainStartMode.ServiceBrakesAts:
 					PluginError = true;
-					Initialize(ATS_INIT_OFF);
+					Initialize(ATS_INIT_ON_SVC);
 					PluginError = false;
 					break;
 				case Game.TrainStartMode.EmergencyBrakesAts:
 					PluginError = true;
-					Initialize(ATS_INIT_ON_SVC);
+					Initialize(ATS_INIT_ON_EMG);
 					PluginError = false;
 					break;
 				case Game.TrainStartMode.EmergencyBrakesNoAts:
 					PluginError = true;
-					Initialize(ATS_INIT_ON_EMG);
+					Initialize(ATS_INIT_OFF);
 					PluginError = false;
 					break;
 				default:

@@ -577,7 +577,7 @@ namespace OpenBve {
 												CreateElement(Train, x, y, (double)h, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 4.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), true);
 											}
 										}
-										Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("14 pluginstate");
+										Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("271 pluginstate");
 									}
 									if (Type == 0) {
 										// needle

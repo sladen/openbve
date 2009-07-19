@@ -451,6 +451,7 @@ namespace OpenBve {
 			Builder.AppendLine();
 			Builder.AppendLine("[display]");
 			Builder.AppendLine("mode = " + (CurrentOptions.FullscreenMode ? "fullscreen" : "window"));
+			Builder.AppendLine("vsync = " + (CurrentOptions.VerticalSynchronization ? "true" : "false"));
 			Builder.AppendLine("windowwidth = " + CurrentOptions.WindowWidth.ToString(Culture));
 			Builder.AppendLine("windowheight = " + CurrentOptions.WindowHeight.ToString(Culture));
 			Builder.AppendLine("fullscreenwidth = " + CurrentOptions.FullscreenWidth.ToString(Culture));

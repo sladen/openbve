@@ -241,6 +241,7 @@ namespace OpenBve {
 			World.BackwardViewingDistance = 0.0;
 			World.BackgroundImageDistance = (double)Interface.CurrentOptions.ViewingDistance;
 			// load route and train
+			SoundManager.Initialize();
 			if (!Loading.Load(Result.RouteFile, Result.RouteEncoding, Result.TrainFolder, Result.TrainEncoding)) {
 				return;
 			}
@@ -249,11 +250,11 @@ namespace OpenBve {
 			Game.LogDateTime = DateTime.Now;
 			// initialize sdl window
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_DOUBLEBUFFER, 1);
-			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_DEPTH_SIZE, 16);
+			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_DEPTH_SIZE, 24);
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_RED_SIZE, 8);
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_GREEN_SIZE, 8);
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_BLUE_SIZE, 8);
-			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_ALPHA_SIZE, 8);
+			//Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_ALPHA_SIZE, 8);
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_SWAP_CONTROL, Interface.CurrentOptions.VerticalSynchronization ? 1 : 0);
 			Sdl.SDL_ShowCursor(Sdl.SDL_DISABLE);
 			SdlWindowCreated = true;
@@ -306,10 +307,9 @@ namespace OpenBve {
 				Renderer.Initialize();
 				Renderer.InitializeLighting();
 				Sdl.SDL_GL_SwapBuffers();
-				SoundManager.Initialize();
 				Timetable.CreateTimetable();
 				// camera
-				MainLoop.UpdateViewport();
+				MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
 				MainLoop.InitializeMotionBlur();
 				// start loop
 				MainLoop.StartLoop();

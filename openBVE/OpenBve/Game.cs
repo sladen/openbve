@@ -48,7 +48,7 @@ namespace OpenBve {
 		internal const double TemperatureLapseRate = -0.0065;
 		internal const double CoefficientOfStiffness = 144117.325646911;
 
-		// athmospheric functions
+		// atmospheric functions
 		internal static void CalculateSeaLevelConstants() {
 			RouteSeaLevelAirTemperature = RouteInitialAirTemperature - TemperatureLapseRate * RouteInitialElevation;
 			double Exponent = RouteAccelerationDueToGravity * MolarMass / (UniversalGasConstant * TemperatureLapseRate);
@@ -64,13 +64,17 @@ namespace OpenBve {
 			double x = RouteSeaLevelAirTemperature + TemperatureLapseRate * Elevation;
 			if (x >= 1.0) {
 				return x;
-			} else return 1.0;
+			} else {
+				return 1.0;
+			}
 		}
 		internal static double GetAirDensity(double AirPressure, double AirTemperature) {
 			double x = AirPressure * MolarMass / (UniversalGasConstant * AirTemperature);
 			if (x >= 0.001) {
 				return x;
-			} else return 0.001;
+			} else {
+				return 0.001;
+			}
 		}
 		internal static double GetAirPressure(double Elevation, double AirTemperature) {
 			double Exponent = -RouteAccelerationDueToGravity * MolarMass / (UniversalGasConstant * TemperatureLapseRate);
@@ -79,17 +83,24 @@ namespace OpenBve {
 				double x = RouteSeaLevelAirPressure * Math.Pow(Base, Exponent);
 				if (x >= 0.001) {
 					return x;
-				} return 0.001;
-			} else return 0.001;
+				} else {
+					return 0.001;
+				}
+			} else {
+				return 0.001;
+			}
 		}
 		internal static double GetSpeedOfSound(double AirPressure, double AirTemperature) {
 			double AirDensity = GetAirDensity(AirPressure, AirTemperature);
 			return Math.Sqrt(CoefficientOfStiffness / AirDensity);
 		}
+		internal static double GetSpeedOfSound(double AirDensity) {
+			return Math.Sqrt(CoefficientOfStiffness / AirDensity);
+		}
 
-		// game constants
-		internal static int PretrainsUsed = 0;
-		internal static double PretrainInterval = 120.0;
+		// other trains
+		internal static double[] PrecedingTrainTimeDeltas = new double[] { };
+		internal static BogusPretrainInstruction[] BogusPretrainInstructions = new BogusPretrainInstruction[] { };
 
 		// startup
 		internal enum TrainStartMode {
@@ -164,14 +175,14 @@ namespace OpenBve {
 				// full menu
 				int n = 0;
 				for (int i = 0; i < Stations.Length; i++) {
-					if (StopsAtStation(i) & Stations[i].Stops.Length > 0) {
+					if (PlayerStopsAtStation(i) & Stations[i].Stops.Length > 0) {
 						n++;
 					}
 				}
 				MenuEntry[] a = new MenuCommand[n];
 				n = 0;
 				for (int i = 0; i < Stations.Length; i++) {
-					if (StopsAtStation(i) & Stations[i].Stops.Length > 0) {
+					if (PlayerStopsAtStation(i) & Stations[i].Stops.Length > 0) {
 						a[n] = new MenuCommand(Stations[i].Name, MenuTag.JumpToStation, i);
 						n++;
 					}
@@ -235,6 +246,7 @@ namespace OpenBve {
 			Messages = new Message[] { };
 			MarkerTextures = new int[] { };
 			PointsOfInterest = new PointOfInterest[] { };
+			PrecedingTrainTimeDeltas = new double[] { };
 			BogusPretrainInstructions = new BogusPretrainInstruction[] { };
 			TrainName = "";
 			TrainStart = TrainStartMode.EmergencyBrakesNoAts;
@@ -760,7 +772,7 @@ namespace OpenBve {
 			} else return j;
 		}
 		/// <summary>Indicates whether the player's train stops at a station.</summary>
-		internal static bool StopsAtStation(int StationIndex) {
+		internal static bool PlayerStopsAtStation(int StationIndex) {
 			return Stations[StationIndex].StopMode == StationStopMode.AllStop | Stations[StationIndex].StopMode == StationStopMode.PlayerStop;
 		}
 		/// <summary>Indicates whether a train stops at a station.</summary>
@@ -819,8 +831,28 @@ namespace OpenBve {
 			}
 			internal bool Exists(TrainManager.Train Train) {
 				for (int i = 0; i < this.Trains.Length; i++) {
-					if (this.Trains[i] == Train) return true;
-				} return false;
+					if (this.Trains[i] == Train)
+						return true;
+				}
+				return false;
+			}
+			internal bool IsFree() {
+				for (int i = 0; i < this.Trains.Length; i++) {
+					if (this.Trains[i].State == TrainManager.TrainState.Available | this.Trains[i].State == TrainManager.TrainState.Bogus) {
+						return false;
+					}
+				}
+				return true;
+			}
+			internal TrainManager.Train GetFirstTrain(bool AllowBogusTrain) {
+				for (int i = 0; i < this.Trains.Length; i++) {
+					if (this.Trains[i].State == TrainManager.TrainState.Available) {
+						return this.Trains[i];
+					} else if (AllowBogusTrain & this.Trains[i].State == TrainManager.TrainState.Bogus) {
+						return this.Trains[i];
+					}
+				}
+				return null;
 			}
 		}
 		internal static Section[] Sections = new Section[] { };
@@ -855,20 +887,22 @@ namespace OpenBve {
 				TrainManager.Train train = null;
 				while (true) {
 					if (l >= 0) {
-						if (Sections[l].Trains.Length != 0) {
-							train = Sections[l].Trains[0];
+						train = Sections[l].GetFirstTrain(false);
+						if (train != null) {
 							break;
 						} else {
 							l = Sections[l].PreviousSection;
 						}
-					} else break;
+					} else {
+						break;
+					}
 				}
 				if (train == null) {
 					double b = -double.MaxValue;
 					for (int i = 0; i < TrainManager.Trains.Length; i++) {
-						if (!TrainManager.Trains[i].Disposed) {
-							if (TrainManager.Trains[i].PretrainAheadTimetable > b) {
-								b = TrainManager.Trains[i].PretrainAheadTimetable;
+						if (TrainManager.Trains[i].State == TrainManager.TrainState.Available) {
+							if (TrainManager.Trains[i].TimetableDelta > b) {
+								b = TrainManager.Trains[i].TimetableDelta;
 								train = TrainManager.Trains[i];
 							}
 						}
@@ -898,7 +932,7 @@ namespace OpenBve {
 					}
 					if (train == TrainManager.PlayerTrain & Stations[d].IsTerminalStation) {
 						settored = true;
-					} else if (t >= 0.0 & SecondsSinceMidnight < t - train.PretrainAheadTimetable) {
+					} else if (t >= 0.0 & SecondsSinceMidnight < t - train.TimetableDelta) {
 						settored = true;
 					} else if (!Sections[SectionIndex].TrainReachedStopPoint) {
 						settored = true;
@@ -908,7 +942,7 @@ namespace OpenBve {
 				}
 			}
 			// train in block
-			if (Sections[SectionIndex].Trains.Length != 0) {
+			if (!Sections[SectionIndex].IsFree()) {
 				settored = true;
 			}
 			// free sections
@@ -1490,7 +1524,6 @@ namespace OpenBve {
 			internal double TrackPosition;
 			internal double Time;
 		}
-		internal static BogusPretrainInstruction[] BogusPretrainInstructions = new BogusPretrainInstruction[] { };
 		internal class BogusPretrainAI : GeneralAI {
 			private double TimeLastProcessed;
 			private double CurrentInterval;

@@ -460,6 +460,17 @@ namespace OpenBve {
 			}
 		}
 		
+		// mouse grab
+		internal static bool MouseGrabEnabled = false;
+		internal static Vector2D MouseGrabTarget = new Vector2D(0.0, 0.0);
+		internal static void UpdateMouseGrab(double TimeElapsed) {
+			if (MouseGrabEnabled) {
+				CameraAlignmentDirection.Yaw += 0.6 * MouseGrabTarget.X;
+				CameraAlignmentDirection.Pitch -= 0.6 * MouseGrabTarget.Y;
+				MouseGrabTarget = new Vector2D(0.0, 0.0);
+			}
+		}
+		
 		// relative camera
 		internal struct CameraAlignment {
 			internal Vector3D Position;
@@ -519,7 +530,7 @@ namespace OpenBve {
 				if (!PerformCameraRestrictionTest()) {
 					CameraCurrentAlignment = new CameraAlignment();
 					VerticalViewingAngle = OriginalVerticalViewingAngle;
-					MainLoop.UpdateViewport();
+					MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
 					UpdateAbsoluteCamera(0.0);
 					UpdateViewingDistances();
 					if (!PerformCameraRestrictionTest()) {
@@ -685,7 +696,7 @@ namespace OpenBve {
 						zoom = 1 + 256.0 * max * tdist4 * t4 * fac;
 					} else zoom = 1.0;
 					World.VerticalViewingAngle = World.OriginalVerticalViewingAngle / zoom;
-					MainLoop.UpdateViewport();
+					MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
 				}
 			} else {
 				// non-fly-by
@@ -754,7 +765,6 @@ namespace OpenBve {
 						lookaheadYaw = 0.0;
 						lookaheadPitch = 0.0;
 					}
-					Game.InfoDebugString = "yaw=" + (lookaheadYaw * 57.2957795130824).ToString("0.00") + "°, pitch=" + (lookaheadPitch * 57.2957795130824).ToString("0.00") + "°";
 				} else {
 					lookaheadYaw = 0.0;
 					lookaheadPitch = 0.0;
@@ -938,7 +948,7 @@ namespace OpenBve {
 			World.VerticalViewingAngle = World.OriginalVerticalViewingAngle * Math.Exp(World.CameraCurrentAlignment.Zoom);
 			if (World.VerticalViewingAngle < 0.001) World.VerticalViewingAngle = 0.001;
 			if (World.VerticalViewingAngle > 1.5) World.VerticalViewingAngle = 1.5;
-			MainLoop.UpdateViewport();
+			MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
 		}
 
 		// update viewing distance

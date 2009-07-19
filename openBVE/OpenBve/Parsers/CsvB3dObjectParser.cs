@@ -69,10 +69,11 @@ namespace OpenBve {
 			MeshBuilder Builder = new MeshBuilder();
 			World.Vector3Df[] Normals = new World.Vector3Df[4];
 			for (int i = 0; i < Lines.Length; i++) {
-				{ // strip away comments
+				{
+					// strip away comments
 					int j = Lines[i].IndexOf(';');
 					if (j >= 0) {
-						Lines[i] = Lines[i].Substring(0, j).TrimEnd();
+						Lines[i] = Lines[i].Substring(0, j);
 					}
 				}
 				// collect arguments
@@ -80,7 +81,8 @@ namespace OpenBve {
 				for (int j = 0; j < Arguments.Length; j++) {
 					Arguments[j] = Arguments[j].Trim();
 				}
-				{ // remove unused Arguments at the end of the chain
+				{
+					// remove unused arguments at the end of the chain
 					int j;
 					for (j = Arguments.Length - 1; j >= 0; j--) {
 						if (Arguments[j].Length != 0) break;
@@ -605,10 +607,14 @@ namespace OpenBve {
 								World.MeshMaterialBlendMode blendmode = World.MeshMaterialBlendMode.Normal;
 								if (Arguments.Length >= 1 && Arguments[0].Length > 0) {
 									switch (Arguments[0].ToLowerInvariant()) {
-											case "normal": blendmode = World.MeshMaterialBlendMode.Normal; break;
-											case "additive": blendmode = World.MeshMaterialBlendMode.Additive; break;
+										case "normal":
+											blendmode = World.MeshMaterialBlendMode.Normal;
+											break;
+										case "additive":
+											blendmode = World.MeshMaterialBlendMode.Additive;
+											break;
 										default:
-											Interface.AddMessage(Interface.MessageType.Error, false, "BlendMode is not supported in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+											Interface.AddMessage(Interface.MessageType.Error, false, "The given BlendMode is not supported in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 											blendmode = World.MeshMaterialBlendMode.Normal;
 											break;
 									}
@@ -624,7 +630,7 @@ namespace OpenBve {
 											case "divideexponent2": glowmode = World.GlowAttenuationMode.DivisionExponent2; break;
 											case "divideexponent4": glowmode = World.GlowAttenuationMode.DivisionExponent4; break;
 										default:
-											Interface.AddMessage(Interface.MessageType.Error, false, "The indicated GlowAttenuationMode is not supported in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+											Interface.AddMessage(Interface.MessageType.Error, false, "The given GlowAttenuationMode is not supported in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 											break;
 									}
 								}
@@ -707,7 +713,9 @@ namespace OpenBve {
 								}
 							} break;
 						default:
-							Interface.AddMessage(Interface.MessageType.Error, false, "The command " + Command + " is not supported at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+							if (Command.Length != 0) {
+								Interface.AddMessage(Interface.MessageType.Error, false, "The command " + Command + " is not supported at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+							}
 							break;
 					}
 				}
