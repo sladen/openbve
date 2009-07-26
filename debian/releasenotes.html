@@ -29,105 +29,36 @@
 <tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04_inverted.png)">
 </td></tr>
 <tr><td height="24">
-<font color="#0060A0" size="+1"><b>Release notes for version 1.0.5.0&nbsp;</b></font>
+<font color="#0060A0" size="+1"><b>Release notes (version 1.2)&nbsp;</b></font>
 </td></tr>
 <tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04.png)">
 </td></tr>
 </table><br />
 <table><tr style="height: 4px;"><td /></tr></table>
-As of 2009-05-03 (Sunday), version 1.0.5.0 has been released. This version introduces passenger-related door lock, makes some improvements to the A.I., and makes some final compatibility adjustments.<br /><br />Passengers might now get stuck between the doors. This might last a few seconds up to half a minute and is resolved automatically. However, on trains supporting manual door operation, you can also reopen the doors in order to solve the issue. This phenomenon occurs more often in long and crowded trains.<br /><br />The A.I. previously drove very harsh in that it only knew about either applying power or applying brakes. From now on, the A.I. makes much more use of cruising, i.e. leaving power and brake at zero. It can select a suitable power notch to just keep the speed, and it is also able to detect whether wheel slip occurs at certain power notches and will trim power in this case. Overall, the A.I. should be able to drive more gently and is less prone of overshooting at stations.<br /><br />For the full list of changes, please see the <a href="changelog.html">changelog</a>.<br /><br /><br /><br /><hr />
-<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0">
-<tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04_inverted.png)">
-</td></tr>
-<tr><td height="24">
-<font color="#0060A0" size="+1"><b>Release notes for version 1.0.4.0&nbsp;</b></font>
-</td></tr>
-<tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04.png)">
-</td></tr>
+It has been 18 weeks since the release of version 1.0, and now, version 1.2 provides the next major update to openBVE.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF"><b>&nbsp;3D cabs&nbsp;</b></font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<br />This version focuses on the introduction of 3D cabs, which feel vastly different from the old-fashioned 2D cabs. You are now able to move and rotate the camera freely in all directions and can observe controls which could not have been previously depicted.<br /><br />
+<table style="border-collapse:collapse;">
+<tr><td bgcolor="#F0F0F0" style="border:2px; border-style: ridge; padding:4px"><a href="http&#58;&#47;&#47;railsimroutes.net/blog/?p=885"><img src="http&#58;&#47;&#47;railsimroutes.net/blog/images/thumbnails/xcs_14_openbve_19.png" alt="" /></a></td></tr>
 </table><br />
+You can manually adjust the camera, be it with the keyboard, or - new - with the mouse. Just right-click at any time to enable mouse grab and move the mouse to rotate the view. Right-clicking again disables the grab. Not only can you take a look at scenery and stations from new angles, but can also track signs and signals easier, as well as anticipate curves.<br /><br />There is a new interior camera mode which you can access by pressing CAMERA_INTERIOR (F1 key), which is called <b>Interior (look-ahead)</b>. This camera mode focuses the view on the upcoming track and thus rotates the view automatically so that the focused part of the track is in the center of the screen.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF"><b>&nbsp;The body/head model&nbsp;</b></font>
+</td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
-As of 2009-04-26 (Sunday), version 1.0.4.0 has been released. This version further increases compatibility with some older routes. For the full list of changes, please see the <a href="changelog.html">changelog</a>.<br /><br /><br /><br /><hr />
-<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0">
-<tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04_inverted.png)">
-</td></tr>
-<tr><td height="24">
-<font color="#0060A0" size="+1"><b>Release notes for version 1.0.3.0&nbsp;</b></font>
-</td></tr>
-<tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04.png)">
-</td></tr>
+<br />In addition to these things, 3D cabs also employ a new body/head model. Upon accelerating or braking, the body pitches forward/backward, and in curves, the body might roll to the sides before adjusting to the forces.<br /><br />Rotating the camera view actually rotates the head. If you look closely, you can see the perspective differences resulting from the new body/head model. This is due to the fact that the eyes are not stationary, but move in space whenever the body or head rotate.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF"><b>&nbsp;Summing up&nbsp;</b></font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<br />All in all, the experience should be one step closer to reality as you can "feel" the forces in the train, and can look freely around as you like.<br /><br />Now, the one question you'd probably like to ask is: <em>Where can I get some trains which have a 3D cab from?</em><br /><br />Well, as the new version has just been released, you might need to be a bit patient before the first real content is released by their developers. Until then, you can try the <a href="develop/index.html">113-1000atccab-3D</a> add-on I developed for demonstrational purposes - just don't expect any serious content here.<br /><br />
+<table style="border-collapse:collapse;">
+<tr><td bgcolor="#F0F0F0" style="border:2px; border-style: ridge; padding:4px"><a href="develop/index.html"><img src="common/113-1000atccab-3d_2.jpg" alt="" /></a></td></tr>
 </table><br />
-<table><tr style="height: 4px;"><td /></tr></table>
-As of 2009-04-12 (Sunday), version 1.0.3.0 has been released. This is a small maintenance release that makes some changes here and there. This is an overview of what has changed for the average user.<br /><br />First of all, the <em>English (Great Britain)</em> language was previously stored in a file name called <em>en-UK.cfg</em>. However, <em>UK</em> stands for Ukraine, and the correct file name should have been <em>en-GB.cfg</em>, as in <em>Great Britain</em>. This has been corrected now by renaming the file. You should remove the old <em>en-UK.cfg</em> file from your <em>Settings\Languages folder</em> if you update from 1.0.2 or below.<br /><br />Next, the camera behavior has been changed slightly. With version 1.0.1, the camera started to remember its current configuration for interior, exterior and track/fly-by camera modes. At the same time though, the default location of the camera was changed to the driver's eye for all of the three views. With version 1.0.3, this has changed again, and the new default locations for the exterior and track views are to the left side of the train as it was in previous versions.<br /><br />Additionally, when resetting the camera (NUM 5) in the fly-by modes, the position of the camera now reflects the speed of the train, meaning the camera is placed further away from the camera at higher speeds. This should make fly-bys more interesting.<br /><br />Finally, if you used trains with BVE1220000 signature, you might have noticed that with some trains, the acceleration is too low at high speeds, leading to reduced top speeds. This has now been corrected.<br /><br />For the full list of changes, please see the <a href="changelog.html">changelog</a>.<br /><br /><br /><br /><hr />
-<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0">
-<tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04_inverted.png)">
-</td></tr>
-<tr><td height="24">
-<font color="#0060A0" size="+1"><b>Release notes for version 1.0.2.0&nbsp;</b></font>
-</td></tr>
-<tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04.png)">
-</td></tr>
-</table><br />
-<table><tr style="height: 4px;"><td /></tr></table>
-As of 2009-04-05 (Sunday), version 1.0.2.0 has been released. This is a bugfix release, and while you are unlikely to see any changes with most existing routes and trains, you should still update in order for the few existing and upcoming routes and trains that were affected to appear and operate normally and as intended by the developer.<br /><br />Existing routes that were affected by some problems include:<br /><br /><table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>On the Birmingham Cross City South line, the door indicator did not work correctly and the buzzer did not sound at Redditch.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>On the London Underground Northern line, the visual feed at stations did not work at the first station on the route.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>On the Tokyo Metro Ginza line, the station preview indicators did not work at Shibuya and at Asakusa.</td>
-</tr></table>
-<br />For the full list of changes, please see the <a href="changelog.html">changelog</a>.<br /><br /><br /><br /><hr />
-<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0">
-<tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04_inverted.png)">
-</td></tr>
-<tr><td height="24">
-<font color="#0060A0" size="+1"><b>Release notes for version 1.0.1.0&nbsp;</b></font>
-</td></tr>
-<tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04.png)">
-</td></tr>
-</table><br />
-<table><tr style="height: 4px;"><td /></tr></table>
-As of 2009-03-29 (Sunday), version 1.0.1.0 has been released, which is a small maintenance release that fixes some issues and makes some small changes here and there. This is an overview of what has changed for the average user. For the full list of changes, please see the <a href="changelog.html">changelog</a>.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;Stop indicator&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-The stop indicator was previously shown in <em>Expert</em> mode, which was not intended. From now on, it is only shown in <em>Arcade</em> and <em>Normal</em> modes.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;Camera&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-The camera settings are now preserved for <em>Interior</em>, <em>Exterior</em> and <em>Track</em> viewing modes. This means that if you switch between the views, your old camera position and direction is remembered when you go back to that mode.<br /><br />For trains which are equipped with exterior views that also contain the passenger section of the train, this is particularly useful as you can view as a passenger, go back to the cab and return to the passenger view without having to readjust the camera.<br /><br />The same holds true for the track view. As the track view is decoupled from the movement of the train, you can go to a station, bridge or other piece of scenery, switch back to interior or exterior views, and then jump back to where you left off the track view. The fly-by views are also considered a track view in this context. In order to line up the track view with the train again, reset the camera by pressing the CAMERA_RESET (num 5) key.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;Warning and error messages&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-Warning and error messages can appear after loading a route and a train and are intended to help developers in their development process. While previous versions only showed a subset of the available range of messages, this version now brings back the full range of messages.<br /><br />As the average user though, you are probably not very interested in reading these messages, which is why you can now disable them in the <em>Options</em> menu. Developers, however, are strictly encouraged to leave these settings enabled in order to spot potential problems in their add-ons.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;Linux users&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-Some issues have been addressed for Linux users. First of all, while you could select a route and train to drive, the program could crash on some computers when trying to enter the simulation. This was related to the icon that is displayed in the top-left corner of the game window, which did not load correctly.<br /><br />Second, a series of in-game graphics, including the speedometer and pressure gauge needles, were not loaded correctly, leading to pixle garbage when trying to display them. These graphics have now been resaved in a different format that should load and display correctly on Linux.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;Mac OS X users&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-Currently, the ALUT or FREEALUT libraries are not available in a binary form on Mac OS X, which means that the sound subsystem cannot be used. However, as the sound subsystem was always initialized by previous versions of openBVE, the program would crash with the message of a missing component.<br /><br />As a temporary solution, you can now entirely disable the sound. Go to the <em>Settings</em> folder and open the <em>options.cfg</em> file with a text editor. Find the <em>[sound]</em> section and modify it to this:<br /><table><tr><td width="16" valign="top">▶</td><td bgcolor="#FFFFFF" style="border:1px dashed;">
-<tt>[sound]<br />
-usesound = false</tt>
-</td></tr></table>
-
+Hopefully, the first real trains employing 3D cabs will arrive soon. When they do, I hope you will enjoy...
 </td></tr></table>
 </td></tr>
 </table>
