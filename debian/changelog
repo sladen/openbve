@@ -1,6 +1,7 @@
 openbve (1.2.0.0-0ubuntu1) unreleased; urgency=low
 
   * New upstream stable version (1.2.0.0)
+  * debian/copyright: update to reflect minor wording changes
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Sun, 26 Jul 2009 11:07:00 +0000
 
