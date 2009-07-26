@@ -66,5 +66,10 @@ binary-indep: build install
 	dh_md5sums
 	dh_builddeb
 
+# For running manually
+fetch-html:
+	wget http://openbve.trainsimcentral.co.uk/changelog.html && mv changelog.html.1 changelog.html
+	wget http://openbve.trainsimcentral.co.uk/releasenotes.html && mv releasenotes.html.1 releasenotes.html
+
 binary: binary-indep
 .PHONY: build clean binary-indep binary install configure
