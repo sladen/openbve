@@ -35,8 +35,253 @@
 </td></tr>
 </table><br />
 <table><tr style="height: 4px;"><td /></tr></table>
+↷ <a href="#history12">1.2 series (stable)</a><br />
+↷ <a href="#history11">1.1 series (development)</a><br />
 ↷ <a href="#history10">1.0 series (stable)</a><br />
 ↷ <a href="#history09">0.9 series (development)</a><br />
+<br /><a name="stable" />
+<br /><a name="history12" />
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF"><b>&nbsp;1.2 series (stable)&nbsp;</b></font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.2.0.0 (2009-07-26)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<em>Compared to v1.0.7.3 (most important changes only):</em><br /><br /><table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation / Interface</b></font><br />Fully 3D cabs are now available (<em>panel.animated</em>) along with mouse-supported camera rotation. Right-click at any time to enable or disable mouse grab.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />In 3D cabs, the driver's head and body are now simulated. This feature reacts to changes in acceleration and to inertia in curves, resulting in pitch and roll of the body or head. Manual camera rotation also makes use of this model.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />In 3D cabs, a look-ahead view has been introduced. This essentially focuses the view on an upcoming part of the track, thus following curves and pitch changes. This view can be switched on or off by pressing F1 (CAMERA_INTERIOR) multiple times.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Options</b></font><br />Vertical synchronization (vsync) can now be enabled or disabled in the Options menu.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing objects</b></font><br />A series of new variables has been introduced to the functions of animated objects.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing objects</b></font><br />The ANIMATED object format has been given an [Include] section that just allows to easier integrate other objects without animating them, including other ANIMATED objects.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing routes</b></font><br />The Route.RunInterval command (CSV) now allows to create any amount of preceding or following trains. The Route.RunInterval and Track.PreTrain commands can now also be used in conjunction, which was not previously possible.</td>
+</tr></table>
+<br /><em>Compared to v1.1.4.0:</em><br /><br /><table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation / Interface</b></font><br />Adjusted the sensitivity of the mouse, the speed of exterior rotation, as well as the forces employed by the body/head model.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing routes</b></font><br />All of the Track.Beacon, Track.Tr and Track.Relay commands now have <em>X</em>, <em>Y</em>, <em>Yaw</em>, <em>Pitch</em> and <em>Roll</em> arguments.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Increased the robustness of the route parser to avoid crashes on invalid arguments (e.g. Track.Back, Track.Announce and Track.Doppler).</td>
+</tr></table>
+<br /><a name="history11" />
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF"><b>&nbsp;1.1 series (development)&nbsp;</b></font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.1.4.0 (2009-07-18)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />The pseudo-ORP functionality of the built-in ATC safety system has been removed for better, mostly visual compatibility with older routes.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />The AI now waits at the stopping point of a station if there is a red signal about 150m ahead.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />The new damping algorithm would hang whenever the natural frequency was zero (which is not very meaningful, but is encountered with some add-ons).</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br /><em>Option.ObjectVisibility 1</em> did not work correctly with static objects embedded in ANIMATED object files.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.1.3.1 (2009-07-14)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Using the Track.Turn command could mess up the track geometry with v1.1.3.0 when other rails were in use at that track position.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Static objects embedded in ANIMATED object files (i.e. no functions used) did not take auxillary transformations, such as yaw, pitch and roll, which are employed by various route commands, into account.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.1.3.0 (2009-07-13)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing routes</b></font><br />The Route.RunInterval command (CSV) now allows to create any amount of preceding or following trains. The Route.RunInterval and Track.PreTrain commands can now also be used in conjunction, which was not previously possible.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing routes</b></font><br />The .Load suffix is now optional in Train.Timetable(<em>TimetableIndex</em>).Day.Load and Train.Timetable(<em>TimetableIndex</em>).Night.Load in CSV routes.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing objects</b></font><br />The ANIMATED object format has been given an [Include] section that just allows to easier integrate other objects without animating them, including other ANIMATED objects.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Renderer</b></font><br />The precision of the z-buffer has been increased from 16 bit to 24 bit. In addition, 3D cabs and scenery now use different settings for the near and far clipping planes so that scenery has more precision in the distance, while 3D cabs have more precision near the camera.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Miscellaneous</b></font><br />The Win32-specific timers have been removed as they could yield erratic results on some multi-core processors. The general SDL timer is now used instead.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />The opening and closing times of the doors were supposed to derive directly from their respective sounds. As the sound manager was not yet initialized at the time the duration of the sounds were queried, the internal default values for opening and closing times were used all the time.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Plugins were reported the wrong initialization mode of the safety system via the Initialize call.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />An error in the geometric model employed by the CSV/RW route parser has been detected, and attempts have been made to correct the problem. Presently, it has not been fully evaluated if the problem has indeed been fixed.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.1.2.0 (2009-07-08)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing objects/panels</b></font><br />The mappings of the built-in safety systems in <em>pluginState</em> (animated objects) and <em>atsi</em> (panel2.cfg) has been changed from 0-14 to 256-271. While existing trains using the built-in safety systems are unlikely to use these variables, trains using Windows-only DLL plugins on Linux/Mac will use the built-in safety systems instead. As the variables 0-14 might already be in use by panels/objects (e.g. lamps/wipers/drops) in this case, these elements might be fed non-compatible data. The mapping 256-271 is safe because it cannot be used by existing plugins. This is a non-backward-compatible change since v1.1.0.0.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Interface</b></font><br />Scolling with the mouse has been made more smooth.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Aspects in Track.Section were previously sorted into ascending order, which should not have happened for index-based section behavior. This prevented the safety systems of some trains from working properly on some routes. Example: IIYAMA 2060.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Lighting was still not correct on 2D cabs since v1.1.1.0, which is definately fixed now.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.1.1.0 (2009-07-03)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />In 3D cabs, the driver's head and body are now simulated to parts. This experimental feature reacts to changes in acceleration and to inertia in curves, resulting in pitch and roll of the body or head. Manual camera rotation also makes use of the body/head model.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />In 3D cabs, an experimental look-ahead view has been introduced. This essentially focuses the view on an upcoming part of the track, thus following curves and pitch changes. This view can be switched on or off by pressing F1 (CAMERA_INTERIOR) multiple times.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Renderer</b></font><br />If no background image is present, a black background is shown. This also works with fog now, which did not show on the background previously in such a case.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Interface</b></font><br />Toggling the mouse grab on or off has been changed from the left mouse button to the right mouse button. This allows to give the window focus with the left mouse button without affecting the mouse grab status, which is more intuitive (at least on Windows).</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />The damping algorithm has been completely rewritten. Previously, it was unstable with low frame rates, and also did not handle constantly changing angles well. The new algorithm synchronizes updating the target angle with its own natural frequency, and also uses a mathematically correct implementation for calculating derivatives.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />The ambient and diffuse lighting conditions in 3D cabs were supposed to be independent from the environmental conditions. However, this lighting model was accidentally applied on the 2D cabs in v1.1.0.0 instead of on the 3D cabs, resulting in wrong lighting conditions for both.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.1.0.0 (2009-06-28)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation / Interface</b></font><br />Fully 3D cabs are now available (<em>panel.animated</em>) along with mouse-supported camera rotation. Left-click at any time to enable or disable mouse grab.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Options</b></font><br />Vertical synchronization (vsync) can now be enabled or disabled in the Options menu.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing objects</b></font><br />A series of new variables has been introduced to the functions of animated objects. The documentation has all changes highlighted.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing panels</b></font><br />The ats<em>i</em> subject now also has a meaning with the built-in safety systems. The documentation has all changes highlighted.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Objects mirrored by the Track.Pole command could appear inside-out if GL_QUAD_STRIP structures were generated by the object optimizer. Example: DemoRoute1.</td>
+</tr></table>
 <br /><a name="history10" />
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -45,13 +290,33 @@
 <table><tr style="height: 4px;"><td /></tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.0.7.3 (2009-07-08)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Objects mirrored by the Track.Pole command could appear inside-out if GL_QUAD_STRIP structures were generated by the object optimizer. Example: DemoRoute1.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Aspects in Track.Section were previously sorted into ascending order, which should not have happened for index-based section behavior. This prevented the safety systems of some trains from working properly on some routes. Example: IIYAMA 2060.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Internationalization</b></font><br />Added translation for the Korean language.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v1.0.7.2 (2009-06-17)&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Bugfix:</b> Some objects did not load correctly since 1.0.7.0 and would produce a message about an unexpected error.</td>
+<td><font color="red"><b>Bugfix</b></font><br />Some objects did not load correctly since 1.0.7.0 and would produce a message about an unexpected error.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -61,42 +326,42 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Renderer:</b> Rendering is now noticably faster.</td>
+<td><font color="red"><b>Renderer</b></font><br />Rendering is now noticably faster.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Renderer:</b> Minor improvements to reduce artifacts related to depth sorting.</td>
+<td><font color="red"><b>Renderer</b></font><br />Minor improvements to reduce artifacts related to depth sorting.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Renderer:</b> Circumvented an OpenGL glitch that could cause erratic polygons to appear whenever fullscreen was toggled on or off.</td>
+<td><font color="red"><b>Renderer</b></font><br />Circumvented an OpenGL glitch that could cause erratic polygons to appear whenever fullscreen was toggled on or off.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Interface:</b> For users who experience long loading times, <a href="use/hidden.html">hidden options</a> have been introduced to reduce or disable the object optimization process.</td>
+<td><font color="red"><b>Interface</b></font><br />For users who experience long loading times, <a href="use/hidden.html">hidden options</a> have been introduced to reduce or disable the object optimization process.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Simulation:</b> Fully rewritten ATS-P results in more realistic brake curves.</td>
+<td><font color="red"><b>Simulation</b></font><br />Fully rewritten ATS-P results in more realistic brake curves.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Developing routes:</b> New options for <em>ArrivalTime</em> in the <em>Track.Sta</em> and <em>Track.Station</em> commands make it possible for the player to stop at a station, but not the preceding train, or vise versa.</td>
+<td><font color="red"><b>Developing routes</b></font><br />New options for <em>ArrivalTime</em> in the <em>Track.Sta</em> and <em>Track.Station</em> commands make it possible for the player to stop at a station, but not the preceding train, or vise versa.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Developing objects:</b> New arguments for <em>AddVertex</em> (CSV) and <em>Vertex</em> (B3D) allow for providing custom normals.</td>
+<td><font color="red"><b>Developing objects</b></font><br />New arguments for <em>AddVertex</em> (CSV) and <em>Vertex</em> (B3D) allow for providing custom normals.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Developing objects:</b> Added the <em>Shear</em> and <em>ShearAll</em> commands to allow for shear mapping (skewing).</td>
+<td><font color="red"><b>Developing objects</b></font><br />Added the <em>Shear</em> and <em>ShearAll</em> commands to allow for shear mapping (skewing).</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -106,12 +371,12 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Bugfix:</b> Fog did not show the correct color in some cases since 1.0.6.0. The interpolation to a no-fog condition has been made smoother and consistent. The route parser reports fog-related ill-conditions now.</td>
+<td><font color="red"><b>Bugfix</b></font><br />Fog did not show the correct color in some cases since 1.0.6.0. The interpolation to a no-fog condition has been made smoother and consistent. The route parser reports fog-related ill-conditions now.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Bugfix:</b> The in-game clock did not wrap after 23:59:59 and showed 24:00:00 instead of the desired 00:00:00, for example.</td>
+<td><font color="red"><b>Bugfix</b></font><br />The in-game clock did not wrap after 23:59:59 and showed 24:00:00 instead of the desired 00:00:00, for example.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -121,47 +386,47 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Renderer:</b> The quality of the <em>Smooth</em> transparency mode has been radically improved at the expence of some performance.</td>
+<td><font color="red"><b>Renderer</b></font><br />The quality of the <em>Smooth</em> transparency mode has been radically improved at the expence of some performance.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Simulation:</b> The A.I. now takes a bit less time trying to stop accurately at stations.</td>
+<td><font color="red"><b>Simulation</b></font><br />The A.I. now takes a bit less time trying to stop accurately at stations.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Simulation:</b> ATC now works in 200 meter long blocks instead of calculating a brake curve to the preceding train continuously. Previously, the continuous update could create too frequent changes of the allowed speed, leading to a lot of successive ding sounds.</td>
+<td><font color="red"><b>Simulation</b></font><br />ATC now works in 200 meter long blocks instead of calculating a brake curve to the preceding train continuously. Previously, the continuous update could create too frequent changes of the allowed speed, leading to a lot of successive ding sounds.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Interface:</b> A command to accelerate time has been added, MISC_TIMEFACTOR, which defaults to CTRL+J.</td>
+<td><font color="red"><b>Interface</b></font><br />A command to accelerate time has been added, MISC_TIMEFACTOR, which defaults to CTRL+J.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Interface:</b> A command to mute/resume sound has been added, MISC_MUTE, which defaults to CTRL+M.</td>
+<td><font color="red"><b>Interface</b></font><br />A command to mute/resume sound has been added, MISC_MUTE, which defaults to CTRL+M.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Interface:</b> Non-Windows users now get a warning message in a train's description box if that train uses a Windows-only safety system plugin.</td>
+<td><font color="red"><b>Interface</b></font><br />Non-Windows users now get a warning message in a train's description box if that train uses a Windows-only safety system plugin.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Developing routes:</b> If the $Chr/$Rnd/$Sub preprocessor creates a leading semicolon in an expression, that expression is now considered a comment. Previously, stripping away comments was only done before the preprocessor, which made it impossible to dynamically create comments.</td>
+<td><font color="red"><b>Routes</b></font><br />If the $Chr/$Rnd/$Sub preprocessor creates a leading semicolon in an expression, that expression is now considered a comment. Previously, stripping away comments was only done before the preprocessor, which made it impossible to dynamically create comments.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Bugfix:</b> The cab and exterior objects were placed incorrectly if the car had an asymmetric axle setup.</td>
+<td><font color="red"><b>Bugfix</b></font><br />The cab and exterior objects were placed incorrectly if the car had an asymmetric axle setup.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><b>Bugfix:</b> Fog on the background image now produces a consistent look regardless of the viewing distance. Previously, the background image could look differently depending on the viewing distance.</td>
+<td><font color="red"><b>Bugfix</b></font><br />Fog on the background image now produces a consistent look regardless of the viewing distance. Previously, the background image could look differently depending on the viewing distance.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -171,37 +436,37 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Passenger-related door lock is now simulated. This is based on the <em>PassengerRatio</em> parameter in the <em>Track.Sta</em> command, and is more probable to occur on crowded trains.</td>
+<td><font color="red"><b>Simulation</b></font><br />Passenger-related door lock is now simulated. This is based on the <em>PassengerRatio</em> parameter in the <em>Track.Sta</em> command, and is more probable to occur on crowded trains.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>The A.I. has been fine-tuned. It makes use of cruising, holding speed by selecting a suitable power notch, and can react to wheel slip by restricting use of certain power notches.</td>
+<td><font color="red"><b>Simulation</b></font><br />The A.I. has been fine-tuned. It makes use of cruising, holding speed by selecting a suitable power notch, and can react to wheel slip by restricting use of certain power notches.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Added translation for the Czech language.</td>
+<td><font color="red"><b>Internationalization</b></font><br />Added translation for the Czech language.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Added new options to the <em>Doors</em> parameter in the <em>Track.Sta</em> command.</td>
+<td><font color="red"><b>Developing routes</b></font><br />Added new options to the <em>Doors</em> parameter in the <em>Track.Sta</em> command.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Bugfix: The route parser could previously accept , and ; as an argument separator for either CSV or RW formats, even though only one of these characters is used by either format. This could seldom lead to parsing problems, but is corrected now anyway.</td>
+<td><font color="red"><b>Bugfix</b></font><br />The route parser could previously accept , and ; as an argument separator for either CSV or RW formats, even though only one of these characters is used by either format. This could seldom lead to parsing problems, but is corrected now anyway.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Bugfix: The background image was not correctly aligned vertically if the <em>Texture.Background(BackgroundTextureIndex).Aspect</em> option was set to 1 (keep aspect ratio) in route files.</td>
+<td><font color="red"><b>Bugfix</b></font><br />The background image was not correctly aligned vertically if the <em>Texture.Background(BackgroundTextureIndex).Aspect</em> option was set to 1 (keep aspect ratio) in route files.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Bugfix: Version 1.0.4.0 introduced the peculiar behavior of rolling the external view at startup, which is corrected now.</td>
+<td><font color="red"><b>Bugfix</b></font><br />Version 1.0.4.0 introduced the peculiar behavior of rolling the external view at startup, which is corrected now.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -211,17 +476,17 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>In route files, commands from namespaces other than <em>Track</em> are now processed first, then the track position is reset to 0, then commands from the <em>Track</em> namespace are processed. This is to increase compatibility with routes which use track positions before using commands from the <em>Track</em> namespace.</td>
+<td><font color="red"><b>Developing routes</b></font><br />In route files, commands from namespaces other than <em>Track</em> are now processed first, then the track position is reset to 0, then commands from the <em>Track</em> namespace are processed. This is to increase compatibility with routes which use track positions before using commands from the <em>Track</em> namespace.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Bugfix: All parsers now validate file names, as otherwise, the program could crash when any format referenced a file name which included invalid characters.</td>
+<td><font color="red"><b>Developing routes</b></font><br />Rephrased all error messages in the CSV/RW route parser to match the terminology of the documentation.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Rephrased all error messages in the CSV/RW route parser to match the terminology of the documentation.</td>
+<td><font color="red"><b>Bugfix</b></font><br />All parsers now validate file names, as otherwise, the program could crash when any format referenced a file name which included invalid characters.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -231,37 +496,37 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>For compatibility reasons, the exponent <em>e</em> in the acceleration section of train.dat versions 1.22 is now clipped at 4 after converting to a 2.0 exponent.</td>
+<td><font color="red"><b>Interface</b></font><br />The default camera locations of the exterior and track/fly-by modes are now at the top-left of the rear of first car again.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>The default camera locations of the exterior and track/fly-by modes are now at the top-left of the rear of first car again.</td>
+<td><font color="red"><b>Interface</b></font><br />Resetting the camera view in the fly-by modes reflects the current speed of the train by placing the camera further away from the train the higher the speed is.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Resetting the camera view in the fly-by modes reflects the current speed of the train by placing the camera further away from the train the higher the speed is.</td>
+<td><font color="red"><b>Developing trains</b></font><br />For compatibility reasons, the exponent <em>e</em> in the acceleration section of train.dat versions 1.22 is now clipped at 4 after converting to a 2.0 exponent.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Renamed the en-UK language to en-GB. The reason is simply that GB stands for United Kingdom, while UK stands for Ukraine.</td>
+<td><font color="red"><b>Interface</b></font><br />Updated the URLs used inside the program to point to the new homepage. This has also been done for Train Editor.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Updated the URLs used inside the program to point to the new homepage. This has also been done for Train Editor.</td>
+<td><font color="red"><b>Internationalization</b></font><br />Renamed the en-UK language to en-GB. The reason is simply that GB stands for United Kingdom, while UK stands for Ukraine.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Renamed OpenBve64.exe to OpenBveAllCpu.exe, which is now compiled against any CPU instead of AMD x64.</td>
+<td><font color="red"><b>Miscellaneous</b></font><br />Renamed OpenBve64.exe to OpenBveAllCpu.exe, which is now compiled against any CPU instead of AMD x64.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Some minor Linux-specific things to increase portability.</td>
+<td><font color="red"><b>Miscellaneous</b></font><br />Some minor Linux-specific things to increase portability.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -271,22 +536,22 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>If a train does not explicitly specify the operating pressure of the brake pipe, it is now assumed to be 490 kPa if applicable.</td>
+<td><font color="red"><b>Developing trains</b></font><br />If a train does not explicitly specify the operating pressure of the brake pipe, it is now assumed to be 490 kPa if applicable.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Bugfix: PNG and GIF textures are now synchronously loaded in order to prevent them from ending up in the alpha rendering list where applicable (which is more expensive to render and can cause visual glitches if too heavily populated due to the use of depth sorting).</td>
+<td><font color="red"><b>Bugfix</b></font><br />PNG and GIF textures are now synchronously loaded in order to prevent them from ending up in the alpha rendering list where applicable (which is more expensive to render and can cause visual glitches if too heavily populated due to the use of depth sorting).</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Bugfix: The <em>RefreshRate</em> parameter in animated objects was not applied if the animated object was used as a train exterior object.</td>
+<td><font color="red"><b>Bugfix</b></font><br />The <em>RefreshRate</em> parameter in animated objects was not applied if the animated object was used as a train exterior object.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Bugfix: Beacons which appeared before the starting position were not triggered, causing some trains to operate incorrectly on some routes.</td>
+<td><font color="red"><b>Bugfix</b></font><br />Beacons which appeared before the starting position were not triggered, causing some trains to operate incorrectly on some routes.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -296,67 +561,67 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>The stop indicator previously showed in Expert mode, which was not intended. It is now displayed only in Arcade and Normal modes. Additionally, the debug output is now unavailable in Expert mode.</td>
+<td><font color="red"><b>Interface</b></font><br />The stop indicator previously showed in Expert mode, which was not intended. It is now displayed only in Arcade and Normal modes. Additionally, the debug output is now unavailable in Expert mode.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Camera settings are now preserved when changing interior, exterior and track views. The zoom is reset though when switching the views.</td>
+<td><font color="red"><b>Interface</b></font><br />Camera settings are now preserved when changing interior, exterior and track views. The zoom is reset though when switching the views.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>The scrolling speed inside the cab has been made slightly slower.</td>
+<td><font color="red"><b>Interface</b></font><br />The scrolling speed inside the cab has been made slightly slower.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Some compatibility graphics (needles) have been resaved as 8-bit per channel RGBA in order to appear correctly on Linux.</td>
+<td><font color="red"><b>Interface</b></font><br />Warning messages are now shown again in openBVE. However, both warning and error messages can now be invidually disabled in the Options menu. Developers are strictly encouraged to leave these settings enabled, though.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>The code that applied transparency to the SDL window icon is now only executed on Windows. It could previously crash the program on Linux.</td>
+<td><font color="red"><b>Interface</b></font><br />A default set of points of interests is now included for every station if the route does not define any points of interest itself.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Warning messages are now shown again in openBVE. However, both warning and error messages can now be invidually disabled in the Options menu. Developers are strictly encouraged to leave these settings enabled, though.</td>
+<td><font color="red"><b>Developing routes</b></font><br />Track positions in RW and CSV routes now require to adhere to the <em>Strict</em> number format. Previously, they were interpreted as <em>Loose</em>, which could mess up the route too much if an invalid statement was interpreted as a track position.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Track positions in RW and CSV routes now require to adhere to the <em>Strict</em> number format. Previously, they were interpreted as <em>Loose</em>, which could mess up the route too much if an invalid statement was interpreted as a track position.</td>
+<td><font color="red"><b>Miscellaneous</b></font><br />Some compatibility graphics (needles) have been resaved as 8-bit per channel RGBA in order to appear correctly on Linux.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>A default set of points of interests is now included for every station if the route does not define any points of interest itself.</td>
+<td><font color="red"><b>Miscellaneous</b></font><br />The code that applied transparency to the SDL window icon is now only executed on Windows. It could previously crash the program on Linux.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>The sound subsystem can now be deactivated in the options.cfg.</td>
+<td><font color="red"><b>Miscellaneous</b></font><br />The sound subsystem can now be deactivated in the options.cfg.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>OpenBve64.exe is now available. It can be used on 64-bit systems that also provide 64-bit versions of the dependencies.</td>
+<td><font color="red"><b>Miscellaneous</b></font><br />OpenBve64.exe is now available. It can be used on 64-bit systems that also provide 64-bit versions of the dependencies.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Bugfix: Entering the <em>Jump to station</em> menu previously crashed the program with an <em>Index was outside the bounds of the array</em> when the route did not have any stations. The menu entry is not displayed any longer.</td>
+<td><font color="red"><b>Bugfix</b></font><br />Entering the <em>Jump to station</em> menu previously crashed the program with an <em>Index was outside the bounds of the array</em> when the route did not have any stations. The menu entry is not displayed any longer.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Bugfix: In animated objects, the <em>leftdoorstarget</em> and <em>rightdoorstarget</em> variables could previously crash the program with an <em>Index was outside the bounds of the array</em> message, or these variables simply didn't work correctly.</td>
+<td><font color="red"><b>Bugfix</b></font><br />In animated objects, the <em>leftdoorstarget</em> and <em>rightdoorstarget</em> variables could previously crash the program with an <em>Index was outside the bounds of the array</em> message, or these variables simply didn't work correctly.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Bugfix: In animated objects, texture clamping was disabled and could lead to visual artifacts at the edges of some textures.</td>
+<td><font color="red"><b>Bugfix</b></font><br />In animated objects, texture clamping was disabled and could lead to visual artifacts at the edges of some textures.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -366,17 +631,17 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Bugfix: The train toppled and derailed to the wrong side when driving backward.</td>
+<td><font color="red"><b>Interface</b></font><br />Messages about missing support for Windows-only DLL plugins on Linux/Mac are now only generated if the train actually uses a plugin.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Messages about missing support for Windows-only DLL plugins on Linux/Mac are now only generated if the train actually uses a plugin.</td>
+<td><font color="red"><b>Interface</b></font><br />If an exception (runtime error) occurs inside a plugin, openBVE now crashes with the name of the plugin being reported.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>If an exception (runtime error) occurs inside a plugin, openBVE now crashes with the name of the plugin being reported.</td>
+<td><font color="red"><b>Bugfix</b></font><br />The train toppled and derailed to the wrong side when driving backward.</td>
 </tr></table>
 <br /><a name="history09" />
 <br /><table><tr style="height: 4px;"><td /></tr></table>
@@ -687,7 +952,7 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td>Some admendments to the file formats have been made, including Japanese names for arguments in the panel.cfg, a compatibility fix regarding Track.Rail for route files  and some alterations to Option.UnitOfLength and Option.UnitOfSpeed behavior for route files.</td>
+<td>Some admendments to the file formats have been made, including Japanese names for arguments in the panel.cfg, a compatibility fix regarding Track.Rail for route files and some alterations to Option.UnitOfLength and Option.UnitOfSpeed behavior for route files.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
