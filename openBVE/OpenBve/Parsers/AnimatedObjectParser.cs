@@ -193,7 +193,7 @@ namespace OpenBve {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "statefunctionrpn":
-													Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
@@ -248,21 +248,21 @@ namespace OpenBve {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "translatexfunctionrpn":
-													Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].TranslateXFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "translateyfunctionrpn":
-													Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].TranslateYFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "translatezfunctionrpn":
-													Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].TranslateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
@@ -319,21 +319,21 @@ namespace OpenBve {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "rotatexfunctionrpn":
-													Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].RotateXFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "rotateyfunctionrpn":
-													Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].RotateYFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "rotatezfunctionrpn":
-													Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].RotateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
@@ -408,14 +408,14 @@ namespace OpenBve {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "textureshiftxfunctionrpn":
-													Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].TextureShiftXFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "textureshiftyfunctionrpn":
-													Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].TextureShiftYFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {

@@ -92,7 +92,6 @@ namespace OpenBve {
 		// textures
 		private static int TextureLogo = -1;
 		private static int TexturePause = -1;
-		private static double FadeLogo = 1.0;
 
 		// constants
 		private const float inv255 = 1.0f / 255.0f;
@@ -164,10 +163,10 @@ namespace OpenBve {
 			Gl.glPushMatrix();
 			Gl.glLoadIdentity();
 			// render logo
-			double size = ScreenWidth > ScreenHeight ? ScreenWidth : ScreenHeight;
+			double size = ScreenWidth < ScreenHeight ? ScreenWidth : ScreenHeight;
 			Gl.glColor3f(1.0f, 1.0f, 1.0f);
 			RenderOverlayTexture(TextureLogo, 0.5 * (ScreenWidth - size), 0.5 * (ScreenHeight - size), 0.5 * (ScreenWidth + size), 0.5 * (ScreenHeight + size));
-			RenderString(0.5 * (double)ScreenWidth, (double)ScreenHeight - 24.0, Fonts.FontType.Small, Interface.GetInterfaceString("message_loading"), 0, 255, 255, 255, true);
+			//RenderString(0.5 * (double)ScreenWidth, (double)ScreenHeight - 24.0, Fonts.FontType.Small, Interface.GetInterfaceString("message_loading"), 0, 255, 255, 255, true);
 			// finalize
 			Gl.glPopMatrix();
 			Gl.glMatrixMode(Gl.GL_PROJECTION);
@@ -2467,19 +2466,6 @@ namespace OpenBve {
 					Game.MenuSubmenu n = m[Game.CurrentMenuSelection[i]] as Game.MenuSubmenu;
 					m = n == null ? null : n.Entries;
 				}
-			}
-			// logo
-			if (FadeLogo != 0.0) {
-				double size = ScreenWidth > ScreenHeight ? ScreenWidth : ScreenHeight;
-				if (FadeLogo > 1.0) {
-					Gl.glColor3f(1.0f, 1.0f, 1.0f);
-					FadeLogo -= 1.0;
-				} else {
-					FadeLogo -= TimeElapsed;
-					if (FadeLogo < 0.0) FadeLogo = 0.0;
-					Gl.glColor4f(1.0f, 1.0f, 1.0f, (float)FadeLogo);
-				}
-				RenderOverlayTexture(TextureLogo, 0.5 * (ScreenWidth - size), 0.5 * (ScreenHeight - size), 0.5 * (ScreenWidth + size), 0.5 * (ScreenHeight + size));
 			}
 			// finalize
 			Gl.glPopMatrix();

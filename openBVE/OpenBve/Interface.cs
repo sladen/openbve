@@ -171,8 +171,8 @@ namespace OpenBve {
 				this.SoundNumber = 16;
 				this.ShowWarningMessages = true;
 				this.ShowErrorMessages = true;
-				this.ObjectOptimizationBasicThreshold = 30000;
-				this.ObjectOptimizationFullThreshold = 10000;
+				this.ObjectOptimizationBasicThreshold = 10000;
+				this.ObjectOptimizationFullThreshold = 2500;
 				this.RouteFolder = "";
 				this.TrainFolder = "";
 				this.RecentlyUsedRoutes = new string[] { };
