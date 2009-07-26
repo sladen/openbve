@@ -360,7 +360,7 @@ namespace OpenBve {
 			internal ObjectManager.Damping PitchDamping;
 		}
 		internal static DriverBody CurrentDriverBody;
-		internal static void UpdateDriverHead(double TimeElapsed) {
+		internal static void UpdateDriverBody(double TimeElapsed) {
 			if (CameraRestriction == CameraRestrictionMode.NotAvailable) {
 				{
 					// pitch
@@ -390,11 +390,13 @@ namespace OpenBve {
 						}
 					}
 					double diffY = CurrentDriverBody.FastY - CurrentDriverBody.SlowY;
-					diffY *= 2.0;
-					diffY = (Math.Sqrt(diffY * diffY + 1.0) - 1.0) * (double)Math.Sin(diffY);
-					CurrentDriverBody.Pitch = Math.Atan(0.1 * diffY);
+					diffY = (double)Math.Sign(diffY) * diffY * diffY;
+					CurrentDriverBody.Pitch = 0.5 * Math.Atan(0.1 * diffY);
+					if (CurrentDriverBody.Pitch > 0.1) {
+						CurrentDriverBody.Pitch = 0.1;
+					}
 					if (CurrentDriverBody.PitchDamping == null) {
-						CurrentDriverBody.PitchDamping = new ObjectManager.Damping(5.0, 0.3);
+						CurrentDriverBody.PitchDamping = new ObjectManager.Damping(6.0, 0.3);
 					}
 					ObjectManager.UpdateDamping(ref CurrentDriverBody.PitchDamping, TimeElapsed, ref CurrentDriverBody.Pitch);
 				}
@@ -449,14 +451,30 @@ namespace OpenBve {
 						}
 					}
 					double diffX = CurrentDriverBody.SlowX - CurrentDriverBody.FastX;
-					diffX *= 2.0;
-					diffX = (Math.Sqrt(diffX * diffX + 1.0) - 1.0) * (double)Math.Sin(diffX);
-					CurrentDriverBody.Roll = Math.Atan(0.5 * diffX);
+					diffX = (double)Math.Sign(diffX) * diffX * diffX;
+					CurrentDriverBody.Roll = 0.5 * Math.Atan(0.3 * diffX);
 					if (CurrentDriverBody.RollDamping == null) {
-						CurrentDriverBody.RollDamping = new ObjectManager.Damping(5.0, 0.3);
+						CurrentDriverBody.RollDamping = new ObjectManager.Damping(6.0, 0.3);
 					}
 					ObjectManager.UpdateDamping(ref CurrentDriverBody.RollDamping, TimeElapsed, ref CurrentDriverBody.Roll);
 				}
+			}
+		}
+		
+		// mouse grab
+		internal static bool MouseGrabEnabled = false;
+		internal static Vector2D MouseGrabTarget = new Vector2D(0.0, 0.0);
+		internal static void UpdateMouseGrab(double TimeElapsed) {
+			if (MouseGrabEnabled) {
+				double factor;
+				if (CameraMode == CameraViewMode.Interior | CameraMode == CameraViewMode.InteriorLookAhead) {
+					factor = 0.4;
+				} else {
+					factor = 2.0;
+				}
+				CameraAlignmentDirection.Yaw += factor * MouseGrabTarget.X;
+				CameraAlignmentDirection.Pitch -= factor * MouseGrabTarget.Y;
+				MouseGrabTarget = new Vector2D(0.0, 0.0);
 			}
 		}
 		
@@ -485,7 +503,7 @@ namespace OpenBve {
 		internal const double CameraInteriorTopSpeed = 1.0;
 		internal const double CameraInteriorTopAngularSpeed = 1.0;
 		internal const double CameraExteriorTopSpeed = 50.0;
-		internal const double CameraExteriorTopAngularSpeed = 5.0;
+		internal const double CameraExteriorTopAngularSpeed = 10.0;
 		internal const double CameraZoomTopSpeed = 2.0;
 		internal enum CameraViewMode { Interior, InteriorLookAhead, Exterior, Track, FlyBy, FlyByZooming }
 		internal static CameraViewMode CameraMode;
@@ -519,7 +537,7 @@ namespace OpenBve {
 				if (!PerformCameraRestrictionTest()) {
 					CameraCurrentAlignment = new CameraAlignment();
 					VerticalViewingAngle = OriginalVerticalViewingAngle;
-					MainLoop.UpdateViewport();
+					MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
 					UpdateAbsoluteCamera(0.0);
 					UpdateViewingDistances();
 					if (!PerformCameraRestrictionTest()) {
@@ -685,7 +703,7 @@ namespace OpenBve {
 						zoom = 1 + 256.0 * max * tdist4 * t4 * fac;
 					} else zoom = 1.0;
 					World.VerticalViewingAngle = World.OriginalVerticalViewingAngle / zoom;
-					MainLoop.UpdateViewport();
+					MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
 				}
 			} else {
 				// non-fly-by
@@ -730,7 +748,7 @@ namespace OpenBve {
 				double lookaheadPitch;
 				if (CameraMode == CameraViewMode.InteriorLookAhead) {
 					// look-ahead
-					double d = 10.0;
+					double d = 20.0;
 					if (TrainManager.PlayerTrain.Specs.CurrentAverageSpeed > 0.0) {
 						d += 3.0 * (Math.Sqrt(TrainManager.PlayerTrain.Specs.CurrentAverageSpeed * TrainManager.PlayerTrain.Specs.CurrentAverageSpeed + 1.0) - 1.0);
 					}
@@ -754,7 +772,6 @@ namespace OpenBve {
 						lookaheadYaw = 0.0;
 						lookaheadPitch = 0.0;
 					}
-					Game.InfoDebugString = "yaw=" + (lookaheadYaw * 57.2957795130824).ToString("0.00") + "°, pitch=" + (lookaheadPitch * 57.2957795130824).ToString("0.00") + "°";
 				} else {
 					lookaheadYaw = 0.0;
 					lookaheadPitch = 0.0;
@@ -802,9 +819,11 @@ namespace OpenBve {
 				if (CameraRestriction == CameraRestrictionMode.NotAvailable & (CameraMode == CameraViewMode.Interior | CameraMode == CameraViewMode.InteriorLookAhead)) {
 					// with body and head
 					bodyPitch += CurrentDriverBody.Pitch;
+					headPitch -= 0.2 * CurrentDriverBody.Pitch;
 					bodyRoll += CurrentDriverBody.Roll;
+					headRoll += 0.2 * CurrentDriverBody.Roll;
 					const double bodyHeight = 0.6;
-					const double headHeight = 0.2;
+					const double headHeight = 0.1;
 					{
 						// body pitch
 						double ry = (Math.Cos(-bodyPitch) - 1.0) * bodyHeight;
@@ -938,7 +957,7 @@ namespace OpenBve {
 			World.VerticalViewingAngle = World.OriginalVerticalViewingAngle * Math.Exp(World.CameraCurrentAlignment.Zoom);
 			if (World.VerticalViewingAngle < 0.001) World.VerticalViewingAngle = 0.001;
 			if (World.VerticalViewingAngle > 1.5) World.VerticalViewingAngle = 1.5;
-			MainLoop.UpdateViewport();
+			MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
 		}
 
 		// update viewing distance

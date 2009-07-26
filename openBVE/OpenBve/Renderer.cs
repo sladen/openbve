@@ -92,7 +92,6 @@ namespace OpenBve {
 		// textures
 		private static int TextureLogo = -1;
 		private static int TexturePause = -1;
-		private static double FadeLogo = 1.0;
 
 		// constants
 		private const float inv255 = 1.0f / 255.0f;
@@ -164,10 +163,10 @@ namespace OpenBve {
 			Gl.glPushMatrix();
 			Gl.glLoadIdentity();
 			// render logo
-			double size = ScreenWidth > ScreenHeight ? ScreenWidth : ScreenHeight;
+			double size = ScreenWidth < ScreenHeight ? ScreenWidth : ScreenHeight;
 			Gl.glColor3f(1.0f, 1.0f, 1.0f);
 			RenderOverlayTexture(TextureLogo, 0.5 * (ScreenWidth - size), 0.5 * (ScreenHeight - size), 0.5 * (ScreenWidth + size), 0.5 * (ScreenHeight + size));
-			RenderString(0.5 * (double)ScreenWidth, (double)ScreenHeight - 24.0, Fonts.FontType.Small, Interface.GetInterfaceString("message_loading"), 0, 255, 255, 255, true);
+			//RenderString(0.5 * (double)ScreenWidth, (double)ScreenHeight - 24.0, Fonts.FontType.Small, Interface.GetInterfaceString("message_loading"), 0, 255, 255, 255, true);
 			// finalize
 			Gl.glPopMatrix();
 			Gl.glMatrixMode(Gl.GL_PROJECTION);
@@ -216,8 +215,6 @@ namespace OpenBve {
 				OpenGlTextureIndex = TextureManager.UseTexture(World.CurrentBackground.Texture, TextureManager.UseMode.Normal);
 			}
 			if (OptionWireframe | OpenGlTextureIndex == 0) {
-				//Gl.glDisable(Gl.GL_DEPTH_TEST);
-				//SetAlphaFunc(Gl.GL_GREATER, 0.9f);
 				if (Game.CurrentFog.Start < Game.CurrentFog.End) {
 					const float fogdistance = 600.0f;
 					float n = (fogdistance - Game.CurrentFog.Start) / (Game.CurrentFog.End - Game.CurrentFog.Start);
@@ -233,6 +230,9 @@ namespace OpenBve {
 				Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
 			}
 			Gl.glPushMatrix();
+			if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
+				MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.ChangeToScenery);
+			}
 			if (LoadTexturesImmediately == LoadTextureImmediatelyMode.NotYet) {
 				LoadTexturesImmediately = LoadTextureImmediatelyMode.Yes;
 				ReAddObjects();
@@ -311,15 +311,23 @@ namespace OpenBve {
 					}
 					if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
 						// 3d cab
+						Gl.glLoadIdentity();
+						MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.ChangeToCab);
+						Glu.gluLookAt(0.0, 0.0, 0.0, dx, dy, dz, ux, uy, uz);
 						Gl.glDepthMask(Gl.GL_TRUE);
 						Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
 						if (!LightingEnabled) {
 							Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
 						}
+						OptionLighting = true;
 						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
 						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
 					} else {
 						// not a 3d cab
+						if (LightingEnabled) {
+							Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = true;
+						}
+						OptionLighting = false;
 						if (!BlendEnabled) {
 							Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 						}
@@ -1922,7 +1930,7 @@ namespace OpenBve {
 									case "stopnone":
 										{
 											int s = TrainManager.PlayerTrain.Station;
-											if (s >= 0 && Game.StopsAtStation(s) && Interface.CurrentOptions.GameMode != Interface.GameMode.Expert) {
+											if (s >= 0 && Game.PlayerStopsAtStation(s) && Interface.CurrentOptions.GameMode != Interface.GameMode.Expert) {
 												bool cond;
 												if (Command == "stopleft") {
 													cond = Game.Stations[s].OpenLeftDoors;
@@ -1949,7 +1957,7 @@ namespace OpenBve {
 									case "stopnonetick":
 										{
 											int s = TrainManager.PlayerTrain.Station;
-											if (s >= 0 && Game.StopsAtStation(s) && Interface.CurrentOptions.GameMode != Interface.GameMode.Expert) {
+											if (s >= 0 && Game.PlayerStopsAtStation(s) && Interface.CurrentOptions.GameMode != Interface.GameMode.Expert) {
 												int c = Game.GetStopIndex(s, TrainManager.PlayerTrain.Cars.Length);
 												if (c >= 0) {
 													bool cond;
@@ -2210,10 +2218,13 @@ namespace OpenBve {
 					"power (car " + car.ToString(Culture) +  "): " + TrainManager.PlayerTrain.Cars[car].Specs.CurrentAccelerationOutput.ToString("0.0000", Culture) + " m/s²",
 					"acceleration: " + TrainManager.PlayerTrain.Specs.CurrentAverageAcceleration.ToString("0.0000", Culture) + " m/s²",
 					"position: " + (TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition - TrainManager.PlayerTrain.Cars[0].FrontAxlePosition + 0.5 * TrainManager.PlayerTrain.Cars[0].Length).ToString("0.00", Culture) + " m",
+					"",
+					"=environment",
 					"elevation: " + (Game.RouteInitialElevation + TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].FrontAxle.Follower.WorldPosition.Y).ToString("0.00", Culture) + " m",
 					"temperature: " + (TrainManager.PlayerTrain.Specs.CurrentAirTemperature - 273.15).ToString("0.00", Culture) + " °C",
 					"air pressure: " + (0.001 * TrainManager.PlayerTrain.Specs.CurrentAirPressure).ToString("0.00", Culture) + " kPa",
 					"air density: " + TrainManager.PlayerTrain.Specs.CurrentAirDensity.ToString("0.0000", Culture) + " kg/m³",
+					"speed of sound: " + (Game.GetSpeedOfSound(TrainManager.PlayerTrain.Specs.CurrentAirDensity) * 3.6).ToString("0.00", Culture) + " km/h",
 					"",
 					"=route",
 					"track limit: " + (TrainManager.PlayerTrain.CurrentRouteLimit == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.CurrentRouteLimit * 3.6).ToString("0.0", Culture) + " km/h")),
@@ -2455,19 +2466,6 @@ namespace OpenBve {
 					Game.MenuSubmenu n = m[Game.CurrentMenuSelection[i]] as Game.MenuSubmenu;
 					m = n == null ? null : n.Entries;
 				}
-			}
-			// logo
-			if (FadeLogo != 0.0) {
-				double size = ScreenWidth > ScreenHeight ? ScreenWidth : ScreenHeight;
-				if (FadeLogo > 1.0) {
-					Gl.glColor3f(1.0f, 1.0f, 1.0f);
-					FadeLogo -= 1.0;
-				} else {
-					FadeLogo -= TimeElapsed;
-					if (FadeLogo < 0.0) FadeLogo = 0.0;
-					Gl.glColor4f(1.0f, 1.0f, 1.0f, (float)FadeLogo);
-				}
-				RenderOverlayTexture(TextureLogo, 0.5 * (ScreenWidth - size), 0.5 * (ScreenHeight - size), 0.5 * (ScreenWidth + size), 0.5 * (ScreenHeight + size));
 			}
 			// finalize
 			Gl.glPopMatrix();

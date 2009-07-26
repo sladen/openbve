@@ -145,9 +145,7 @@ namespace OpenBve {
 		internal class AnimatedObjectCollection : UnifiedObject {
 			internal AnimatedObject[] Objects;
 		}
-		internal enum VisibilityChangeMode { Hide, DontChange, Show }
-
-		internal static void InitializeAnimatedObject(ref AnimatedObject Object, int StateIndex, bool Overlay) {
+		internal static void InitializeAnimatedObject(ref AnimatedObject Object, int StateIndex, bool Overlay, bool Show) {
 			int i = Object.ObjectIndex;
 			Renderer.HideObject(i);
 			int t = StateIndex;
@@ -177,10 +175,12 @@ namespace OpenBve {
 				ObjectManager.Objects[i].Mesh.Vertices = new World.Vertex[] { };
 			}
 			Object.CurrentState = StateIndex;
-			Renderer.ShowObject(i, Overlay);
+			if (Show) {
+				Renderer.ShowObject(i, Overlay);
+			}
 		}
 
-		internal static void UpdateAnimatedObject(ref AnimatedObject Object, TrainManager.Train Train, int SectionIndex, double TrackPosition, World.Vector3D Position, World.Vector3D Direction, World.Vector3D Up, World.Vector3D Side, bool Overlay, bool UpdateFunctions, VisibilityChangeMode Visibility, double TimeElapsed) {
+		internal static void UpdateAnimatedObject(ref AnimatedObject Object, TrainManager.Train Train, int SectionIndex, double TrackPosition, World.Vector3D Position, World.Vector3D Direction, World.Vector3D Up, World.Vector3D Side, bool Overlay, bool UpdateFunctions, bool Show, double TimeElapsed) {
 			int s = Object.CurrentState;
 			int i = Object.ObjectIndex;
 			// state change
@@ -190,7 +190,7 @@ namespace OpenBve {
 				int sn = Object.States.Length;
 				if (si < 0 | si >= sn) si = -1;
 				if (s != si) {
-					InitializeAnimatedObject(ref Object, si, Overlay);
+					InitializeAnimatedObject(ref Object, si, Overlay, Show);
 					s = si;
 				}
 			}
@@ -513,10 +513,10 @@ namespace OpenBve {
 					}
 				}
 				// visibility changed
-				if (Visibility == VisibilityChangeMode.Hide) {
-					Renderer.HideObject(i);
-				} else if (Visibility == VisibilityChangeMode.Show) {
+				if (Show) {
 					Renderer.ShowObject(i, Overlay);
+				} else {
+					Renderer.HideObject(i);
 				}
 			}
 		}
@@ -544,8 +544,8 @@ namespace OpenBve {
 					double b = Damping.TargetAngle - Damping.OriginalAngle;
 					double r = b == 0.0 ? 1.0 : a / b;
 					Damping.OriginalDerivative = newDerivative * r;
-					while (Damping.CurrentTimeDelta > Damping.NaturalTime) {
-						Damping.CurrentTimeDelta -= Damping.NaturalTime;
+					if (Damping.NaturalTime > 0.0) {
+						Damping.CurrentTimeDelta = Damping.CurrentTimeDelta % Damping.NaturalTime;
 					}
 				}
 				{
@@ -598,13 +598,15 @@ namespace OpenBve {
 					if (Prototypes[i].States.Length != 0) {
 						if (free[i]) {
 							World.Vector3D p = Position;
-							World.Vector3D s = BaseTransformation.X;
-							World.Vector3D u = BaseTransformation.Y;
-							World.Vector3D d = BaseTransformation.Z;
+							World.Transformation t = new OpenBve.World.Transformation(BaseTransformation, AuxTransformation);
+							World.Vector3D s = t.X;
+							World.Vector3D u = t.Y;
+							World.Vector3D d = t.Z;
 							p.X += Prototypes[i].States[0].Position.X * s.X + Prototypes[i].States[0].Position.Y * u.X + Prototypes[i].States[0].Position.Z * d.X;
 							p.Y += Prototypes[i].States[0].Position.X * s.Y + Prototypes[i].States[0].Position.Y * u.Y + Prototypes[i].States[0].Position.Z * d.Y;
 							p.Z += Prototypes[i].States[0].Position.X * s.Z + Prototypes[i].States[0].Position.Y * u.Z + Prototypes[i].States[0].Position.Z * d.Z;
-							CreateStaticObject(Prototypes[i].States[0].Object, p, BaseTransformation, AuxTransformation, AccurateObjectDisposal, StartingDistance, EndingDistance, TrackPosition, Brightness, DuplicateMaterials);
+							double zOffset = Prototypes[i].States[0].Position.Z;
+							CreateStaticObject(Prototypes[i].States[0].Object, p, BaseTransformation, AuxTransformation, AccurateObjectDisposal, zOffset, StartingDistance, EndingDistance, TrackPosition, Brightness, DuplicateMaterials);
 						} else {
 							CreateAnimatedWorldObject(Prototypes[i], Position, BaseTransformation, AuxTransformation, SectionIndex, TrackPosition, Brightness);
 						}
@@ -658,8 +660,8 @@ namespace OpenBve {
 				}
 			}
 			AnimatedWorldObjects[a].Radius = Math.Sqrt(r);
-			AnimatedWorldObjects[a].Visible = true;
-			InitializeAnimatedObject(ref AnimatedWorldObjects[a].Object, 0, false);
+			AnimatedWorldObjects[a].Visible = false;
+			InitializeAnimatedObject(ref AnimatedWorldObjects[a].Object, 0, false, false);
 			AnimatedWorldObjectsUsed++;
 			return a;
 		}
@@ -674,7 +676,7 @@ namespace OpenBve {
 				if (v) {
 					if (Game.SecondsSinceMidnight >= AnimatedWorldObjects[i].Object.TimeNextUpdating | ForceUpdate) {
 						AnimatedWorldObjects[i].Object.TimeNextUpdating = Game.SecondsSinceMidnight + AnimatedWorldObjects[i].Object.RefreshRate;
-						UpdateAnimatedObject(ref AnimatedWorldObjects[i].Object, TrainManager.PlayerTrain, AnimatedWorldObjects[i].SectionIndex, AnimatedWorldObjects[i].TrackPosition, AnimatedWorldObjects[i].Position, AnimatedWorldObjects[i].Direction, AnimatedWorldObjects[i].Up, AnimatedWorldObjects[i].Side, false, true, VisibilityChangeMode.DontChange, TimeElapsed);
+						UpdateAnimatedObject(ref AnimatedWorldObjects[i].Object, TrainManager.PlayerTrain, AnimatedWorldObjects[i].SectionIndex, AnimatedWorldObjects[i].TrackPosition, AnimatedWorldObjects[i].Position, AnimatedWorldObjects[i].Direction, AnimatedWorldObjects[i].Up, AnimatedWorldObjects[i].Side, false, true, true, TimeElapsed);
 					}
 					if (!AnimatedWorldObjects[i].Visible) {
 						Renderer.ShowObject(AnimatedWorldObjects[i].Object.ObjectIndex, false);
@@ -1276,7 +1278,7 @@ namespace OpenBve {
 		internal static void CreateObject(UnifiedObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, int SectionIndex, bool AccurateObjectDisposal, double StartingDistance, double EndingDistance, double TrackPosition, double Brightness, bool DuplicateMaterials) {
 			if (Prototype is StaticObject) {
 				StaticObject s = (StaticObject)Prototype;
-				CreateStaticObject(s, Position, BaseTransformation, AuxTransformation, AccurateObjectDisposal, StartingDistance, EndingDistance, TrackPosition, Brightness, DuplicateMaterials);
+				CreateStaticObject(s, Position, BaseTransformation, AuxTransformation, AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, TrackPosition, Brightness, DuplicateMaterials);
 			} else if (Prototype is AnimatedObjectCollection) {
 				AnimatedObjectCollection a = (AnimatedObjectCollection)Prototype;
 				CreateAnimatedWorldObjects(a.Objects, Position, BaseTransformation, AuxTransformation, SectionIndex, AccurateObjectDisposal, StartingDistance, EndingDistance, TrackPosition, Brightness, DuplicateMaterials);
@@ -1285,14 +1287,14 @@ namespace OpenBve {
 
 		// create static object
 		internal static int CreateStaticObject(StaticObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double StartingDistance, double EndingDistance, double TrackPosition) {
-			return CreateStaticObject(Prototype, Position, BaseTransformation, AuxTransformation, AccurateObjectDisposal, StartingDistance, EndingDistance, TrackPosition, 1.0, false);
+			return CreateStaticObject(Prototype, Position, BaseTransformation, AuxTransformation, AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, TrackPosition, 1.0, false);
 		}
-		internal static int CreateStaticObject(StaticObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double StartingDistance, double EndingDistance, double TrackPosition, double Brightness, bool DuplicateMaterials) {
+		internal static int CreateStaticObject(StaticObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double AccurateObjectDisposalZOffset, double StartingDistance, double EndingDistance, double TrackPosition, double Brightness, bool DuplicateMaterials) {
 			int a = ObjectsUsed;
 			if (a >= Objects.Length) {
 				Array.Resize<StaticObject>(ref Objects, Objects.Length << 1);
 			}
-			ApplyStaticObjectData(ref Objects[a], Prototype, Position, BaseTransformation, AuxTransformation, AccurateObjectDisposal, StartingDistance, EndingDistance, TrackPosition, Brightness, DuplicateMaterials);
+			ApplyStaticObjectData(ref Objects[a], Prototype, Position, BaseTransformation, AuxTransformation, AccurateObjectDisposal, AccurateObjectDisposalZOffset, StartingDistance, EndingDistance, TrackPosition, Brightness, DuplicateMaterials);
 			for (int i = 0; i < Prototype.Mesh.Faces.Length; i++) {
 				switch (Prototype.Mesh.Faces[i].Flags & World.MeshFace.FaceTypeMask) {
 					case World.MeshFace.FaceTypeTriangles:
@@ -1315,7 +1317,7 @@ namespace OpenBve {
 			ObjectsUsed++;
 			return a;
 		}
-		internal static void ApplyStaticObjectData(ref StaticObject Object, StaticObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double StartingDistance, double EndingDistance, double TrackPosition, double Brightness, bool DuplicateMaterials) {
+		internal static void ApplyStaticObjectData(ref StaticObject Object, StaticObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double AccurateObjectDisposalZOffset, double StartingDistance, double EndingDistance, double TrackPosition, double Brightness, bool DuplicateMaterials) {
 			Object = new StaticObject();
 			Object.StartingDistance = float.MaxValue;
 			Object.EndingDistance = float.MinValue;
@@ -1339,6 +1341,10 @@ namespace OpenBve {
 				Object.Mesh.Vertices[j].Coordinates.X += Position.X;
 				Object.Mesh.Vertices[j].Coordinates.Y += Position.Y;
 				Object.Mesh.Vertices[j].Coordinates.Z += Position.Z;
+			}
+			if (AccurateObjectDisposal) {
+				Object.StartingDistance += (float)AccurateObjectDisposalZOffset;
+				Object.EndingDistance += (float)AccurateObjectDisposalZOffset;
 			}
 			// faces
 			Object.Mesh.Faces = new World.MeshFace[Prototype.Mesh.Faces.Length];
@@ -1462,8 +1468,10 @@ namespace OpenBve {
 			// initial visiblity
 			double p = World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z;
 			for (int i = 0; i < ObjectsUsed; i++) {
-				if (Objects[i].StartingDistance <= p + World.ForwardViewingDistance & Objects[i].EndingDistance >= p - World.BackwardViewingDistance) {
-					Renderer.ShowObject(i, false);
+				if (Objects[i].Dynamic == 0) {
+					if (Objects[i].StartingDistance <= p + World.ForwardViewingDistance & Objects[i].EndingDistance >= p - World.BackwardViewingDistance) {
+						Renderer.ShowObject(i, false);
+					}
 				}
 			}
 		}
@@ -1492,7 +1500,9 @@ namespace OpenBve {
 					if (Objects[o].EndingDistance >= p - World.BackwardViewingDistance) {
 						Renderer.ShowObject(o, false);
 						ObjectsSortedByEndPointer--;
-					} else break;
+					} else {
+						break;
+					}
 				}
 				// dispose
 				while (ObjectsSortedByStartPointer >= 0) {
@@ -1500,7 +1510,9 @@ namespace OpenBve {
 					if (Objects[o].StartingDistance > p + World.ForwardViewingDistance) {
 						Renderer.HideObject(o);
 						ObjectsSortedByStartPointer--;
-					} else break;
+					} else {
+						break;
+					}
 				}
 			} else if (d > 0.0) {
 				if (ObjectsSortedByStartPointer < 0) ObjectsSortedByStartPointer = 0;
@@ -1511,7 +1523,9 @@ namespace OpenBve {
 					if (Objects[o].StartingDistance <= p + World.ForwardViewingDistance) {
 						Renderer.ShowObject(o, false);
 						ObjectsSortedByStartPointer++;
-					} else break;
+					} else {
+						break;
+					}
 				}
 				// dispose
 				while (ObjectsSortedByEndPointer < n) {
@@ -1519,7 +1533,9 @@ namespace OpenBve {
 					if (Objects[o].EndingDistance < p - World.BackwardViewingDistance) {
 						Renderer.HideObject(o);
 						ObjectsSortedByEndPointer++;
-					} else break;
+					} else {
+						break;
+					}
 				}
 			}
 			LastUpdatedTrackPosition = TrackPosition;

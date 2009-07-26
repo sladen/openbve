@@ -26,7 +26,6 @@ namespace OpenBve {
                 string f = Interface.GetCombinedFileName(Interface.GetDataFolder("Menu"), "banner.png");
                 pictureboxBanner.Image = Image.FromFile(f);
             } catch { }
-            labelLoadingTitle.Text = Interface.GetInterfaceString("loading_loading");
             labelRoute.Text = Interface.GetInterfaceString("loading_loading_route");
             labelTrain.Text = Interface.GetInterfaceString("loading_loading_train");
             labelAlmostTitle.Text = Interface.GetInterfaceString("loading_almost");

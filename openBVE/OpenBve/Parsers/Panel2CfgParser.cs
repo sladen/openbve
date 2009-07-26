@@ -7,7 +7,7 @@ namespace OpenBve {
 		internal static double StackDistance = 0.000001;
 		/// <remarks>EyeDistance is required to be 1.0 by UpdateCarSectionElement and by UpdateCameraRestriction, thus cannot be easily changed</remarks>
 		internal const double EyeDistance = 1.0;
-
+		
 		// parse panel config
 		internal static void ParsePanel2Config(string TrainPath, System.Text.Encoding Encoding, TrainManager.Train Train) {
 			// read lines
@@ -786,7 +786,8 @@ namespace OpenBve {
 		private static string GetStackLanguageFromSubject(TrainManager.Train Train, string Subject, string ErrorLocation) {
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
 			string Suffix = "";
-			{ // detect d# suffix
+			{
+				// detect d# suffix
 				int i;
 				for (i = Subject.Length - 1; i >= 0; i--) {
 					int a = char.ConvertToUtf32(Subject, i);
@@ -848,23 +849,9 @@ namespace OpenBve {
 				case "power":
 					Code = "brakeNotchLinear 0 powerNotch ?";
 					break;
-//					if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
-//						Code = "emergencyBrake 0 powerNotch ?";
-//						break;
-//					} else {
-//						Code = "emergencyBrake brakeNotch 0 > | holdBrake | 0 powerNotch ?";
-//						break;
-//					}
 				case "brake":
 					Code = "brakeNotchLinear";
 					break;
-//					if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
-//						Code = "emergencyBrake 3 brakeNotch ?";
-//					} else if (Train.Specs.HasHoldBrake) {
-//						Code = "emergencyBrake " + (Train.Specs.MaximumBrakeNotch + 2).ToString(Culture) + " holdBrake 1 brakeNotch 0 == 0 brakeNotch 1 + ? ? ?";
-//					} else {
-//						Code = "emergencyBrake " + (Train.Specs.MaximumBrakeNotch + 1).ToString(Culture) + " brakeNotch ?";
-//					} break;
 				case "rev":
 					Code = "reverserNotch ++";
 					break;
@@ -878,7 +865,7 @@ namespace OpenBve {
 					Code = "time 60 mod floor";
 					break;
 				case "atc":
-					Code = "14 pluginstate";
+					Code = "271 pluginstate";
 					break;
 				default:
 					{

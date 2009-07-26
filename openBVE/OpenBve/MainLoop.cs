@@ -10,7 +10,7 @@ namespace OpenBve {
 		internal static bool LimitFramerate = false;
 		private static bool Quit = false;
 		private static int TimeFactor = 1;
-		private static bool MouseGrab = false;
+		private static ViewPortMode CurrentViewPortMode = ViewPortMode.Scenery;
 
 		// --------------------------------
 
@@ -18,20 +18,20 @@ namespace OpenBve {
 		internal static void StartLoop() {
 			// timer
 			Timers.Initialize();
-			// train loop sounds
-			for (int i = 0; i < TrainManager.Trains.Length; i++) {
-				for (int j = 0; j < TrainManager.Trains[i].Cars.Length; j++) {
-					if (TrainManager.Trains[i].Cars[j].Specs.IsMotorCar) {
-						if (TrainManager.Trains[i].Cars[j].Sounds.Loop.SoundBufferIndex >= 0) {
-							SoundManager.PlaySound(TrainManager.Trains[i].Cars[j].Sounds.Loop.SoundBufferIndex, TrainManager.Trains[i], j, TrainManager.Trains[i].Cars[j].Sounds.Loop.Position, SoundManager.Importance.AlwaysPlay, true);
-						}
-					}
-				}
-			}
 			// framerate display
 			double TotalTimeElapsedForInfo = 0.0;
 			double TotalTimeElapsedForSectionUpdate = 0.0;
 			int TotalFramesElapsed = 0;
+			// update sections
+			for (int i = 0; i < TrainManager.Trains.Length; i++) {
+				int s = TrainManager.Trains[i].Cars[0].CurrentSection;
+				if (s >= 0) {
+					Game.Sections[s].Enter(TrainManager.Trains[i]);
+				}
+			}
+			if (Game.Sections.Length > 0) {
+				Game.UpdateSection(Game.Sections.Length - 1);
+			}
 			// fast-forward until start time
 			{
 				Game.MinimalisticSimulation = true;
@@ -53,14 +53,6 @@ namespace OpenBve {
 					}
 				}
 				Game.MinimalisticSimulation = false;
-			}
-			// update sections
-			int s = TrainManager.PlayerTrain.Cars[0].CurrentSection;
-			if (s >= 0) {
-				Game.Sections[s].Enter(TrainManager.PlayerTrain);
-			}
-			if (Game.Sections.Length > 0) {
-				Game.UpdateSection(Game.Sections.Length - 1);
 			}
 			// loop
 			Asynchronous.Initialize();
@@ -93,6 +85,7 @@ namespace OpenBve {
 				// events
 				ProcessEvents();
 				World.CameraAlignmentDirection = new World.CameraAlignment();
+				World.UpdateMouseGrab(TimeElapsed);
 				ProcessControls(TimeElapsed);
 				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) {
 					World.UpdateAbsoluteCamera(TimeElapsed);
@@ -125,7 +118,7 @@ namespace OpenBve {
 					World.CameraSpeed = 0.0;
 				}
 				if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
-					World.UpdateDriverHead(TimeElapsed);
+					World.UpdateDriverBody(TimeElapsed);
 					World.UpdateAbsoluteCamera(TimeElapsed);
 				} else if (World.CameraMode != World.CameraViewMode.Interior) {
 					World.UpdateAbsoluteCamera(TimeElapsed);
@@ -179,7 +172,7 @@ namespace OpenBve {
 					case Sdl.SDL_VIDEORESIZE:
 						Renderer.ScreenWidth = Event.resize.w;
 						Renderer.ScreenHeight = Event.resize.h;
-						UpdateViewport();
+						UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
 						InitializeMotionBlur();
 						break;
 						// key down
@@ -320,8 +313,9 @@ namespace OpenBve {
 					case Sdl.SDL_MOUSEBUTTONDOWN:
 						// mouse button down
 						if (Event.button.button == Sdl.SDL_BUTTON_RIGHT) {
-							MouseGrab = !MouseGrab;
-							if (MouseGrab) {
+							World.MouseGrabEnabled = !World.MouseGrabEnabled;
+							if (World.MouseGrabEnabled) {
+								World.MouseGrabTarget = new World.Vector2D(0.0, 0.0);
 								Sdl.SDL_WM_GrabInput(Sdl.SDL_GRAB_ON);
 								Game.AddMessage(Interface.GetInterfaceString("notification_mousegrab_on"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 5.0);
 							} else {
@@ -332,16 +326,8 @@ namespace OpenBve {
 						break;
 					case Sdl.SDL_MOUSEMOTION:
 						// mouse motion
-						if (MouseGrab) {
-							double x = World.CameraCurrentAlignment.Yaw + 0.001 * (double)Event.motion.xrel;
-							double y = World.CameraCurrentAlignment.Pitch - 0.001 * (double)Event.motion.yrel;
-							if (World.CameraRestriction == World.CameraRestrictionMode.On) {
-								World.PerformProgressiveAdjustmentForCameraRestriction(ref World.CameraCurrentAlignment.Yaw, x, false);
-								World.PerformProgressiveAdjustmentForCameraRestriction(ref World.CameraCurrentAlignment.Pitch, y, false);
-							} else {
-								World.CameraCurrentAlignment.Yaw = x;
-								World.CameraCurrentAlignment.Pitch = y;
-							}
+						if (World.MouseGrabEnabled) {
+							World.MouseGrabTarget = new World.Vector2D((double)Event.motion.xrel, (double)Event.motion.yrel);
 						}
 						break;
 				}
@@ -783,7 +769,7 @@ namespace OpenBve {
 										}
 										World.CameraAlignmentDirection = new World.CameraAlignment();
 										World.CameraAlignmentSpeed = new World.CameraAlignment();
-										UpdateViewport();
+										UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
 										World.UpdateAbsoluteCamera(TimeElapsed);
 										World.UpdateViewingDistances();
 										if (World.CameraRestriction != World.CameraRestrictionMode.NotAvailable) {
@@ -812,7 +798,7 @@ namespace OpenBve {
 										}
 										World.CameraAlignmentDirection = new World.CameraAlignment();
 										World.CameraAlignmentSpeed = new World.CameraAlignment();
-										UpdateViewport();
+										UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
 										World.UpdateAbsoluteCamera(TimeElapsed);
 										World.UpdateViewingDistances();
 										break;
@@ -848,7 +834,7 @@ namespace OpenBve {
 											}
 											World.CameraAlignmentDirection = new World.CameraAlignment();
 											World.CameraAlignmentSpeed = new World.CameraAlignment();
-											UpdateViewport();
+											UpdateViewport(ViewPortChangeMode.NoChange);
 											World.UpdateAbsoluteCamera(TimeElapsed);
 											World.UpdateViewingDistances();
 										} break;
@@ -879,7 +865,7 @@ namespace OpenBve {
 											TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, World.CameraTrackFollower.TrackPosition + z, true, false);
 											World.CameraCurrentAlignment.TrackPosition = World.CameraTrackFollower.TrackPosition;
 											World.VerticalViewingAngle = World.OriginalVerticalViewingAngle;
-											UpdateViewport();
+											UpdateViewport(ViewPortChangeMode.NoChange);
 											World.UpdateAbsoluteCamera(TimeElapsed);
 											World.UpdateViewingDistances();
 										} break;
@@ -910,7 +896,7 @@ namespace OpenBve {
 											TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, World.CameraTrackFollower.TrackPosition + z, true, false);
 											World.CameraCurrentAlignment.TrackPosition = World.CameraTrackFollower.TrackPosition;
 											World.VerticalViewingAngle = World.OriginalVerticalViewingAngle;
-											UpdateViewport();
+											UpdateViewport(ViewPortChangeMode.NoChange);
 											World.UpdateAbsoluteCamera(TimeElapsed);
 											World.UpdateViewingDistances();
 										} break;
@@ -938,7 +924,7 @@ namespace OpenBve {
 										World.VerticalViewingAngle = World.OriginalVerticalViewingAngle;
 										World.CameraAlignmentDirection = new World.CameraAlignment();
 										World.CameraAlignmentSpeed = new World.CameraAlignment();
-										UpdateViewport();
+										UpdateViewport(ViewPortChangeMode.NoChange);
 										World.UpdateAbsoluteCamera(TimeElapsed);
 										World.UpdateViewingDistances();
 										if ((World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) & World.CameraRestriction == World.CameraRestrictionMode.On) {
@@ -1508,7 +1494,7 @@ namespace OpenBve {
 				Renderer.ScreenHeight = Interface.CurrentOptions.WindowHeight;
 			}
 			Renderer.InitializeLighting();
-			UpdateViewport();
+			UpdateViewport(ViewPortChangeMode.NoChange);
 			InitializeMotionBlur();
 			Timetable.CreateTimetable();
 			Timetable.UpdateCustomTimetable(-1, -1);
@@ -1516,14 +1502,32 @@ namespace OpenBve {
 		}
 
 		// update viewport
-		internal static void UpdateViewport() {
+		internal enum ViewPortMode {
+			Scenery = 0,
+			Cab = 1
+		}
+		internal enum ViewPortChangeMode {
+			ChangeToScenery = 0,
+			ChangeToCab = 1,
+			NoChange = 2
+		}
+		internal static void UpdateViewport(ViewPortChangeMode Mode) {
+			if (Mode == ViewPortChangeMode.ChangeToCab) {
+				CurrentViewPortMode = ViewPortMode.Cab;
+			} else {
+				CurrentViewPortMode = ViewPortMode.Scenery;
+			}
 			Gl.glViewport(0, 0, Renderer.ScreenWidth, Renderer.ScreenHeight);
 			World.AspectRatio = (double)Renderer.ScreenWidth / (double)Renderer.ScreenHeight;
 			World.HorizontalViewingAngle = 2.0 * Math.Atan(Math.Tan(0.5 * World.VerticalViewingAngle) * World.AspectRatio);
 			Gl.glMatrixMode(Gl.GL_PROJECTION);
 			Gl.glLoadIdentity();
 			const double invdeg = 57.295779513082320877;
-			Glu.gluPerspective(World.VerticalViewingAngle * invdeg, -World.AspectRatio, 0.2, World.BackgroundImageDistance + 3.0 * World.ExtraViewingDistance);
+			if (CurrentViewPortMode == ViewPortMode.Cab) {
+				Glu.gluPerspective(World.VerticalViewingAngle * invdeg, -World.AspectRatio, 0.025, 50.0);
+			} else {
+				Glu.gluPerspective(World.VerticalViewingAngle * invdeg, -World.AspectRatio, 0.4, World.BackgroundImageDistance + 4.0 * World.ExtraViewingDistance);
+			}
 			Gl.glMatrixMode(Gl.GL_MODELVIEW);
 			Gl.glLoadIdentity();
 		}

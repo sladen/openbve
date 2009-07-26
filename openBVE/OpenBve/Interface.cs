@@ -171,8 +171,8 @@ namespace OpenBve {
 				this.SoundNumber = 16;
 				this.ShowWarningMessages = true;
 				this.ShowErrorMessages = true;
-				this.ObjectOptimizationBasicThreshold = 30000;
-				this.ObjectOptimizationFullThreshold = 10000;
+				this.ObjectOptimizationBasicThreshold = 10000;
+				this.ObjectOptimizationFullThreshold = 2500;
 				this.RouteFolder = "";
 				this.TrainFolder = "";
 				this.RecentlyUsedRoutes = new string[] { };
@@ -451,6 +451,7 @@ namespace OpenBve {
 			Builder.AppendLine();
 			Builder.AppendLine("[display]");
 			Builder.AppendLine("mode = " + (CurrentOptions.FullscreenMode ? "fullscreen" : "window"));
+			Builder.AppendLine("vsync = " + (CurrentOptions.VerticalSynchronization ? "true" : "false"));
 			Builder.AppendLine("windowwidth = " + CurrentOptions.WindowWidth.ToString(Culture));
 			Builder.AppendLine("windowheight = " + CurrentOptions.WindowHeight.ToString(Culture));
 			Builder.AppendLine("fullscreenwidth = " + CurrentOptions.FullscreenWidth.ToString(Culture));

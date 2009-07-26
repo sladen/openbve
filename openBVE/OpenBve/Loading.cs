@@ -127,23 +127,23 @@ namespace OpenBve {
 			TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, -0.1, true, false);
 			TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, 0.1, true, false);
 			World.CameraTrackFollower.TriggerType = TrackManager.EventTriggerType.Camera;
-			// default starting time
-			Game.SecondsSinceMidnight = -(double)Game.PretrainsUsed * Game.PretrainInterval;
-			Game.StartupTime = 0.0;
 			// initialize trains
 			System.Threading.Thread.Sleep(1); if (Cancel) return;
-			TrainManager.Trains = new TrainManager.Train[1 + Game.PretrainsUsed];
+			TrainManager.Trains = new TrainManager.Train[Game.PrecedingTrainTimeDeltas.Length + 1 + (Game.BogusPretrainInstructions.Length != 0 ? 1 : 0)];
 			for (int k = 0; k < TrainManager.Trains.Length; k++) {
 				TrainManager.Trains[k] = new TrainManager.Train();
 				TrainManager.Trains[k].TrainIndex = k;
+				if (k == TrainManager.Trains.Length - 1 & Game.BogusPretrainInstructions.Length != 0) {
+					TrainManager.Trains[k].State = TrainManager.TrainState.Bogus;
+				} else {
+					TrainManager.Trains[k].State = TrainManager.TrainState.Pending;
+				}
 			}
-			TrainManager.PlayerTrain = TrainManager.Trains[Game.PretrainsUsed];
+			TrainManager.PlayerTrain = TrainManager.Trains[Game.PrecedingTrainTimeDeltas.Length];
 			// load trains
 			double TrainProgressMaximum = 0.7 + 0.3 * (double)TrainManager.Trains.Length;
 			for (int k = 0; k < TrainManager.Trains.Length; k++) {
-				bool bogus = k != TrainManager.PlayerTrain.TrainIndex & Game.BogusPretrainInstructions.Length > 0;
-				TrainManager.Trains[k].IsBogusTrain = bogus;
-				if (bogus) {
+				if (TrainManager.Trains[k].State == TrainManager.TrainState.Bogus) {
 					// bogus train
 					string Folder = Interface.GetDataFolder("Compatibility", "PreTrain");
 					TrainDatParser.ParseTrainData(Folder, System.Text.Encoding.UTF8, TrainManager.Trains[k]);
@@ -215,7 +215,7 @@ namespace OpenBve {
 					System.Threading.Thread.Sleep(1); if (Cancel) return;
 				}
 				// add exterior section
-				if (!bogus) {
+				if (TrainManager.Trains[k].State != TrainManager.TrainState.Bogus) {
 					ObjectManager.UnifiedObject[] CarObjects;
 					ExtensionsCfgParser.ParseExtensionsConfig(CurrentTrainFolder, CurrentTrainEncoding, out CarObjects, TrainManager.Trains[k]);
 					System.Threading.Thread.Sleep(1); if (Cancel) return;
@@ -287,13 +287,11 @@ namespace OpenBve {
 					}
 				}
 				// configure ai / timetable
-				if (k == TrainManager.PlayerTrain.TrainIndex) {
-					TrainManager.Trains[k].PretrainAheadTimetable = 0.0;
-				} else if (TrainManager.Trains[k].IsBogusTrain) {
-					TrainManager.Trains[k].AI = new Game.BogusPretrainAI(TrainManager.Trains[k]);
-				} else {
+				if (TrainManager.Trains[k] == TrainManager.PlayerTrain) {
+					TrainManager.Trains[k].TimetableDelta = 0.0;
+				} else if (TrainManager.Trains[k].State != TrainManager.TrainState.Bogus) {
 					TrainManager.Trains[k].AI = new Game.SimplisticHumanDriverAI(TrainManager.Trains[k]);
-					TrainManager.Trains[k].PretrainAheadTimetable = (double)(Game.PretrainsUsed - k) * Game.PretrainInterval;
+					TrainManager.Trains[k].TimetableDelta = Game.PrecedingTrainTimeDeltas[k];
 					TrainManager.Trains[k].Specs.DoorOpenMode = TrainManager.DoorMode.Manual;
 					TrainManager.Trains[k].Specs.DoorCloseMode = TrainManager.DoorMode.Manual;
 				}
@@ -302,43 +300,65 @@ namespace OpenBve {
 			// finished created objects
 			System.Threading.Thread.Sleep(1); if (Cancel) return;
 			ObjectManager.FinishCreatingObjects();
-			// starting track position
+			// starting time and track position
 			System.Threading.Thread.Sleep(1); if (Cancel) return;
-			int FirstStationIndex = -1;
-			double FirstStationPosition = 0.0;
+			Game.SecondsSinceMidnight = 0.0;
+			Game.StartupTime = 0.0;
+			int PlayerFirstStationIndex = -1;
+			double PlayerFirstStationPosition = 0.0;
 			for (int i = 0; i < Game.Stations.Length; i++) {
-				if (Game.Stations[i].Stops.Length != 0) {
-					FirstStationIndex = i;
+				if (Game.Stations[i].StopMode == Game.StationStopMode.AllStop | Game.Stations[i].StopMode == Game.StationStopMode.PlayerStop & Game.Stations[i].Stops.Length != 0) {
+					PlayerFirstStationIndex = i;
 					int s = Game.GetStopIndex(i, TrainManager.PlayerTrain.Cars.Length);
-					if (s >= 0) {
-						if (s < Game.Stations[i].Stops.Length) {
-							FirstStationPosition = Game.Stations[i].Stops[s].TrackPosition;
+					PlayerFirstStationPosition = Game.Stations[i].Stops[s].TrackPosition;
+					if (Game.Stations[i].ArrivalTime < 0.0) {
+						if (Game.Stations[i].DepartureTime < 0.0) {
+							Game.SecondsSinceMidnight = 0.0;
+							Game.StartupTime = 0.0;
 						} else {
-							FirstStationPosition = Game.Stations[i].Stops[Game.Stations[i].Stops.Length - 1].TrackPosition;
+							Game.SecondsSinceMidnight = Game.Stations[i].DepartureTime - Game.Stations[i].StopTime;
+							Game.StartupTime = Game.Stations[i].DepartureTime - Game.Stations[i].StopTime;
 						}
-						if (Game.Stations[i].ArrivalTime < 0.0) {
-							if (Game.Stations[i].DepartureTime < 0.0) {
-								Game.SecondsSinceMidnight = 0.0;
-							} else {
-								Game.SecondsSinceMidnight = Game.Stations[i].DepartureTime - Game.Stations[i].StopTime;
-							}
-						} else {
-							Game.SecondsSinceMidnight = Game.Stations[i].ArrivalTime;
-						}
-						Game.SecondsSinceMidnight -= (double)Game.PretrainsUsed * Game.PretrainInterval;
-						Game.StartupTime = Game.SecondsSinceMidnight + (double)Game.PretrainsUsed * Game.PretrainInterval;
-						break;
+					} else {
+						Game.SecondsSinceMidnight = Game.Stations[i].ArrivalTime;
+						Game.StartupTime = Game.Stations[i].ArrivalTime;
 					}
+					break;
 				}
 			}
-			double TrackPosition = FirstStationPosition;
+			int OtherFirstStationIndex = -1;
+			double OtherFirstStationPosition = 0.0;
+			double OtherFirstStationTime = 0.0;
+			for (int i = 0; i < Game.Stations.Length; i++) {
+				if (Game.Stations[i].StopMode == Game.StationStopMode.AllStop | Game.Stations[i].StopMode == Game.StationStopMode.PlayerPass & Game.Stations[i].Stops.Length != 0) {
+					OtherFirstStationIndex = i;
+					int s = Game.GetStopIndex(i, TrainManager.PlayerTrain.Cars.Length);
+					OtherFirstStationPosition = Game.Stations[i].Stops[s].TrackPosition;
+					if (Game.Stations[i].ArrivalTime < 0.0) {
+						if (Game.Stations[i].DepartureTime < 0.0) {
+							OtherFirstStationTime = 0.0;
+						} else {
+							OtherFirstStationTime = Game.Stations[i].DepartureTime - Game.Stations[i].StopTime;
+						}
+					} else {
+						OtherFirstStationTime = Game.Stations[i].ArrivalTime;
+					}
+					break;
+				}
+			}
+			if (Game.PrecedingTrainTimeDeltas.Length != 0) {
+				OtherFirstStationTime -= Game.PrecedingTrainTimeDeltas[Game.PrecedingTrainTimeDeltas.Length - 1];
+				if (OtherFirstStationTime < Game.SecondsSinceMidnight) {
+					Game.SecondsSinceMidnight = OtherFirstStationTime;
+				}
+			}
 			// score
 			System.Threading.Thread.Sleep(1); if (Cancel) return;
-			Game.CurrentScore.ArrivalStation = FirstStationIndex + 1;
-			Game.CurrentScore.DepartureStation = FirstStationIndex;
+			Game.CurrentScore.ArrivalStation = PlayerFirstStationIndex + 1;
+			Game.CurrentScore.DepartureStation = PlayerFirstStationIndex;
 			Game.CurrentScore.Maximum = 0;
 			for (int i = 0; i < Game.Stations.Length; i++) {
-				if (i != FirstStationIndex & Game.StopsAtStation(i)) {
+				if (i != PlayerFirstStationIndex & Game.PlayerStopsAtStation(i)) {
 					Game.CurrentScore.Maximum += Game.ScoreValueStationArrival;
 				}
 			}
@@ -349,36 +369,26 @@ namespace OpenBve {
 			System.Threading.Thread.Sleep(1); if (Cancel) return;
 			for (int i = 0; i < TrainManager.Trains.Length; i++) {
 				TrainManager.InitializeTrain(TrainManager.Trains[i]);
-				for (int j = 0; j < TrainManager.Trains[i].Cars.Length; j++) {
-					if (TrainManager.Trains[i].Cars[j].Sections.Length > 0) {
-						TrainManager.ChangeCarSection(TrainManager.Trains[i], j, j == 0 | i != TrainManager.PlayerTrain.TrainIndex ? 0 : -1);
-					}
-				}
-				if (FirstStationIndex >= 0) {
-					if (Game.Stations[FirstStationIndex].OpenLeftDoors) {
+				int s = i == TrainManager.PlayerTrain.TrainIndex ? PlayerFirstStationIndex : OtherFirstStationIndex;
+				if (s >= 0) {
+					if (Game.Stations[s].OpenLeftDoors) {
 						for (int j = 0; j < TrainManager.Trains[i].Cars.Length; j++) {
 							TrainManager.Trains[i].Cars[j].Specs.AnticipatedLeftDoorsOpened = true;
 						}
 					}
-					if (Game.Stations[FirstStationIndex].OpenRightDoors) {
+					if (Game.Stations[s].OpenRightDoors) {
 						for (int j = 0; j < TrainManager.Trains[i].Cars.Length; j++) {
 							TrainManager.Trains[i].Cars[j].Specs.AnticipatedRightDoorsOpened = true;
 						}
 					}
 				}
-				double p;
-				if (TrainManager.Trains[i].IsBogusTrain & Game.BogusPretrainInstructions.Length != 0) {
-					p = Game.BogusPretrainInstructions[0].TrackPosition;
-				} else {
-					p = i == TrainManager.PlayerTrain.TrainIndex ? TrackPosition : FirstStationPosition;
+				if (Game.Sections.Length != 0) {
+					Game.Sections[0].Enter(TrainManager.Trains[i]);
 				}
-				double d = p - TrainManager.Trains[i].Cars[0].FrontAxle.Follower.TrackPosition + 0.01;
 				for (int j = 0; j < TrainManager.Trains[i].Cars.Length; j++) {
-					TrainManager.MoveCar(TrainManager.Trains[i], j, -0.1, 0.01);
-					TrainManager.MoveCar(TrainManager.Trains[i], j, 0.1, 0.01);
-					if (TrainManager.Trains[i] != TrainManager.PlayerTrain) {
-						TrainManager.MoveCar(TrainManager.Trains[i], j, d, 0.01);
-					}
+					double length = TrainManager.Trains[i].Cars[0].Length;
+					TrainManager.MoveCar(TrainManager.Trains[i], j, -length, 0.01);
+					TrainManager.MoveCar(TrainManager.Trains[i], j, length, 0.01);
 				}
 			}
 			// signals
@@ -391,15 +401,26 @@ namespace OpenBve {
 			if (TrainManager.PlayerTrain != null) {
 				PluginManager.LoadAtsConfig(CurrentTrainFolder, CurrentTrainEncoding, TrainManager.PlayerTrain);
 			}
-			// move player's train in position
-			if (TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition < 0.1) {
-				double d = 0.1 - TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition;
-				for (int j = 0; j < TrainManager.PlayerTrain.Cars.Length; j++) {
-					TrainManager.MoveCar(TrainManager.PlayerTrain, j, TrackPosition + d, 0.01);
+			// move train in position
+			for (int i = 0; i < TrainManager.Trains.Length; i++) {
+				double p;
+				if (i == TrainManager.PlayerTrain.TrainIndex) {
+					p = PlayerFirstStationPosition;
+				} else if (TrainManager.Trains[i].State == TrainManager.TrainState.Bogus) {
+					p = Game.BogusPretrainInstructions[0].TrackPosition;
+					TrainManager.Trains[i].AI = new Game.BogusPretrainAI(TrainManager.Trains[i]);
+				} else {
+					p = OtherFirstStationPosition;
 				}
-			} else {
-				for (int j = 0; j < TrainManager.PlayerTrain.Cars.Length; j++) {
-					TrainManager.MoveCar(TrainManager.PlayerTrain, j, TrackPosition, 0.01);
+				if (TrainManager.Trains[i].Cars[0].FrontAxle.Follower.TrackPosition < 0.1) {
+					double d = 0.1 - TrainManager.Trains[i].Cars[0].FrontAxle.Follower.TrackPosition;
+					for (int j = 0; j < TrainManager.Trains[i].Cars.Length; j++) {
+						TrainManager.MoveCar(TrainManager.Trains[i], j, p + d, 0.01);
+					}
+				} else {
+					for (int j = 0; j < TrainManager.Trains[i].Cars.Length; j++) {
+						TrainManager.MoveCar(TrainManager.Trains[i], j, p, 0.01);
+					}
 				}
 			}
 			// time table
@@ -413,7 +434,7 @@ namespace OpenBve {
 			TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, -1.0, true, false);
 			ObjectManager.UpdateVisibility(World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z);
 			World.CameraSavedInterior = new World.CameraAlignment();
-			World.CameraSavedExterior = new World.CameraAlignment(new World.Vector3D(-2.5, 1.5, -15.0), 0.3, -0.2, 0.0, FirstStationPosition, 1.0);
+			World.CameraSavedExterior = new World.CameraAlignment(new World.Vector3D(-2.5, 1.5, -15.0), 0.3, -0.2, 0.0, PlayerFirstStationPosition, 1.0);
 			World.CameraSavedTrack = new World.CameraAlignment(new World.Vector3D(-3.0, 2.5, 0.0), 0.3, 0.0, 0.0, TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition - 10.0, 1.0);
 		}
 

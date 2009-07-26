@@ -103,7 +103,7 @@ namespace OpenBve {
                         y = oy + h + h * zd * (z0 - y);
                         // station circle
                         RectangleF r = new RectangleF((float)x - 4.0f, (float)y - 4.0f, 8.0f, 8.0f);
-                        bool q = Game.StopsAtStation(e.StationIndex);
+                        bool q = Game.PlayerStopsAtStation(e.StationIndex);
                         g.FillEllipse(q ? Brushes.SkyBlue : Brushes.LightGray, r);
                         g.DrawEllipse(q ? Pens.Black : Pens.Gray, r);
                     }
@@ -122,7 +122,7 @@ namespace OpenBve {
                             x = ox + w * (x - x0) * xd;
                             y = oy + h + h * zd * (z0 - y);
                             RectangleF r = new RectangleF((float)x - 4.0f, (float)y - 4.0f, 8.0f, 8.0f);
-                            bool q = Game.StopsAtStation(e.StationIndex);
+                            bool q = Game.PlayerStopsAtStation(e.StationIndex);
                             string t = Game.Stations[e.StationIndex].Name;
                             SizeF m = g.MeasureString(t, f, Width, StringFormat.GenericDefault);
                             double sx = TrackManager.CurrentTrack.Elements[i].WorldSide.X;
@@ -245,7 +245,7 @@ namespace OpenBve {
                     for (int j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
                         if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.StationStartEvent) {
                             TrackManager.StationStartEvent e = (TrackManager.StationStartEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
-                            bool stop = Game.StopsAtStation(e.StationIndex);
+                            bool stop = Game.PlayerStopsAtStation(e.StationIndex);
                             if (Interface.IsJapanese(Game.Stations[e.StationIndex].Name)) {
                                 m.Alignment = StringAlignment.Near;
                                 m.LineAlignment = StringAlignment.Near;
