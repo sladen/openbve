@@ -2,8 +2,8 @@
 export DH_VERBOSE=15
 BUILDDIRS = openBVE/OpenBve
 TARGET = $(CURDIR)/debian/openbve
-DEBUG_CONFIGURATION=Debug
-#DEBUG_CONFIGURATION=Release
+#DEBUG_CONFIGURATION=Debug
+DEBUG_CONFIGURATION=Release
 
 configure: configure-stamp
 configure-stamp:
