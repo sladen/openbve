@@ -6,6 +6,11 @@ openbve (1.2.0.0-0ubuntu1) unreleased; urgency=low
   * changelog.html: update (1.2.0.0)
   * releasenotes.html: update (1.2.0.0)
   * debian/rules: DEBUG_CONFIGURATION=Release to switch codepaths used
+  * Build native 'openbve-atspluginproxy' package
+    + debian/control: add openbve-atspluginproxy and Depends
+    + debian/openbve-atspluginproxy.*
+    + debian/rules: combine common dh_* methods to binary
+    + install OpenBve.exe.config Dll import mapping
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Sun, 26 Jul 2009 11:07:00 +0000
 

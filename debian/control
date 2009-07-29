@@ -12,7 +12,7 @@ Homepage: http://openbve.trainsimcentral.co.uk/
 Package: openbve
 Architecture: all
 Depends: ${cli:Depends}, libmono-i18n2.0-cil, openbve-data (>= 1.1.1.0+dfsg)
-Recommends: bve-route, bve-train
+Recommends: bve-route, bve-train, openbve-atspluginproxy
 Provides: bve-engine
 Description: realistic 3D train/railway simulator (game engine)
  OpenBVE is a railway/train simulator designed to be backwards
@@ -23,3 +23,17 @@ Description: realistic 3D train/railway simulator (game engine)
  . 
  http://openbve.trainsimcentral.co.uk/
 
+Package: openbve-atspluginproxy
+Architecture: any
+Depends: openbve, ${shlibs:Depends}
+Enhances: openbve
+Suggests: bve-plugin
+Provides: bve-nativepluginloader
+Description: Native (.so) loader for recompiled BVE Traimsim plugins
+ OpenBVE is a railway/train simulator designed to be backwards
+ compatible with existing 'BVE Trainsim' routes and cab interiors.
+ Compiled plugins are used to customise the behaviour of the trains
+ and their signalling systems.
+ .
+ Note that most BVE train plugins are distributed as binary DLLs for
+ MS Windows and thus cannot be loaded using this proxy.

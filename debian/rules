@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 export DH_VERBOSE=15
 BUILDDIRS = openBVE/OpenBve
+MBUILDDIRS = AtsPluginProxy
 TARGET = $(CURDIR)/debian/openbve
 #DEBUG_CONFIGURATION=Debug
 DEBUG_CONFIGURATION=Release
@@ -16,6 +17,9 @@ build-stamp: configure-stamp
 	for builddir in $(BUILDDIRS); do \
 	  (cd $$builddir && xbuild /p:Configuration=$(DEBUG_CONFIGURATION) ) || exit 1; \
 	done
+	for builddir in $(MBUILDDIRS); do \
+	  (cd $$builddir && make) || exit 1; \
+	done
 	touch build-stamp
 
 clean:
@@ -28,6 +32,9 @@ clean:
 	  (cd $$builddir && echo "**NOT doing" xbuild /t:Clean); \
 	done
 	rm -rf openBVE/OpenBve/bin/
+	for builddir in $(MBUILDDIRS); do \
+	  (cd $$builddir && make clean) || exit 1; \
+	done
 	dh_clean
 
 install: build
@@ -35,32 +42,40 @@ install: build
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
+	dh_install
 	install -m 755 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe $(TARGET)/usr/lib/openbve/
 	install -m 644 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe.mdb $(TARGET)/usr/lib/openbve/
 	install -m 755 -T $(CURDIR)/debian/openbve.wrapper $(TARGET)/usr/games/openbve
 	lynx -dump -nolist $(CURDIR)/debian/changelog.html > $(TARGET)/usr/share/doc/openbve/changelog
 
-binary-arch:
-	# Do nothing
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_shlibdeps
+	dh_makeshlibs
+	dh_strip
 
 binary-indep: build install
 	dh_testdir
 	dh_testroot
 	dh_desktop
 	dh_installmenu
-	dh_install
 	dh_installcligac
-	dh_installchangelogs
-	dh_installdocs
 	dh_clifixperms
 	dh_installman
-	dh_fixperms
-	dh_installdeb
 	#dh_makeclilibs -i -V
 	#dh_installcligac -i
 	dh_clistrip
 	dh_clideps -i
 	dh_clideps -d
+
+binary: binary-indep binary-arch
+	dh_testdir
+	dh_testroot
+	dh_fixperms
+	dh_installchangelogs
+	dh_installdocs
+	dh_installdeb
 	dh_compress
 	dh_gencontrol
 	dh_md5sums
@@ -71,5 +86,4 @@ fetch-html:
 	wget http://openbve.trainsimcentral.co.uk/changelog.html && mv changelog.html.1 changelog.html
 	wget http://openbve.trainsimcentral.co.uk/releasenotes.html && mv releasenotes.html.1 releasenotes.html
 
-binary: binary-indep
-.PHONY: build clean binary-indep binary install configure
+.PHONY: build clean binary-indep binary-arch binary install configure

@@ -1,2 +1,3 @@
 debian/openbve.desktop  usr/share/applications
+debian/OpenBve.exe.config usr/lib/openbve
 
