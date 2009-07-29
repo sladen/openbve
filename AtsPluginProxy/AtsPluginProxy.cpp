@@ -1,9 +1,30 @@
+#ifdef __WIN32__
 #include "stdafx.h"
+#else
+#include <stdlib.h>
+#include <stddef.h> // wchar
+#include <dlfcn.h>
+#define _stdcall
+#define __stdcall
+#define FARPROC void *
+#define LPCWSTR wchar_t *
+#define LPCSTR char *
 
+// dlopen() equivalency
+#define HMODULE void *
+#define LoadLibraryW(x) NULL
+#define LoadLibraryA(pathname) dlopen(pathname,RTLD_LAZY)
+#define GetProcAddress(handle,function) dlsym(handle,function)
+#define FreeLibrary(handle) dlclose(handle)
+#define __declspec(x)
+#endif
+
+#ifdef __WIN32__
 // --- main ---
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
     return TRUE;
 }
+#endif
 
 // --- structures ---
 struct ATS_VEHICLESPEC {
