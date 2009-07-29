@@ -205,7 +205,6 @@ namespace OpenBve {
 		
 		// initialize plugin
 		internal static void InitializePlugin(TrainManager.Train Train) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			switch (Game.TrainStart) {
 				case Game.TrainStartMode.ServiceBrakesAts:
@@ -233,7 +232,6 @@ namespace OpenBve {
 		
 		// unload plugin
 		internal static void UnloadPlugin() {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			{
 				PluginError = true;
@@ -249,7 +247,6 @@ namespace OpenBve {
 		
 		// update plugin
 		internal static void UpdatePlugin(TrainManager.Train Train) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			// prepare vehicle state
 			ATS_VEHICLESTATE State = new ATS_VEHICLESTATE();
@@ -402,7 +399,6 @@ namespace OpenBve {
 		
 		// update signal
 		internal static void UpdateSignal(int Aspect) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			if (Aspect != LastSignalAspect) {
 				//Game.AddMessage("SetSignal (signal=" + Aspect.ToString() + ")", Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 5.0);
@@ -417,7 +413,6 @@ namespace OpenBve {
 		
 		// update beacon
 		internal static void UpdateBeacon(TrainManager.Train Train, TrainManager.TrainPendingTransponder Data) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			ATS_BEACONDATA data = new ATS_BEACONDATA();
 			data.Type = (int)Data.Type;
@@ -478,7 +473,6 @@ namespace OpenBve {
 		
 		// update power
 		internal static void UpdatePower(TrainManager.Train Train) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			int p = Train.Specs.CurrentPowerNotch.Driver;
 			if (p != LastPowerNotch) {
@@ -493,7 +487,6 @@ namespace OpenBve {
 		
 		// update brake
 		internal static void UpdateBrake(TrainManager.Train Train) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			int b;
 			if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
@@ -521,7 +514,6 @@ namespace OpenBve {
 		
 		// update reverser
 		internal static void UpdateReverser(TrainManager.Train Train) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			int r = Train.Specs.CurrentReverser.Driver;
 			if (r != LastReverserPosition) {
@@ -536,7 +528,6 @@ namespace OpenBve {
 		
 		// update doors
 		internal static void UpdateDoors(bool Closed) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			if (Closed) {
 				PluginError = true;
@@ -551,7 +542,6 @@ namespace OpenBve {
 		
 		// update key
 		internal static void UpdateKey(int AtsKeyCode, bool Down) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			if (Down) {
 				if (!AtsKeyPressed[AtsKeyCode]) {
@@ -576,7 +566,6 @@ namespace OpenBve {
 		
 		// update horn
 		internal static void UpdateHorn(int Horn) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			{ 
 				PluginError = true;
