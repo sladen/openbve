@@ -1,3 +1,6 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifdef __WIN32__
 #include "stdafx.h"
 #else
@@ -62,22 +65,22 @@ struct ATS_HANDLES {
 
 // --- handles ---
 HMODULE dllhandle = NULL;
-typedef ATS_API void (__stdcall *LOAD) (); LOAD load = NULL;
-typedef ATS_API void (__stdcall *DISPOSE) (); DISPOSE dispose = NULL;
-typedef ATS_API int (__stdcall *GETPLUGINVERSION) (); GETPLUGINVERSION getpluginversion = NULL;
-typedef ATS_API void (__stdcall *SETVEHICLESPEC) (ATS_VEHICLESPEC vehicleSpec); SETVEHICLESPEC setvehiclespec = NULL;
-typedef ATS_API void (__stdcall *INITIALIZE) (int brake); INITIALIZE initialize = NULL;
-typedef ATS_API ATS_HANDLES (__stdcall *ELAPSE) (ATS_VEHICLESTATE vehicleState, int* panel, int* sound); ELAPSE elapse = NULL;
-typedef ATS_API void (__stdcall *SETPOWER) (int setpower); SETPOWER setpower = NULL;
-typedef ATS_API void (__stdcall *SETBRAKE) (int setbrake); SETBRAKE setbrake = NULL;
-typedef ATS_API void (__stdcall *SETREVERSER) (int setreverser); SETREVERSER setreverser = NULL;
-typedef ATS_API void (__stdcall *KEYDOWN) (int atsKeyCode); KEYDOWN keydown = NULL;
-typedef ATS_API void (__stdcall *KEYUP) (int atsKeyCode); KEYUP keyup = NULL;
-typedef ATS_API void (__stdcall *HORNBLOW) (int hornType); HORNBLOW hornblow = NULL;
-typedef ATS_API void (__stdcall *DOOROPEN) (); DOOROPEN dooropen = NULL;
-typedef ATS_API void (__stdcall *DOORCLOSE) (); DOORCLOSE doorclose = NULL;
-typedef ATS_API void (__stdcall *SETSIGNAL) (int signal); SETSIGNAL setsignal = NULL;
-typedef ATS_API void (__stdcall *SETBEACONDATA) (ATS_BEACONDATA beaconData); SETBEACONDATA setbeacondata = NULL;
+typedef ATS_API void (__stdcall *LOAD) (); static LOAD load = NULL;
+typedef ATS_API void (__stdcall *DISPOSE) (); static DISPOSE dispose = NULL;
+typedef ATS_API int (__stdcall *GETPLUGINVERSION) (); static GETPLUGINVERSION getpluginversion = NULL;
+typedef ATS_API void (__stdcall *SETVEHICLESPEC) (ATS_VEHICLESPEC vehicleSpec); static SETVEHICLESPEC setvehiclespec = NULL;
+typedef ATS_API void (__stdcall *INITIALIZE) (int brake); static INITIALIZE initialize = NULL;
+typedef ATS_API ATS_HANDLES (__stdcall *ELAPSE) (ATS_VEHICLESTATE vehicleState, int* panel, int* sound); static ELAPSE elapse = NULL;
+typedef ATS_API void (__stdcall *SETPOWER) (int setpower); static SETPOWER setpower = NULL;
+typedef ATS_API void (__stdcall *SETBRAKE) (int setbrake); static SETBRAKE setbrake = NULL;
+typedef ATS_API void (__stdcall *SETREVERSER) (int setreverser); static SETREVERSER setreverser = NULL;
+typedef ATS_API void (__stdcall *KEYDOWN) (int atsKeyCode); static KEYDOWN keydown = NULL;
+typedef ATS_API void (__stdcall *KEYUP) (int atsKeyCode); static KEYUP keyup = NULL;
+typedef ATS_API void (__stdcall *HORNBLOW) (int hornType); static HORNBLOW hornblow = NULL;
+typedef ATS_API void (__stdcall *DOOROPEN) (); static DOOROPEN dooropen = NULL;
+typedef ATS_API void (__stdcall *DOORCLOSE) (); static DOORCLOSE doorclose = NULL;
+typedef ATS_API void (__stdcall *SETSIGNAL) (int signal); static SETSIGNAL setsignal = NULL;
+typedef ATS_API void (__stdcall *SETBEACONDATA) (ATS_BEACONDATA beaconData); static SETBEACONDATA setbeacondata = NULL;
 
 // --- load the plugin ---
 int _stdcall LoadDLL(LPCWSTR fileUnicode, LPCSTR fileAnsi) {
@@ -299,3 +302,6 @@ void _stdcall SetSignal(int signal) {
 void _stdcall SetBeaconData(ATS_BEACONDATA* beaconData) {
 	if (setbeacondata != NULL) setbeacondata(*beaconData);
 }
+#ifdef __cplusplus
+}
+#endif
