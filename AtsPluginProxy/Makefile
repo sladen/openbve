@@ -4,7 +4,7 @@ CFLAGS += -shared -fPIC
 LDFLAGS += -shared
 
 AtsPluginProxy.so: AtsPluginProxy.o
-	$(LD) -o $@ $(LDFLAGS) -lc $<
+	$(CC) -o $@ $(LDFLAGS) -ldl $<
 
 %.o: %.cpp
 	$(CC) -c -o $@ $(CFLAGS) $<
