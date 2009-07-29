@@ -87,8 +87,8 @@ namespace OpenBve {
 		private const int ATS_CONSTANTSPEED_DISABLE = 2;
 		
 		// proxy functions
-		private const CallingConvention convention = CallingConvention.StdCall;
-		//private const CallingConvention convention = CallingConvention.Cdecl;
+		//private const CallingConvention convention = CallingConvention.StdCall;
+		private const CallingConvention convention = CallingConvention.Cdecl;
 		private const string proxyname = "AtsPluginProxy.dll";
 
 		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
