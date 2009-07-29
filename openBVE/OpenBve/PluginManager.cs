@@ -87,41 +87,45 @@ namespace OpenBve {
 		private const int ATS_CONSTANTSPEED_DISABLE = 2;
 		
 		// proxy functions
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		private const CallingConvention convention = CallingConvention.StdCall;
+		//private const CallingConvention convention = CallingConvention.Cdecl;
+		private const string proxyname = "AtsPluginProxy.dll";
+
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static int LoadDLL([MarshalAs(UnmanagedType.LPWStr)]string UnicodeFileName, [MarshalAs(UnmanagedType.LPStr)]string AnsiFileName);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static int UnloadDLL();
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void Load();
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void Dispose();
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static int GetPluginVersion();
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void SetVehicleSpec(ref int spec);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void Initialize(int brake);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void Elapse(ref int handles, ref double state, ref int panel, ref int sound);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void SetPower(int notch);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void SetBrake(int notch);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void SetReverser(int pos);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void KeyDown(int atsKeyCode);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void KeyUp(int atsKeyCode);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void HornBlow(int hornType);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void DoorOpen();
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void DoorClose();
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void SetSignal(int signal);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+		[DllImport(proxyname, ExactSpelling = true, CallingConvention = convention)]
 		private extern static void SetBeaconData(ref int beacon);
 		
 		// cached data
