@@ -84,103 +84,121 @@ typedef ATS_API void (__stdcall *SETBEACONDATA) (ATS_BEACONDATA beaconData); sta
 
 // --- load the plugin ---
 int _stdcall LoadDLL(LPCWSTR fileUnicode, LPCSTR fileAnsi) {
+	fprintf(stderr, "LoadDLL(\"%s\") called\n", fileAnsi);
 	dllhandle = LoadLibraryW(fileUnicode);
 	if (dllhandle == NULL) {
 		dllhandle = LoadLibraryA(fileAnsi);
+		fprintf(stderr, "LoadDLL() dllhandle=%p\n", dllhandle);
 		if (dllhandle == NULL) return 0;
 	}
 	{ // --- Load ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "Load");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"Load\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			load = (LOAD)functionhandle;
 		}
 	}
 	{ // --- Dispose ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "Dispose");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"Dispose\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			dispose = (DISPOSE)functionhandle;
 		}
 	}
 	{ // --- GetPluginVersion ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "GetPluginVersion");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"GetPluginVersion\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			getpluginversion = (GETPLUGINVERSION)functionhandle;
 		}
 	}
 		{ // --- SetVehicleSpec ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "SetVehicleSpec");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"SetVehicleSpec\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			setvehiclespec = (SETVEHICLESPEC)functionhandle;
 		}
 	}
 	{ // --- Initialize ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "Initialize");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"Initialize\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			initialize = (INITIALIZE)functionhandle;
 		}
 	}
 	{ // --- Elapse ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "Elapse");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"Elapse\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			elapse = (ELAPSE)functionhandle;
 		}
 	}
 	{ // --- SetPower ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "SetPower");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"SetPower\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			setpower = (SETPOWER)functionhandle;
 		}
 	}
 	{ // --- SetBrake ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "SetBrake");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"SetBrake\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			setbrake = (SETBRAKE)functionhandle;
 		}
 	}
 	{ // --- SetReverser ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "SetReverser");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"SetReverser\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			setreverser = (SETREVERSER)functionhandle;
 		}
 	}
 	{ // --- KeyDown ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "KeyDown");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"KeyDown\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			keydown = (KEYDOWN)functionhandle;
 		}
 	}
 	{ // --- KeyUp ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "KeyUp");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"KeyUp\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			keyup = (KEYUP)functionhandle;
 		}
 	}
 	{ // --- HornBlow ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "HornBlow");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"HornBlow\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			hornblow = (HORNBLOW)functionhandle;
 		}
 	}
 	{ // --- DoorOpen ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "DoorOpen");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"DoorOpen\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			dooropen = (DOOROPEN)functionhandle;
 		}
 	}
 	{ // --- DoorClose ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "DoorClose");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"DoorClose\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			doorclose = (DOORCLOSE)functionhandle;
 		}
 	}
 	{ // --- SetSignal ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "SetSignal");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"SetSignal\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			setsignal = (SETSIGNAL)functionhandle;
 		}
 	}
 	{ // --- SetBeaconData ---
 		FARPROC functionhandle = GetProcAddress(dllhandle, "SetBeaconData");
+		fprintf(stderr, "LoadDLL() GetProcAddress(\"SetBeaconData\")=%p\n", functionhandle);
 		if (functionhandle != NULL) {
 			setbeacondata = (SETBEACONDATA)functionhandle;
 		}
@@ -215,17 +233,22 @@ int _stdcall UnloadDLL () {
 
 // --- Load ---
 void _stdcall Load () {
+	fprintf(stderr, "AtsPluginProxy: Load()\n");
 	if (load != NULL) load();
+	fprintf(stderr, "AtsPluginProxy: Load() returned\n");
 }
 
 // --- Dispose ---
 void _stdcall Dispose () {
+	fprintf(stderr, "AtsPluginProxy: Dispose()\n");
 	if (dispose != NULL) dispose();
 }
 
 // --- GetPluginVersion ---
 int _stdcall GetPluginVersion () {
+	fprintf(stderr, "AtsPluginProxy: GetPluginVersion()\n");
 	if (getpluginversion != NULL) {
+		fprintf(stderr, "AtsPluginProxy: GetPluginVersion() = %d\n", getpluginversion());
 		return getpluginversion();
 	} else {
 		return 0;
@@ -234,16 +257,20 @@ int _stdcall GetPluginVersion () {
 
 // --- SetVehicleSpec ---
 void _stdcall SetVehicleSpec (ATS_VEHICLESPEC* vehicleSpec) {
+	fprintf(stderr, "AtsPluginProxy: SetVehicleSpec(vehicleSpec=%p)\n", vehicleSpec);
 	if (setvehiclespec != NULL) setvehiclespec(*vehicleSpec);
 }
 
 // --- Initialize ---
 void _stdcall Initialize (int brake) {
+	fprintf(stderr, "AtsPluginProxy: Initialize(brake=%d)\n", brake);
 	if (initialize != NULL) initialize(brake);
 }
 
 // --- Elapse ---
 void _stdcall Elapse (ATS_HANDLES* atsHandles, ATS_VEHICLESTATE* vehicleState, int* panel, int* sound) {
+	//fprintf(stderr, "AtsPluginProxy: Elapse(atsHandles=%p, vehicleState=%p, panel=%p, sound=%p)\n", atsHandles, vehicleState, panel, sound);
+	fprintf(stderr, ".");
 	if (elapse != NULL) {
 		ATS_HANDLES handles = elapse(*vehicleState, panel, sound);
 		atsHandles->Brake = handles.Brake;
@@ -255,51 +282,61 @@ void _stdcall Elapse (ATS_HANDLES* atsHandles, ATS_VEHICLESTATE* vehicleState, i
 
 // --- SetPower ---
 void _stdcall SetPower(int notch) {
+	fprintf(stderr, "AtsPluginProxy: SetPower(notch=%d)\n", notch);
 	if (setpower != NULL) setpower(notch);
 }
 
 // --- SetBrake ---
 void _stdcall SetBrake(int notch) {
+	fprintf(stderr, "AtsPluginProxy: SetBrake(notch=%d)\n", notch);
 	if (setbrake != NULL) setbrake(notch);
 }
 
 // --- SetReverser ---
 void _stdcall SetReverser(int pos) {
+	fprintf(stderr, "AtsPluginProxy: SetReverser(pos=%d)\n", pos);
 	if (setreverser != NULL) setreverser(pos);
 }
 
 // --- KeyDown ---
 void _stdcall KeyDown(int atsKeyCode) {
+	fprintf(stderr, "AtsPluginProxy: KeyDown(atsKeyCode=%d)\n", atsKeyCode);
 	if (keydown != NULL) keydown(atsKeyCode);
 }
 
 // --- KeyUp ---
 void _stdcall KeyUp(int atsKeyCode) {
+	fprintf(stderr, "AtsPluginProxy: KeyUp(atsKeyCode=%d)\n", atsKeyCode);
 	if (keyup != NULL) keyup(atsKeyCode);
 }
 
 // --- HornBlow ---
 void _stdcall HornBlow(int hornType) {
+	fprintf(stderr, "AtsPluginProxy: HornBlow(hornType=%d)\n", hornType);
 	if (hornblow != NULL) hornblow(hornType);
 }
 
 // --- DoorOpen ---
 void _stdcall DoorOpen() {
+	fprintf(stderr, "AtsPluginProxy: DoorOpen()\n");
 	if (dooropen != NULL) dooropen();
 }
 
 // --- DoorClose ---
 void _stdcall DoorClose() {
+	fprintf(stderr, "AtsPluginProxy: DoorClose()\n");
 	if (doorclose != NULL) doorclose();
 }
 
 // --- SetSignal ---
 void _stdcall SetSignal(int signal) {
+	fprintf(stderr, "AtsPluginProxy: SetSignal(signal=%d)\n", signal);
 	if (setsignal != NULL) setsignal(signal);
 }
 
 // --- SetBeaconData ---
 void _stdcall SetBeaconData(ATS_BEACONDATA* beaconData) {
+	fprintf(stderr, "AtsPluginProxy: SetBeaconData(beaconData=%p)\n", beaconData);
 	if (setbeacondata != NULL) setbeacondata(*beaconData);
 }
 #ifdef __cplusplus
