@@ -4,9 +4,12 @@ extern "C" {
 #ifdef __WIN32__
 #include "stdafx.h"
 #else
+#include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h> // wchar
 #include <dlfcn.h>
+#include <unistd.h> // get_current_dir_name()
+#include <string.h> // strdup()
 #define _stdcall
 #define __stdcall
 #define FARPROC void *
@@ -82,8 +85,11 @@ typedef ATS_API void (__stdcall *DOORCLOSE) (); static DOORCLOSE doorclose = NUL
 typedef ATS_API void (__stdcall *SETSIGNAL) (int signal); static SETSIGNAL setsignal = NULL;
 typedef ATS_API void (__stdcall *SETBEACONDATA) (ATS_BEACONDATA beaconData); static SETBEACONDATA setbeacondata = NULL;
 
+static char *plugin_path;
+
 // --- load the plugin ---
 int _stdcall LoadDLL(LPCWSTR fileUnicode, LPCSTR fileAnsi) {
+	plugin_path = strdup(fileAnsi);
 	fprintf(stderr, "LoadDLL(\"%s\") called\n", fileAnsi);
 	dllhandle = LoadLibraryW(fileUnicode);
 	if (dllhandle == NULL) {
@@ -234,6 +240,13 @@ int _stdcall UnloadDLL () {
 // --- Load ---
 void _stdcall Load () {
 	fprintf(stderr, "AtsPluginProxy: Load()\n");
+#ifndef __WIN32__
+	// Strip the directory and change to it so that the
+	// plugin has some hope of finding its config file
+	// If it fails, it's no worse than before
+	*rindex(plugin_path, '/') = '\0';
+	chdir(plugin_path);
+#endif
 	if (load != NULL) load();
 	fprintf(stderr, "AtsPluginProxy: Load() returned\n");
 }
