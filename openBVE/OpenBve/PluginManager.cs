@@ -586,8 +586,8 @@ namespace OpenBve {
 				string DllFile = Interface.GetCombinedFileName(TrainPath, DllTitle);
 				if (System.IO.File.Exists(DllFile)) {
 					if (Program.CurrentPlatform == Program.Platform.Windows |
-					   (Program.CurrentPlatform == Program.Platform.Linux && DllTitle.EndsWith(".so", StringComparison.OrdinalIgnoreCase))) {
-						if (Program.CurrentPlatform != Program.Platform.Windows || IntPtr.Size == 4) {
+					   (Program.CurrentPlatform == Program.Platform.Linux && DllTitle.EndsWith(".so")))) {
+						if (IntPtr.Size == 4 || Program.CurrentPlatform != Program.Platform.Windows) {
 							PluginLoadState State = LoadPlugin(DllFile, Train);
 							switch (State) {
 								case PluginLoadState.CouldNotLoadDll:
