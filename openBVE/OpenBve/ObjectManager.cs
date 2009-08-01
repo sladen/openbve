@@ -1080,7 +1080,7 @@ namespace OpenBve {
 												if (Prototype.Mesh.Faces[i].Vertices[ik] == Prototype.Mesh.Faces[j].Vertices[jl] & Prototype.Mesh.Faces[i].Vertices[il] == Prototype.Mesh.Faces[j].Vertices[jk]) {
 													unchecked {
 														Prototype.Mesh.Faces[i].Flags &= (byte)~World.MeshFace.FaceTypeMask;
-														Prototype.Mesh.Faces[i].Flags |= World.MeshFace.FaceTypeQuadStrip;
+														Prototype.Mesh.Faces[i].Flags |= World.MeshFace.FaceTypeTriangleStrip;
 													}
 													Prototype.Mesh.Faces[i].Vertices = new World.MeshFaceVertex[] {
 														Prototype.Mesh.Faces[i].Vertices[(ik + 2) % 3],
