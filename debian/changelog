@@ -1,9 +1,9 @@
-openbve (1.2.0.0-0ubuntu1) unreleased; urgency=low
+openbve (1.2.0.1-0ubuntu1) unreleased; urgency=low
 
-  * New upstream stable version (1.2.0.0)
+  * New upstream stable version (1.2.0.1)
   * debian/copyright: update to reflect minor wording changes
   * debian/rules: "./rules fetch-html" for {changelog,releasenotes}.html
-  * changelog.html: update (1.2.0.0)
+  * changelog.html: update (1.2.0.1)
   * releasenotes.html: update (1.2.0.0)
   * debian/rules: DEBUG_CONFIGURATION=Release to switch codepaths used
 
