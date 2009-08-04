@@ -205,7 +205,6 @@ namespace OpenBve {
 		
 		// initialize plugin
 		internal static void InitializePlugin(TrainManager.Train Train) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			switch (Game.TrainStart) {
 				case Game.TrainStartMode.ServiceBrakesAts:
@@ -233,7 +232,6 @@ namespace OpenBve {
 		
 		// unload plugin
 		internal static void UnloadPlugin() {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			{
 				PluginError = true;
@@ -249,7 +247,6 @@ namespace OpenBve {
 		
 		// update plugin
 		internal static void UpdatePlugin(TrainManager.Train Train) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			// prepare vehicle state
 			ATS_VEHICLESTATE State = new ATS_VEHICLESTATE();
@@ -402,10 +399,8 @@ namespace OpenBve {
 		
 		// update signal
 		internal static void UpdateSignal(int Aspect) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			if (Aspect != LastSignalAspect) {
-				//Game.AddMessage("SetSignal (signal=" + Aspect.ToString() + ")", Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 5.0);
 				{
 					PluginError = true;
 					SetSignal(Aspect);
@@ -417,7 +412,6 @@ namespace OpenBve {
 		
 		// update beacon
 		internal static void UpdateBeacon(TrainManager.Train Train, TrainManager.TrainPendingTransponder Data) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			ATS_BEACONDATA data = new ATS_BEACONDATA();
 			data.Type = (int)Data.Type;
@@ -478,7 +472,6 @@ namespace OpenBve {
 		
 		// update power
 		internal static void UpdatePower(TrainManager.Train Train) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			int p = Train.Specs.CurrentPowerNotch.Driver;
 			if (p != LastPowerNotch) {
@@ -493,7 +486,6 @@ namespace OpenBve {
 		
 		// update brake
 		internal static void UpdateBrake(TrainManager.Train Train) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			int b;
 			if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
@@ -521,7 +513,6 @@ namespace OpenBve {
 		
 		// update reverser
 		internal static void UpdateReverser(TrainManager.Train Train) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			int r = Train.Specs.CurrentReverser.Driver;
 			if (r != LastReverserPosition) {
@@ -536,7 +527,6 @@ namespace OpenBve {
 		
 		// update doors
 		internal static void UpdateDoors(bool Closed) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			if (Closed) {
 				PluginError = true;
@@ -551,7 +541,6 @@ namespace OpenBve {
 		
 		// update key
 		internal static void UpdateKey(int AtsKeyCode, bool Down) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			if (Down) {
 				if (!AtsKeyPressed[AtsKeyCode]) {
@@ -576,7 +565,6 @@ namespace OpenBve {
 		
 		// update horn
 		internal static void UpdateHorn(int Horn) {
-			if (Program.CurrentPlatform != Program.Platform.Windows) return;
 			if (!PluginLoaded) return;
 			{ 
 				PluginError = true;
@@ -597,10 +585,10 @@ namespace OpenBve {
 							PluginLoadState State = LoadPlugin(DllFile, Train);
 							switch (State) {
 								case PluginLoadState.CouldNotLoadDll:
-									Interface.AddMessage(Interface.MessageType.Error, false, "The security system plugin " + DllTitle + " could not be loaded in " + File);
+									Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + DllTitle + " could not be loaded in " + File);
 									return false;
 								case PluginLoadState.InvalidPluginVersion:
-									Interface.AddMessage(Interface.MessageType.Error, false, "The security system plugin " + DllTitle + " is of an unsupported version in " + File);
+									Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + DllTitle + " is of an unsupported version in " + File);
 									return false;
 								case PluginLoadState.Successful:
 									return true;
@@ -608,15 +596,15 @@ namespace OpenBve {
 									return false;
 							}
 						} else {
-							Interface.AddMessage(Interface.MessageType.Error, false, "Security system plugins are not currently supported when running in 64-bit mode. The built-in security systems will be used for this train, which might not be compatible with the route.");
+							Interface.AddMessage(Interface.MessageType.Error, false, "Train plugins are not supported in 64-bit environments. The built-in safety systems will be used for this train, which might not be compatible with the route.");
 							return false;
 						}
 					} else {
-						Interface.AddMessage(Interface.MessageType.Information, false, "Train security system plugins cannot be used on operating systems other than Windows. The built-in security systems will be used for this train, which might not be compatible with the route.");
+						Interface.AddMessage(Interface.MessageType.Information, false, "Train plugins are not supported on operating systems other than Windows. The built-in safety systems will be used for this train, which might not be compatible with the route.");
 						return false;
 					}
 				} else {
-					Interface.AddMessage(Interface.MessageType.Error, true, "The security system plugin " + DllTitle + " could not be found in " + File);
+					Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + DllTitle + " could not be found in " + File);
 					return false;
 				}
 			} else {
