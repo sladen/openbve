@@ -105,8 +105,8 @@ namespace OpenBve {
 		// startup
 		internal enum TrainStartMode {
 			ServiceBrakesAts = -1,
-			EmergencyBrakesAts = 0,
-			EmergencyBrakesNoAts = 1
+			EmergencyBrakesNoAts = 0,
+			EmergencyBrakesAts = 1
 		}
 		internal static TrainStartMode TrainStart = TrainStartMode.EmergencyBrakesNoAts;
 		internal static string TrainName = "";
