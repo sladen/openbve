@@ -1,6 +1,6 @@
-openbve (1.2.0.2-0ubuntu1) unreleased; urgency=low
+openbve (1.2.0.3-0ubuntu1) unreleased; urgency=low
 
-  * New upstream stable version (1.2.0.2)
+  * New upstream stable version (1.2.0.3)
   * debian/copyright: update to reflect minor wording changes
   * debian/rules: "./rules fetch-html" for {changelog,releasenotes}.html
   * changelog.html: update (1.2.0.2)
