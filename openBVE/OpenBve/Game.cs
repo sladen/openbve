@@ -1146,6 +1146,7 @@ namespace OpenBve {
 					// do the ai
 					Train.Specs.CurrentConstSpeed = false;
 					TrainManager.ApplyHoldBrake(Train, false);
+					int stopIndex = Train.Station >= 0 ? GetStopIndex(Train.Station, Train.Cars.Length) : -1;
 					if (Train.CurrentSectionLimit == 0.0 & Train.Specs.Security.Mode != TrainManager.SecuritySystem.Atc) {
 						// passing red signal
 						TrainManager.ApplyEmergencyBrake(Train);
@@ -1201,7 +1202,7 @@ namespace OpenBve {
 							}
 							CurrentInterval = 1.0;
 						}
-					} else if (Train.Station >= 0 && Train.StationDistanceToStopPoint < Stations[Train.Station].Stops[GetStopIndex(Train.Station, Train.Cars.Length)].BackwardTolerance && (StopsAtStation(Train.Station, Train) & (Stations[Train.Station].OpenLeftDoors | Stations[Train.Station].OpenRightDoors) & Math.Abs(Train.Specs.CurrentAverageSpeed) < 0.25 & Train.StationState == TrainManager.TrainStopState.Pending)) {
+					} else if (Train.Station >= 0 && stopIndex >= 0 && Train.StationDistanceToStopPoint < Stations[Train.Station].Stops[stopIndex].BackwardTolerance && (StopsAtStation(Train.Station, Train) & (Stations[Train.Station].OpenLeftDoors | Stations[Train.Station].OpenRightDoors) & Math.Abs(Train.Specs.CurrentAverageSpeed) < 0.25 & Train.StationState == TrainManager.TrainStopState.Pending)) {
 						// arrived at station - open doors
 						if (Train.Specs.DoorOpenMode != TrainManager.DoorMode.Automatic) {
 							TrainManager.OpenTrainDoors(Train, Stations[Train.Station].OpenLeftDoors, Stations[Train.Station].OpenRightDoors);
