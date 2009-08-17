@@ -72,9 +72,6 @@ namespace OpenBve {
 			internal int Reverser;
 			internal int ConstantSpeed;
 		}
-		private const int ATS_INIT_OFF = -1;
-		private const int ATS_INIT_ON_SVC = 0;
-		private const int ATS_INIT_ON_EMG = 1;
 		private const int ATS_SOUND_STOP = -10000;
 		private const int ATS_SOUND_PLAYLOOPING = 0;
 		private const int ATS_SOUND_PLAY = 1;
@@ -206,28 +203,9 @@ namespace OpenBve {
 		// initialize plugin
 		internal static void InitializePlugin(TrainManager.Train Train) {
 			if (!PluginLoaded) return;
-			switch (Game.TrainStart) {
-				case Game.TrainStartMode.ServiceBrakesAts:
-					PluginError = true;
-					Initialize(ATS_INIT_ON_SVC);
-					PluginError = false;
-					break;
-				case Game.TrainStartMode.EmergencyBrakesAts:
-					PluginError = true;
-					Initialize(ATS_INIT_ON_EMG);
-					PluginError = false;
-					break;
-				case Game.TrainStartMode.EmergencyBrakesNoAts:
-					PluginError = true;
-					Initialize(ATS_INIT_OFF);
-					PluginError = false;
-					break;
-				default:
-					PluginError = true;
-					Initialize(ATS_INIT_ON_SVC);
-					PluginError = false;
-					break;
-			}
+			PluginError = true;
+			Initialize((int)Game.TrainStart);
+			PluginError = false;
 		}
 		
 		// unload plugin
@@ -576,49 +554,43 @@ namespace OpenBve {
 		// load ats config
 		internal static bool LoadAtsConfig(string TrainPath, System.Text.Encoding Encoding, TrainManager.Train Train) {
 			string atsConfigFile = Interface.GetCombinedFileName(TrainPath, "ats.cfg");
-			if (System.IO.File.Exists(atsConfigFile)) {
-				string dllTitle = System.IO.File.ReadAllText(atsConfigFile, Encoding).Trim();
-				if (dllTitle.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) {
-					string dllFile = Interface.GetCombinedFileName(TrainPath, dllTitle);
-					if (System.IO.File.Exists(dllFile)) {
-						if (Program.CurrentPlatform == Program.Platform.Windows) {
-							if (IntPtr.Size == 4) {
-								if (CheckDllHeader(dllFile)) {
-									PluginLoadState state = LoadPlugin(dllFile, Train);
-									switch (state) {
-										case PluginLoadState.CouldNotLoadDll:
-											Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " could not be loaded in " + atsConfigFile);
-											return false;
-										case PluginLoadState.InvalidPluginVersion:
-											Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " is of an unsupported version in " + atsConfigFile);
-											return false;
-										case PluginLoadState.Successful:
-											return true;
-										default:
-											return false;
-									}
-								} else {
-									Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " is of an unsupported binary format or could not be read in " + atsConfigFile);
-									return false;
-								}
-							} else {
-								Interface.AddMessage(Interface.MessageType.Information, false, "Train plugins are not supported in 64-bit environments. The built-in safety systems will be used for this train, which might not be compatible with the route.");
-								return false;
-							}
-						} else {
-							Interface.AddMessage(Interface.MessageType.Information, false, "Train plugins are not supported on operating systems other than Windows. The built-in safety systems will be used for this train, which might not be compatible with the route.");
-							return false;
-						}
-					} else {
-						Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + dllTitle + " could not be found in " + atsConfigFile);
-						return false;
-					}
-				} else {
-					Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " must have the extension .dll in " + atsConfigFile);
-					return false;
-				}
-			} else {
+			if (!System.IO.File.Exists(atsConfigFile)) {
 				return false;
+			}
+			string dllTitle = System.IO.File.ReadAllText(atsConfigFile, Encoding).Trim();
+			if (!dllTitle.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) {
+				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " must have the extension .dll in " + atsConfigFile);
+				return false;
+			}
+			string dllFile = Interface.GetCombinedFileName(TrainPath, dllTitle);
+			if (!System.IO.File.Exists(dllFile)) {
+				Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + dllTitle + " could not be found in " + atsConfigFile);
+				return false;
+			}
+			if (Program.CurrentPlatform != Program.Platform.Windows) {
+				Interface.AddMessage(Interface.MessageType.Information, false, "Train plugins are not supported on operating systems other than Windows. The built-in safety systems will be used for this train, which might not be compatible with the route.");
+				return false;
+			}
+			if (IntPtr.Size != 4) {
+				Interface.AddMessage(Interface.MessageType.Information, false, "Train plugins are not supported in 64-bit environments. The built-in safety systems will be used for this train, which might not be compatible with the route.");
+				return false;
+			}
+			if (!CheckDllHeader(dllFile)) {
+				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " is of an unsupported binary format or could not be read in " + atsConfigFile);
+				return false;
+			}
+			PluginLoadState state = LoadPlugin(dllFile, Train);
+			switch (state) {
+				case PluginLoadState.CouldNotLoadDll:
+					Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " could not be loaded in " + atsConfigFile);
+					return false;
+				case PluginLoadState.InvalidPluginVersion:
+					Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " is of an unsupported version in " + atsConfigFile);
+					return false;
+				case PluginLoadState.Successful:
+					return true;
+				default:
+					return false;
 			}
 		}
 		

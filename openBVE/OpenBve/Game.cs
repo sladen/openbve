@@ -1309,19 +1309,19 @@ namespace OpenBve {
 														double edec;
 														if (elim == 0.0) {
 															double redstopdist;
-															if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Completed & dist < 150.0) {
+															if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Completed & dist < 120.0) {
 																dist = 1.0;
 																redstopdist = 25.0;
 															} else if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Pending) {
 																redstopdist = 1.0;
 															} else if (spd > 6.94444444444444) {
 																redstopdist = 85.0;
+															} else if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+																redstopdist = 35.0;
+															} else if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
+																redstopdist = 25.0;
 															} else {
-																if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
-																	redstopdist = 35.0;
-																} else {
-																	redstopdist = 25.0;
-																}
+																redstopdist = 15.0;
 															}
 															if (dist > redstopdist) {
 																edec = (spd * spd) / (2.0 * (dist - redstopdist));

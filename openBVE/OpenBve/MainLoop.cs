@@ -1586,7 +1586,7 @@ namespace OpenBve {
 						break;
 				}
 				System.Windows.Forms.MessageBox.Show(message);
-				Quit = true;
+				throw new Exception();
 			}
 		}
 		#endif
