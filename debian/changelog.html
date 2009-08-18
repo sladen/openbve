@@ -48,6 +48,17 @@
 <table><tr style="height: 4px;"><td /></tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.2.1.0 (2009-08-16)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Plugins were reported the wrong initialization mode of the safety system via the Initialize call. This could lead to some trains not working correctly. <br />
+ (Plugin developers are advised to update their <em>plugin.h</em> header file and to inspect whether their plugin's behavior (still) conforms to the documentation.)</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v1.2.0.3 (2009-08-04)&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -59,7 +70,7 @@
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The route parser did not process the Route.Change command correctly and could mix up the values.</td>
+<td><font color="red"><b>Bugfix</b></font><br />The route parser did not process the Route.Change command correctly and could mix up the values. An attempt was made to correct this. (<em>late note: did not work</em>)</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -206,11 +217,6 @@
 <td valign="top">●</td>
 <td>&nbsp;</td>
 <td><font color="red"><b>Bugfix</b></font><br />The opening and closing times of the doors were supposed to derive directly from their respective sounds. As the sound manager was not yet initialized at the time the duration of the sounds were queried, the internal default values for opening and closing times were used all the time.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Plugins were reported the wrong initialization mode of the safety system via the Initialize call.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
