@@ -885,6 +885,9 @@ namespace OpenBve {
 								if (n >= 0 & n < Train.Cars.Length) {
 									Code = n.ToString(Culture) + " leftdoorsindex ceiling";
 									unsupported = false;
+								} else {
+									Code = "2";
+									unsupported = false;
 								}
 							}
 						} else if (Subject.StartsWith("doorr", StringComparison.OrdinalIgnoreCase)) {
@@ -892,6 +895,9 @@ namespace OpenBve {
 							int n; if (int.TryParse(a, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out n)) {
 								if (n >= 0 & n < Train.Cars.Length) {
 									Code = n.ToString(Culture) + " rightdoorsindex ceiling";
+									unsupported = false;
+								} else {
+									Code = "2";
 									unsupported = false;
 								}
 							}

@@ -922,18 +922,22 @@ namespace OpenBve {
 		// separate commands and arguments
 		private static void SeparateCommandsAndArguments(Expression Expression, out string Command, out string ArgumentSequence, System.Globalization.CultureInfo Culture, string FileName, int LineNumber, bool RaiseErrors) {
 			bool openingerror = false, closingerror = false;
-			int i; for (i = 0; i < Expression.Text.Length; i++) {
+			int i;
+			for (i = 0; i < Expression.Text.Length; i++) {
 				if (Expression.Text[i] == '(') {
 					bool found = false;
-					i++; while (i < Expression.Text.Length) {
+					i++;
+					while (i < Expression.Text.Length) {
 						if (Expression.Text[i] == '(') {
 							if (RaiseErrors & !openingerror) {
 								Interface.AddMessage(Interface.MessageType.Error, false, "Invalid opening parenthesis encountered at line " + Expression.Line.ToString(Culture) + ", column " + Expression.Column.ToString(Culture) + " in file " + FileName);
 								openingerror = true;
 							}
 						} else if (Expression.Text[i] == ')') {
-							found = true; break;
-						} i++;
+							found = true;
+							break;
+						}
+						i++;
 					}
 					if (!found) {
 						if (RaiseErrors & !closingerror) {
@@ -954,7 +958,7 @@ namespace OpenBve {
 				}
 			}
 			if (i < Expression.Text.Length) {
-				// space was found outside of parentheses
+				// white space was found outside of parentheses
 				string a = Expression.Text.Substring(0, i);
 				if (a.IndexOf('(') >= 0 & a.IndexOf(')') >= 0) {
 					// indices found not separated from the command by spaces

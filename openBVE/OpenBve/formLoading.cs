@@ -22,6 +22,7 @@ namespace OpenBve {
 
         // load
         private void formLoading_Load(object sender, EventArgs e) {
+        	this.MinimumSize = this.Size;
             try {
                 string f = Interface.GetCombinedFileName(Interface.GetDataFolder("Menu"), "banner.png");
                 pictureboxBanner.Image = Image.FromFile(f);
