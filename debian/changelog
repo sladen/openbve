@@ -1,6 +1,6 @@
-openbve (1.2.1.0-0ubuntu1) unreleased; urgency=low
+openbve (1.2.1.1-0ubuntu1) unreleased; urgency=low
 
-  * New upstream stable version (1.2.1.0)
+  * New upstream stable version (1.2.1.1)
   * changelog.html: manually patch to (1.2.1.0), upstream was truncated
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Tue, 18 Aug 2009 01:23:00 +0100
