@@ -122,7 +122,8 @@ a workaround, move the mouse-pointer out of the listview rectangle
 and back in again.
 
 26. On closing, it may go into an infinite loop waiting on a futex
-(100% CPU).
+(100% CPU).  Currently worked around by adding a Watchdog that will
+force the program to exit.
 
 27. First noticed in 1.0.2.0; alpha shading under bridges and lampposts
 will flicker and may be yellow instead of gray.  Other people have noticed
@@ -132,6 +133,26 @@ http://openbve.freeforums.org/texture-colouration-in-xcs-t445.html
 28. First noticed in 1.0.2.0; the formLoading dialogue is not getting 
 Diposed() (closed/destroyed) when the main Game Window opens and
 hangs around in the background without being redrawn.
+
+29. When running on non-Win32 systems where Win32 plugin loading is not
+attempted, the message given may be the current one.  Repeated patches
+sent to upstream to fix the ordering, but not yet applied.
+
+30. When jumping to a station, the position will overrun by the z-offset
+of the cab in the '#COCKPIT' section of 'train.dat'.
+
+31. When running the 'HighDetail_323_Summer_2002_0931_Rain_Overcast.csv'
+diagram of the Cross City-South route under the AI, the AI will get
+stuck at 2.5 metres before "Station 4" (a signalling-onlynon-station
+after Northfield).  The AI stops outside the allowed tolerance and so
+the signal does not clear and the AI does not attempt to progress any
+closer.  (1.2.1.1 onwards).
+
+32. If mouse-look is in use (click the right mouse button once) and
+Ctrl-f is pressed to switch between windowed and fullscreen, then the
+viewport direction will randomly move; leaving the camera in a number
+of strange directions (eg. upside down, sideways or looking backwards).
+More pronounced with the cab camera restriction disabled (Ctrl-r).
 
 In-progress:
 ------------
