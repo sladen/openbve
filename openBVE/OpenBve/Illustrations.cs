@@ -74,7 +74,7 @@ namespace OpenBve {
                     for (int j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
                         if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.StationStartEvent) {
                             TrackManager.StationStartEvent e = (TrackManager.StationStartEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
-                            if (Game.Stations[e.StationIndex].SecuritySystem == Game.SecuritySystem.Atc) {
+                            if (Game.Stations[e.StationIndex].SafetySystem == Game.SafetySystem.Atc) {
                                 if (!atc) {
                                     atc = true;
                                     if (i - start - 1 > 0) g.DrawCurve(Pens.Black, p, start, i - start - 1);

@@ -59,7 +59,7 @@ namespace OpenBve {
 		
 		// options
 		internal static bool Mute = false;
-
+		
 		// initialize
 		internal static void Initialize() {
 			if (!Interface.CurrentOptions.UseSound) return;
@@ -72,7 +72,6 @@ namespace OpenBve {
 					OuterRadiusFactorMinimum = 2.0;
 					OuterRadiusFactorMaximum = 8.0;
 					break;
-
 				case Interface.SoundRange.Medium:
 					OuterRadiusFactorMinimum = 4.0;
 					OuterRadiusFactorMaximum = 16.0;
@@ -276,8 +275,7 @@ namespace OpenBve {
 								SoundSources[i].OpenAlPosition[1] = (float)py;
 								SoundSources[i].OpenAlPosition[2] = (float)pz;
 								if (!SoundSources[i].OpenAlSourceIndex.Valid) {
-									System.Windows.Forms.MessageBox.Show("THIS SHOULD NOT HAVE HAPPENED");
-									throw new InvalidProgramException();
+									throw new InvalidOperationException("A bug in the sound manager. (9431)");
 								}
 								int j = SoundSources[i].OpenAlSourceIndex.Index;
 								Al.alSourcefv(j, Al.AL_POSITION, SoundSources[i].OpenAlPosition);
@@ -293,8 +291,7 @@ namespace OpenBve {
 						}
 						if (play) {
 							if (!SoundSources[i].OpenAlSourceIndex.Valid) {
-								System.Windows.Forms.MessageBox.Show("THIS SHOULD NOT HAVE HAPPENED");
-								throw new InvalidProgramException();
+								throw new InvalidOperationException("A bug in the sound manager. (7625)");
 							}
 							int j = SoundSources[i].OpenAlSourceIndex.Index;
 							Al.alSourcei(j, Al.AL_LOOPING, SoundSources[i].Looped ? Al.AL_TRUE : Al.AL_FALSE);

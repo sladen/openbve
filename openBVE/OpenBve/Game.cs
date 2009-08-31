@@ -349,7 +349,7 @@ namespace OpenBve {
 				}
 			}
 			// overspeed
-			if (TrainManager.PlayerTrain.Specs.Security.Mode != TrainManager.SecuritySystem.Atc) {
+			if (TrainManager.PlayerTrain.Specs.Safety.Mode != TrainManager.SafetySystem.Atc) {
 				double nr = TrainManager.PlayerTrain.CurrentRouteLimit;
 				double ns = TrainManager.PlayerTrain.CurrentSectionLimit;
 				double n = nr < ns ? nr : ns;
@@ -406,7 +406,7 @@ namespace OpenBve {
 			}
 			// red signal
 			{
-				if (TrainManager.PlayerTrain.CurrentSectionLimit == 0.0 & TrainManager.PlayerTrain.Specs.Security.Mode != TrainManager.SecuritySystem.Atc) {
+				if (TrainManager.PlayerTrain.CurrentSectionLimit == 0.0 & TrainManager.PlayerTrain.Specs.Safety.Mode != TrainManager.SafetySystem.Atc) {
 					if (!CurrentScore.RedSignal) {
 						int x = ScoreValueRedSignal;
 						CurrentScore.Value += x;
@@ -729,7 +729,7 @@ namespace OpenBve {
 			internal double BackwardTolerance;
 			internal int Cars;
 		}
-		internal enum SecuritySystem {
+		internal enum SafetySystem {
 			Any = -1,
 			Ats = 0,
 			Atc = 1
@@ -753,7 +753,7 @@ namespace OpenBve {
 			internal bool ForceStopSignal;
 			internal bool OpenLeftDoors;
 			internal bool OpenRightDoors;
-			internal SecuritySystem SecuritySystem;
+			internal SafetySystem SafetySystem;
 			internal StationStop[] Stops;
 			internal double PassengerRatio;
 			internal int TimetableDaytimeTexture;
@@ -867,14 +867,12 @@ namespace OpenBve {
 			bool settored = false;
 			if (Sections[SectionIndex].Type == SectionType.ValueBased) {
 				// value-based
-				zeroaspect = int.MaxValue;
-				for (int i = 0; i < Sections[SectionIndex].Aspects.Length; i++) {
-					if (Sections[SectionIndex].Aspects[i].Number < zeroaspect) {
-						zeroaspect = Sections[SectionIndex].Aspects[i].Number;
+				zeroaspect = 0;
+				for (int i = 1; i < Sections[SectionIndex].Aspects.Length; i++) {
+					if (Sections[SectionIndex].Aspects[i].Number < Sections[SectionIndex].Aspects[zeroaspect].Number) {
+						zeroaspect = i;
 					}
-				} if (zeroaspect == int.MaxValue) {
-					zeroaspect = -1;
-				}
+				} 
 			} else {
 				// index-based
 				zeroaspect = 0;
@@ -969,13 +967,15 @@ namespace OpenBve {
 					int n = Sections[SectionIndex].NextSection;
 					int a = Sections[SectionIndex].Aspects[Sections[SectionIndex].Aspects.Length - 1].Number;
 					if (n >= 0 && Sections[n].CurrentAspect >= 0) {
+						
 						a = Sections[n].Aspects[Sections[n].CurrentAspect].Number;
 					}
 					for (int i = Sections[SectionIndex].Aspects.Length - 1; i >= 0; i--) {
 						if (Sections[SectionIndex].Aspects[i].Number > a) {
 							newaspect = i;
 						}
-					} if (newaspect == -1) {
+					} 
+					if (newaspect == -1) {
 						newaspect = Sections[SectionIndex].Aspects.Length - 1;
 					}
 				} else {
@@ -987,7 +987,7 @@ namespace OpenBve {
 					}
 				}
 			}
-			if (TrainManager.PlayerTrain.Specs.Security.Mode == TrainManager.SecuritySystem.Bve4Plugin) {
+			if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
 				// call setsignal for plugins when section changes aspect
 				int p = Sections[SectionIndex].PreviousSection;
 				if (p >= 0 && Sections[p].Trains.Length == 1 && Sections[p].Trains[0] == TrainManager.PlayerTrain && TrainManager.PlayerTrain.CurrentSectionIndex == p) {
@@ -1025,6 +1025,7 @@ namespace OpenBve {
 
 		// simplistic human driver
 		internal class SimplisticHumanDriverAI : GeneralAI {
+			// members
 			private double TimeLastProcessed;
 			private double CurrentInterval;
 			private bool BrakeMode;
@@ -1032,6 +1033,7 @@ namespace OpenBve {
 			private int PowerNotchAtWhichWheelSlipIsObserved;
 			private double AtsChimeCancelPosition;
 			private int AtsChimeCancelSection;
+			// functions
 			internal SimplisticHumanDriverAI(TrainManager.Train Train) {
 				this.TimeLastProcessed = 0.0;
 				this.CurrentInterval = 1.0;
@@ -1055,18 +1057,18 @@ namespace OpenBve {
 							if (doorsopen) break;
 						}
 					}
-					// handle the security system
-					if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.None) {
+					// handle the safety system
+					if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.None) {
 						// none
-						Train.Specs.Security.ModeChange = TrainManager.SecuritySystem.AtsSN;
+						Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.AtsSn;
 						this.AtsChimeCancelPosition = Train.Cars[0].FrontAxle.Follower.TrackPosition + 600.0;
 						this.AtsChimeCancelSection = -1;
-					} else if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
+					} else if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn) {
 						// ats-s
-						if (Train.Specs.Security.State == TrainManager.SecurityState.Ringing) {
+						if (Train.Specs.Safety.State == TrainManager.SafetyState.Ringing) {
 							if (Train.Specs.CurrentPowerNotch.Driver == 0 & (Train.Specs.CurrentBrakeNotch.Driver >= 1 & Train.Cars[Train.DriverCar].Specs.BrakeType != TrainManager.CarBrakeType.AutomaticAirBrake | Train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Service & Train.Cars[Train.DriverCar].Specs.BrakeType != TrainManager.CarBrakeType.AutomaticAirBrake) | Train.Specs.CurrentEmergencyBrake.Driver) {
 								// acknowledge bell
-								TrainManager.AcknowledgeSecuritySystem(Train, TrainManager.AcknowledgementType.Alarm);
+								TrainManager.AcknowledgeSafetySystem(Train, TrainManager.AcknowledgementType.Alarm);
 								// keep track of next red signal
 								const double lookahead = 700.0;
 								double tp = Train.Cars[0].FrontAxle.Follower.TrackPosition - Train.Cars[0].FrontAxlePosition + 0.5 * Train.Cars[0].Length;
@@ -1077,7 +1079,7 @@ namespace OpenBve {
 										if (tp + lookahead <= stp) break;
 										for (int j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
 											if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.SectionChangeEvent) {
-												if (Train.Specs.Security.Mode != TrainManager.SecuritySystem.Atc) {
+												if (Train.Specs.Safety.Mode != TrainManager.SafetySystem.Atc) {
 													TrackManager.SectionChangeEvent e = (TrackManager.SectionChangeEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
 													if (stp + e.TrackPositionDelta > tp) {
 														if (!Game.Sections[e.NextSectionIndex].Invisible & Game.Sections[e.NextSectionIndex].CurrentAspect >= 0) {
@@ -1100,54 +1102,54 @@ namespace OpenBve {
 									this.AtsChimeCancelSection = -1;
 								}
 							}
-						} else if (Train.Specs.Security.State == TrainManager.SecurityState.Emergency & Math.Abs(Train.Specs.CurrentAverageSpeed) < 1.0) {
+						} else if (Train.Specs.Safety.State == TrainManager.SafetyState.Emergency & Math.Abs(Train.Specs.CurrentAverageSpeed) < 1.0) {
 							// reset the safety system
-							Train.Specs.Security.ModeChange = TrainManager.SecuritySystem.None;
+							Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.None;
 							this.CurrentInterval = 1.0;
 							return;
 						}
 						// cancel chime
 						if (Train.Cars[0].FrontAxle.Follower.TrackPosition > this.AtsChimeCancelPosition) {
-							TrainManager.AcknowledgeSecuritySystem(Train, TrainManager.AcknowledgementType.Chime);
+							TrainManager.AcknowledgeSafetySystem(Train, TrainManager.AcknowledgementType.Chime);
 							this.AtsChimeCancelPosition = double.PositiveInfinity;
 							this.AtsChimeCancelSection = -1;
 						} else if (this.AtsChimeCancelSection >= 0 && Game.Sections[this.AtsChimeCancelSection].Aspects[Game.Sections[this.AtsChimeCancelSection].CurrentAspect].Speed != 0.0) {
-							TrainManager.AcknowledgeSecuritySystem(Train, TrainManager.AcknowledgementType.Chime);
+							TrainManager.AcknowledgeSafetySystem(Train, TrainManager.AcknowledgementType.Chime);
 							this.AtsChimeCancelPosition = double.PositiveInfinity;
 							this.AtsChimeCancelSection = -1;
 						}
-					} else if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+					} else if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
 						// ats-p
-						TrainManager.AcknowledgeSecuritySystem(Train, TrainManager.AcknowledgementType.Chime);
+						TrainManager.AcknowledgeSafetySystem(Train, TrainManager.AcknowledgementType.Chime);
 						this.AtsChimeCancelPosition = double.PositiveInfinity;
 						this.AtsChimeCancelSection = -1;
-						if (Train.Specs.Security.State == TrainManager.SecurityState.Service & !Train.Specs.Security.Ats.AtsPOverride) {
-							if (Train.Specs.Security.Ats.AtsPDistance > 50.0 | Train.Station >= 0) {
+						if (Train.Specs.Safety.State == TrainManager.SafetyState.Service & !Train.Specs.Safety.Ats.AtsPOverride) {
+							if (Train.Specs.Safety.Ats.AtsPDistance > 50.0 | Train.Station >= 0) {
 								if (Math.Abs(Train.Specs.CurrentAverageSpeed) < 4.16666666666667) {
-									TrainManager.AcknowledgeSecuritySystem(Train, TrainManager.AcknowledgementType.Override);
+									TrainManager.AcknowledgeSafetySystem(Train, TrainManager.AcknowledgementType.Override);
 									return;
 								}
 							} else {
 								if (Math.Abs(Train.Specs.CurrentAverageSpeed) < 0.277777777777778) {
-									Train.Specs.Security.ModeChange = TrainManager.SecuritySystem.None;
+									Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.None;
 									return;
 								}
 							}
 						}
 					} else {
-						TrainManager.AcknowledgeSecuritySystem(Train, TrainManager.AcknowledgementType.Chime);
+						TrainManager.AcknowledgeSafetySystem(Train, TrainManager.AcknowledgementType.Chime);
 						this.AtsChimeCancelPosition = double.PositiveInfinity;
 						this.AtsChimeCancelSection = -1;
 					}
-					if (Train.Specs.Security.Eb.BellState != TrainManager.SecurityState.Normal) {
+					if (Train.Specs.Safety.Eb.BellState != TrainManager.SafetyState.Normal) {
 						// eb
-						TrainManager.AcknowledgeSecuritySystem(Train, TrainManager.AcknowledgementType.Eb);
+						TrainManager.AcknowledgeSafetySystem(Train, TrainManager.AcknowledgementType.Eb);
 					}
 					// do the ai
 					Train.Specs.CurrentConstSpeed = false;
 					TrainManager.ApplyHoldBrake(Train, false);
 					int stopIndex = Train.Station >= 0 ? GetStopIndex(Train.Station, Train.Cars.Length) : -1;
-					if (Train.CurrentSectionLimit == 0.0 & Train.Specs.Security.Mode != TrainManager.SecuritySystem.Atc) {
+					if (Train.CurrentSectionLimit == 0.0 & Train.Specs.Safety.Mode != TrainManager.SafetySystem.Atc) {
 						// passing red signal
 						TrainManager.ApplyEmergencyBrake(Train);
 						TrainManager.ApplyNotch(Train, -1, true, 1, true);
@@ -1155,13 +1157,13 @@ namespace OpenBve {
 					} else if (doorsopen | Train.StationState == TrainManager.TrainStopState.Boarding) {
 						// door opened or boarding at station
 						this.PowerNotchAtWhichWheelSlipIsObserved = Train.Specs.MaximumPowerNotch + 1;
-						if (Train.Station >= 0 && Stations[Train.Station].IsTerminalStation & Train == TrainManager.PlayerTrain) {
+						if (Train.Station >= 0 && Stations[Train.Station].IsTerminalStation && Train == TrainManager.PlayerTrain) {
 							// player's terminal station
 							TrainManager.ApplyReverser(Train, 0, false);
 							TrainManager.ApplyNotch(Train, -1, true, 1, true);
 							TrainManager.ApplyAirBrakeHandle(Train, TrainManager.AirBrakeHandleState.Service);
 							TrainManager.ApplyEmergencyBrake(Train);
-							Train.Specs.Security.ModeChange = TrainManager.SecuritySystem.None;
+							Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.None;
 							CurrentInterval = 10.0;
 						} else {
 							TrainManager.ApplyNotch(Train, -1, true, 0, true);
@@ -1189,10 +1191,10 @@ namespace OpenBve {
 								}
 							} else if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Boarding) {
 								// still boarding
-								if (Stations[Train.Station].SecuritySystem == SecuritySystem.Ats & Train.Specs.Security.Mode != TrainManager.SecuritySystem.AtsSN & Train.Specs.Security.Mode != TrainManager.SecuritySystem.AtsP) {
-									Train.Specs.Security.ModeChange = TrainManager.SecuritySystem.AtsSN;
-								} else if (Stations[Train.Station].SecuritySystem == SecuritySystem.Atc & Train.Specs.Security.Mode != TrainManager.SecuritySystem.Atc & Train.Specs.Security.Atc.Available) {
-									Train.Specs.Security.ModeChange = TrainManager.SecuritySystem.Atc;
+								if (Stations[Train.Station].SafetySystem == SafetySystem.Ats & Train.Specs.Safety.Mode != TrainManager.SafetySystem.AtsSn & Train.Specs.Safety.Mode != TrainManager.SafetySystem.AtsP) {
+									Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.AtsSn;
+								} else if (Stations[Train.Station].SafetySystem == SafetySystem.Atc & Train.Specs.Safety.Mode != TrainManager.SafetySystem.Atc & Train.Specs.Safety.Atc.Available) {
+									Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.Atc;
 								}
 							} else {
 								// not at station - close doors
@@ -1226,9 +1228,9 @@ namespace OpenBve {
 						double spd = Train.Specs.CurrentAverageSpeed;
 						double acc = Train.Specs.CurrentAverageAcceleration;
 						double lim = double.PositiveInfinity;
-						if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
-							if (Train.Specs.Security.Atc.SpeedRestriction < lim) {
-								lim = Train.Specs.Security.Atc.SpeedRestriction;
+						if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Atc) {
+							if (Train.Specs.Safety.Atc.SpeedRestriction < lim) {
+								lim = Train.Specs.Safety.Atc.SpeedRestriction;
 							}
 						} else {
 							if (Train.CurrentRouteLimit < lim) {
@@ -1299,7 +1301,7 @@ namespace OpenBve {
 										}
 									} else if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.SectionChangeEvent) {
 										// section
-										if (Train.Specs.Security.Mode != TrainManager.SecuritySystem.Atc) {
+										if (Train.Specs.Safety.Mode != TrainManager.SafetySystem.Atc) {
 											TrackManager.SectionChangeEvent e = (TrackManager.SectionChangeEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
 											if (stp + e.TrackPositionDelta > tp) {
 												if (!Game.Sections[e.NextSectionIndex].Invisible & Game.Sections[e.NextSectionIndex].CurrentAspect >= 0) {
@@ -1316,9 +1318,9 @@ namespace OpenBve {
 																redstopdist = 1.0;
 															} else if (spd > 6.94444444444444) {
 																redstopdist = 85.0;
-															} else if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+															} else if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
 																redstopdist = 35.0;
-															} else if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
+															} else if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn) {
 																redstopdist = 25.0;
 															} else {
 																redstopdist = 15.0;
@@ -1349,6 +1351,8 @@ namespace OpenBve {
 												double dist = Stations[e.StationIndex].Stops[s].TrackPosition - tp;
 												if (dist > -Stations[e.StationIndex].Stops[s].ForwardTolerance) {
 													double edec;
+													double Tback = Stations[e.StationIndex].Stops[s].BackwardTolerance;
+													double Tfore = Stations[e.StationIndex].Stops[s].ForwardTolerance;
 													if (dist < 0.0 | dist < Stations[e.StationIndex].Stops[s].BackwardTolerance & spd < 0.277777777777778) {
 														edec = BrakeDeceleration;
 													} else {
@@ -1395,17 +1399,17 @@ namespace OpenBve {
 							}
 						}
 						// handle the security system
-						if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
+						if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn) {
 							// ats-s
-							if (Train.Specs.Security.State == TrainManager.SecurityState.Ringing) {
+							if (Train.Specs.Safety.State == TrainManager.SafetyState.Ringing) {
 								dec = BrakeDeceleration;
 							}
-						} else if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+						} else if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
 							// ats-p
-							if (Train.Specs.Security.State == TrainManager.SecurityState.Service & !Train.Specs.Security.Ats.AtsPOverride) {
+							if (Train.Specs.Safety.State == TrainManager.SafetyState.Service & !Train.Specs.Safety.Ats.AtsPOverride) {
 								powerstart = spd - 1.0;
 								powerend = spd - 1.0;
-							} else if (Train.Specs.Security.State == TrainManager.SecurityState.Pattern & !Train.Specs.Security.Ats.AtsPOverride) {
+							} else if (Train.Specs.Safety.State == TrainManager.SafetyState.Pattern & !Train.Specs.Safety.Ats.AtsPOverride) {
 								if (spd > 6.94444444444444) {
 									powerstart = spd - 1.0;
 									powerend = spd - 1.0;

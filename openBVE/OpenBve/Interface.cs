@@ -125,7 +125,6 @@ namespace OpenBve {
 			internal bool Toppling;
 			internal bool Collisions;
 			internal bool Derailments;
-			internal bool ShowDefaultExteriorObjects;
 			internal bool BlackBox;
 			internal bool UseJoysticks;
 			internal double JoystickAxisThreshold;
@@ -162,7 +161,6 @@ namespace OpenBve {
 				this.Collisions = true;
 				this.Derailments = true;
 				this.GameMode = GameMode.Normal;
-				this.ShowDefaultExteriorObjects = false;
 				this.BlackBox = false;
 				this.UseJoysticks = true;
 				this.JoystickAxisThreshold = 0.0;
@@ -319,9 +317,6 @@ namespace OpenBve {
 											break;
 										case "blackbox":
 											Interface.CurrentOptions.BlackBox = string.Compare(Value, "false", StringComparison.OrdinalIgnoreCase) != 0;
-											break;
-										case "defaultexterior":
-											Interface.CurrentOptions.ShowDefaultExteriorObjects = string.Compare(Value, "false", StringComparison.OrdinalIgnoreCase) != 0;
 											break;
 										case "mode":
 											switch (Value.ToLowerInvariant()) {
@@ -500,7 +495,6 @@ namespace OpenBve {
 			Builder.AppendLine("collisions = " + (CurrentOptions.Collisions ? "true" : "false"));
 			Builder.AppendLine("derailments = " + (CurrentOptions.Derailments ? "true" : "false"));
 			Builder.AppendLine("blackbox = " + (CurrentOptions.BlackBox ? "true" : "false"));
-			Builder.AppendLine("defaultexterior = " + (CurrentOptions.ShowDefaultExteriorObjects ? "true" : "false"));
 			Builder.Append("mode = ");
 			switch (CurrentOptions.GameMode) {
 					case Interface.GameMode.Arcade: Builder.AppendLine("arcade"); break;

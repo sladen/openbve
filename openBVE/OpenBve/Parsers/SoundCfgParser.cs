@@ -30,6 +30,8 @@ namespace OpenBve {
 				Train.Cars[i].Sounds.BrakeHandleMin = GetNoSound();
 				Train.Cars[i].Sounds.BrakeHandleMax = GetNoSound();
 				Train.Cars[i].Sounds.BrakeHandleRelease = GetNoSound();
+				Train.Cars[i].Sounds.BreakerResume = GetNoSound();
+				Train.Cars[i].Sounds.BreakerResumeOrInterrupt = GetNoSound();
 				Train.Cars[i].Sounds.CpEnd = GetNoSound();
 				Train.Cars[i].Sounds.CpLoop = GetNoSound();
 				Train.Cars[i].Sounds.CpStart = GetNoSound();
@@ -114,6 +116,9 @@ namespace OpenBve {
 					Train.Cars[i].Sounds.CpLoop = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "CpLoop.wav"), center, medium);
 					Train.Cars[i].Sounds.CpStart = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "CpStart.wav"), center, medium);
 				}
+				Train.Cars[i].Sounds.BreakerResume = GetNoSound();
+				Train.Cars[i].Sounds.BreakerResumeOrInterrupt = GetNoSound();
+				Train.Cars[i].Sounds.BreakerResumed = false;
 				Train.Cars[i].Sounds.DoorCloseL = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "DoorClsL.wav"), left, small);
 				Train.Cars[i].Sounds.DoorCloseR = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "DoorClsR.wav"), right, small);
 				if (Train.Cars[i].Sounds.DoorCloseL.SoundBufferIndex == -1) {
@@ -172,6 +177,7 @@ namespace OpenBve {
 			World.Vector3D left = new World.Vector3D(-1.3, 0.0, 0.0);
 			World.Vector3D right = new World.Vector3D(1.3, 0.0, 0.0);
 			World.Vector3D front = new World.Vector3D(0.0, 0.0, 0.5 * Train.Cars[0].Length);
+			World.Vector3D cab = new World.Vector3D(-Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ - 0.5);
 			World.Vector3D panel = new World.Vector3D(Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ + 1.0);
 			double large = 30.0;
 			double medium = 10.0;
@@ -617,6 +623,29 @@ namespace OpenBve {
 											break;
 										case "off":
 											Train.Cars[Train.DriverCar].Sounds.ReverserOff = TryLoadSound(Interface.GetCombinedFileName(TrainPath, b), panel, tiny);
+											break;
+										default:
+											Interface.AddMessage(Interface.MessageType.Warning, false, "Unsupported key " + a + " encountered at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+											break;
+									}
+								}
+							} i++;
+						} i--; break;
+					case "[breaker]":
+						i++; while (i < Lines.Length && !Lines[i].StartsWith("[", StringComparison.Ordinal)) {
+							int j = Lines[i].IndexOf("=");
+							if (j >= 0) {
+								string a = Lines[i].Substring(0, j).TrimEnd();
+								string b = Lines[i].Substring(j + 1).TrimStart();
+								if (Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								} else {
+									switch (a.ToLowerInvariant()) {
+										case "on":
+											Train.Cars[Train.DriverCar].Sounds.BreakerResume = TryLoadSound(Interface.GetCombinedFileName(TrainPath, b), panel, small);
+											break;
+										case "off":
+											Train.Cars[Train.DriverCar].Sounds.BreakerResumeOrInterrupt = TryLoadSound(Interface.GetCombinedFileName(TrainPath, b), panel, small);
 											break;
 										default:
 											Interface.AddMessage(Interface.MessageType.Warning, false, "Unsupported key " + a + " encountered at line " + (i + 1).ToString(Culture) + " in file " + FileName);

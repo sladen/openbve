@@ -676,7 +676,23 @@ namespace OpenBve {
 				if (v) {
 					if (Game.SecondsSinceMidnight >= AnimatedWorldObjects[i].Object.TimeNextUpdating | ForceUpdate) {
 						AnimatedWorldObjects[i].Object.TimeNextUpdating = Game.SecondsSinceMidnight + AnimatedWorldObjects[i].Object.RefreshRate;
-						UpdateAnimatedObject(ref AnimatedWorldObjects[i].Object, TrainManager.PlayerTrain, AnimatedWorldObjects[i].SectionIndex, AnimatedWorldObjects[i].TrackPosition, AnimatedWorldObjects[i].Position, AnimatedWorldObjects[i].Direction, AnimatedWorldObjects[i].Up, AnimatedWorldObjects[i].Side, false, true, true, TimeElapsed);
+						TrainManager.Train train = null;
+						double trainDistance = double.MaxValue;
+						for (int j = 0; j < TrainManager.Trains.Length; j++) {
+							double distance;
+							if (TrainManager.Trains[j].Cars[0].FrontAxle.Follower.TrackPosition < AnimatedWorldObjects[i].TrackPosition) {
+								distance = AnimatedWorldObjects[i].TrackPosition - TrainManager.Trains[j].Cars[0].FrontAxle.Follower.TrackPosition;
+							} else if (TrainManager.Trains[j].Cars[TrainManager.Trains[j].Cars.Length - 1].RearAxle.Follower.TrackPosition > AnimatedWorldObjects[i].TrackPosition) {
+								distance = TrainManager.Trains[j].Cars[TrainManager.Trains[j].Cars.Length - 1].RearAxle.Follower.TrackPosition - AnimatedWorldObjects[i].TrackPosition;
+							} else {
+								distance = 0;
+							}
+							if (distance < trainDistance) {
+								train = TrainManager.Trains[j];
+								trainDistance = distance;
+							}
+						}
+						UpdateAnimatedObject(ref AnimatedWorldObjects[i].Object, train, AnimatedWorldObjects[i].SectionIndex, AnimatedWorldObjects[i].TrackPosition, AnimatedWorldObjects[i].Position, AnimatedWorldObjects[i].Direction, AnimatedWorldObjects[i].Up, AnimatedWorldObjects[i].Side, false, true, true, TimeElapsed);
 					}
 					if (!AnimatedWorldObjects[i].Visible) {
 						Renderer.ShowObject(AnimatedWorldObjects[i].Object.ObjectIndex, false);

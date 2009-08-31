@@ -654,7 +654,7 @@ namespace OpenBve {
 							Function.Stack[s - 1] = 0.0;
 						} else {
 							int n = (int)Math.Round(Function.Stack[s - 1]);
-							if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.Bve4Plugin) {
+							if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
 								if (n >= 0 & n < PluginManager.PluginPanel.Length) {
 									Function.Stack[s - 1] = (double)PluginManager.PluginPanel[n];
 								} else {
@@ -665,26 +665,26 @@ namespace OpenBve {
 								switch(n) {
 									case 256:
 										// ATS
-										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
-											if (Train.Specs.Security.State == TrainManager.SecurityState.Normal | Train.Specs.Security.State == TrainManager.SecurityState.Initialization) {
+										if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn) {
+											if (Train.Specs.Safety.State == TrainManager.SafetyState.Normal | Train.Specs.Safety.State == TrainManager.SafetyState.Initialization) {
 												Function.Stack[s - 1] = 1.0;
 											}
 										} break;
 									case 257:
 										// ATS RUN (separated flashing)
-										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
-											if (Train.Specs.Security.State == TrainManager.SecurityState.Ringing) {
+										if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn) {
+											if (Train.Specs.Safety.State == TrainManager.SafetyState.Ringing) {
 												Function.Stack[s - 1] = 1.0;
-											} else if (Train.Specs.Security.State == TrainManager.SecurityState.Emergency | Train.Specs.Security.State == TrainManager.SecurityState.Pattern | Train.Specs.Security.State == TrainManager.SecurityState.Service) {
+											} else if (Train.Specs.Safety.State == TrainManager.SafetyState.Emergency | Train.Specs.Safety.State == TrainManager.SafetyState.Pattern | Train.Specs.Safety.State == TrainManager.SafetyState.Service) {
 												Function.Stack[s - 1] = 2.0;
 											}
 										} break;
 									case 258:
 										// ATS RUN (integrated flashing)
-										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN) {
-											if (Train.Specs.Security.State == TrainManager.SecurityState.Ringing) {
+										if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn) {
+											if (Train.Specs.Safety.State == TrainManager.SafetyState.Ringing) {
 												Function.Stack[s - 1] = 1.0;
-											} else if (Train.Specs.Security.State == TrainManager.SecurityState.Emergency | Train.Specs.Security.State == TrainManager.SecurityState.Pattern | Train.Specs.Security.State == TrainManager.SecurityState.Service) {
+											} else if (Train.Specs.Safety.State == TrainManager.SafetyState.Emergency | Train.Specs.Safety.State == TrainManager.SafetyState.Pattern | Train.Specs.Safety.State == TrainManager.SafetyState.Service) {
 												if (((int)Math.Floor(2.0 * Game.SecondsSinceMidnight) & 1) == 0) {
 													Function.Stack[s - 1] = 1.0;
 												} else {
@@ -694,74 +694,74 @@ namespace OpenBve {
 										} break;
 									case 259:
 										// P POWER
-										if ((Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsSN | Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) & Train.Specs.Security.Ats.AtsPAvailable) {
+										if ((Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn | Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) & Train.Specs.Safety.Ats.AtsPAvailable) {
 											Function.Stack[s - 1] = 1.0;
 										} break;
 									case 260:
 										// PATTERN APPROACH
-										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
-											if (Train.Specs.Security.State == TrainManager.SecurityState.Pattern | Train.Specs.Security.State == TrainManager.SecurityState.Service) {
+										if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
+											if (Train.Specs.Safety.State == TrainManager.SafetyState.Pattern | Train.Specs.Safety.State == TrainManager.SafetyState.Service) {
 												Function.Stack[s - 1] = 1.0;
 											}
 										} break;
 									case 261:
 										// BRAKE RELEASE
-										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
-											if (Train.Specs.Security.Ats.AtsPOverride) {
+										if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
+											if (Train.Specs.Safety.Ats.AtsPOverride) {
 												Function.Stack[s - 1] = 1.0;
 											}
 										} break;
 									case 262:
 										// BRAKE OPERATION
-										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
-											if (Train.Specs.Security.State == TrainManager.SecurityState.Service & !Train.Specs.Security.Ats.AtsPOverride) {
+										if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
+											if (Train.Specs.Safety.State == TrainManager.SafetyState.Service & !Train.Specs.Safety.Ats.AtsPOverride) {
 												Function.Stack[s - 1] = 1.0;
 											}
 										} break;
 									case 263:
 										// ATS-P
-										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
+										if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
 											Function.Stack[s - 1] = 1.0;
 										} break;
 									case 264:
 										// FAILURE
-										if (Train.Specs.Security.Mode != TrainManager.SecuritySystem.None) {
-											if (Train.Specs.Security.State == TrainManager.SecurityState.Initialization) {
+										if (Train.Specs.Safety.Mode != TrainManager.SafetySystem.None) {
+											if (Train.Specs.Safety.State == TrainManager.SafetyState.Initialization) {
 												Function.Stack[s - 1] = 1.0;
-											} else if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.AtsP) {
-												if (Train.Specs.Security.State == TrainManager.SecurityState.Ringing | Train.Specs.Security.State == TrainManager.SecurityState.Emergency) {
+											} else if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
+												if (Train.Specs.Safety.State == TrainManager.SafetyState.Ringing | Train.Specs.Safety.State == TrainManager.SafetyState.Emergency) {
 													Function.Stack[s - 1] = 1.0;
 												}
 											}
 										} break;
 									case 265:
 										// ATC
-										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
+										if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Atc) {
 											Function.Stack[s - 1] = 1.0;
 										} break;
 									case 266:
 										// ATC POWER
-										if ((Train.Specs.Security.Mode == TrainManager.SecuritySystem.Atc | Train.Specs.Security.Mode != TrainManager.SecuritySystem.None & Train.Specs.Security.Atc.AutomaticSwitch)) {
+										if ((Train.Specs.Safety.Mode == TrainManager.SafetySystem.Atc | Train.Specs.Safety.Mode != TrainManager.SafetySystem.None & Train.Specs.Safety.Atc.AutomaticSwitch)) {
 											Function.Stack[s - 1] = 1.0;
 										} break;
 									case 267:
 										// ATC SERVICE
-										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
-											if (Train.Specs.Security.State == TrainManager.SecurityState.Service) {
+										if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Atc) {
+											if (Train.Specs.Safety.State == TrainManager.SafetyState.Service) {
 												Function.Stack[s - 1] = 1.0;
 											}
 										} break;
 									case 268:
 										// ATC EMERGENCY
-										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
-											if (!Train.Specs.Security.Atc.Transmitting) {
+										if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Atc) {
+											if (!Train.Specs.Safety.Atc.Transmitting) {
 												Function.Stack[s - 1] = 1.0;
 											}
 										} break;
 									case 269:
 										// EB
-										if (Train.Specs.Security.Mode != TrainManager.SecuritySystem.None) {
-											if (Train.Specs.Security.Eb.BellState == TrainManager.SecurityState.Ringing) {
+										if (Train.Specs.Safety.Mode != TrainManager.SafetySystem.None) {
+											if (Train.Specs.Safety.Eb.BellState == TrainManager.SafetyState.Ringing) {
 												Function.Stack[s - 1] = 1.0;
 											}
 										} break;
@@ -774,29 +774,29 @@ namespace OpenBve {
 										} break;
 									case 271:
 										// atc speedometer state
-										if (Train.Specs.Security.Mode == TrainManager.SecuritySystem.Atc) {
-											if (!Train.Specs.Security.Atc.Transmitting) {
+										if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Atc) {
+											if (!Train.Specs.Safety.Atc.Transmitting) {
 												Function.Stack[s - 1] = 0.0;
 											} else {
-												if (Train.Specs.Security.Atc.SpeedRestriction < 4.1666) {
+												if (Train.Specs.Safety.Atc.SpeedRestriction < 4.1666) {
 													Function.Stack[s - 1] = 1.0;
-												} else if (Train.Specs.Security.Atc.SpeedRestriction < 6.9443) {
+												} else if (Train.Specs.Safety.Atc.SpeedRestriction < 6.9443) {
 													Function.Stack[s - 1] = 2.0;
-												} else if (Train.Specs.Security.Atc.SpeedRestriction < 12.4999) {
+												} else if (Train.Specs.Safety.Atc.SpeedRestriction < 12.4999) {
 													Function.Stack[s - 1] = 3.0;
-												} else if (Train.Specs.Security.Atc.SpeedRestriction < 15.2777) {
+												} else if (Train.Specs.Safety.Atc.SpeedRestriction < 15.2777) {
 													Function.Stack[s - 1] = 4.0;
-												} else if (Train.Specs.Security.Atc.SpeedRestriction < 18.0555) {
+												} else if (Train.Specs.Safety.Atc.SpeedRestriction < 18.0555) {
 													Function.Stack[s - 1] = 5.0;
-												} else if (Train.Specs.Security.Atc.SpeedRestriction < 20.8333) {
+												} else if (Train.Specs.Safety.Atc.SpeedRestriction < 20.8333) {
 													Function.Stack[s - 1] = 6.0;
-												} else if (Train.Specs.Security.Atc.SpeedRestriction < 24.9999) {
+												} else if (Train.Specs.Safety.Atc.SpeedRestriction < 24.9999) {
 													Function.Stack[s - 1] = 7.0;
-												} else if (Train.Specs.Security.Atc.SpeedRestriction < 27.7777) {
+												} else if (Train.Specs.Safety.Atc.SpeedRestriction < 27.7777) {
 													Function.Stack[s - 1] = 8.0;
-												} else if (Train.Specs.Security.Atc.SpeedRestriction < 30.5555) {
+												} else if (Train.Specs.Safety.Atc.SpeedRestriction < 30.5555) {
 													Function.Stack[s - 1] = 9.0;
-												} else if (Train.Specs.Security.Atc.SpeedRestriction < 33.3333) {
+												} else if (Train.Specs.Safety.Atc.SpeedRestriction < 33.3333) {
 													Function.Stack[s - 1] = 10.0;
 												} else {
 													Function.Stack[s - 1] = 11.0;

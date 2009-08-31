@@ -463,6 +463,7 @@ namespace OpenBve {
 		
 		// mouse grab
 		internal static bool MouseGrabEnabled = false;
+		internal static bool MouseGrabIgnoreOnce = false;
 		internal static Vector2D MouseGrabTarget = new Vector2D(0.0, 0.0);
 		internal static void UpdateMouseGrab(double TimeElapsed) {
 			if (MouseGrabEnabled) {
