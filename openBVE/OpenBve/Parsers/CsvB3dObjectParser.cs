@@ -843,7 +843,7 @@ namespace OpenBve {
 				}
 			}
 		}
-		private static void ApplyScale(ObjectManager.StaticObject Object, double x, double y, double z) {
+		internal static void ApplyScale(ObjectManager.StaticObject Object, double x, double y, double z) {
 			float rx = (float)(1.0 / x);
 			float ry = (float)(1.0 / y);
 			float rz = (float)(1.0 / z);

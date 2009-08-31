@@ -196,7 +196,7 @@ namespace OpenBve {
 			UpdateBrake(Train);
 			UpdateReverser(Train);
 			// finalize
-			Train.Specs.Security.Mode = TrainManager.SecuritySystem.Bve4Plugin;
+			Train.Specs.Safety.Mode = TrainManager.SafetySystem.Plugin;
 			return PluginLoadState.Successful;
 		}
 		
@@ -557,6 +557,14 @@ namespace OpenBve {
 			if (!System.IO.File.Exists(atsConfigFile)) {
 				return false;
 			}
+			if (Program.CurrentPlatform != Program.Platform.Windows) {
+				Interface.AddMessage(Interface.MessageType.Information, false, "Train plugins are not supported on operating systems other than Windows. The built-in safety systems will be used for this train, which might not be compatible with the route.");
+				return false;
+			}
+			if (IntPtr.Size != 4) {
+				Interface.AddMessage(Interface.MessageType.Information, false, "Train plugins are not supported in 64-bit environments. The built-in safety systems will be used for this train, which might not be compatible with the route.");
+				return false;
+			}
 			string dllTitle = System.IO.File.ReadAllText(atsConfigFile, Encoding).Trim();
 			if (!dllTitle.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) {
 				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " must have the extension .dll in " + atsConfigFile);
@@ -565,14 +573,6 @@ namespace OpenBve {
 			string dllFile = Interface.GetCombinedFileName(TrainPath, dllTitle);
 			if (!System.IO.File.Exists(dllFile)) {
 				Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + dllTitle + " could not be found in " + atsConfigFile);
-				return false;
-			}
-			if (Program.CurrentPlatform != Program.Platform.Windows) {
-				Interface.AddMessage(Interface.MessageType.Information, false, "Train plugins are not supported on operating systems other than Windows. The built-in safety systems will be used for this train, which might not be compatible with the route.");
-				return false;
-			}
-			if (IntPtr.Size != 4) {
-				Interface.AddMessage(Interface.MessageType.Information, false, "Train plugins are not supported in 64-bit environments. The built-in safety systems will be used for this train, which might not be compatible with the route.");
 				return false;
 			}
 			if (!CheckDllHeader(dllFile)) {

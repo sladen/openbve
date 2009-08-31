@@ -222,34 +222,15 @@ namespace OpenBve {
 					ExtensionsCfgParser.ParseExtensionsConfig(CurrentTrainFolder, CurrentTrainEncoding, out CarObjects, TrainManager.Trains[k]);
 					System.Threading.Thread.Sleep(1); if (Cancel) return;
 					for (int i = 0; i < TrainManager.Trains[k].Cars.Length; i++) {
-						if (CarObjects[i] == null & Interface.CurrentOptions.ShowDefaultExteriorObjects) {
-							// create default solid-color object
-							ObjectManager.StaticObject o = new ObjectManager.StaticObject();
-							o.Mesh.Vertices = new World.Vertex[8];
-							double sx = 0.5 * TrainManager.Trains[k].Cars[i].Width;
+						if (CarObjects[i] == null) {
+							// load default exterior object
+							string file = Interface.GetCombinedFileName(Interface.GetDataFolder("Compatibility"), "exterior.csv");
+							ObjectManager.StaticObject so = ObjectManager.LoadStaticObject(file, System.Text.Encoding.UTF8, ObjectManager.ObjectLoadMode.Normal, false, false, false);
+							double sx = TrainManager.Trains[k].Cars[i].Width;
 							double sy = TrainManager.Trains[k].Cars[i].Height;
-							double sz = 0.5 * TrainManager.Trains[k].Cars[i].Length;
-							o.Mesh.Vertices[0].Coordinates = new World.Vector3D(sx, sy, -sz);
-							o.Mesh.Vertices[1].Coordinates = new World.Vector3D(sx, 0.0, -sz);
-							o.Mesh.Vertices[2].Coordinates = new World.Vector3D(-sx, 0.0, -sz);
-							o.Mesh.Vertices[3].Coordinates = new World.Vector3D(-sx, sy, -sz);
-							o.Mesh.Vertices[4].Coordinates = new World.Vector3D(sx, sy, sz);
-							o.Mesh.Vertices[5].Coordinates = new World.Vector3D(sx, 0.0, sz);
-							o.Mesh.Vertices[6].Coordinates = new World.Vector3D(-sx, 0.0, sz);
-							o.Mesh.Vertices[7].Coordinates = new World.Vector3D(-sx, sy, sz);
-							o.Mesh.Materials = new World.MeshMaterial[1];
-							o.Mesh.Materials[0] = new World.MeshMaterial();
-							o.Mesh.Materials[0].Color = new World.ColorRGBA(192, 192, 192, 255);
-							o.Mesh.Materials[0].DaytimeTextureIndex = -1;
-							o.Mesh.Materials[0].NighttimeTextureIndex = -1;
-							o.Mesh.Faces = new World.MeshFace[6];
-							o.Mesh.Faces[0] = new World.MeshFace(new int[] { 0, 1, 2, 3 });
-							o.Mesh.Faces[1] = new World.MeshFace(new int[] { 0, 4, 5, 1 });
-							o.Mesh.Faces[2] = new World.MeshFace(new int[] { 0, 3, 7, 4 });
-							o.Mesh.Faces[3] = new World.MeshFace(new int[] { 6, 5, 4, 7 });
-							o.Mesh.Faces[4] = new World.MeshFace(new int[] { 6, 7, 3, 2 });
-							o.Mesh.Faces[5] = new World.MeshFace(new int[] { 6, 2, 1, 5 });
-							CarObjects[i] = o;
+							double sz = TrainManager.Trains[k].Cars[i].Length;
+							CsvB3dObjectParser.ApplyScale(so, sx, sy, sz);
+							CarObjects[i] = so;
 						}
 						if (CarObjects[i] != null) {
 							// add object
