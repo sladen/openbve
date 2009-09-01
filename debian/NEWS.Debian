@@ -1,0 +1,25 @@
+openbve (1.2.1.3-0ubuntu1) unreleased; urgency=low
+
+  A marker at the front of first car is now used for
+  signalling/platform positioning, rather than first axle or "beacon
+  receiver" offset.  this should allow the removal of workarounds in
+  route/train models.
+
+  The "defaultexterior" configuration option has been removed by
+  upstream.  It is now always true and a version of the basic "model"
+  from 'Data/Compatibility/exterior.csv' is used as the default 3D
+  representation for the train in semi-invisible train front (the
+  "pre-train")---this model is expected to be a unit cube, that is
+  then scaled to the anticipated train height/width/length.
+
+  The default (unspecified) train data has been adjusted:
+  + CarHeight                   3.2 metres -> 3.6 metres
+  + AerodynamicDragCoefficient  1.2        -> 1.1
+  + CenterOfGravityHeight       1.5 metres -> 1.6 metres
+
+  Others:
+  * Boolean 'World.MouseGrabIgnoreOnce' used for working around Sdl.SDL_WM_GrabInput() bug.
+  * Huge churn from renaming "SecuritySystem" to "SafetySystem".
+  * debugCheckError() renamed to CheckForOpenGlError().
+
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Tue,  1 Sep 2009 14:40:00 +0100

@@ -4,6 +4,7 @@ openbve (1.2.1.3-0ubuntu1) unreleased; urgency=low
   * changelog.html: update (1.2.1.3)
   * releasenotes.html: update (1.2.1.3)
   * Recommends on bve-train-3dcab
+  * Add NEWS.Debian to docs
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Tue,  1 Sep 2009 00:11:00 +0100
 
