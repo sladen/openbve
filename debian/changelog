@@ -2,6 +2,7 @@ openbve (1.2.1.3-0ubuntu1) unreleased; urgency=low
 
   * New upstream stable version (1.2.1.3)
   * changelog.html: update (1.2.1.3)
+  * releasenotes.html: update (1.2.1.3)
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Tue,  1 Sep 2009 00:11:00 +0100
 
