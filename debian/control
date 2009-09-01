@@ -12,7 +12,7 @@ Homepage: http://openbve.trainsimcentral.co.uk/
 Package: openbve
 Architecture: all
 Depends: ${cli:Depends}, libmono-i18n2.0-cil, openbve-data (>= 1.2.1.3+dfsg)
-Recommends: bve-route, bve-train, openbve-data (>= 1.2.1.3+dfsg)
+Recommends: bve-route, bve-train-3dcab | bve-train, openbve-data (>= 1.2.1.3+dfsg)
 Provides: bve-engine
 Description: realistic 3D train/railway simulator (game engine)
  OpenBVE is a railway/train simulator designed to be backwards
