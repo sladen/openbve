@@ -66,6 +66,7 @@ namespace OpenBve {
 			if(SdlWindowCreated & Interface.CurrentOptions.FullscreenMode) {
 				Sdl.SDL_SetVideoMode(Interface.CurrentOptions.WindowWidth, Interface.CurrentOptions.WindowHeight, 32, Sdl.SDL_OPENGL | Sdl.SDL_DOUBLEBUF);
 			}
+			Renderer.Deinitialize();
 			TextureManager.UnuseAllTextures();
 			Asynchronous.Deinitialize();
 			PluginManager.UnloadPlugin();

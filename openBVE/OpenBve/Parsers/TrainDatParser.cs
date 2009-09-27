@@ -566,11 +566,11 @@ namespace OpenBve {
 			Train.Specs.CurrentReverser.Driver = 0;
 			Train.Specs.CurrentReverser.Actual = 0;
 			Train.Specs.CurrentPowerNotch.Driver = 0;
-			Train.Specs.CurrentPowerNotch.Security = 0;
+			Train.Specs.CurrentPowerNotch.Safety = 0;
 			Train.Specs.CurrentPowerNotch.Actual = 0;
 			Train.Specs.CurrentPowerNotch.DelayedChanges = new TrainManager.HandleChange[] { };
 			Train.Specs.CurrentBrakeNotch.Driver = 0;
-			Train.Specs.CurrentBrakeNotch.Security = 0;
+			Train.Specs.CurrentBrakeNotch.Safety = 0;
 			Train.Specs.CurrentBrakeNotch.Actual = 0;
 			Train.Specs.CurrentBrakeNotch.DelayedChanges = new TrainManager.HandleChange[] { };
 			Train.Specs.CurrentEmergencyBrake.ApplicationTime = double.MaxValue;
@@ -594,14 +594,14 @@ namespace OpenBve {
 					Train.Cars[i].Specs.AirBrake.EqualizingReservoirCurrentPressure = Train.Cars[i].Specs.AirBrake.EqualizingReservoirNormalPressure;
 				}
 				Train.Specs.AirBrake.Handle.Driver = TrainManager.AirBrakeHandleState.Service;
-				Train.Specs.AirBrake.Handle.Security = TrainManager.AirBrakeHandleState.Service;
+				Train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Service;
 				Train.Specs.AirBrake.Handle.Actual = TrainManager.AirBrakeHandleState.Service;
 				int notch = (int)Math.Round(0.7 * Train.Specs.MaximumBrakeNotch);
 				Train.Specs.CurrentBrakeNotch.Driver = notch;
-				Train.Specs.CurrentBrakeNotch.Security = notch;
+				Train.Specs.CurrentBrakeNotch.Safety = notch;
 				Train.Specs.CurrentBrakeNotch.Actual = notch;
 				Train.Specs.CurrentEmergencyBrake.Driver = false;
-				Train.Specs.CurrentEmergencyBrake.Security = false;
+				Train.Specs.CurrentEmergencyBrake.Safety = false;
 				Train.Specs.CurrentEmergencyBrake.Actual = false;
 				Train.Specs.Safety.Mode = Train.Specs.Safety.Ats.AtsAvailable ? TrainManager.SafetySystem.AtsSn : Train.Specs.Safety.Atc.Available ? TrainManager.SafetySystem.Atc : TrainManager.SafetySystem.None;
 				Train.Specs.CurrentReverser.Driver = 1;
@@ -615,13 +615,13 @@ namespace OpenBve {
 					Train.Cars[i].Specs.AirBrake.EqualizingReservoirCurrentPressure = 0.0;
 				}
 				Train.Specs.AirBrake.Handle.Driver = TrainManager.AirBrakeHandleState.Service;
-				Train.Specs.AirBrake.Handle.Security = TrainManager.AirBrakeHandleState.Service;
+				Train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Service;
 				Train.Specs.AirBrake.Handle.Actual = TrainManager.AirBrakeHandleState.Service;
 				Train.Specs.CurrentBrakeNotch.Driver = Train.Specs.MaximumBrakeNotch;
-				Train.Specs.CurrentBrakeNotch.Security = Train.Specs.MaximumBrakeNotch;
+				Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.MaximumBrakeNotch;
 				Train.Specs.CurrentBrakeNotch.Actual = Train.Specs.MaximumBrakeNotch;
 				Train.Specs.CurrentEmergencyBrake.Driver = true;
-				Train.Specs.CurrentEmergencyBrake.Security = true;
+				Train.Specs.CurrentEmergencyBrake.Safety = true;
 				Train.Specs.CurrentEmergencyBrake.Actual = true;
 				Train.Specs.Safety.Mode = Train.Specs.Safety.Ats.AtsAvailable ? TrainManager.SafetySystem.AtsSn : Train.Specs.Safety.Atc.Available ? TrainManager.SafetySystem.Atc : TrainManager.SafetySystem.None;
 			} else {
@@ -633,13 +633,13 @@ namespace OpenBve {
 					Train.Cars[i].Specs.AirBrake.EqualizingReservoirCurrentPressure = 0.0;
 				}
 				Train.Specs.AirBrake.Handle.Driver = TrainManager.AirBrakeHandleState.Service;
-				Train.Specs.AirBrake.Handle.Security = TrainManager.AirBrakeHandleState.Service;
+				Train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Service;
 				Train.Specs.AirBrake.Handle.Actual = TrainManager.AirBrakeHandleState.Service;
 				Train.Specs.CurrentBrakeNotch.Driver = Train.Specs.MaximumBrakeNotch;
-				Train.Specs.CurrentBrakeNotch.Security = Train.Specs.MaximumBrakeNotch;
+				Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.MaximumBrakeNotch;
 				Train.Specs.CurrentBrakeNotch.Actual = Train.Specs.MaximumBrakeNotch;
 				Train.Specs.CurrentEmergencyBrake.Driver = true;
-				Train.Specs.CurrentEmergencyBrake.Security = true;
+				Train.Specs.CurrentEmergencyBrake.Safety = true;
 				Train.Specs.CurrentEmergencyBrake.Actual = true;
 				Train.Specs.Safety.Mode = TrainManager.SafetySystem.None;
 			}

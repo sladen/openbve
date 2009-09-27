@@ -148,6 +148,8 @@ namespace OpenBve {
 					System.Threading.Thread.Sleep(10);
 				}
 			}
+			// finish
+			
 			try {
 				Interface.SaveLogs();
 			} catch { }

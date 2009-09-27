@@ -293,7 +293,11 @@ namespace OpenBve {
 				if (Game.Stations[i].StopMode == Game.StationStopMode.AllStop | Game.Stations[i].StopMode == Game.StationStopMode.PlayerStop & Game.Stations[i].Stops.Length != 0) {
 					PlayerFirstStationIndex = i;
 					int s = Game.GetStopIndex(i, TrainManager.PlayerTrain.Cars.Length);
-					PlayerFirstStationPosition = Game.Stations[i].Stops[s].TrackPosition;
+					if (s >= 0) {
+						PlayerFirstStationPosition = Game.Stations[i].Stops[s].TrackPosition;
+					} else {
+						PlayerFirstStationPosition = Game.Stations[i].DefaultTrackPosition;
+					}
 					if (Game.Stations[i].ArrivalTime < 0.0) {
 						if (Game.Stations[i].DepartureTime < 0.0) {
 							Game.SecondsSinceMidnight = 0.0;
@@ -316,7 +320,11 @@ namespace OpenBve {
 				if (Game.Stations[i].StopMode == Game.StationStopMode.AllStop | Game.Stations[i].StopMode == Game.StationStopMode.PlayerPass & Game.Stations[i].Stops.Length != 0) {
 					OtherFirstStationIndex = i;
 					int s = Game.GetStopIndex(i, TrainManager.PlayerTrain.Cars.Length);
-					OtherFirstStationPosition = Game.Stations[i].Stops[s].TrackPosition;
+					if (s >= 0) {
+						OtherFirstStationPosition = Game.Stations[i].Stops[s].TrackPosition;
+					} else {
+						OtherFirstStationPosition = Game.Stations[i].DefaultTrackPosition;
+					}
 					if (Game.Stations[i].ArrivalTime < 0.0) {
 						if (Game.Stations[i].DepartureTime < 0.0) {
 							OtherFirstStationTime = 0.0;

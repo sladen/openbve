@@ -375,6 +375,7 @@
         	// 
         	this.labelMode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
         	this.labelMode.AutoEllipsis = true;
+        	this.labelMode.ForeColor = System.Drawing.Color.Black;
         	this.labelMode.Location = new System.Drawing.Point(16, 600);
         	this.labelMode.Name = "labelMode";
         	this.labelMode.Size = new System.Drawing.Size(128, 16);
@@ -385,6 +386,7 @@
         	// groupboxTrainSelection
         	// 
         	this.groupboxTrainSelection.Controls.Add(this.tabcontrolTrainSelection);
+        	this.groupboxTrainSelection.ForeColor = System.Drawing.Color.Black;
         	this.groupboxTrainSelection.Location = new System.Drawing.Point(16, 344);
         	this.groupboxTrainSelection.Name = "groupboxTrainSelection";
         	this.groupboxTrainSelection.Size = new System.Drawing.Size(400, 216);
@@ -495,6 +497,7 @@
         	this.checkboxTrainDefault.AutoSize = true;
         	this.checkboxTrainDefault.Checked = true;
         	this.checkboxTrainDefault.CheckState = System.Windows.Forms.CheckState.Checked;
+        	this.checkboxTrainDefault.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.checkboxTrainDefault.Location = new System.Drawing.Point(8, 8);
         	this.checkboxTrainDefault.Name = "checkboxTrainDefault";
         	this.checkboxTrainDefault.Size = new System.Drawing.Size(211, 17);
@@ -506,6 +509,7 @@
         	// groupboxTrainDetails
         	// 
         	this.groupboxTrainDetails.Controls.Add(this.tabcontrolTrainDetails);
+        	this.groupboxTrainDetails.ForeColor = System.Drawing.Color.Black;
         	this.groupboxTrainDetails.Location = new System.Drawing.Point(424, 344);
         	this.groupboxTrainDetails.Name = "groupboxTrainDetails";
         	this.groupboxTrainDetails.Size = new System.Drawing.Size(376, 216);
@@ -596,6 +600,7 @@
         	// labelTrainEncoding
         	// 
         	this.labelTrainEncoding.AutoEllipsis = true;
+        	this.labelTrainEncoding.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.labelTrainEncoding.Location = new System.Drawing.Point(0, 0);
         	this.labelTrainEncoding.Name = "labelTrainEncoding";
         	this.labelTrainEncoding.Size = new System.Drawing.Size(96, 16);
@@ -606,6 +611,7 @@
         	// buttonTrainEncodingBig5
         	// 
         	this.buttonTrainEncodingBig5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+        	this.buttonTrainEncodingBig5.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.buttonTrainEncodingBig5.Location = new System.Drawing.Point(272, 24);
         	this.buttonTrainEncodingBig5.Name = "buttonTrainEncodingBig5";
         	this.buttonTrainEncodingBig5.Size = new System.Drawing.Size(64, 24);
@@ -629,6 +635,7 @@
         	// buttonTrainEncodingShiftJis
         	// 
         	this.buttonTrainEncodingShiftJis.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+        	this.buttonTrainEncodingShiftJis.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.buttonTrainEncodingShiftJis.Location = new System.Drawing.Point(208, 24);
         	this.buttonTrainEncodingShiftJis.Name = "buttonTrainEncodingShiftJis";
         	this.buttonTrainEncodingShiftJis.Size = new System.Drawing.Size(64, 24);
@@ -640,6 +647,7 @@
         	// buttonTrainEncodingLatin1
         	// 
         	this.buttonTrainEncodingLatin1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+        	this.buttonTrainEncodingLatin1.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.buttonTrainEncodingLatin1.Location = new System.Drawing.Point(144, 24);
         	this.buttonTrainEncodingLatin1.Name = "buttonTrainEncodingLatin1";
         	this.buttonTrainEncodingLatin1.Size = new System.Drawing.Size(64, 24);
@@ -651,6 +659,7 @@
         	// labelTrainEncodingPreview
         	// 
         	this.labelTrainEncodingPreview.AutoEllipsis = true;
+        	this.labelTrainEncodingPreview.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.labelTrainEncodingPreview.Location = new System.Drawing.Point(8, 64);
         	this.labelTrainEncodingPreview.Name = "labelTrainEncodingPreview";
         	this.labelTrainEncodingPreview.Size = new System.Drawing.Size(96, 16);
@@ -719,6 +728,7 @@
         	// groupboxRouteSelection
         	// 
         	this.groupboxRouteSelection.Controls.Add(this.tabcontrolRouteSelection);
+        	this.groupboxRouteSelection.ForeColor = System.Drawing.Color.Black;
         	this.groupboxRouteSelection.Location = new System.Drawing.Point(16, 80);
         	this.groupboxRouteSelection.Name = "groupboxRouteSelection";
         	this.groupboxRouteSelection.Size = new System.Drawing.Size(400, 216);
@@ -813,6 +823,7 @@
         	// groupboxRouteDetails
         	// 
         	this.groupboxRouteDetails.Controls.Add(this.tabcontrolRouteDetails);
+        	this.groupboxRouteDetails.ForeColor = System.Drawing.Color.Black;
         	this.groupboxRouteDetails.Location = new System.Drawing.Point(424, 80);
         	this.groupboxRouteDetails.Name = "groupboxRouteDetails";
         	this.groupboxRouteDetails.Size = new System.Drawing.Size(376, 216);
@@ -943,6 +954,7 @@
         	this.panelRouteEncoding.Controls.Add(this.labelRouteEncoding);
         	this.panelRouteEncoding.Controls.Add(this.buttonRouteEncodingShiftJis);
         	this.panelRouteEncoding.Controls.Add(this.comboboxRouteEncoding);
+        	this.panelRouteEncoding.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.panelRouteEncoding.Location = new System.Drawing.Point(8, 8);
         	this.panelRouteEncoding.Name = "panelRouteEncoding";
         	this.panelRouteEncoding.Size = new System.Drawing.Size(336, 48);
@@ -951,6 +963,7 @@
         	// buttonRouteEncodingLatin1
         	// 
         	this.buttonRouteEncodingLatin1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+        	this.buttonRouteEncodingLatin1.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.buttonRouteEncodingLatin1.Location = new System.Drawing.Point(144, 24);
         	this.buttonRouteEncodingLatin1.Name = "buttonRouteEncodingLatin1";
         	this.buttonRouteEncodingLatin1.Size = new System.Drawing.Size(64, 24);
@@ -962,6 +975,7 @@
         	// buttonRouteEncodingBig5
         	// 
         	this.buttonRouteEncodingBig5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+        	this.buttonRouteEncodingBig5.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.buttonRouteEncodingBig5.Location = new System.Drawing.Point(272, 24);
         	this.buttonRouteEncodingBig5.Name = "buttonRouteEncodingBig5";
         	this.buttonRouteEncodingBig5.Size = new System.Drawing.Size(64, 24);
@@ -973,6 +987,7 @@
         	// labelRouteEncoding
         	// 
         	this.labelRouteEncoding.AutoEllipsis = true;
+        	this.labelRouteEncoding.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.labelRouteEncoding.Location = new System.Drawing.Point(0, 0);
         	this.labelRouteEncoding.Name = "labelRouteEncoding";
         	this.labelRouteEncoding.Size = new System.Drawing.Size(96, 16);
@@ -983,6 +998,7 @@
         	// buttonRouteEncodingShiftJis
         	// 
         	this.buttonRouteEncodingShiftJis.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+        	this.buttonRouteEncodingShiftJis.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.buttonRouteEncodingShiftJis.Location = new System.Drawing.Point(208, 24);
         	this.buttonRouteEncodingShiftJis.Name = "buttonRouteEncodingShiftJis";
         	this.buttonRouteEncodingShiftJis.Size = new System.Drawing.Size(64, 24);
@@ -996,6 +1012,7 @@
         	this.comboboxRouteEncoding.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
         	this.comboboxRouteEncoding.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+        	this.comboboxRouteEncoding.ForeColor = System.Drawing.SystemColors.WindowText;
         	this.comboboxRouteEncoding.FormattingEnabled = true;
         	this.comboboxRouteEncoding.Location = new System.Drawing.Point(96, 0);
         	this.comboboxRouteEncoding.Name = "comboboxRouteEncoding";
@@ -1006,6 +1023,7 @@
         	// labelRouteEncodingPreview
         	// 
         	this.labelRouteEncodingPreview.AutoEllipsis = true;
+        	this.labelRouteEncodingPreview.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.labelRouteEncodingPreview.Location = new System.Drawing.Point(8, 64);
         	this.labelRouteEncodingPreview.Name = "labelRouteEncodingPreview";
         	this.labelRouteEncodingPreview.Size = new System.Drawing.Size(96, 16);
@@ -1019,6 +1037,7 @@
         	        	        	| System.Windows.Forms.AnchorStyles.Left) 
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
         	this.textboxRouteEncodingPreview.BackColor = System.Drawing.SystemColors.Window;
+        	this.textboxRouteEncodingPreview.ForeColor = System.Drawing.SystemColors.ControlText;
         	this.textboxRouteEncodingPreview.Location = new System.Drawing.Point(104, 64);
         	this.textboxRouteEncodingPreview.Multiline = true;
         	this.textboxRouteEncodingPreview.Name = "textboxRouteEncodingPreview";
@@ -1117,6 +1136,7 @@
         	// 
         	this.groupboxVerbosity.Controls.Add(this.checkboxErrorMessages);
         	this.groupboxVerbosity.Controls.Add(this.checkboxWarningMessages);
+        	this.groupboxVerbosity.ForeColor = System.Drawing.Color.Black;
         	this.groupboxVerbosity.Location = new System.Drawing.Point(16, 536);
         	this.groupboxVerbosity.Name = "groupboxVerbosity";
         	this.groupboxVerbosity.Size = new System.Drawing.Size(256, 64);
@@ -1159,6 +1179,7 @@
         	this.groupboxSound.Controls.Add(this.comboboxSoundRange);
         	this.groupboxSound.Controls.Add(this.labelSoundRange);
         	this.groupboxSound.Controls.Add(this.labelSoundNumber);
+        	this.groupboxSound.ForeColor = System.Drawing.Color.Black;
         	this.groupboxSound.Location = new System.Drawing.Point(544, 448);
         	this.groupboxSound.Name = "groupboxSound";
         	this.groupboxSound.Size = new System.Drawing.Size(256, 80);
@@ -1238,6 +1259,7 @@
         	this.groupboxSimulation.Controls.Add(this.checkboxDerailments);
         	this.groupboxSimulation.Controls.Add(this.checkboxCollisions);
         	this.groupboxSimulation.Controls.Add(this.checkboxToppling);
+        	this.groupboxSimulation.ForeColor = System.Drawing.Color.Black;
         	this.groupboxSimulation.Location = new System.Drawing.Point(16, 448);
         	this.groupboxSimulation.Name = "groupboxSimulation";
         	this.groupboxSimulation.Size = new System.Drawing.Size(256, 80);
@@ -1292,6 +1314,7 @@
         	this.groupboxControls.Controls.Add(this.trackbarJoystickAxisThreshold);
         	this.groupboxControls.Controls.Add(this.checkboxJoysticksUsed);
         	this.groupboxControls.Controls.Add(this.labelJoystickAxisThreshold);
+        	this.groupboxControls.ForeColor = System.Drawing.Color.Black;
         	this.groupboxControls.Location = new System.Drawing.Point(280, 448);
         	this.groupboxControls.Name = "groupboxControls";
         	this.groupboxControls.Size = new System.Drawing.Size(256, 80);
@@ -1355,6 +1378,7 @@
         	this.groupboxDistance.Controls.Add(this.labelDistanceUnit);
         	this.groupboxDistance.Controls.Add(this.updownDistance);
         	this.groupboxDistance.Controls.Add(this.labelDistance);
+        	this.groupboxDistance.ForeColor = System.Drawing.Color.Black;
         	this.groupboxDistance.Location = new System.Drawing.Point(328, 296);
         	this.groupboxDistance.Name = "groupboxDistance";
         	this.groupboxDistance.Size = new System.Drawing.Size(304, 80);
@@ -1437,6 +1461,7 @@
         	this.groupboxInterpolation.Controls.Add(this.labelAnisotropic);
         	this.groupboxInterpolation.Controls.Add(this.comboboxInterpolation);
         	this.groupboxInterpolation.Controls.Add(this.labelInterpolation);
+        	this.groupboxInterpolation.ForeColor = System.Drawing.Color.Black;
         	this.groupboxInterpolation.Location = new System.Drawing.Point(16, 296);
         	this.groupboxInterpolation.Name = "groupboxInterpolation";
         	this.groupboxInterpolation.Size = new System.Drawing.Size(304, 104);
@@ -1555,6 +1580,7 @@
         	this.groupboxFullscreen.Controls.Add(this.labelFullscreenHeight);
         	this.groupboxFullscreen.Controls.Add(this.updownFullscreenWidth);
         	this.groupboxFullscreen.Controls.Add(this.labelFullscreenWidth);
+        	this.groupboxFullscreen.ForeColor = System.Drawing.Color.Black;
         	this.groupboxFullscreen.Location = new System.Drawing.Point(544, 144);
         	this.groupboxFullscreen.Name = "groupboxFullscreen";
         	this.groupboxFullscreen.Size = new System.Drawing.Size(256, 104);
@@ -1660,6 +1686,7 @@
         	this.groupboxWindow.Controls.Add(this.labelWindowHeight);
         	this.groupboxWindow.Controls.Add(this.updownWindowWidth);
         	this.groupboxWindow.Controls.Add(this.labelWindowWidth);
+        	this.groupboxWindow.ForeColor = System.Drawing.Color.Black;
         	this.groupboxWindow.Location = new System.Drawing.Point(280, 144);
         	this.groupboxWindow.Name = "groupboxWindow";
         	this.groupboxWindow.Size = new System.Drawing.Size(256, 80);
@@ -1737,6 +1764,7 @@
         	this.groupboxDisplayMode.Controls.Add(this.labelVSync);
         	this.groupboxDisplayMode.Controls.Add(this.radiobuttonFullscreen);
         	this.groupboxDisplayMode.Controls.Add(this.radiobuttonWindow);
+        	this.groupboxDisplayMode.ForeColor = System.Drawing.Color.Black;
         	this.groupboxDisplayMode.Location = new System.Drawing.Point(16, 144);
         	this.groupboxDisplayMode.Name = "groupboxDisplayMode";
         	this.groupboxDisplayMode.Size = new System.Drawing.Size(256, 104);
@@ -1952,6 +1980,7 @@
         	// 
         	this.labelBlackBoxFormat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
         	this.labelBlackBoxFormat.AutoEllipsis = true;
+        	this.labelBlackBoxFormat.ForeColor = System.Drawing.Color.Black;
         	this.labelBlackBoxFormat.Location = new System.Drawing.Point(16, 592);
         	this.labelBlackBoxFormat.Name = "labelBlackBoxFormat";
         	this.labelBlackBoxFormat.Size = new System.Drawing.Size(96, 16);
@@ -1965,6 +1994,7 @@
         	this.groupboxReviewDateTime.Controls.Add(this.labelReviewTimeCaption);
         	this.groupboxReviewDateTime.Controls.Add(this.labelReviewDateValue);
         	this.groupboxReviewDateTime.Controls.Add(this.labelReviewDateCaption);
+        	this.groupboxReviewDateTime.ForeColor = System.Drawing.Color.Black;
         	this.groupboxReviewDateTime.Location = new System.Drawing.Point(544, 80);
         	this.groupboxReviewDateTime.Name = "groupboxReviewDateTime";
         	this.groupboxReviewDateTime.Size = new System.Drawing.Size(256, 56);
@@ -2129,6 +2159,7 @@
         	// 
         	this.groupboxReviewTrain.Controls.Add(this.labelReviewTrainValue);
         	this.groupboxReviewTrain.Controls.Add(this.labelReviewTrainCaption);
+        	this.groupboxReviewTrain.ForeColor = System.Drawing.Color.Black;
         	this.groupboxReviewTrain.Location = new System.Drawing.Point(280, 80);
         	this.groupboxReviewTrain.Name = "groupboxReviewTrain";
         	this.groupboxReviewTrain.Size = new System.Drawing.Size(256, 56);
@@ -2158,6 +2189,7 @@
         	// 
         	this.groupboxReviewRoute.Controls.Add(this.labelReviewRouteValue);
         	this.groupboxReviewRoute.Controls.Add(this.labelReviewRouteCaption);
+        	this.groupboxReviewRoute.ForeColor = System.Drawing.Color.Black;
         	this.groupboxReviewRoute.Location = new System.Drawing.Point(16, 80);
         	this.groupboxReviewRoute.Name = "groupboxReviewRoute";
         	this.groupboxReviewRoute.Size = new System.Drawing.Size(256, 56);
@@ -2210,6 +2242,7 @@
         	this.groupboxRating.Controls.Add(this.labelRatingAchievedCaption);
         	this.groupboxRating.Controls.Add(this.labelRatingDescription);
         	this.groupboxRating.Controls.Add(this.labelRatingColor);
+        	this.groupboxRating.ForeColor = System.Drawing.Color.Black;
         	this.groupboxRating.Location = new System.Drawing.Point(16, 184);
         	this.groupboxRating.Name = "groupboxRating";
         	this.groupboxRating.Size = new System.Drawing.Size(256, 128);
@@ -2475,6 +2508,7 @@
         	this.groupboxJoysticks.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
         	this.groupboxJoysticks.Controls.Add(this.pictureboxJoysticks);
+        	this.groupboxJoysticks.ForeColor = System.Drawing.Color.Black;
         	this.groupboxJoysticks.Location = new System.Drawing.Point(16, 456);
         	this.groupboxJoysticks.Name = "groupboxJoysticks";
         	this.groupboxJoysticks.Size = new System.Drawing.Size(785, 168);
@@ -2579,6 +2613,7 @@
         	this.groupboxControl.Controls.Add(this.radiobuttonJoystick);
         	this.groupboxControl.Controls.Add(this.radiobuttonKeyboard);
         	this.groupboxControl.Enabled = false;
+        	this.groupboxControl.ForeColor = System.Drawing.Color.Black;
         	this.groupboxControl.Location = new System.Drawing.Point(16, 296);
         	this.groupboxControl.Name = "groupboxControl";
         	this.groupboxControl.Size = new System.Drawing.Size(784, 152);
@@ -2858,10 +2893,10 @@
         	this.Controls.Add(this.labelFillerOne);
         	this.Controls.Add(this.labelFillerTwo);
         	this.Controls.Add(this.labelFillerThree);
+        	this.Controls.Add(this.panelStart);
         	this.Controls.Add(this.panelOptions);
         	this.Controls.Add(this.panelControls);
         	this.Controls.Add(this.panelReview);
-        	this.Controls.Add(this.panelStart);
         	this.KeyPreview = true;
         	this.Name = "formMain";
         	this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

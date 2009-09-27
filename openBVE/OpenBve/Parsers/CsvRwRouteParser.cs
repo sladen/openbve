@@ -416,6 +416,7 @@ namespace OpenBve {
 			PreprocessOptions(FileName, Encoding, Expressions, ref Data, ref UnitOfLength);
 			PreprocessSortByTrackPosition(FileName, UnitOfLength, ref Expressions);
 			ParseRouteForData(FileName, Encoding, Expressions, TrainPath, ObjectPath, SoundPath, UnitOfLength, ref Data, PreviewOnly);
+			Game.RouteUnitOfLength = UnitOfLength;
 		}
 
 		// preprocess split into expressions
@@ -808,10 +809,13 @@ namespace OpenBve {
 										} else {
 											UnitOfLength = new double[Arguments.Length];
 											for (int i = 0; i < Arguments.Length; i++) {
-												UnitOfLength[i] = i == 0 ? 1.0 : 0.0;
+												UnitOfLength[i] = i == Arguments.Length - 1 ? 1.0 : 0.0;
 												if (Arguments[i].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[i], out UnitOfLength[i])) {
 													Interface.AddMessage(Interface.MessageType.Error, false, "FactorInMeters" + i.ToString(Culture) + " is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 													UnitOfLength[i] = i == 0 ? 1.0 : 0.0;
+												} else if (UnitOfLength[i] <= 0.0) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "FactorInMeters" + i.ToString(Culture) + " is expected to be positive in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+													UnitOfLength[i] = i == Arguments.Length - 1 ? 1.0 : 0.0;
 												}
 											}
 										}
@@ -902,12 +906,13 @@ namespace OpenBve {
 				}
 			}
 			a = -1.0;
-			Expression[] e = new Expression[Expressions.Length]; int m = 0;
+			Expression[] e = new Expression[Expressions.Length];
+			int m = 0;
 			for (int i = 0; i < n; i++) {
 				if (p[i].TrackPosition != a) {
 					a = p[i].TrackPosition;
 					e[m] = new Expression();
-					e[m].Text = a.ToString(Culture);
+					e[m].Text = (a / UnitFactors[UnitFactors.Length - 1]).ToString(Culture);
 					e[m].Line = -1;
 					e[m].Column = -1;
 					m++;
@@ -2770,83 +2775,6 @@ namespace OpenBve {
 											Data.Blocks[BlockIndex].FogDefined = true;
 										}
 									} break;
-								case "track.signal":
-								case "track.sig":
-									{
-										if (!PreviewOnly) {
-											int num = -2;
-											if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseIntVb6(Arguments[0], out num)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Aspects is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												num = -2;
-											}
-											if (num != -2 & num != 2 & num != 3 & num != -4 & num != 4 & num != -5 & num != 5 & num != 6) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Aspects has an unsupported value in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												num = num == -3 | num == -6 ? -num : -4;
-											}
-											double x = 0.0, y = 0.0;
-											if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[2], UnitOfLength, out x)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "X is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												x = 0.0;
-											}
-											if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[3], UnitOfLength, out y)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Y is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												y = 0.0;
-											}
-											double yaw = 0.0, pitch = 0.0, roll = 0.0;
-											if (Arguments.Length >= 5 && Arguments[4].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[4], out yaw)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Yaw is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												yaw = 0.0;
-											}
-											if (Arguments.Length >= 6 && Arguments[5].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[5], out pitch)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Pitch is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												pitch = 0.0;
-											}
-											if (Arguments.Length >= 7 && Arguments[6].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[6], out roll)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Roll is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												roll = 0.0;
-											}
-											int[] aspects; int comp;
-											switch (num) {
-													case 2: aspects = new int[] { 0, 2 }; comp = 0; break;
-													case -2: aspects = new int[] { 0, 4 }; comp = 1; break;
-													case 3: aspects = new int[] { 0, 2, 4 }; comp = 2; break;
-													case 4: aspects = new int[] { 0, 1, 2, 4 }; comp = 3; break;
-													case -4: aspects = new int[] { 0, 2, 3, 4 }; comp = 4; break;
-													case 5: aspects = new int[] { 0, 1, 2, 3, 4 }; comp = 5; break;
-													case -5: aspects = new int[] { 0, 2, 3, 4, 5 }; comp = 6; break;
-													case 6: aspects = new int[] { 0, 1, 2, 3, 4, 5 }; comp = 7; break;
-													default: aspects = new int[] { 0, 2 }; comp = 0; break;
-											}
-											int n = Data.Blocks[BlockIndex].Section.Length;
-											Array.Resize<Section>(ref Data.Blocks[BlockIndex].Section, n + 1);
-											Data.Blocks[BlockIndex].Section[n].TrackPosition = Data.TrackPosition;
-											Data.Blocks[BlockIndex].Section[n].Aspects = aspects;
-											Data.Blocks[BlockIndex].Section[n].DepartureStationIndex = -1;
-											Data.Blocks[BlockIndex].Section[n].Invisible = x == 0.0;
-											Data.Blocks[BlockIndex].Section[n].Type = Game.SectionType.ValueBased;
-											if (CurrentStation >= 0 && Game.Stations[CurrentStation].ForceStopSignal) {
-												if (CurrentStation >= 0 & CurrentStop >= 0 & !DepartureSignalUsed) {
-													Data.Blocks[BlockIndex].Section[n].DepartureStationIndex = CurrentStation;
-													DepartureSignalUsed = true;
-												}
-											}
-											CurrentSection++;
-											n = Data.Blocks[BlockIndex].Signal.Length;
-											Array.Resize<Signal>(ref Data.Blocks[BlockIndex].Signal, n + 1);
-											Data.Blocks[BlockIndex].Signal[n].TrackPosition = Data.TrackPosition;
-											Data.Blocks[BlockIndex].Signal[n].Section = CurrentSection;
-											Data.Blocks[BlockIndex].Signal[n].SignalCompatibilityObjectIndex = comp;
-											Data.Blocks[BlockIndex].Signal[n].SignalObjectIndex = -1;
-											Data.Blocks[BlockIndex].Signal[n].X = x;
-											Data.Blocks[BlockIndex].Signal[n].Y = y <= 0.0 ? 4.8 : y;
-											Data.Blocks[BlockIndex].Signal[n].Yaw = 0.0174532925199433 * yaw;
-											Data.Blocks[BlockIndex].Signal[n].Pitch = 0.0174532925199433 * pitch;
-											Data.Blocks[BlockIndex].Signal[n].Roll = 0.0174532925199433 * roll;
-											Data.Blocks[BlockIndex].Signal[n].ShowObject = x != 0.0;
-											Data.Blocks[BlockIndex].Signal[n].ShowPost = x != 0.0 & y < 0.0;
-											Data.Blocks[BlockIndex].Signal[n].GameSignalIndex = -1;
-										}
-									} break;
 								case "track.section":
 									{
 										if (!PreviewOnly) {
@@ -2937,6 +2865,123 @@ namespace OpenBve {
 											}
 										}
 									} break;
+								case "track.signal":
+								case "track.sig":
+									{
+										if (!PreviewOnly) {
+											int num = -2;
+											if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseIntVb6(Arguments[0], out num)) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "Aspects is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												num = -2;
+											}
+											if (num != -2 & num != 2 & num != 3 & num != -4 & num != 4 & num != -5 & num != 5 & num != 6) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "Aspects has an unsupported value in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												num = num == -3 | num == -6 ? -num : -4;
+											}
+											double x = 0.0, y = 0.0;
+											if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[2], UnitOfLength, out x)) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "X is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												x = 0.0;
+											}
+											if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[3], UnitOfLength, out y)) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "Y is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												y = 0.0;
+											}
+											double yaw = 0.0, pitch = 0.0, roll = 0.0;
+											if (Arguments.Length >= 5 && Arguments[4].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[4], out yaw)) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "Yaw is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												yaw = 0.0;
+											}
+											if (Arguments.Length >= 6 && Arguments[5].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[5], out pitch)) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "Pitch is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												pitch = 0.0;
+											}
+											if (Arguments.Length >= 7 && Arguments[6].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[6], out roll)) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "Roll is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												roll = 0.0;
+											}
+											int[] aspects; int comp;
+											switch (num) {
+													case 2: aspects = new int[] { 0, 2 }; comp = 0; break;
+													case -2: aspects = new int[] { 0, 4 }; comp = 1; break;
+													case 3: aspects = new int[] { 0, 2, 4 }; comp = 2; break;
+													case 4: aspects = new int[] { 0, 1, 2, 4 }; comp = 3; break;
+													case -4: aspects = new int[] { 0, 2, 3, 4 }; comp = 4; break;
+													case 5: aspects = new int[] { 0, 1, 2, 3, 4 }; comp = 5; break;
+													case -5: aspects = new int[] { 0, 2, 3, 4, 5 }; comp = 6; break;
+													case 6: aspects = new int[] { 0, 1, 2, 3, 4, 5 }; comp = 7; break;
+													default: aspects = new int[] { 0, 2 }; comp = 0; break;
+											}
+											int n = Data.Blocks[BlockIndex].Section.Length;
+											Array.Resize<Section>(ref Data.Blocks[BlockIndex].Section, n + 1);
+											Data.Blocks[BlockIndex].Section[n].TrackPosition = Data.TrackPosition;
+											Data.Blocks[BlockIndex].Section[n].Aspects = aspects;
+											Data.Blocks[BlockIndex].Section[n].DepartureStationIndex = -1;
+											Data.Blocks[BlockIndex].Section[n].Invisible = x == 0.0;
+											Data.Blocks[BlockIndex].Section[n].Type = Game.SectionType.ValueBased;
+											if (CurrentStation >= 0 && Game.Stations[CurrentStation].ForceStopSignal) {
+												if (CurrentStation >= 0 & CurrentStop >= 0 & !DepartureSignalUsed) {
+													Data.Blocks[BlockIndex].Section[n].DepartureStationIndex = CurrentStation;
+													DepartureSignalUsed = true;
+												}
+											}
+											CurrentSection++;
+											n = Data.Blocks[BlockIndex].Signal.Length;
+											Array.Resize<Signal>(ref Data.Blocks[BlockIndex].Signal, n + 1);
+											Data.Blocks[BlockIndex].Signal[n].TrackPosition = Data.TrackPosition;
+											Data.Blocks[BlockIndex].Signal[n].Section = CurrentSection;
+											Data.Blocks[BlockIndex].Signal[n].SignalCompatibilityObjectIndex = comp;
+											Data.Blocks[BlockIndex].Signal[n].SignalObjectIndex = -1;
+											Data.Blocks[BlockIndex].Signal[n].X = x;
+											Data.Blocks[BlockIndex].Signal[n].Y = y < 0.0 ? 4.8 : y;
+											Data.Blocks[BlockIndex].Signal[n].Yaw = 0.0174532925199433 * yaw;
+											Data.Blocks[BlockIndex].Signal[n].Pitch = 0.0174532925199433 * pitch;
+											Data.Blocks[BlockIndex].Signal[n].Roll = 0.0174532925199433 * roll;
+											Data.Blocks[BlockIndex].Signal[n].ShowObject = x != 0.0;
+											Data.Blocks[BlockIndex].Signal[n].ShowPost = x != 0.0 & y < 0.0;
+											Data.Blocks[BlockIndex].Signal[n].GameSignalIndex = -1;
+										}
+									} break;
+								case "track.relay":
+									{
+										if (!PreviewOnly) {
+											double x = 0.0, y = 0.0;
+											if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], UnitOfLength, out x)) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "X is invalid in Track.Relay at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												x = 0.0;
+											}
+											if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], UnitOfLength, out y)) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "Y is invalid in Track.Relay at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												y = 0.0;
+											}
+											double yaw = 0.0, pitch = 0.0, roll = 0.0;
+											if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[2], out yaw)) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "Yaw is invalid in Track.Relay at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												yaw = 0.0;
+											}
+											if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[3], out pitch)) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "Pitch is invalid in Track.Relay at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												pitch = 0.0;
+											}
+											if (Arguments.Length >= 5 && Arguments[4].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[4], out roll)) {
+												Interface.AddMessage(Interface.MessageType.Error, false, "Roll is invalid in Track.Relay at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
+												roll = 0.0;
+											}
+											int n = Data.Blocks[BlockIndex].Signal.Length;
+											Array.Resize<Signal>(ref Data.Blocks[BlockIndex].Signal, n + 1);
+											Data.Blocks[BlockIndex].Signal[n].TrackPosition = Data.TrackPosition;
+											Data.Blocks[BlockIndex].Signal[n].Section = CurrentSection + 1;
+											Data.Blocks[BlockIndex].Signal[n].SignalCompatibilityObjectIndex = 8;
+											Data.Blocks[BlockIndex].Signal[n].SignalObjectIndex = -1;
+											Data.Blocks[BlockIndex].Signal[n].X = x;
+											Data.Blocks[BlockIndex].Signal[n].Y = y < 0.0 ? 4.8 : y;
+											Data.Blocks[BlockIndex].Signal[n].Yaw = yaw * 0.0174532925199433;
+											Data.Blocks[BlockIndex].Signal[n].Pitch = pitch * 0.0174532925199433;
+											Data.Blocks[BlockIndex].Signal[n].Roll = roll * 0.0174532925199433;
+											Data.Blocks[BlockIndex].Signal[n].ShowObject = x != 0.0;
+											Data.Blocks[BlockIndex].Signal[n].ShowPost = x != 0.0 & y < 0.0;
+										}
+									} break;
 								case "track.beacon":
 									{
 										if (!PreviewOnly) {
@@ -3013,46 +3058,6 @@ namespace OpenBve {
 												Data.Blocks[BlockIndex].Transponder[n].Pitch = pitch * 0.0174532925199433;
 												Data.Blocks[BlockIndex].Transponder[n].Roll = roll * 0.0174532925199433;
 											}
-										}
-									} break;
-								case "track.relay":
-									{
-										if (!PreviewOnly) {
-											double x = 0.0, y = 0.0;
-											if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], UnitOfLength, out x)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "X is invalid in Track.Relay at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												x = 0.0;
-											}
-											if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], UnitOfLength, out y)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Y is invalid in Track.Relay at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												y = 0.0;
-											}
-											double yaw = 0.0, pitch = 0.0, roll = 0.0;
-											if (Arguments.Length >= 3 && Arguments[2].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[2], out yaw)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Yaw is invalid in Track.Relay at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												yaw = 0.0;
-											}
-											if (Arguments.Length >= 4 && Arguments[3].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[3], out pitch)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Pitch is invalid in Track.Relay at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												pitch = 0.0;
-											}
-											if (Arguments.Length >= 5 && Arguments[4].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[4], out roll)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "Roll is invalid in Track.Relay at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
-												roll = 0.0;
-											}
-											int n = Data.Blocks[BlockIndex].Signal.Length;
-											Array.Resize<Signal>(ref Data.Blocks[BlockIndex].Signal, n + 1);
-											Data.Blocks[BlockIndex].Signal[n].TrackPosition = Data.TrackPosition;
-											Data.Blocks[BlockIndex].Signal[n].Section = CurrentSection + 1;
-											Data.Blocks[BlockIndex].Signal[n].SignalCompatibilityObjectIndex = 8;
-											Data.Blocks[BlockIndex].Signal[n].SignalObjectIndex = -1;
-											Data.Blocks[BlockIndex].Signal[n].X = x;
-											Data.Blocks[BlockIndex].Signal[n].Y = y == -1.0 ? 4.8 : y;
-											Data.Blocks[BlockIndex].Signal[n].Yaw = yaw * 0.0174532925199433;
-											Data.Blocks[BlockIndex].Signal[n].Pitch = pitch * 0.0174532925199433;
-											Data.Blocks[BlockIndex].Signal[n].Roll = roll * 0.0174532925199433;
-											Data.Blocks[BlockIndex].Signal[n].ShowObject = x != 0.0;
-											Data.Blocks[BlockIndex].Signal[n].ShowPost = x != 0.0 & y < 0.0;
 										}
 									} break;
 								case "track.transponder":
@@ -3425,6 +3430,7 @@ namespace OpenBve {
 										Game.Stations[CurrentStation].PassengerRatio = 0.01 * jam;
 										Game.Stations[CurrentStation].TimetableDaytimeTexture = tdt;
 										Game.Stations[CurrentStation].TimetableNighttimeTexture = tnt;
+										Game.Stations[CurrentStation].DefaultTrackPosition = Data.TrackPosition;
 										Data.Blocks[BlockIndex].Station = CurrentStation;
 										Data.Blocks[BlockIndex].StationPassAlarm = passalarm == 1;
 										CurrentStop = -1;
@@ -3514,6 +3520,7 @@ namespace OpenBve {
 										Game.Stations[CurrentStation].PassengerRatio = 1.0;
 										Game.Stations[CurrentStation].TimetableDaytimeTexture = -1;
 										Game.Stations[CurrentStation].TimetableNighttimeTexture = -1;
+										Game.Stations[CurrentStation].DefaultTrackPosition = Data.TrackPosition;
 										Data.Blocks[BlockIndex].Station = CurrentStation;
 										Data.Blocks[BlockIndex].StationPassAlarm = false;
 										CurrentStop = -1;
@@ -3626,7 +3633,8 @@ namespace OpenBve {
 													if (!Interface.TryParseDoubleVb6(Arguments[2], out loc)) {
 														Interface.AddMessage(Interface.MessageType.Error, false, "Location is invalid in Track.Pole at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + FileName);
 														loc = 0;
-													} Data.Blocks[BlockIndex].RailPole[idx].Location = loc;
+													}
+													Data.Blocks[BlockIndex].RailPole[idx].Location = loc;
 												}
 												if (Arguments.Length >= 4 && Arguments[3].Length > 0) {
 													double dist;
@@ -4681,27 +4689,25 @@ namespace OpenBve {
 					}
 				}
 				// stop
-				if (!PreviewOnly) {
-					for (int j = 0; j < Data.Blocks[i].Stop.Length; j++) {
-						int s = Data.Blocks[i].Stop[j].Station;
-						int t = Game.Stations[s].Stops.Length;
-						Array.Resize<Game.StationStop>(ref Game.Stations[s].Stops, t + 1);
-						Game.Stations[s].Stops[t].TrackPosition = Data.Blocks[i].Stop[j].TrackPosition;
-						Game.Stations[s].Stops[t].ForwardTolerance = Data.Blocks[i].Stop[j].ForwardTolerance;
-						Game.Stations[s].Stops[t].BackwardTolerance = Data.Blocks[i].Stop[j].BackwardTolerance;
-						Game.Stations[s].Stops[t].Cars = Data.Blocks[i].Stop[j].Cars;
-						double dx, dy = 2.0;
-						if (Game.Stations[s].OpenLeftDoors & !Game.Stations[s].OpenRightDoors) {
-							dx = -5.0;
-						} else if (!Game.Stations[s].OpenLeftDoors & Game.Stations[s].OpenRightDoors) {
-							dx = 5.0;
-						} else {
-							dx = 0.0;
-						}
-						Game.Stations[s].SoundOrigin.X = Position.X + dx * TrackManager.CurrentTrack.Elements[n].WorldSide.X + dy * TrackManager.CurrentTrack.Elements[n].WorldUp.X;
-						Game.Stations[s].SoundOrigin.Y = Position.Y + dx * TrackManager.CurrentTrack.Elements[n].WorldSide.Y + dy * TrackManager.CurrentTrack.Elements[n].WorldUp.Y;
-						Game.Stations[s].SoundOrigin.Z = Position.Z + dx * TrackManager.CurrentTrack.Elements[n].WorldSide.Z + dy * TrackManager.CurrentTrack.Elements[n].WorldUp.Z;
+				for (int j = 0; j < Data.Blocks[i].Stop.Length; j++) {
+					int s = Data.Blocks[i].Stop[j].Station;
+					int t = Game.Stations[s].Stops.Length;
+					Array.Resize<Game.StationStop>(ref Game.Stations[s].Stops, t + 1);
+					Game.Stations[s].Stops[t].TrackPosition = Data.Blocks[i].Stop[j].TrackPosition;
+					Game.Stations[s].Stops[t].ForwardTolerance = Data.Blocks[i].Stop[j].ForwardTolerance;
+					Game.Stations[s].Stops[t].BackwardTolerance = Data.Blocks[i].Stop[j].BackwardTolerance;
+					Game.Stations[s].Stops[t].Cars = Data.Blocks[i].Stop[j].Cars;
+					double dx, dy = 2.0;
+					if (Game.Stations[s].OpenLeftDoors & !Game.Stations[s].OpenRightDoors) {
+						dx = -5.0;
+					} else if (!Game.Stations[s].OpenLeftDoors & Game.Stations[s].OpenRightDoors) {
+						dx = 5.0;
+					} else {
+						dx = 0.0;
 					}
+					Game.Stations[s].SoundOrigin.X = Position.X + dx * TrackManager.CurrentTrack.Elements[n].WorldSide.X + dy * TrackManager.CurrentTrack.Elements[n].WorldUp.X;
+					Game.Stations[s].SoundOrigin.Y = Position.Y + dx * TrackManager.CurrentTrack.Elements[n].WorldSide.Y + dy * TrackManager.CurrentTrack.Elements[n].WorldUp.Y;
+					Game.Stations[s].SoundOrigin.Z = Position.Z + dx * TrackManager.CurrentTrack.Elements[n].WorldSide.Z + dy * TrackManager.CurrentTrack.Elements[n].WorldUp.Z;
 				}
 				// limit
 				for (int j = 0; j < Data.Blocks[i].Limit.Length; j++) {
@@ -5012,12 +5018,12 @@ namespace OpenBve {
 							if (Data.Blocks[i].Form[k].PrimaryRail == j) {
 								if (Data.Blocks[i].Form[k].SecondaryRail == Form.SecondaryRailStub) {
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormL.Length || Data.Structure.FormL[Data.Blocks[i].Form[k].FormType] == null) {
-										Interface.AddMessage(Interface.MessageType.Error, false, "PfIdxStType references a FormL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
 										ObjectManager.CreateObject(Data.Structure.FormL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 										if (Data.Blocks[i].Form[k].RoofType > 0) {
 											if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofL.Length || Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType] == null) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "RoofIdxStType references a RoofL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+												Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 											} else {
 												ObjectManager.CreateObject(Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 											}
@@ -5025,46 +5031,46 @@ namespace OpenBve {
 									}
 								} else if (Data.Blocks[i].Form[k].SecondaryRail == Form.SecondaryRailL) {
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormL.Length || Data.Structure.FormL[Data.Blocks[i].Form[k].FormType] == null) {
-										Interface.AddMessage(Interface.MessageType.Error, false, "PfIdxStType references a FormL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
 										ObjectManager.CreateObject(Data.Structure.FormL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 									}
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormCL.Length || Data.Structure.FormCL[Data.Blocks[i].Form[k].FormType] == null) {
-										Interface.AddMessage(Interface.MessageType.Error, false, "PfIdxStType references a FormCL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormCL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
 										ObjectManager.CreateStaticObject(Data.Structure.FormCL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 									}
 									if (Data.Blocks[i].Form[k].RoofType > 0) {
 										if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofL.Length || Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType] == null) {
-											Interface.AddMessage(Interface.MessageType.Error, false, "RoofIdxStType references a RoofL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+											Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
 											ObjectManager.CreateObject(Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 										}
 										if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofCL.Length || Data.Structure.RoofCL[Data.Blocks[i].Form[k].RoofType] == null) {
-											Interface.AddMessage(Interface.MessageType.Error, false, "RoofIdxStType references a RoofCL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+											Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofCL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
 											ObjectManager.CreateStaticObject(Data.Structure.RoofCL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 										}
 									}
 								} else if (Data.Blocks[i].Form[k].SecondaryRail == Form.SecondaryRailR) {
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormR.Length || Data.Structure.FormR[Data.Blocks[i].Form[k].FormType] == null) {
-										Interface.AddMessage(Interface.MessageType.Error, false, "PfIdxStType references a FormR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
 										ObjectManager.CreateObject(Data.Structure.FormR[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 									}
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormCR.Length || Data.Structure.FormCR[Data.Blocks[i].Form[k].FormType] == null) {
-										Interface.AddMessage(Interface.MessageType.Error, false, "PfIdxStType references a FormCR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormCR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
 										ObjectManager.CreateStaticObject(Data.Structure.FormCR[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 									}
 									if (Data.Blocks[i].Form[k].RoofType > 0) {
 										if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofR.Length || Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType] == null) {
-											Interface.AddMessage(Interface.MessageType.Error, false, "RoofIdxStType references a RoofR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+											Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
 											ObjectManager.CreateObject(Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 										}
 										if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofCR.Length || Data.Structure.RoofCR[Data.Blocks[i].Form[k].RoofType] == null) {
-											Interface.AddMessage(Interface.MessageType.Error, false, "RoofIdxStType references a RoofCR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+											Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofCR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
 											ObjectManager.CreateStaticObject(Data.Structure.RoofCR[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 										}
@@ -5075,7 +5081,7 @@ namespace OpenBve {
 									double px1 = p > 0 ? Data.Blocks[i + 1].Rail[p].RailEndX : 0.0;
 									int s = Data.Blocks[i].Form[k].SecondaryRail;
 									if (s < 0 || s >= Data.Blocks[i].Rail.Length || !Data.Blocks[i].Rail[s].RailStart) {
-										Interface.AddMessage(Interface.MessageType.Error, false, "Index2 is out of range in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName);
+										Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex2 is out of range in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName);
 									} else {
 										double sx0 = Data.Blocks[i].Rail[s].RailStartX;
 										double sx1 = Data.Blocks[i + 1].Rail[s].RailEndX;
@@ -5083,24 +5089,24 @@ namespace OpenBve {
 										double d1 = sx1 - px1;
 										if (d0 < 0.0) {
 											if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormL.Length || Data.Structure.FormL[Data.Blocks[i].Form[k].FormType] == null) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "PfIdxStType references a FormL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+												Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 											} else {
 												ObjectManager.CreateObject(Data.Structure.FormL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 											}
 											if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormCL.Length || Data.Structure.FormCL[Data.Blocks[i].Form[k].FormType] == null) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "PfIdxStType references a FormCL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+												Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormCL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 											} else {
 												ObjectManager.StaticObject FormC = GetTransformedStaticObject(Data.Structure.FormCL[Data.Blocks[i].Form[k].FormType], d0, d1);
 												ObjectManager.CreateStaticObject(FormC, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 											}
 											if (Data.Blocks[i].Form[k].RoofType > 0) {
 												if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofL.Length || Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType] == null) {
-													Interface.AddMessage(Interface.MessageType.Error, false, "RoofIdxStType references a RoofL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+													Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 												} else {
 													ObjectManager.CreateObject(Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 												}
 												if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofCL.Length || Data.Structure.RoofCL[Data.Blocks[i].Form[k].RoofType] == null) {
-													Interface.AddMessage(Interface.MessageType.Error, false, "RoofIdxStType references a RoofCL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+													Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofCL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 												} else {
 													ObjectManager.StaticObject RoofC = GetTransformedStaticObject(Data.Structure.RoofCL[Data.Blocks[i].Form[k].RoofType], d0, d1);
 													ObjectManager.CreateStaticObject(RoofC, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
@@ -5108,24 +5114,24 @@ namespace OpenBve {
 											}
 										} else if (d0 > 0.0) {
 											if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormR.Length || Data.Structure.FormR[Data.Blocks[i].Form[k].FormType] == null) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "PfIdxStType references a FormR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+												Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 											} else {
 												ObjectManager.CreateObject(Data.Structure.FormR[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 											}
 											if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormCR.Length || Data.Structure.FormCR[Data.Blocks[i].Form[k].FormType] == null) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "PfIdxStType references a FormCR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+												Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormCR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 											} else {
 												ObjectManager.StaticObject FormC = GetTransformedStaticObject(Data.Structure.FormCR[Data.Blocks[i].Form[k].FormType], d0, d1);
 												ObjectManager.CreateStaticObject(FormC, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 											}
 											if (Data.Blocks[i].Form[k].RoofType > 0) {
 												if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofR.Length || Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType] == null) {
-													Interface.AddMessage(Interface.MessageType.Error, false, "RoofIdxStType references a RoofR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+													Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 												} else {
 													ObjectManager.CreateObject(Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 												}
 												if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofCR.Length || Data.Structure.RoofCR[Data.Blocks[i].Form[k].RoofType] == null) {
-													Interface.AddMessage(Interface.MessageType.Error, false, "RoofIdxStType references a RoofCR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+													Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofCR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 												} else {
 													ObjectManager.StaticObject RoofC = GetTransformedStaticObject(Data.Structure.RoofCR[Data.Blocks[i].Form[k].RoofType], d0, d1);
 													ObjectManager.CreateStaticObject(RoofC, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
@@ -5144,26 +5150,26 @@ namespace OpenBve {
 								double d = px - sx;
 								if (d < 0.0) {
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormL.Length || Data.Structure.FormL[Data.Blocks[i].Form[k].FormType] == null) {
-										Interface.AddMessage(Interface.MessageType.Error, false, "PfIdxStType references a FormL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
 										ObjectManager.CreateObject(Data.Structure.FormL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 									}
 									if (Data.Blocks[i].Form[k].RoofType > 0) {
 										if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofL.Length || Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType] == null) {
-											Interface.AddMessage(Interface.MessageType.Error, false, "RoofIdxStType references a RoofL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+											Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
 											ObjectManager.CreateObject(Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 										}
 									}
 								} else {
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormR.Length || Data.Structure.FormR[Data.Blocks[i].Form[k].FormType] == null) {
-										Interface.AddMessage(Interface.MessageType.Error, false, "PfIdxStType references a FormR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
 										ObjectManager.CreateObject(Data.Structure.FormR[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 									}
 									if (Data.Blocks[i].Form[k].RoofType > 0) {
 										if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofR.Length || Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType] == null) {
-											Interface.AddMessage(Interface.MessageType.Error, false, "RoofIdxStType references a RoofR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+											Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
 											ObjectManager.CreateObject(Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 										}
@@ -5179,7 +5185,7 @@ namespace OpenBve {
 								double px1 = p > 0 ? Data.Blocks[i + 1].Rail[p].RailEndX : 0.0;
 								int s = Data.Blocks[i].Crack[k].SecondaryRail;
 								if (s < 0 || s >= Data.Blocks[i].Rail.Length || !Data.Blocks[i].Rail[s].RailStart) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "Index2 is out of range in Track.Crack at track position " + StartingDistance.ToString(Culture) + " in file " + FileName);
+									Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex2 is out of range in Track.Crack at track position " + StartingDistance.ToString(Culture) + " in file " + FileName);
 								} else {
 									double sx0 = Data.Blocks[i].Rail[s].RailStartX;
 									double sx1 = Data.Blocks[i + 1].Rail[s].RailEndX;
@@ -5187,14 +5193,14 @@ namespace OpenBve {
 									double d1 = sx1 - px1;
 									if (d0 < 0.0) {
 										if (Data.Blocks[i].Crack[k].Type >= Data.Structure.CrackL.Length || Data.Structure.CrackL[Data.Blocks[i].Crack[k].Type] == null) {
-											Interface.AddMessage(Interface.MessageType.Error, false, "IdxStType references a CrackL not loaded in Track.Crack at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+											Interface.AddMessage(Interface.MessageType.Error, false, "CrackStructureIndex references a CrackL not loaded in Track.Crack at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
 											ObjectManager.StaticObject Crack = GetTransformedStaticObject(Data.Structure.CrackL[Data.Blocks[i].Crack[k].Type], d0, d1);
 											ObjectManager.CreateStaticObject(Crack, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
 										}
 									} else if (d0 > 0.0) {
 										if (Data.Blocks[i].Crack[k].Type >= Data.Structure.CrackR.Length || Data.Structure.CrackR[Data.Blocks[i].Crack[k].Type] == null) {
-											Interface.AddMessage(Interface.MessageType.Error, false, "IdxStType references a CrackR not loaded in Track.Crack at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
+											Interface.AddMessage(Interface.MessageType.Error, false, "CrackStructureIndex references a CrackR not loaded in Track.Crack at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
 											ObjectManager.StaticObject Crack = GetTransformedStaticObject(Data.Structure.CrackR[Data.Blocks[i].Crack[k].Type], d0, d1);
 											ObjectManager.CreateStaticObject(Crack, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
@@ -5589,6 +5595,12 @@ namespace OpenBve {
 			}
 			// finalize
 			Array.Resize<TrackManager.TrackElement>(ref TrackManager.CurrentTrack.Elements, CurrentTrackLength);
+			for (int i = 0; i < Game.Stations.Length; i++) {
+				if (Game.Stations[i].Stops.Length == 0 & Game.Stations[i].StopMode != Game.StationStopMode.AllPass) {
+					Interface.AddMessage(Interface.MessageType.Warning, false, "Station " + Game.Stations[i].Name + " expects trains to stop but does not define stop points at track position " + Game.Stations[i].DefaultTrackPosition.ToString(Culture) + " in file " + FileName);
+					Game.Stations[i].StopMode = Game.StationStopMode.AllPass;
+				}
+			}
 			if (Game.Stations.Length != 0) {
 				Game.Stations[Game.Stations.Length - 1].IsTerminalStation = true;
 			}

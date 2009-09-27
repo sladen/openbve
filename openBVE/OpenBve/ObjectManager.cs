@@ -67,6 +67,7 @@ namespace OpenBve {
 			internal ObjectManager.StaticObject Object;
 		}
 		internal class AnimatedObject {
+			// states
 			internal AnimatedObjectState[] States;
 			internal FunctionScripts.FunctionScript StateFunction;
 			internal int CurrentState;
@@ -92,10 +93,13 @@ namespace OpenBve {
 			internal bool LEDClockwiseWinding;
 			internal double LEDMaximumAngle;
 			internal FunctionScripts.FunctionScript LEDFunction;
+			// misc
 			internal double RefreshRate;
 			internal double CurrentTrackZOffset;
-			internal double TimeNextUpdating;
+			internal double TimeLastUpdated;
+			internal double TimeNextUpdated;
 			internal int ObjectIndex;
+			// methods
 			internal bool IsFreeOfFunctions() {
 				if (this.StateFunction != null) return false;
 				if (this.TranslateXFunction != null | this.TranslateYFunction != null | this.TranslateZFunction != null) return false;
@@ -137,7 +141,8 @@ namespace OpenBve {
 				Result.LEDFunction = this.LEDFunction == null ? null : this.LEDFunction.Clone();
 				Result.RefreshRate = this.RefreshRate;
 				Result.CurrentTrackZOffset = 0.0;
-				Result.TimeNextUpdating = 0.0;
+				Result.TimeNextUpdated = 0.0;
+				Result.TimeLastUpdated = 0.0;
 				Result.ObjectIndex = -1;
 				return Result;
 			}
@@ -180,12 +185,12 @@ namespace OpenBve {
 			}
 		}
 
-		internal static void UpdateAnimatedObject(ref AnimatedObject Object, TrainManager.Train Train, int SectionIndex, double TrackPosition, World.Vector3D Position, World.Vector3D Direction, World.Vector3D Up, World.Vector3D Side, bool Overlay, bool UpdateFunctions, bool Show, double TimeElapsed) {
+		internal static void UpdateAnimatedObject(ref AnimatedObject Object, bool IsPartOfTrain, TrainManager.Train Train, int CarIndex, int SectionIndex, double TrackPosition, World.Vector3D Position, World.Vector3D Direction, World.Vector3D Up, World.Vector3D Side, bool Overlay, bool UpdateFunctions, bool Show, double TimeElapsed) {
 			int s = Object.CurrentState;
 			int i = Object.ObjectIndex;
 			// state change
 			if (Object.StateFunction != null & UpdateFunctions) {
-				double sd = Object.StateFunction.Perform(Train, Position, TrackPosition, SectionIndex, TimeElapsed);
+				double sd = Object.StateFunction.Perform(Train, CarIndex, Position, TrackPosition, SectionIndex, TimeElapsed);
 				int si = (int)Math.Round(sd);
 				int sn = Object.States.Length;
 				if (si < 0 | si >= sn) si = -1;
@@ -199,7 +204,7 @@ namespace OpenBve {
 			if (Object.TranslateXFunction != null) {
 				double x;
 				if (UpdateFunctions) {
-					x = Object.TranslateXFunction.Perform(Train, Position, TrackPosition, SectionIndex, TimeElapsed);
+					x = Object.TranslateXFunction.Perform(Train, CarIndex, Position, TrackPosition, SectionIndex, TimeElapsed);
 				} else  {
 					x = Object.TranslateXFunction.LastResult;
 				}
@@ -212,7 +217,7 @@ namespace OpenBve {
 			if (Object.TranslateYFunction != null) {
 				double y;
 				if (UpdateFunctions) {
-					y = Object.TranslateYFunction.Perform(Train, Position, TrackPosition, SectionIndex, TimeElapsed);
+					y = Object.TranslateYFunction.Perform(Train, CarIndex, Position, TrackPosition, SectionIndex, TimeElapsed);
 				} else {
 					y = Object.TranslateYFunction.LastResult;
 				}
@@ -225,7 +230,7 @@ namespace OpenBve {
 			if (Object.TranslateZFunction != null) {
 				double z;
 				if (UpdateFunctions) {
-					z = Object.TranslateZFunction.Perform(Train, Position, TrackPosition, SectionIndex, TimeElapsed);
+					z = Object.TranslateZFunction.Perform(Train, CarIndex, Position, TrackPosition, SectionIndex, TimeElapsed);
 				} else {
 					z = Object.TranslateZFunction.LastResult;
 				}
@@ -243,7 +248,7 @@ namespace OpenBve {
 			if (rotateX) {
 				double a;
 				if (UpdateFunctions) {
-					a = Object.RotateXFunction.Perform(Train, Position, TrackPosition, SectionIndex, TimeElapsed);
+					a = Object.RotateXFunction.Perform(Train, CarIndex, Position, TrackPosition, SectionIndex, TimeElapsed);
 				} else {
 					a = Object.RotateXFunction.LastResult;
 				}
@@ -257,7 +262,7 @@ namespace OpenBve {
 			if (rotateY) {
 				double a;
 				if (UpdateFunctions) {
-					a = Object.RotateYFunction.Perform(Train, Position, TrackPosition, SectionIndex, TimeElapsed);
+					a = Object.RotateYFunction.Perform(Train, CarIndex, Position, TrackPosition, SectionIndex, TimeElapsed);
 				} else {
 					a = Object.RotateYFunction.LastResult;
 				}
@@ -271,7 +276,7 @@ namespace OpenBve {
 			if (rotateZ) {
 				double a;
 				if (UpdateFunctions) {
-					a = Object.RotateZFunction.Perform(Train, Position, TrackPosition, SectionIndex, TimeElapsed);
+					a = Object.RotateZFunction.Perform(Train, CarIndex, Position, TrackPosition, SectionIndex, TimeElapsed);
 				} else {
 					a = Object.RotateZFunction.LastResult;
 				}
@@ -289,7 +294,7 @@ namespace OpenBve {
 					ObjectManager.Objects[i].Mesh.Vertices[k].TextureCoordinates = Object.States[s].Object.Mesh.Vertices[k].TextureCoordinates;
 				}
 				if (shiftx) {
-					double x = Object.TextureShiftXFunction.Perform(Train, Position, TrackPosition, SectionIndex, TimeElapsed);
+					double x = Object.TextureShiftXFunction.Perform(Train, CarIndex, Position, TrackPosition, SectionIndex, TimeElapsed);
 					x -= Math.Floor(x);
 					for (int k = 0; k < ObjectManager.Objects[i].Mesh.Vertices.Length; k++) {
 						ObjectManager.Objects[i].Mesh.Vertices[k].TextureCoordinates.X += (float)(x * Object.TextureShiftXDirection.X);
@@ -297,7 +302,7 @@ namespace OpenBve {
 					}
 				}
 				if (shifty) {
-					double y = Object.TextureShiftYFunction.Perform(Train, Position, TrackPosition, SectionIndex, TimeElapsed);
+					double y = Object.TextureShiftYFunction.Perform(Train, CarIndex, Position, TrackPosition, SectionIndex, TimeElapsed);
 					y -= Math.Floor(y);
 					for (int k = 0; k < ObjectManager.Objects[i].Mesh.Vertices.Length; k++) {
 						ObjectManager.Objects[i].Mesh.Vertices[k].TextureCoordinates.X += (float)(y * Object.TextureShiftYDirection.X);
@@ -310,7 +315,7 @@ namespace OpenBve {
 			double ledangle;
 			if (led) {
 				if (UpdateFunctions) {
-					ledangle = Object.LEDFunction.Perform(Train, Position, TrackPosition, SectionIndex, TimeElapsed);
+					ledangle = Object.LEDFunction.Perform(Train, CarIndex, Position, TrackPosition, SectionIndex, TimeElapsed);
 				} else {
 					ledangle = Object.LEDFunction.LastResult;
 				}
@@ -519,6 +524,41 @@ namespace OpenBve {
 					Renderer.HideObject(i);
 				}
 			}
+			// sound
+//			if (Object.SoundBufferIndices != null && Object.SoundBufferIndices.Length != 0) {
+//				if (Show) {
+//					int sound = Object.CurrentSound;
+//					if (UpdateFunctions) {
+//						if (Object.SoundFunction != null) {
+//							Object.CurrentSound = (int)Math.Round(Object.SoundFunction.Perform(Train, Position, TrackPosition, SectionIndex, TimeElapsed));
+//						} else {
+//							Object.CurrentSound = 0;
+//						}
+//					}
+//					if (sound != Object.CurrentSound & Object.SoundSourceIndex >= 0) {
+//						SoundManager.StopSound(ref Object.SoundSourceIndex);
+//						sound = Object.CurrentSound;
+//					}
+//					if (sound >= 0 & sound < Object.SoundBufferIndices.Length) {
+//						if (Object.SoundSourceIndex == -1) {
+//							int buffer = Object.SoundBufferIndices[sound];
+//							World.Vector3D pos = Position;
+//							pos.X += Object.SoundPosition.X * Side.X + Object.SoundPosition.Y * Up.X + Object.SoundPosition.Z * Direction.X;
+//							pos.Y += Object.SoundPosition.X * Side.Y + Object.SoundPosition.Y * Up.Y + Object.SoundPosition.Z * Direction.Y;
+//							pos.Z += Object.SoundPosition.X * Side.Z + Object.SoundPosition.Y * Up.Z + Object.SoundPosition.Z * Direction.Z;
+//							if (IsPartOfTrain) {
+//								SoundManager.PlaySound(ref Object.SoundSourceIndex, buffer, Train, CarIndex, pos, SoundManager.Importance.DontCare, true);
+//							} else {
+//								SoundManager.PlaySound(ref Object.SoundSourceIndex, buffer, pos, SoundManager.Importance.DontCare, true);
+//							}
+//						}
+//					}
+//				} else {
+//					if (Object.SoundSourceIndex >= 0) {
+//						SoundManager.StopSound(ref Object.SoundSourceIndex);
+//					}
+//				}
+//			}
 		}
 		
 		// update damping
@@ -674,8 +714,10 @@ namespace OpenBve {
 				double tb = World.CameraTrackFollower.TrackPosition + World.BackgroundImageDistance + 4.0 * World.ExtraViewingDistance;
 				bool v = pb >= ta & pa <= tb;
 				if (v) {
-					if (Game.SecondsSinceMidnight >= AnimatedWorldObjects[i].Object.TimeNextUpdating | ForceUpdate) {
-						AnimatedWorldObjects[i].Object.TimeNextUpdating = Game.SecondsSinceMidnight + AnimatedWorldObjects[i].Object.RefreshRate;
+					if (Game.SecondsSinceMidnight >= AnimatedWorldObjects[i].Object.TimeNextUpdated | ForceUpdate) {
+						double timeDelta = Game.SecondsSinceMidnight - AnimatedWorldObjects[i].Object.TimeLastUpdated;
+						AnimatedWorldObjects[i].Object.TimeNextUpdated = Game.SecondsSinceMidnight + AnimatedWorldObjects[i].Object.RefreshRate;
+						AnimatedWorldObjects[i].Object.TimeLastUpdated = Game.SecondsSinceMidnight;
 						TrainManager.Train train = null;
 						double trainDistance = double.MaxValue;
 						for (int j = 0; j < TrainManager.Trains.Length; j++) {
@@ -692,7 +734,7 @@ namespace OpenBve {
 								trainDistance = distance;
 							}
 						}
-						UpdateAnimatedObject(ref AnimatedWorldObjects[i].Object, train, AnimatedWorldObjects[i].SectionIndex, AnimatedWorldObjects[i].TrackPosition, AnimatedWorldObjects[i].Position, AnimatedWorldObjects[i].Direction, AnimatedWorldObjects[i].Up, AnimatedWorldObjects[i].Side, false, true, true, TimeElapsed);
+						UpdateAnimatedObject(ref AnimatedWorldObjects[i].Object, false, train, train == null ? 0 : train.DriverCar, AnimatedWorldObjects[i].SectionIndex, AnimatedWorldObjects[i].TrackPosition, AnimatedWorldObjects[i].Position, AnimatedWorldObjects[i].Direction, AnimatedWorldObjects[i].Up, AnimatedWorldObjects[i].Side, false, true, true, timeDelta);
 					}
 					if (!AnimatedWorldObjects[i].Visible) {
 						Renderer.ShowObject(AnimatedWorldObjects[i].Object.ObjectIndex, false);
@@ -704,7 +746,7 @@ namespace OpenBve {
 						AnimatedWorldObjects[i].Visible = false;
 					}
 					if (ForceUpdate) {
-						AnimatedWorldObjects[i].Object.TimeNextUpdating = Game.SecondsSinceMidnight + AnimatedWorldObjects[i].Object.RefreshRate;
+						AnimatedWorldObjects[i].Object.TimeNextUpdated = Game.SecondsSinceMidnight;
 					}
 				}
 			}

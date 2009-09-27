@@ -24,11 +24,11 @@ namespace OpenBve {
 				this.TrackPosition = TrackPosition;
 			}
 		}
-		internal static Fog PreviousFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 0.0);
-		internal static Fog CurrentFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 0.5);
-		internal static Fog NextFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 1.0);
-		internal static float NoFogStart = 800.0f;
+		internal static float NoFogStart = 800.0f; // must not be 600 or below
 		internal static float NoFogEnd = 1600.0f;
+		internal static Fog PreviousFog = new Fog(NoFogStart, NoFogEnd, new World.ColorRGB(128, 128, 128), 0.0);
+		internal static Fog CurrentFog = new Fog(NoFogStart, NoFogEnd, new World.ColorRGB(128, 128, 128), 0.5);
+		internal static Fog NextFog = new Fog(NoFogStart, NoFogEnd, new World.ColorRGB(128, 128, 128), 1.0);
 		
 		// route constants
 		internal static string RouteComment = "";
@@ -40,6 +40,7 @@ namespace OpenBve {
 		internal static double RouteInitialElevation = 0.0;
 		internal static double RouteSeaLevelAirPressure = 101325.0;
 		internal static double RouteSeaLevelAirTemperature = 293.15;
+		internal static double[] RouteUnitOfLength = new double[] { 1.0 };
 		internal const double CoefficientOfGroundFriction = 0.5;
 		internal const double CriticalCollisionSpeedDifference = 8.0;
 		internal const double BrakePipeLeakRate = 500000.0;
@@ -250,11 +251,11 @@ namespace OpenBve {
 			BogusPretrainInstructions = new BogusPretrainInstruction[] { };
 			TrainName = "";
 			TrainStart = TrainStartMode.EmergencyBrakesNoAts;
-			PreviousFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 0.0);
-			CurrentFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 0.5);
-			NextFog = new Fog(0.0f, 0.0f, new World.ColorRGB(128, 128, 128), 1.0);
-			NoFogStart = (float)World.BackgroundImageDistance + 200.0f;
-			NoFogEnd = 2.0f * NoFogStart;
+			NoFogStart = (float)Math.Max(1.33333333333333 * World.BackgroundImageDistance, 800.0);
+			NoFogEnd = (float)Math.Max(2.66666666666667 * World.BackgroundImageDistance, 1600.0);
+			PreviousFog = new Fog(NoFogStart, NoFogEnd, new World.ColorRGB(128, 128, 128), 0.0);
+			CurrentFog = new Fog(NoFogStart, NoFogEnd, new World.ColorRGB(128, 128, 128), 0.5);
+			NextFog = new Fog(NoFogStart, NoFogEnd, new World.ColorRGB(128, 128, 128), 1.0);
 			InfoTotalTriangles = 0;
 			InfoTotalTriangleStrip = 0;
 			InfoTotalQuads = 0;
@@ -657,11 +658,11 @@ namespace OpenBve {
 			internal float Speed;
 			internal float Acceleration;
 			internal short ReverserDriver;
-			internal short ReverserSecurity;
+			internal short ReverserSafety;
 			internal BlackBoxPower PowerDriver;
-			internal BlackBoxPower PowerSecurity;
+			internal BlackBoxPower PowerSafety;
 			internal BlackBoxBrake BrakeDriver;
-			internal BlackBoxBrake BrakeSecurity;
+			internal BlackBoxBrake BrakeSafety;
 			internal BlackBoxEventToken EventToken;
 		}
 		internal static BlackBoxEntry[] BlackBoxEntries = new BlackBoxEntry[256];
@@ -684,9 +685,9 @@ namespace OpenBve {
 				BlackBoxEntries[BlackBoxEntryCount].Speed = (float)TrainManager.PlayerTrain.Specs.CurrentAverageSpeed;
 				BlackBoxEntries[BlackBoxEntryCount].Acceleration = (float)TrainManager.PlayerTrain.Specs.CurrentAverageAcceleration;
 				BlackBoxEntries[BlackBoxEntryCount].ReverserDriver = (short)TrainManager.PlayerTrain.Specs.CurrentReverser.Driver;
-				BlackBoxEntries[BlackBoxEntryCount].ReverserSecurity = (short)TrainManager.PlayerTrain.Specs.CurrentReverser.Actual;
+				BlackBoxEntries[BlackBoxEntryCount].ReverserSafety = (short)TrainManager.PlayerTrain.Specs.CurrentReverser.Actual;
 				BlackBoxEntries[BlackBoxEntryCount].PowerDriver = (BlackBoxPower)TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Driver;
-				BlackBoxEntries[BlackBoxEntryCount].PowerSecurity = (BlackBoxPower)TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Security;
+				BlackBoxEntries[BlackBoxEntryCount].PowerSafety = (BlackBoxPower)TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Safety;
 				if (TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Driver) {
 					BlackBoxEntries[BlackBoxEntryCount].BrakeDriver = BlackBoxBrake.Emergency;
 				} else if (TrainManager.PlayerTrain.Specs.CurrentHoldBrake.Driver) {
@@ -701,19 +702,19 @@ namespace OpenBve {
 				} else {
 					BlackBoxEntries[BlackBoxEntryCount].BrakeDriver = (BlackBoxBrake)TrainManager.PlayerTrain.Specs.CurrentBrakeNotch.Driver;
 				}
-				if (TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Security) {
-					BlackBoxEntries[BlackBoxEntryCount].BrakeSecurity = BlackBoxBrake.Emergency;
+				if (TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Safety) {
+					BlackBoxEntries[BlackBoxEntryCount].BrakeSafety = BlackBoxBrake.Emergency;
 				} else if (TrainManager.PlayerTrain.Specs.CurrentHoldBrake.Actual) {
-					BlackBoxEntries[BlackBoxEntryCount].BrakeSecurity = BlackBoxBrake.HoldBrake;
+					BlackBoxEntries[BlackBoxEntryCount].BrakeSafety = BlackBoxBrake.HoldBrake;
 				} else if (TrainManager.PlayerTrain.Cars[d].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
-					switch (TrainManager.PlayerTrain.Specs.AirBrake.Handle.Security) {
-							case TrainManager.AirBrakeHandleState.Release: BlackBoxEntries[BlackBoxEntryCount].BrakeSecurity = BlackBoxBrake.Release; break;
-							case TrainManager.AirBrakeHandleState.Lap: BlackBoxEntries[BlackBoxEntryCount].BrakeSecurity = BlackBoxBrake.Lap; break;
-							case TrainManager.AirBrakeHandleState.Service: BlackBoxEntries[BlackBoxEntryCount].BrakeSecurity = BlackBoxBrake.Service; break;
-							default: BlackBoxEntries[BlackBoxEntryCount].BrakeSecurity = BlackBoxBrake.Emergency; break;
+					switch (TrainManager.PlayerTrain.Specs.AirBrake.Handle.Safety) {
+							case TrainManager.AirBrakeHandleState.Release: BlackBoxEntries[BlackBoxEntryCount].BrakeSafety = BlackBoxBrake.Release; break;
+							case TrainManager.AirBrakeHandleState.Lap: BlackBoxEntries[BlackBoxEntryCount].BrakeSafety = BlackBoxBrake.Lap; break;
+							case TrainManager.AirBrakeHandleState.Service: BlackBoxEntries[BlackBoxEntryCount].BrakeSafety = BlackBoxBrake.Service; break;
+							default: BlackBoxEntries[BlackBoxEntryCount].BrakeSafety = BlackBoxBrake.Emergency; break;
 					}
 				} else {
-					BlackBoxEntries[BlackBoxEntryCount].BrakeSecurity = (BlackBoxBrake)TrainManager.PlayerTrain.Specs.CurrentBrakeNotch.Security;
+					BlackBoxEntries[BlackBoxEntryCount].BrakeSafety = (BlackBoxBrake)TrainManager.PlayerTrain.Specs.CurrentBrakeNotch.Safety;
 				}
 				BlackBoxEntries[BlackBoxEntryCount].EventToken = EventToken;
 				BlackBoxEntryCount++;
@@ -758,6 +759,7 @@ namespace OpenBve {
 			internal double PassengerRatio;
 			internal int TimetableDaytimeTexture;
 			internal int TimetableNighttimeTexture;
+			internal double DefaultTrackPosition;
 		}
 		internal static Station[] Stations = new Station[] { };
 		internal static int GetStopIndex(int StationIndex, int Cars) {
@@ -1626,6 +1628,9 @@ namespace OpenBve {
 				Messages[n].RendererPosition = new World.Vector2D(0.0, 0.0);
 				Messages[n].RendererAlpha = 0.0;
 			}
+		}
+		internal static void AddDebugMessage(string Text, double Duration) {
+			AddMessage(Text, MessageDependency.None, Interface.GameMode.Expert, MessageColor.Magenta, Game.SecondsSinceMidnight + Duration);
 		}
 		internal static void UpdateMessages() {
 			for (int i = 0; i < Messages.Length; i++) {
