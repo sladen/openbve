@@ -70,7 +70,7 @@ namespace OpenBve {
                     x = ox + w * (x - x0) * xd;
                     z = oy + h + h * zd * (z0 - z);
                     p[i] = new PointF((float)x, (float)z);
-                    /// ats/atc
+                    // ats/atc
                     for (int j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
                         if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.StationStartEvent) {
                             TrackManager.StationStartEvent e = (TrackManager.StationStartEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
@@ -122,7 +122,7 @@ namespace OpenBve {
                             x = ox + w * (x - x0) * xd;
                             y = oy + h + h * zd * (z0 - y);
                             RectangleF r = new RectangleF((float)x - 4.0f, (float)y - 4.0f, 8.0f, 8.0f);
-                            bool q = Game.PlayerStopsAtStation(e.StationIndex);
+                            bool stop = Game.PlayerStopsAtStation(e.StationIndex);
                             string t = Game.Stations[e.StationIndex].Name;
                             SizeF m = g.MeasureString(t, f, Width, StringFormat.GenericDefault);
                             double sx = TrackManager.CurrentTrack.Elements[i].WorldSide.X;
@@ -164,9 +164,9 @@ namespace OpenBve {
                                 yt = h - m.Height;
                             }
                             r = new RectangleF((float)xt, (float)yt, m.Width, m.Height);
-                            g.FillRectangle(q ? Brushes.White : Brushes.LightGray, r.Left - 1.0f, r.Top - 1.0f, r.Width + 2.0f, r.Height + 2.0f);
-                            g.DrawRectangle(q ? Pens.Black : Pens.Gray, r.Left - 1.0f, r.Top - 1.0f, r.Width + 2.0f, r.Height + 2.0f);
-                            g.DrawString(t, f, q ? Brushes.Black : Brushes.Gray, (float)xt, (float)yt);
+                            g.FillRectangle(stop ? Brushes.White : Brushes.LightGray, r.Left - 1.0f, r.Top - 1.0f, r.Width + 2.0f, r.Height + 2.0f);
+                            g.DrawRectangle(stop ? Pens.Black : Pens.Gray, r.Left - 1.0f, r.Top - 1.0f, r.Width + 2.0f, r.Height + 2.0f);
+                            g.DrawString(t, f, stop ? Brushes.Black : Brushes.Gray, (float)xt, (float)yt);
                         }
                     }
                 }

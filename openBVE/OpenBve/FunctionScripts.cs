@@ -14,15 +14,18 @@ namespace OpenBve {
 			CompareEqual, CompareUnequal, CompareLess, CompareGreater, CompareLessEqual, CompareGreaterEqual, CompareConditional,
 			LogicalNot, LogicalAnd, LogicalOr, LogicalNand, LogicalNor, LogicalXor,
 			TimeSecondsSinceMidnight, CameraDistance,
-			TrainCars, TrainSpeed, TrainSpeedometer,
+			TrainCars,
+			TrainSpeed, TrainSpeedometer, TrainAcceleration, TrainAccelerationMotor,
+			TrainSpeedOfCar, TrainSpeedometerOfCar, TrainAccelerationOfCar, TrainAccelerationMotorOfCar,
 			TrainDistance, TrainDistanceToCar, TrainTrackDistance, TrainTrackDistanceToCar,
 			Doors, DoorsIndex,
 			LeftDoors, LeftDoorsIndex, RightDoors, RightDoorsIndex,
 			LeftDoorsTarget, LeftDoorsTargetIndex, RightDoorsTarget, RightDoorsTargetIndex,
 			ReverserNotch, PowerNotch, PowerNotches, BrakeNotch, BrakeNotches, BrakeNotchLinear, BrakeNotchesLinear, EmergencyBrake,
 			HasAirBrake, HoldBrake, HasHoldBrake, ConstSpeed, HasConstSpeed,
-			BrakeMainReservoir, BrakeEqualizingReservoir, BrakeBrakePipe, BrakeBrakeCylinder, StraightAirPipe,
-			SecurityPluginState,
+			BrakeMainReservoir, BrakeEqualizingReservoir, BrakeBrakePipe, BrakeBrakeCylinder, BrakeStraightAirPipe,
+			BrakeMainReservoirOfCar, BrakeEqualizingReservoirOfCar, BrakeBrakePipeOfCar, BrakeBrakeCylinderOfCar, BrakeStraightAirPipeOfCar,
+			SafetyPluginAvailable, SafetyPluginState,
 			TimetableVisible,
 			SectionAspectNumber
 		}
@@ -33,8 +36,8 @@ namespace OpenBve {
 			internal double[] Stack;
 			internal double[] Constants;
 			internal double LastResult;
-			internal double Perform(TrainManager.Train Train, World.Vector3D Position, double TrackPosition, int SectionIndex, double TimeElapsed) {
-				ExecuteFunctionScript(this, Train, Position, TrackPosition, SectionIndex, TimeElapsed);
+			internal double Perform(TrainManager.Train Train, int CarIndex, World.Vector3D Position, double TrackPosition, int SectionIndex, double TimeElapsed) {
+				ExecuteFunctionScript(this, Train, CarIndex, Position, TrackPosition, SectionIndex, TimeElapsed);
 				return this.LastResult;
 			}
 			internal FunctionScript Clone() {
@@ -43,7 +46,7 @@ namespace OpenBve {
 		}
 
 		// execute function script
-		private static void ExecuteFunctionScript(FunctionScript Function, TrainManager.Train Train, World.Vector3D Position, double TrackPosition, int SectionIndex, double TimeElapsed) {
+		private static void ExecuteFunctionScript(FunctionScript Function, TrainManager.Train Train, int CarIndex, World.Vector3D Position, double TrackPosition, int SectionIndex, double TimeElapsed) {
 			int s = 0, c = 0;
 			for (int i = 0; i < Function.Instructions.Length; i++) {
 				switch (Function.Instructions[i]) {
@@ -246,25 +249,111 @@ namespace OpenBve {
 						// train
 					case Instructions.TrainCars:
 						if (Train != null) {
-							Function.Stack[s] = Train.Cars.Length;
+							Function.Stack[s] = (double)Train.Cars.Length;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
 					case Instructions.TrainSpeed:
 						if (Train != null) {
-							Function.Stack[s] = Train.Specs.CurrentAverageSpeed;
+							Function.Stack[s] = Train.Cars[CarIndex].Specs.CurrentSpeed;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
+					case Instructions.TrainSpeedOfCar:
+						if (Train != null) {
+							int j = (int)Math.Round(Function.Stack[s - 1]);
+							if (j < 0) j += Train.Cars.Length;
+							if (j >= 0 & j < Train.Cars.Length) {
+								Function.Stack[s - 1] = Train.Cars[j].Specs.CurrentSpeed;
+							} else {
+								Function.Stack[s - 1] = 0.0;
+							}
+						} else {
+							Function.Stack[s - 1] = 0.0;
+						}
+						break;
 					case Instructions.TrainSpeedometer:
 						if (Train != null) {
-							Function.Stack[s] = Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed;
+							Function.Stack[s] = Train.Cars[CarIndex].Specs.CurrentPerceivedSpeed;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
+					case Instructions.TrainSpeedometerOfCar:
+						if (Train != null) {
+							int j = (int)Math.Round(Function.Stack[s - 1]);
+							if (j < 0) j += Train.Cars.Length;
+							if (j >= 0 & j < Train.Cars.Length) {
+								Function.Stack[s - 1] = Train.Cars[j].Specs.CurrentPerceivedSpeed;
+							} else {
+								Function.Stack[s - 1] = 0.0;
+							}
+						} else {
+							Function.Stack[s - 1] = 0.0;
+						}
+						break;
+					case Instructions.TrainAcceleration:
+						if (Train != null) {
+							Function.Stack[s] = Train.Cars[CarIndex].Specs.CurrentAcceleration;
+						} else {
+							Function.Stack[s] = 0.0;
+						}
+						s++; break;
+					case Instructions.TrainAccelerationOfCar:
+						if (Train != null) {
+							int j = (int)Math.Round(Function.Stack[s - 1]);
+							if (j < 0) j += Train.Cars.Length;
+							if (j >= 0 & j < Train.Cars.Length) {
+								Function.Stack[s - 1] = Train.Cars[j].Specs.CurrentAcceleration;
+							} else {
+								Function.Stack[s - 1] = 0.0;
+							}
+						} else {
+							Function.Stack[s - 1] = 0.0;
+						}
+						break;
+					case Instructions.TrainAccelerationMotor:
+						if (Train != null) {
+							Function.Stack[s] = 0.0;
+							for (int j = 0; j < Train.Cars.Length; j++) {
+								if (Train.Cars[j].Specs.IsMotorCar) {
+									// hack: CurrentAccelerationOutput does not distinguish between forward/backward
+									if (Train.Cars[j].Specs.CurrentAccelerationOutput < 0.0) {
+										Function.Stack[s] = Train.Cars[j].Specs.CurrentAccelerationOutput * (double)Math.Sign(Train.Cars[j].Specs.CurrentSpeed);
+									} else if (Train.Cars[j].Specs.CurrentAccelerationOutput > 0.0) {
+										Function.Stack[s] = Train.Cars[j].Specs.CurrentAccelerationOutput * (double)Train.Specs.CurrentReverser.Actual;
+									} else {
+										Function.Stack[s] = 0.0;
+									}
+									break;
+								}
+							}
+						} else {
+							Function.Stack[s] = 0.0;
+						}
+						s++; break;
+					case Instructions.TrainAccelerationMotorOfCar:
+						if (Train != null) {
+							int j = (int)Math.Round(Function.Stack[s - 1]);
+							if (j < 0) j += Train.Cars.Length;
+							if (j >= 0 & j < Train.Cars.Length) {
+								// hack: CurrentAccelerationOutput does not distinguish between forward/backward
+								if (Train.Cars[j].Specs.CurrentAccelerationOutput < 0.0) {
+									Function.Stack[s - 1] = Train.Cars[j].Specs.CurrentAccelerationOutput * (double)Math.Sign(Train.Cars[j].Specs.CurrentSpeed);
+								} else if (Train.Cars[j].Specs.CurrentAccelerationOutput > 0.0) {
+									Function.Stack[s - 1] = Train.Cars[j].Specs.CurrentAccelerationOutput * (double)Train.Specs.CurrentReverser.Actual;
+								} else {
+									Function.Stack[s - 1] = 0.0;
+								}
+							} else {
+								Function.Stack[s - 1] = 0.0;
+							}
+						} else {
+							Function.Stack[s - 1] = 0.0;
+						}
+						break;
 					case Instructions.TrainDistance:
 						if (Train != null) {
 							double dist = double.MaxValue;
@@ -615,41 +704,113 @@ namespace OpenBve {
 						// brake
 					case Instructions.BrakeMainReservoir:
 						if (Train != null) {
-							Function.Stack[s] = Train.Cars[Train.DriverCar].Specs.AirBrake.MainReservoirCurrentPressure;
+							Function.Stack[s] = Train.Cars[CarIndex].Specs.AirBrake.MainReservoirCurrentPressure;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
+					case Instructions.BrakeMainReservoirOfCar:
+						if (Train == null) {
+							Function.Stack[s - 1] = 0.0;
+						} else {
+							int j = (int)Math.Round(Function.Stack[s - 1]);
+							if (j < 0) j += Train.Cars.Length;
+							if (j >= 0 & j < Train.Cars.Length) {
+								Function.Stack[s - 1] = Train.Cars[j].Specs.AirBrake.MainReservoirCurrentPressure;
+							} else {
+								Function.Stack[s - 1] = 0.0;
+							}
+						}
+						break;
 					case Instructions.BrakeEqualizingReservoir:
 						if (Train != null) {
-							Function.Stack[s] = Train.Cars[Train.DriverCar].Specs.AirBrake.EqualizingReservoirCurrentPressure;
+							Function.Stack[s] = Train.Cars[CarIndex].Specs.AirBrake.EqualizingReservoirCurrentPressure;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
+					case Instructions.BrakeEqualizingReservoirOfCar:
+						if (Train == null) {
+							Function.Stack[s - 1] = 0.0;
+						} else {
+							int j = (int)Math.Round(Function.Stack[s - 1]);
+							if (j < 0) j += Train.Cars.Length;
+							if (j >= 0 & j < Train.Cars.Length) {
+								Function.Stack[s - 1] = Train.Cars[j].Specs.AirBrake.EqualizingReservoirCurrentPressure;
+							} else {
+								Function.Stack[s - 1] = 0.0;
+							}
+						}
+						break;
 					case Instructions.BrakeBrakePipe:
 						if (Train != null) {
-							Function.Stack[s] = Train.Cars[Train.DriverCar].Specs.AirBrake.BrakePipeCurrentPressure;
+							Function.Stack[s] = Train.Cars[CarIndex].Specs.AirBrake.BrakePipeCurrentPressure;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
+					case Instructions.BrakeBrakePipeOfCar:
+						if (Train == null) {
+							Function.Stack[s - 1] = 0.0;
+						} else {
+							int j = (int)Math.Round(Function.Stack[s - 1]);
+							if (j < 0) j += Train.Cars.Length;
+							if (j >= 0 & j < Train.Cars.Length) {
+								Function.Stack[s - 1] = Train.Cars[j].Specs.AirBrake.BrakePipeCurrentPressure;
+							} else {
+								Function.Stack[s - 1] = 0.0;
+							}
+						}
+						break;
 					case Instructions.BrakeBrakeCylinder:
 						if (Train != null) {
-							Function.Stack[s] = Train.Cars[Train.DriverCar].Specs.AirBrake.BrakeCylinderCurrentPressure;
+							Function.Stack[s] = Train.Cars[CarIndex].Specs.AirBrake.BrakeCylinderCurrentPressure;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
-					case Instructions.StraightAirPipe:
+					case Instructions.BrakeBrakeCylinderOfCar:
+						if (Train == null) {
+							Function.Stack[s - 1] = 0.0;
+						} else {
+							int j = (int)Math.Round(Function.Stack[s - 1]);
+							if (j < 0) j += Train.Cars.Length;
+							if (j >= 0 & j < Train.Cars.Length) {
+								Function.Stack[s - 1] = Train.Cars[j].Specs.AirBrake.BrakeCylinderCurrentPressure;
+							} else {
+								Function.Stack[s - 1] = 0.0;
+							}
+						}
+						break;
+					case Instructions.BrakeStraightAirPipe:
 						if (Train != null) {
-							Function.Stack[s] = Train.Cars[Train.DriverCar].Specs.AirBrake.StraightAirPipeCurrentPressure;
+							Function.Stack[s] = Train.Cars[CarIndex].Specs.AirBrake.StraightAirPipeCurrentPressure;
 						} else {
 							Function.Stack[s] = 0.0;
 						}
 						s++; break;
-						// security
-					case Instructions.SecurityPluginState:
+					case Instructions.BrakeStraightAirPipeOfCar:
+						if (Train == null) {
+							Function.Stack[s - 1] = 0.0;
+						} else {
+							int j = (int)Math.Round(Function.Stack[s - 1]);
+							if (j < 0) j += Train.Cars.Length;
+							if (j >= 0 & j < Train.Cars.Length) {
+								Function.Stack[s - 1] = Train.Cars[j].Specs.AirBrake.StraightAirPipeCurrentPressure;
+							} else {
+								Function.Stack[s - 1] = 0.0;
+							}
+						}
+						break;
+						// safety
+					case Instructions.SafetyPluginAvailable:
+						if (Train == TrainManager.PlayerTrain) {
+							Function.Stack[s] = TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin ? 1.0 : 0.0;
+						} else {
+							Function.Stack[s] = 0.0;
+						}
+						s++; break;
+					case Instructions.SafetyPluginState:
 						if (Train == null) {
 							Function.Stack[s - 1] = 0.0;
 						} else {
@@ -671,7 +832,7 @@ namespace OpenBve {
 											}
 										} break;
 									case 257:
-										// ATS RUN (separated flashing)
+										// ATS RUN (separate flashing)
 										if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn) {
 											if (Train.Specs.Safety.State == TrainManager.SafetyState.Ringing) {
 												Function.Stack[s - 1] = 1.0;
@@ -828,7 +989,7 @@ namespace OpenBve {
 						s++; break;
 						// default
 					default:
-						throw new System.InvalidProgramException("The unknown instruction " + Function.Instructions[i].ToString() + " was encountered in ExecuteFunctionScript.");
+						throw new System.InvalidOperationException("The unknown instruction " + Function.Instructions[i].ToString() + " was encountered in ExecuteFunctionScript.");
 				}
 			}
 			Function.LastResult = Function.Stack[s - 1];
@@ -883,8 +1044,12 @@ namespace OpenBve {
 										if (n >= p.Length) Array.Resize<string>(ref p, n << 1);
 										p[n] = Expression.Substring(t, j - t);
 										n++; t = j + 1;
-									} break;
-							} if (q) break;
+									}
+									break;
+							}
+							if (q) {
+								break;
+							}
 							j++;
 						}
 					} else {
@@ -1046,10 +1211,31 @@ namespace OpenBve {
 		// get postfix notation from function notation
 		private static string GetPostfixNotationFromFunctionNotation(string Expression) {
 			int i = Expression.IndexOf('[');
-			if (i == -1 | !Expression.EndsWith("]")) return Expression;
+			if (i >= 0) {
+				if (!Expression.EndsWith("]")) {
+					throw new System.IO.InvalidDataException("Missing closing bracket encountered in " + Expression);
+				}
+			} else {
+				if (Expression.EndsWith("]")) {
+					throw new System.IO.InvalidDataException("Unexpected closing bracket encountered in " + Expression);
+				} else {
+					double value;
+					if (double.TryParse(Expression, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out value)) {
+						return Expression;
+					} else {
+						for (int j = 0; j < Expression.Length; j++) {
+							if (!char.IsLetterOrDigit(Expression[j])) {
+								throw new System.IO.InvalidDataException("Invalid character encountered in variable " + Expression);
+							}
+						}
+						return Expression;
+					}
+				}
+			}
 			string f = Expression.Substring(0, i);
 			string s = Expression.Substring(i + 1, Expression.Length - i - 2);
-			string[] a = new string[4]; int n = 0;
+			string[] a = new string[4];
+			int n = 0;
 			int b = 0;
 			for (i = 0; i < s.Length; i++) {
 				switch (s[i]) {
@@ -1068,8 +1254,12 @@ namespace OpenBve {
 											throw new System.IO.InvalidDataException("Unexpected closing bracket encountered in " + Expression);
 										} else if (m == 0) {
 											q = true;
-										} break;
-								} if (q) break;
+										}
+										break;
+								}
+								if (q) {
+									break;
+								}
 								i++;
 							} if (!q) {
 								throw new System.IO.InvalidDataException("No closing bracket found in " + Expression);
@@ -1078,17 +1268,23 @@ namespace OpenBve {
 					case ']':
 						throw new System.IO.InvalidDataException("Unexpected closing bracket encountered in " + Expression);
 					case ',':
-						if (n == a.Length) Array.Resize<string>(ref a, n << 1);
+						if (n == a.Length) {
+							Array.Resize<string>(ref a, n << 1);
+						}
 						a[n] = s.Substring(b, i - b).Trim();
 						n++;
 						b = i + 1;
 						break;
 				}
 			}
-			if (n == a.Length) Array.Resize<string>(ref a, n << 1);
+			if (n == a.Length) {
+				Array.Resize<string>(ref a, n << 1);
+			}
 			a[n] = s.Substring(b).Trim();
 			n++;
-			if (n == 1 & a[0].Length == 0) n = 0;
+			if (n == 1 & a[0].Length == 0) {
+				n = 0;
+			}
 			for (i = 0; i < n; i++) {
 				if (a[i].Length == 0) {
 					throw new System.IO.InvalidDataException("An empty argument is invalid in " + f + " in " + Expression);
@@ -1114,7 +1310,8 @@ namespace OpenBve {
 						System.Text.StringBuilder t = new System.Text.StringBuilder(a[0] + " " + a[1] + " +");
 						for (i = 2; i < n; i++) {
 							t.Append(" " + a[i] + " +");
-						} return t.ToString();
+						}
+						return t.ToString();
 					}
 				case "subtract":
 					if (n == 2) {
@@ -1133,7 +1330,8 @@ namespace OpenBve {
 						System.Text.StringBuilder t = new System.Text.StringBuilder(a[0] + " " + a[1] + " *");
 						for (i = 2; i < n; i++) {
 							t.Append(" " + a[i] + " *");
-						} return t.ToString();
+						}
+						return t.ToString();
 					}
 				case "divide":
 					if (n == 2) {
@@ -1262,44 +1460,23 @@ namespace OpenBve {
 					}
 					// train
 				case "distance":
-					if (n == 1) {
-						return a[0] + " distancetocar";
-					} else {
-						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
-					}
 				case "trackdistance":
-					if (n == 1) {
-						return a[0] + " trackdistancetocar";
-					} else {
-						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
-					}
+				case "speed":
+				case "speedometer":
+				case "acceleration":
+				case "accelerationmotor":
 				case "doors":
-					if (n == 1) {
-						return a[0] + " doorsindex";
-					} else {
-						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
-					}
 				case "leftdoors":
-					if (n == 1) {
-						return a[0] + " leftdoorsindex";
-					} else {
-						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
-					}
 				case "rightdoorstarget":
-					if (n == 1) {
-						return a[0] + " rightdoorstargetindex";
-					} else {
-						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
-					}
 				case "leftdoorstarget":
-					if (n == 1) {
-						return a[0] + " leftdoorstargetindex";
-					} else {
-						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
-					}
 				case "rightdoors":
+				case "mainreservoir":
+				case "equalizingreservoir":
+				case "brakepipe":
+				case "brakecylinder":
+				case "straightairpipe":
 					if (n == 1) {
-						return a[0] + " rightdoorsindex";
+						return a[0] + " " + f.ToLowerInvariant() + "index";
 					} else {
 						throw new System.IO.InvalidDataException(f + " is expected to have 1 argument in " + Expression);
 					}
@@ -1315,7 +1492,7 @@ namespace OpenBve {
 			}
 		}
 
-		// get optimized postfox notation
+		// get optimized postfix notation
 		private static string GetOptimizedPostfixNotation(string Expression) {
 			Expression = " " + Expression + " ";
 			Expression = Expression.Replace(" 1 1 == -- ", " 0 ");
@@ -1332,7 +1509,7 @@ namespace OpenBve {
 							if (StackLength >= 1) {
 								if (Stack[StackLength - 1] == "<>") {
 									// <> <>
-									// [N/A]
+									// [n/a]
 									StackLength--;
 									q = false;
 								} else if (StackLength >= 2) {
@@ -1465,7 +1642,7 @@ namespace OpenBve {
 							if (StackLength >= 1) {
 								if (Stack[StackLength - 1].Equals("minus", StringComparison.InvariantCultureIgnoreCase)) {
 									// minus minus
-									// [N/A]
+									// [n/a]
 									StackLength--;
 									q = false;
 								} else {
@@ -1557,7 +1734,7 @@ namespace OpenBve {
 							if (StackLength >= 1) {
 								if (Stack[StackLength - 1].Equals("reciprocal", StringComparison.InvariantCultureIgnoreCase)) {
 									// reciprocal reciprocal
-									// [N/A]
+									// [n/a]
 									StackLength--;
 									q = false;
 								} else {
@@ -2070,15 +2247,43 @@ namespace OpenBve {
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
 							Result.Instructions[n] = Instructions.TrainSpeed;
 							n++; s++; if (s >= m) m = s; break;
+						case "speedindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.TrainSpeedOfCar;
+							n++; break;
 						case "speedometer":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
 							Result.Instructions[n] = Instructions.TrainSpeedometer;
 							n++; s++; if (s >= m) m = s; break;
+						case "speedometerindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.TrainSpeedometerOfCar;
+							n++; break;
+						case "acceleration":
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.TrainAcceleration;
+							n++; s++; if (s >= m) m = s; break;
+						case "accelerationindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.TrainAccelerationOfCar;
+							n++; break;
+						case "accelerationmotor":
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.TrainAccelerationMotor;
+							n++; s++; if (s >= m) m = s; break;
+						case "accelerationmotorindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.TrainAccelerationMotorOfCar;
+							n++; break;
 						case "distance":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
 							Result.Instructions[n] = Instructions.TrainDistance;
 							n++; s++; if (s >= m) m = s; break;
-						case "distancetocar":
+						case "distanceindex":
 							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
 							Result.Instructions[n] = Instructions.TrainDistanceToCar;
@@ -2087,7 +2292,7 @@ namespace OpenBve {
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
 							Result.Instructions[n] = Instructions.TrainTrackDistance;
 							n++; s++; if (s >= m) m = s; break;
-						case "trackdistancetocar":
+						case "trackdistanceindex":
 							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
 							Result.Instructions[n] = Instructions.TrainTrackDistanceToCar;
@@ -2196,27 +2401,56 @@ namespace OpenBve {
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
 							Result.Instructions[n] = Instructions.BrakeMainReservoir;
 							n++; s++; if (s >= m) m = s; break;
+						case "mainreservoirindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.BrakeMainReservoirOfCar;
+							n++; break;
 						case "equalizingreservoir":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
 							Result.Instructions[n] = Instructions.BrakeEqualizingReservoir;
 							n++; s++; if (s >= m) m = s; break;
+						case "equalizingreservoirindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.BrakeEqualizingReservoirOfCar;
+							n++; break;
 						case "brakepipe":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
 							Result.Instructions[n] = Instructions.BrakeBrakePipe;
 							n++; s++; if (s >= m) m = s; break;
+						case "brakepipeindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.BrakeBrakePipeOfCar;
+							n++; break;
 						case "brakecylinder":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
 							Result.Instructions[n] = Instructions.BrakeBrakeCylinder;
 							n++; s++; if (s >= m) m = s; break;
+						case "brakecylinderindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.BrakeBrakeCylinderOfCar;
+							n++; break;
 						case "straightairpipe":
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.StraightAirPipe;
+							Result.Instructions[n] = Instructions.BrakeStraightAirPipe;
 							n++; s++; if (s >= m) m = s; break;
-							// train: security
+						case "straightairpipeindex":
+							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.BrakeStraightAirPipeOfCar;
+							n++; break;
+							// train: safety
+						case "hasplugin":
+							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
+							Result.Instructions[n] = Instructions.SafetyPluginAvailable;
+							n++; s++; if (s >= m) m = s; break;
 						case "pluginstate":
 							if (s < 1) throw new System.InvalidOperationException(Arguments[i] + " requires at least 1 argument on the stack in function script " + Expression);
 							if (n >= Result.Instructions.Length) Array.Resize<Instructions>(ref Result.Instructions, Result.Instructions.Length << 1);
-							Result.Instructions[n] = Instructions.SecurityPluginState;
+							Result.Instructions[n] = Instructions.SafetyPluginState;
 							n++; break;
 							// train: timetable
 						case "timetable":

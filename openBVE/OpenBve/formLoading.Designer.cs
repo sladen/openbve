@@ -248,6 +248,7 @@
         	// labelTrain
         	// 
         	this.labelTrain.AutoSize = true;
+        	this.labelTrain.ForeColor = System.Drawing.Color.Black;
         	this.labelTrain.Location = new System.Drawing.Point(8, 144);
         	this.labelTrain.Name = "labelTrain";
         	this.labelTrain.Size = new System.Drawing.Size(77, 13);
@@ -266,6 +267,7 @@
         	// labelRoute
         	// 
         	this.labelRoute.AutoSize = true;
+        	this.labelRoute.ForeColor = System.Drawing.Color.Black;
         	this.labelRoute.Location = new System.Drawing.Point(8, 104);
         	this.labelRoute.Name = "labelRoute";
         	this.labelRoute.Size = new System.Drawing.Size(81, 13);
@@ -334,6 +336,7 @@
         	        	        	| System.Windows.Forms.AnchorStyles.Left) 
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
         	this.labelHelp.AutoEllipsis = true;
+        	this.labelHelp.ForeColor = System.Drawing.Color.Black;
         	this.labelHelp.Location = new System.Drawing.Point(8, 40);
         	this.labelHelp.Name = "labelHelp";
         	this.labelHelp.Size = new System.Drawing.Size(522, 104);
@@ -344,6 +347,7 @@
         	// 
         	this.labelFilesNotFoundValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
         	this.labelFilesNotFoundValue.AutoEllipsis = true;
+        	this.labelFilesNotFoundValue.ForeColor = System.Drawing.Color.Black;
         	this.labelFilesNotFoundValue.Location = new System.Drawing.Point(168, 152);
         	this.labelFilesNotFoundValue.Name = "labelFilesNotFoundValue";
         	this.labelFilesNotFoundValue.Size = new System.Drawing.Size(96, 16);
@@ -354,6 +358,7 @@
         	// 
         	this.labelFilesNotFoundCaption.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
         	this.labelFilesNotFoundCaption.AutoEllipsis = true;
+        	this.labelFilesNotFoundCaption.ForeColor = System.Drawing.Color.Black;
         	this.labelFilesNotFoundCaption.Location = new System.Drawing.Point(8, 152);
         	this.labelFilesNotFoundCaption.Name = "labelFilesNotFoundCaption";
         	this.labelFilesNotFoundCaption.Size = new System.Drawing.Size(160, 16);

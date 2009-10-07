@@ -813,6 +813,12 @@ namespace OpenBve {
 			// transform subject
 			string Code;
 			switch (Subject.ToLowerInvariant()) {
+				case "acc":
+					Code = "acceleration";
+					break;
+				case "motor":
+					Code = "accelerationmotor";
+					break;
 				case "true":
 					Code = "1";
 					break;

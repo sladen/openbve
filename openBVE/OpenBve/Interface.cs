@@ -577,11 +577,11 @@ namespace OpenBve {
 							Game.BlackBoxEntries[i].Speed = Reader.ReadSingle();
 							Game.BlackBoxEntries[i].Acceleration = Reader.ReadSingle();
 							Game.BlackBoxEntries[i].ReverserDriver = Reader.ReadInt16();
-							Game.BlackBoxEntries[i].ReverserSecurity = Reader.ReadInt16();
+							Game.BlackBoxEntries[i].ReverserSafety = Reader.ReadInt16();
 							Game.BlackBoxEntries[i].PowerDriver = (Game.BlackBoxPower)Reader.ReadInt16();
-							Game.BlackBoxEntries[i].PowerSecurity = (Game.BlackBoxPower)Reader.ReadInt16();
+							Game.BlackBoxEntries[i].PowerSafety = (Game.BlackBoxPower)Reader.ReadInt16();
 							Game.BlackBoxEntries[i].BrakeDriver = (Game.BlackBoxBrake)Reader.ReadInt16();
-							Game.BlackBoxEntries[i].BrakeSecurity = (Game.BlackBoxBrake)Reader.ReadInt16();
+							Game.BlackBoxEntries[i].BrakeSafety = (Game.BlackBoxBrake)Reader.ReadInt16();
 							Game.BlackBoxEntries[i].EventToken = (Game.BlackBoxEventToken)Reader.ReadInt16();
 						}
 						Game.ScoreLogCount = Reader.ReadInt32();
@@ -634,11 +634,11 @@ namespace OpenBve {
 						Writer.Write(Game.BlackBoxEntries[i].Speed);
 						Writer.Write(Game.BlackBoxEntries[i].Acceleration);
 						Writer.Write(Game.BlackBoxEntries[i].ReverserDriver);
-						Writer.Write(Game.BlackBoxEntries[i].ReverserSecurity);
+						Writer.Write(Game.BlackBoxEntries[i].ReverserSafety);
 						Writer.Write((short)Game.BlackBoxEntries[i].PowerDriver);
-						Writer.Write((short)Game.BlackBoxEntries[i].PowerSecurity);
+						Writer.Write((short)Game.BlackBoxEntries[i].PowerSafety);
 						Writer.Write((short)Game.BlackBoxEntries[i].BrakeDriver);
-						Writer.Write((short)Game.BlackBoxEntries[i].BrakeSecurity);
+						Writer.Write((short)Game.BlackBoxEntries[i].BrakeSafety);
 						Writer.Write((short)Game.BlackBoxEntries[i].EventToken);
 					}
 					Writer.Write(Game.ScoreLogCount);
@@ -826,11 +826,11 @@ namespace OpenBve {
 							Builder.Append(Game.BlackBoxEntries[i].Speed.ToString(Culture) + ",");
 							Builder.Append(Game.BlackBoxEntries[i].Acceleration.ToString(Culture) + ",");
 							Builder.Append(((short)Game.BlackBoxEntries[i].ReverserDriver).ToString(Culture) + ",");
-							Builder.Append(((short)Game.BlackBoxEntries[i].ReverserSecurity).ToString(Culture) + ",");
+							Builder.Append(((short)Game.BlackBoxEntries[i].ReverserSafety).ToString(Culture) + ",");
 							Builder.Append(((short)Game.BlackBoxEntries[i].PowerDriver).ToString(Culture) + ",");
-							Builder.Append(((short)Game.BlackBoxEntries[i].PowerSecurity).ToString(Culture) + ",");
+							Builder.Append(((short)Game.BlackBoxEntries[i].PowerSafety).ToString(Culture) + ",");
 							Builder.Append(((short)Game.BlackBoxEntries[i].BrakeDriver).ToString(Culture) + ",");
-							Builder.Append(((short)Game.BlackBoxEntries[i].BrakeSecurity).ToString(Culture) + ",");
+							Builder.Append(((short)Game.BlackBoxEntries[i].BrakeSafety).ToString(Culture) + ",");
 							Builder.Append(((short)Game.BlackBoxEntries[i].EventToken).ToString(Culture));
 							Builder.Append("\r\n");
 						}
@@ -873,7 +873,7 @@ namespace OpenBve {
 							{
 								string[] reverser = new string[2];
 								for (int k = 0; k < 2; k++) {
-									short r = k == 0 ? Game.BlackBoxEntries[i].ReverserDriver : Game.BlackBoxEntries[i].ReverserSecurity;
+									short r = k == 0 ? Game.BlackBoxEntries[i].ReverserDriver : Game.BlackBoxEntries[i].ReverserSafety;
 									switch (r) {
 										case -1:
 											reverser[k] = QuickReferences.HandleBackward;
@@ -894,7 +894,7 @@ namespace OpenBve {
 							{
 								string[] power = new string[2];
 								for (int k = 0; k < 2; k++) {
-									Game.BlackBoxPower p = k == 0 ? Game.BlackBoxEntries[i].PowerDriver : Game.BlackBoxEntries[i].PowerSecurity;
+									Game.BlackBoxPower p = k == 0 ? Game.BlackBoxEntries[i].PowerDriver : Game.BlackBoxEntries[i].PowerSafety;
 									switch (p) {
 										case Game.BlackBoxPower.PowerNull:
 											power[k] = GetInterfaceString(QuickReferences.HandlePowerNull);
@@ -909,7 +909,7 @@ namespace OpenBve {
 							{
 								string[] brake = new string[2];
 								for (int k = 0; k < 2; k++) {
-									Game.BlackBoxBrake b = k == 0 ? Game.BlackBoxEntries[i].BrakeDriver : Game.BlackBoxEntries[i].BrakeSecurity;
+									Game.BlackBoxBrake b = k == 0 ? Game.BlackBoxEntries[i].BrakeDriver : Game.BlackBoxEntries[i].BrakeSafety;
 									switch (b) {
 										case Game.BlackBoxBrake.BrakeNull:
 											brake[k] = GetInterfaceString(QuickReferences.HandleBrakeNull);
@@ -2275,72 +2275,47 @@ namespace OpenBve {
 		internal static bool TryParseDouble(string Expression, double[] UnitFactors, out double Value) {
 			double a;
 			if (double.TryParse(Expression, NumberStyles.Any, CultureInfo.InvariantCulture, out a)) {
-				Value = a;
+				Value = a * UnitFactors[UnitFactors.Length - 1];
 				return true;
 			} else {
-				int j = 0, n = 0; Value = 0;
-				for (int i = 0; i < Expression.Length; i++) {
-					if (Expression[i] == ':') {
-						string t = Expression.Substring(j, i - j);
-						if (double.TryParse(t, NumberStyles.Float, CultureInfo.InvariantCulture, out a)) {
-							if (n < UnitFactors.Length) {
-								Value += a * UnitFactors[n];
-							} else {
-								return n > 0;
-							}
+				string[] parameters = Expression.Split(':');
+				if (parameters.Length <= UnitFactors.Length) {
+					Value = 0.0;
+					for (int i = 0; i < parameters.Length; i++) {
+						if (double.TryParse(parameters[i].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out a)) {
+							int j = i + UnitFactors.Length - parameters.Length;
+							Value += a * UnitFactors[j];
 						} else {
-							return n > 0;
-						} j = i + 1; n++;
-					}
-				}
-				{
-					string t = Expression.Substring(j);
-					if (double.TryParse(t, NumberStyles.Float, CultureInfo.InvariantCulture, out a)) {
-						if (n < UnitFactors.Length) {
-							Value += a * UnitFactors[n];
-							return true;
-						} else {
-							return n > 0;
+							return false;
 						}
-					} else {
-						return n > 0;
 					}
+					return true;
+				} else {
+					Value = 0.0;
+					return false;
 				}
 			}
 		}
 		internal static bool TryParseDoubleVb6(string Expression, double[] UnitFactors, out double Value) {
 			double a;
 			if (double.TryParse(Expression, NumberStyles.Any, CultureInfo.InvariantCulture, out a)) {
-				Value = a;
+				Value = a * UnitFactors[UnitFactors.Length - 1];
 				return true;
 			} else {
-				int j = 0, n = 0; Value = 0;
-				for (int i = 0; i < Expression.Length; i++) {
-					if (Expression[i] == ':') {
-						string t = Expression.Substring(j, i - j);
-						if (TryParseDoubleVb6(t, out a)) {
-							if (n < UnitFactors.Length) {
-								Value += a * UnitFactors[n];
-							} else {
-								return n > 0;
-							}
+				string[] parameters = Expression.Split(':');
+				Value = 0.0;
+				if (parameters.Length <= UnitFactors.Length) {
+					for (int i = 0; i < parameters.Length; i++) {
+						if (TryParseDoubleVb6(parameters[i].Trim(), out a)) {
+							int j = i + UnitFactors.Length - parameters.Length;
+							Value += a * UnitFactors[j];
 						} else {
-							return n > 0;
-						} j = i + 1; n++;
-					}
-				}
-				{
-					string t = Expression.Substring(j);
-					if (TryParseDoubleVb6(t, out a)) {
-						if (n < UnitFactors.Length) {
-							Value += a * UnitFactors[n];
-							return true;
-						} else {
-							return n > 0;
+							return false;
 						}
-					} else {
-						return n > 0;
 					}
+					return true;
+				} else {
+					return false;
 				}
 			}
 		}

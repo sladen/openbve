@@ -174,6 +174,9 @@ namespace OpenBve {
 			Gl.glMatrixMode(Gl.GL_MODELVIEW);
 			Gl.glDisable(Gl.GL_BLEND);
 		}
+		
+		// deinitialize
+		internal static void Deinitialize() { }
 
 		// initialize lighting
 		internal static void InitializeLighting() {
@@ -202,7 +205,7 @@ namespace OpenBve {
 			}
 			Gl.glDepthFunc(Gl.GL_LEQUAL);
 		}
-
+		
 		// render scene
 		internal static byte[] PixelBuffer = null;
 		internal static int PixelBufferOpenGlTextureIndex = 0;
@@ -684,8 +687,9 @@ namespace OpenBve {
 				if (!FogEnabled) {
 					Gl.glFogi(Gl.GL_FOG_MODE, Gl.GL_LINEAR);
 				}
-				Gl.glFogf(Gl.GL_FOG_START, Game.CurrentFog.Start * (float)World.BackgroundImageDistance / fogdistance);
-				Gl.glFogf(Gl.GL_FOG_END, Game.CurrentFog.End * (float)World.BackgroundImageDistance / fogdistance);
+				float ratio = (float)World.BackgroundImageDistance / fogdistance;
+				Gl.glFogf(Gl.GL_FOG_START, Game.CurrentFog.Start * ratio);
+				Gl.glFogf(Gl.GL_FOG_END, Game.CurrentFog.End * ratio);
 				Gl.glFogfv(Gl.GL_FOG_COLOR, new float[] { cr, cg, cb, 1.0f });
 				if (!FogEnabled) {
 					Gl.glEnable(Gl.GL_FOG); FogEnabled = true;
@@ -2152,17 +2156,17 @@ namespace OpenBve {
 					}
 					RenderString(2.0, ScreenHeight - 46.0, Fonts.FontType.Small, t, -1, 1.0f, 1.0f, 1.0f, true);
 				}
-				// security handles
+				// safety handles
 				{
-					string t = "security: " + (TrainManager.PlayerTrain.Specs.CurrentReverser.Actual == -1 ? "B" : TrainManager.PlayerTrain.Specs.CurrentReverser.Actual == 1 ? "F" : "N");
+					string t = "safety: " + (TrainManager.PlayerTrain.Specs.CurrentReverser.Actual == -1 ? "B" : TrainManager.PlayerTrain.Specs.CurrentReverser.Actual == 1 ? "F" : "N");
 					if (TrainManager.PlayerTrain.Specs.SingleHandle) {
-						t += " - " + (TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Security ? "EMG" : TrainManager.PlayerTrain.Specs.CurrentBrakeNotch.Security != 0 ? "B" + TrainManager.PlayerTrain.Specs.CurrentBrakeNotch.Security.ToString(Culture) : TrainManager.PlayerTrain.Specs.CurrentHoldBrake.Actual ? "HLD" : TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Security != 0 ? "P" + TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Security.ToString(Culture) : "N");
+						t += " - " + (TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Safety ? "EMG" : TrainManager.PlayerTrain.Specs.CurrentBrakeNotch.Safety != 0 ? "B" + TrainManager.PlayerTrain.Specs.CurrentBrakeNotch.Safety.ToString(Culture) : TrainManager.PlayerTrain.Specs.CurrentHoldBrake.Actual ? "HLD" : TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Safety != 0 ? "P" + TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Safety.ToString(Culture) : "N");
 					} else if (TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
-						t += " - " + (TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Security != 0 ? "P" + TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Security.ToString(Culture) : "N");
-						t += " - " + (TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Security ? "EMG" : TrainManager.PlayerTrain.Specs.AirBrake.Handle.Security == TrainManager.AirBrakeHandleState.Service ? "SRV" : TrainManager.PlayerTrain.Specs.AirBrake.Handle.Security == TrainManager.AirBrakeHandleState.Lap ? "LAP" : "REL");
+						t += " - " + (TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Safety != 0 ? "P" + TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Safety.ToString(Culture) : "N");
+						t += " - " + (TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Safety ? "EMG" : TrainManager.PlayerTrain.Specs.AirBrake.Handle.Safety == TrainManager.AirBrakeHandleState.Service ? "SRV" : TrainManager.PlayerTrain.Specs.AirBrake.Handle.Safety == TrainManager.AirBrakeHandleState.Lap ? "LAP" : "REL");
 					} else {
-						t += " - " + (TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Security != 0 ? "P" + TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Security.ToString(Culture) : "N");
-						t += " - " + (TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Security ? "EMG" : TrainManager.PlayerTrain.Specs.CurrentBrakeNotch.Security != 0 ? "B" + TrainManager.PlayerTrain.Specs.CurrentBrakeNotch.Security.ToString(Culture) : TrainManager.PlayerTrain.Specs.CurrentHoldBrake.Actual ? "HLD" : "N");
+						t += " - " + (TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Safety != 0 ? "P" + TrainManager.PlayerTrain.Specs.CurrentPowerNotch.Safety.ToString(Culture) : "N");
+						t += " - " + (TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Safety ? "EMG" : TrainManager.PlayerTrain.Specs.CurrentBrakeNotch.Safety != 0 ? "B" + TrainManager.PlayerTrain.Specs.CurrentBrakeNotch.Safety.ToString(Culture) : TrainManager.PlayerTrain.Specs.CurrentHoldBrake.Actual ? "HLD" : "N");
 					}
 					RenderString(2.0, ScreenHeight - 32.0, Fonts.FontType.Small, t, -1, 1.0f, 1.0f, 1.0f, true);
 				}
@@ -2215,21 +2219,20 @@ namespace OpenBve {
 					"",
 					"=train",
 					"speed: " + (Math.Abs(TrainManager.PlayerTrain.Specs.CurrentAverageSpeed) * 3.6).ToString("0.00", Culture) + " km/h",
-					"power (car " + car.ToString(Culture) +  "): " + TrainManager.PlayerTrain.Cars[car].Specs.CurrentAccelerationOutput.ToString("0.0000", Culture) + " m/s²",
+					"power (car " + car.ToString(Culture) +  "): " + (TrainManager.PlayerTrain.Cars[car].Specs.CurrentAccelerationOutput < 0.0 ? TrainManager.PlayerTrain.Cars[car].Specs.CurrentAccelerationOutput * (double)Math.Sign(TrainManager.PlayerTrain.Cars[car].Specs.CurrentSpeed) : TrainManager.PlayerTrain.Cars[car].Specs.CurrentAccelerationOutput * (double)TrainManager.PlayerTrain.Specs.CurrentReverser.Actual).ToString("0.0000", Culture) + " m/s²",
 					"acceleration: " + TrainManager.PlayerTrain.Specs.CurrentAverageAcceleration.ToString("0.0000", Culture) + " m/s²",
 					"position: " + (TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition - TrainManager.PlayerTrain.Cars[0].FrontAxlePosition + 0.5 * TrainManager.PlayerTrain.Cars[0].Length).ToString("0.00", Culture) + " m",
-					"",
-					"=environment",
 					"elevation: " + (Game.RouteInitialElevation + TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].FrontAxle.Follower.WorldPosition.Y).ToString("0.00", Culture) + " m",
 					"temperature: " + (TrainManager.PlayerTrain.Specs.CurrentAirTemperature - 273.15).ToString("0.00", Culture) + " °C",
 					"air pressure: " + (0.001 * TrainManager.PlayerTrain.Specs.CurrentAirPressure).ToString("0.00", Culture) + " kPa",
 					"air density: " + TrainManager.PlayerTrain.Specs.CurrentAirDensity.ToString("0.0000", Culture) + " kg/m³",
 					"speed of sound: " + (Game.GetSpeedOfSound(TrainManager.PlayerTrain.Specs.CurrentAirDensity) * 3.6).ToString("0.00", Culture) + " km/h",
+					"plugin: " + (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin ? (PluginManager.PluginValid ? "ok" : "error") : "n/a"),
 					"",
 					"=route",
 					"track limit: " + (TrainManager.PlayerTrain.CurrentRouteLimit == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.CurrentRouteLimit * 3.6).ToString("0.0", Culture) + " km/h")),
 					"signal limit: " + (TrainManager.PlayerTrain.CurrentSectionLimit == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.CurrentSectionLimit * 3.6).ToString("0.0", Culture) + " km/h")),
-					"atc limit: " + (TrainManager.PlayerTrain.Specs.Safety.Atc.Available ? (TrainManager.PlayerTrain.Specs.Safety.Atc.SpeedRestriction == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.Specs.Safety.Atc.SpeedRestriction * 3.6).ToString("0.0", Culture) + " km/h")) : "N/A"),
+					"atc limit: " + (TrainManager.PlayerTrain.Specs.Safety.Atc.Available ? (TrainManager.PlayerTrain.Specs.Safety.Atc.SpeedRestriction == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.Specs.Safety.Atc.SpeedRestriction * 3.6).ToString("0.0", Culture) + " km/h")) : "n/a"),
 					"total static objects: " + ObjectManager.ObjectsUsed.ToString(Culture),
 					"total static GL_TRIANGLES: " + Game.InfoTotalTriangles.ToString(Culture),
 					"total static GL_TRIANGLE_STRIP: " + Game.InfoTotalTriangleStrip.ToString(Culture),

@@ -83,6 +83,7 @@ namespace OpenBve {
 			Watchdog.IsBackground = true;
 			Watchdog.Start();
 
+			Renderer.Deinitialize();
 			TextureManager.UnuseAllTextures();
 			Asynchronous.Deinitialize();
 			PluginManager.UnloadPlugin();

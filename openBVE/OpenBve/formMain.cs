@@ -27,7 +27,7 @@ namespace OpenBve {
 		}
 
 		// members
-		private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
+        private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
 		private int[] EncodingCodepages = new int[0];
 		private Image JoystickImage = null;
 		private string[] LanguageFiles = new string[0];
@@ -987,7 +987,17 @@ namespace OpenBve {
 		private void textboxRouteFolder_TextChanged(object sender, EventArgs e) {
 			string Folder = textboxRouteFolder.Text;
 			try {
-				if (System.IO.Directory.Exists(Folder)) {
+				if (Folder.Length == 0) {
+					// drives
+					listviewRouteFiles.Items.Clear();
+					System.IO.DriveInfo[] driveInfos = System.IO.DriveInfo.GetDrives();
+					for (int i = 0; i < driveInfos.Length; i++) {
+						ListViewItem Item = listviewRouteFiles.Items.Add(driveInfos[i].Name);
+						Item.ImageKey = "folder";
+						Item.Tag = driveInfos[i].RootDirectory.FullName;
+						listviewRouteFiles.Tag = null;
+					}
+				} else if (System.IO.Directory.Exists(Folder)) {
 					listviewRouteFiles.Items.Clear();
 					// parent
 					try {
@@ -998,7 +1008,10 @@ namespace OpenBve {
 							Item.Tag = Info.FullName;
 							listviewRouteFiles.Tag = Info.FullName;
 						} else {
-							listviewRouteFiles.Tag = null;
+							ListViewItem Item = listviewRouteFiles.Items.Add("..");
+							Item.ImageKey = "parent";
+							Item.Tag = "";
+							listviewRouteFiles.Tag = "";
 						}
 					} catch { }
 					// folders
@@ -1054,7 +1067,7 @@ namespace OpenBve {
 			if (listviewRouteFiles.SelectedItems.Count == 1) {
 				string t = listviewRouteFiles.SelectedItems[0].Tag as string;
 				if (t != null) {
-					if (System.IO.Directory.Exists(t)) {
+					if (t.Length == 0 || System.IO.Directory.Exists(t)) {
 						textboxRouteFolder.Text = t;
 					}
 				}
@@ -1068,7 +1081,7 @@ namespace OpenBve {
 				case Keys.Back:
 					string t = listviewRouteFiles.Tag as string;
 					if (t != null) {
-						if (System.IO.Directory.Exists(t)) {
+						if (t.Length == 0 || System.IO.Directory.Exists(t)) {
 							textboxRouteFolder.Text = t;
 						}
 					} break;
@@ -1167,7 +1180,17 @@ namespace OpenBve {
 		private void textboxTrainFolder_TextChanged(object sender, EventArgs e) {
 			string Folder = textboxTrainFolder.Text;
 			try {
-				if (System.IO.Directory.Exists(Folder)) {
+				if (Folder.Length == 0) {
+					// drives
+					listviewTrainFolders.Items.Clear();
+					System.IO.DriveInfo[] driveInfos = System.IO.DriveInfo.GetDrives();
+					for (int i = 0; i < driveInfos.Length; i++) {
+						ListViewItem Item = listviewTrainFolders.Items.Add(driveInfos[i].Name);
+						Item.ImageKey = "folder";
+						Item.Tag = driveInfos[i].RootDirectory.FullName;
+						listviewTrainFolders.Tag = null;
+					}
+				} else if (System.IO.Directory.Exists(Folder)) {
 					listviewTrainFolders.Items.Clear();
 					// parent
 					try {
@@ -1178,7 +1201,10 @@ namespace OpenBve {
 							Item.Tag = Info.FullName;
 							listviewTrainFolders.Tag = Info.FullName;
 						} else {
-							listviewTrainFolders.Tag = null;
+							ListViewItem Item = listviewTrainFolders.Items.Add("..");
+							Item.ImageKey = "parent";
+							Item.Tag = "";
+							listviewTrainFolders.Tag = "";
 						}
 					} catch { }
 					// folders
@@ -1226,7 +1252,7 @@ namespace OpenBve {
 			if (listviewTrainFolders.SelectedItems.Count == 1) {
 				string t = listviewTrainFolders.SelectedItems[0].Tag as string;
 				if (t != null) {
-					if (System.IO.Directory.Exists(t)) {
+					if (t.Length == 0 || System.IO.Directory.Exists(t)) {
 						textboxTrainFolder.Text = t;
 					}
 				}
@@ -1240,7 +1266,7 @@ namespace OpenBve {
 				case Keys.Back:
 					string t = listviewTrainFolders.Tag as string;
 					if (t != null) {
-						if (System.IO.Directory.Exists(t)) {
+						if (t.Length == 0 || System.IO.Directory.Exists(t)) {
 							textboxTrainFolder.Text = t;
 						}
 					} break;

@@ -181,8 +181,10 @@ namespace OpenBve {
 				Spec.PowerNotches = Train.Specs.MaximumPowerNotch;
 				Spec.AtsNotch = Train.Specs.HasHoldBrake ? 2 : 1;
 				Spec.B67Notch = (int)Math.Round(0.7 * Spec.BrakeNotches);
+				if (Spec.B67Notch < 1) {
+					Spec.B67Notch = 1;
+				}
 			}
-			if (Spec.B67Notch < 1) Spec.B67Notch = 1;
 			Spec.Cars = Train.Cars.Length;
 			{
 				PluginError = true;
@@ -268,25 +270,25 @@ namespace OpenBve {
 			}
 			// process power
 			if (Handles.Power >= 0 & Handles.Power <= Train.Specs.MaximumPowerNotch) {
-				Train.Specs.CurrentPowerNotch.Security = Handles.Power;
+				Train.Specs.CurrentPowerNotch.Safety = Handles.Power;
 			} else {
-				Train.Specs.CurrentPowerNotch.Security = Train.Specs.CurrentPowerNotch.Driver;
+				Train.Specs.CurrentPowerNotch.Safety = Train.Specs.CurrentPowerNotch.Driver;
 				PluginValid = false;
 			}
-			if (Handles.Brake != 0) Train.Specs.CurrentPowerNotch.Security = 0;
+			if (Handles.Brake != 0) Train.Specs.CurrentPowerNotch.Safety = 0;
 			// process brake
-			Train.Specs.CurrentEmergencyBrake.Security = false;
+			Train.Specs.CurrentEmergencyBrake.Safety = false;
 			Train.Specs.CurrentHoldBrake.Actual = false;
 			if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
 				if (Handles.Brake == 0) {
-					Train.Specs.AirBrake.Handle.Security = TrainManager.AirBrakeHandleState.Release;
+					Train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Release;
 				} else if (Handles.Brake == 1) {
-					Train.Specs.AirBrake.Handle.Security = TrainManager.AirBrakeHandleState.Lap;
+					Train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Lap;
 				} else if (Handles.Brake == 2) {
-					Train.Specs.AirBrake.Handle.Security = TrainManager.AirBrakeHandleState.Service;
+					Train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Service;
 				} else if (Handles.Brake == 3) {
-					Train.Specs.AirBrake.Handle.Security = TrainManager.AirBrakeHandleState.Service;
-					Train.Specs.CurrentEmergencyBrake.Security = true;
+					Train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Service;
+					Train.Specs.CurrentEmergencyBrake.Safety = true;
 				} else {
 					PluginValid = false;
 				}
@@ -295,28 +297,28 @@ namespace OpenBve {
 				if (Train.Specs.HasHoldBrake) {
 					// with hold brake
 					if (Handles.Brake == Train.Specs.MaximumBrakeNotch + 2) {
-						Train.Specs.CurrentEmergencyBrake.Security = true;
-						Train.Specs.CurrentBrakeNotch.Security = Train.Specs.MaximumBrakeNotch;
+						Train.Specs.CurrentEmergencyBrake.Safety = true;
+						Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.MaximumBrakeNotch;
 					} else if (Handles.Brake >= 2 & Handles.Brake <= Train.Specs.MaximumBrakeNotch + 1) {
-						Train.Specs.CurrentBrakeNotch.Security = Handles.Brake - 1;
+						Train.Specs.CurrentBrakeNotch.Safety = Handles.Brake - 1;
 					} else if (Handles.Brake == 1) {
-						Train.Specs.CurrentBrakeNotch.Security = 0;
+						Train.Specs.CurrentBrakeNotch.Safety = 0;
 						Train.Specs.CurrentHoldBrake.Actual = true;
 					} else if (Handles.Brake == 0) {
-						Train.Specs.CurrentBrakeNotch.Security = 0;
+						Train.Specs.CurrentBrakeNotch.Safety = 0;
 					} else {
-						Train.Specs.CurrentBrakeNotch.Security = Train.Specs.CurrentBrakeNotch.Driver;
+						Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.CurrentBrakeNotch.Driver;
 						PluginValid = false;
 					}
 				} else {
 					// without hold brake
 					if (Handles.Brake == Train.Specs.MaximumBrakeNotch + 1) {
-						Train.Specs.CurrentEmergencyBrake.Security = true;
-						Train.Specs.CurrentBrakeNotch.Security = Train.Specs.MaximumBrakeNotch;
+						Train.Specs.CurrentEmergencyBrake.Safety = true;
+						Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.MaximumBrakeNotch;
 					} else if (Handles.Brake >= 0 & Handles.Brake <= Train.Specs.MaximumBrakeNotch | Train.Specs.CurrentBrakeNotch.DelayedChanges.Length == 0) {
-						Train.Specs.CurrentBrakeNotch.Security = Handles.Brake;
+						Train.Specs.CurrentBrakeNotch.Safety = Handles.Brake;
 					} else {
-						Train.Specs.CurrentBrakeNotch.Security = Train.Specs.CurrentBrakeNotch.Driver;
+						Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.CurrentBrakeNotch.Driver;
 						PluginValid = false;
 					}
 				}
