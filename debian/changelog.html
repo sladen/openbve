@@ -35,7 +35,7 @@
 </td></tr>
 </table><br />
 <table><tr style="height: 4px;"><td /></tr></table>
-↷ <a href="#history12">1.2 series (stable)</a><br />
+This changelog is intended for advanced users and developers. It does <b>not</b> summarize important changes for regular users.<br /><br />↷ <a href="#history12">1.2 series (stable)</a><br />
 ↷ <a href="#history11">1.1 series (development)</a><br />
 ↷ <a href="#history10">1.0 series (stable)</a><br />
 ↷ <a href="#history09">0.9 series (development)</a><br />
@@ -48,13 +48,53 @@
 <table><tr style="height: 4px;"><td /></tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.2.2.0 (2009-09-20)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing objects</b></font><br />Added the <em>hasPlugin</em>, <em>acceleration</em> and <em>accelerationMotor</em> variables (among others) for use in animated objects.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing trains</b></font><br />Added the <em>acc</em> and <em>motor</em> subjects for use in the panel2.cfg.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing routes</b></font><br />Lengths using the colon notation in CSV/RW routes are now well-defined when omitting parameters.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Interface</b></font><br />Some controls in the main menu used a custom background color but a system-specific foreground color, rendering text unreadable with some color schemes.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />The <em>delta</em> variable returned incorrect results in animated objects whenever RefreshRate was set to a non-zero value.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Lengths entered without the colon notation were not processed correctly when using Options.UnitOfLength in CSV/RW routes.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Gray fog could show on routes which did not use fog, but only if the viewing distance was below 600 meters.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v1.2.1.3 (2009-08-31)&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Value-based sections could crash with an <em>Index is outside the bounds of the array</em> error in unfortunate circumstances.</td>
+<td><font color="red"><b>Bugfix</b></font><br />Value-based sections could crash the program with an <em>Index is outside the bounds of the array</em> message.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -65,7 +105,7 @@
 <td valign="top">●</td>
 <td>&nbsp;</td>
 <td><font color="red"><b>Simulation</b></font><br />For trains which do not have exterior objects for their cars, a default object is now shown. In contrast to previous versions, this feature is now not only the default behavior, but also, it cannot be deactivated through conventional means. <br />
- <b>Rationale:</b> Many users wonder why signalling works the way it does, or wonder why they suddenly derail en-route. Often, this is due to the presence of a preceding train which does not come with exterior objects. Of course, having an external view with an invisible train is confusing for some as well.</td>
+ <b>Rationale:</b> Many users wonder why signalling works the way it does, or wonder why they suddenly derail en-route. Often, this is due to the presence of a preceding train which does not come with exterior objects. The exterior view of an own invisible train is confusing for some as well.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
