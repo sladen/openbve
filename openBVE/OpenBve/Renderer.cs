@@ -212,7 +212,7 @@ namespace OpenBve {
 		internal static void RenderScene(double TimeElapsed) {
 			// initialize
 			Gl.glEnable(Gl.GL_DEPTH_TEST);
-			Gl.glDepthMask(Gl.GL_TRUE);
+			Gl.glDepthMask(true);
 			int OpenGlTextureIndex = 0;
 			if (World.CurrentBackground.Texture >= 0) {
 				OpenGlTextureIndex = TextureManager.UseTexture(World.CurrentBackground.Texture, TextureManager.UseMode.Normal);
@@ -317,7 +317,7 @@ namespace OpenBve {
 						Gl.glLoadIdentity();
 						MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.ChangeToCab);
 						Glu.gluLookAt(0.0, 0.0, 0.0, dx, dy, dz, ux, uy, uz);
-						Gl.glDepthMask(Gl.GL_TRUE);
+						Gl.glDepthMask(true);
 						Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
 						if (!LightingEnabled) {
 							Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
@@ -334,7 +334,7 @@ namespace OpenBve {
 						if (!BlendEnabled) {
 							Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 						}
-						Gl.glDepthMask(Gl.GL_FALSE);
+						Gl.glDepthMask(false);
 						SetAlphaFunc(Gl.GL_GREATER, 0.0f);
 						SortPolygons(AlphaList[1], AlphaListCount[1], AlphaListDistance[1], 6, TimeElapsed);
 						for (int i = 0; i < AlphaListCount[1]; i++) {
@@ -348,7 +348,7 @@ namespace OpenBve {
 					Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
 				}
 				Gl.glEnable(Gl.GL_DEPTH_TEST);
-				Gl.glDepthMask(Gl.GL_TRUE);
+				Gl.glDepthMask(true);
 				// opaque list
 				for (int i = 0; i < OpaqueListCount[k]; i++) {
 					RenderFace(ref OpaqueList[k][i], cx, cy, cz);
@@ -360,10 +360,10 @@ namespace OpenBve {
 						Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 					}
 					for (int i = 0; i < TransparentColorListCount[k]; i++) {
-						Gl.glDepthMask(Gl.GL_FALSE);
+						Gl.glDepthMask(false);
 						SetAlphaFunc(Gl.GL_LESS, 1.0f);
 						RenderFace(ref TransparentColorList[k][i], cx, cy, cz);
-						Gl.glDepthMask(Gl.GL_TRUE);
+						Gl.glDepthMask(true);
 						SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
 						RenderFace(ref TransparentColorList[k][i], cx, cy, cz);
 					}
@@ -383,19 +383,19 @@ namespace OpenBve {
 						int r = (int)ObjectManager.Objects[AlphaList[k][i].ObjectIndex].Mesh.Faces[AlphaList[k][i].FaceIndex].Material;
 						if (ObjectManager.Objects[AlphaList[k][i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Additive) {
 							if (depthMask) {
-								Gl.glDepthMask(Gl.GL_FALSE);
+								Gl.glDepthMask(false);
 								depthMask = false;
 							}
 							SetAlphaFunc(Gl.GL_GREATER, 0.0f);
 							RenderFace(ref AlphaList[k][i], cx, cy, cz);
 						} else {
 							if (depthMask) {
-								Gl.glDepthMask(Gl.GL_FALSE);
+								Gl.glDepthMask(false);
 								depthMask = false;
 							}
 							SetAlphaFunc(Gl.GL_LESS, 1.0f);
 							RenderFace(ref AlphaList[k][i], cx, cy, cz);
-							Gl.glDepthMask(Gl.GL_TRUE);
+							Gl.glDepthMask(true);
 							depthMask = true;
 							SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
 							RenderFace(ref AlphaList[k][i], cx, cy, cz);
@@ -405,7 +405,7 @@ namespace OpenBve {
 					if (!BlendEnabled) {
 						Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 					}
-					Gl.glDepthMask(Gl.GL_FALSE);
+					Gl.glDepthMask(false);
 					SetAlphaFunc(Gl.GL_GREATER, 0.0f);
 					for (int i = 0; i < AlphaListCount[k]; i++) {
 						RenderFace(ref AlphaList[k][i], cx, cy, cz);
@@ -414,7 +414,7 @@ namespace OpenBve {
 				// motion blur
 				if (k == 0) {
 					Gl.glDisable(Gl.GL_DEPTH_TEST);
-					Gl.glDepthMask(Gl.GL_FALSE);
+					Gl.glDepthMask(false);
 					SetAlphaFunc(Gl.GL_GREATER, 0.0f);
 					if (Interface.CurrentOptions.MotionBlur != Interface.MotionBlurMode.None) {
 						if (LightingEnabled) {
