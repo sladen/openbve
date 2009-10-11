@@ -52,14 +52,14 @@ binary-indep: build install
 	dh_installcligac
 	dh_installchangelogs
 	dh_installdocs
+	dh_fixperms
 	dh_clifixperms
 	dh_installman
-	dh_fixperms
 	dh_installdeb
+	dh_shlibdeps
 	#dh_makeclilibs -i -V
 	#dh_installcligac -i
 	dh_clistrip
-	dh_clideps -i
 	dh_clideps -d
 	dh_compress
 	dh_gencontrol
