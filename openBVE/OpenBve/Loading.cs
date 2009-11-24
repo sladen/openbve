@@ -226,11 +226,15 @@ namespace OpenBve {
 							// load default exterior object
 							string file = Interface.GetCombinedFileName(Interface.GetDataFolder("Compatibility"), "exterior.csv");
 							ObjectManager.StaticObject so = ObjectManager.LoadStaticObject(file, System.Text.Encoding.UTF8, ObjectManager.ObjectLoadMode.Normal, false, false, false);
-							double sx = TrainManager.Trains[k].Cars[i].Width;
-							double sy = TrainManager.Trains[k].Cars[i].Height;
-							double sz = TrainManager.Trains[k].Cars[i].Length;
-							CsvB3dObjectParser.ApplyScale(so, sx, sy, sz);
-							CarObjects[i] = so;
+							if (so == null) {
+								CarObjects[i] = null;
+							} else {
+								double sx = TrainManager.Trains[k].Cars[i].Width;
+								double sy = TrainManager.Trains[k].Cars[i].Height;
+								double sz = TrainManager.Trains[k].Cars[i].Length;
+								CsvB3dObjectParser.ApplyScale(so, sx, sy, sz);
+								CarObjects[i] = so;
+							}
 						}
 						if (CarObjects[i] != null) {
 							// add object

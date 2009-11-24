@@ -16,6 +16,7 @@ namespace OpenBve {
 			int ObjectCount = 0;
 			// load file
 			string[] Lines = System.IO.File.ReadAllLines(FileName, Encoding);
+			bool rpnUsed = false;
 			for (int i = 0; i < Lines.Length; i++) {
 				int j = Lines[i].IndexOf(';');
 				if (j >= 0) {
@@ -23,6 +24,14 @@ namespace OpenBve {
 				} else {
 					Lines[i] = Lines[i].Trim();
 				}
+				if (Program.CurrentProgramType == Program.ProgramType.ObjectViewer | Program.CurrentProgramType == Program.ProgramType.RouteViewer) {
+					if (Lines[i].IndexOf("functionrpn", StringComparison.OrdinalIgnoreCase) >= 0) {
+						rpnUsed = true;
+					}
+				}
+			}
+			if (rpnUsed) {
+				Interface.AddMessage(Interface.MessageType.Warning, false, "An animated object file contains non-official RPN functions. Please get rid of them in file " + FileName);
 			}
 			for (int i = 0; i < Lines.Length; i++) {
 				if (Lines[i].Length != 0) {
@@ -138,9 +147,6 @@ namespace OpenBve {
 								Result.Objects[ObjectCount].ObjectIndex = -1;
 								World.Vector3D Position = new World.Vector3D(0.0, 0.0, 0.0);
 								string[] StateFiles = null;
-//								string[] SoundFiles = null;
-//								World.Vector3D SoundPosition = new World.Vector3D(0.0, 0.0, 0.0);
-//								double SoundRadius = 20.0;
 								while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 									if (Lines[i].Length != 0) {
 										int j = Lines[i].IndexOf("=", StringComparison.Ordinal);
@@ -197,7 +203,6 @@ namespace OpenBve {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "statefunctionrpn":
-													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
@@ -252,21 +257,18 @@ namespace OpenBve {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "translatexfunctionrpn":
-													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].TranslateXFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "translateyfunctionrpn":
-													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].TranslateYFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "translatezfunctionrpn":
-													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].TranslateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
@@ -323,21 +325,18 @@ namespace OpenBve {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "rotatexfunctionrpn":
-													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].RotateXFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "rotateyfunctionrpn":
-													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].RotateYFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "rotatezfunctionrpn":
-													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].RotateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
@@ -412,78 +411,17 @@ namespace OpenBve {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "textureshiftxfunctionrpn":
-													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].TextureShiftXFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "textureshiftyfunctionrpn":
-													//Interface.AddMessage(Interface.MessageType.Information, false, a + " is deprecated - use the non-RPN variant instead at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													try {
 														Result.Objects[ObjectCount].TextureShiftYFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
-//												case "sounds":
-//													{
-//														string[] s = b.Split(',');
-//														if (s.Length >= 1) {
-//															string Folder = System.IO.Path.GetDirectoryName(FileName);
-//															SoundFiles = new string[s.Length];
-//															for (int k = 0; k < s.Length; k++) {
-//																s[k] = s[k].Trim();
-//																if (Interface.ContainsInvalidPathChars(s[k])) {
-//																	Interface.AddMessage(Interface.MessageType.Error, false, "File" + k.ToString(Culture) + " contains illegal characters in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-//																	SoundFiles[k] = null;
-//																} else {
-//																	SoundFiles[k] = Interface.GetCombinedFileName(Folder, s[k]);
-//																	if (!System.IO.File.Exists(SoundFiles[k])) {
-//																		Interface.AddMessage(Interface.MessageType.Error, true, "File " + SoundFiles[k] + " not found in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-//																		SoundFiles[k] = null;
-//																	}
-//																}
-//															}
-//														} else {
-//															Interface.AddMessage(Interface.MessageType.Error, false, "At least one argument is expected in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-//															return null;
-//														}
-//													} break;
-//												case "soundfunction":
-//													try {
-//														Result.Objects[ObjectCount].SoundFunction = FunctionScripts.GetFunctionScriptFromInfixNotation(b);
-//													} catch (Exception ex) {
-//														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-//													} break;
-//												case "soundposition":
-//													{
-//														string[] s = b.Split(',');
-//														if (s.Length == 3) {
-//															double x, y, z;
-//															if (!double.TryParse(s[0], System.Globalization.NumberStyles.Float, Culture, out x)) {
-//																Interface.AddMessage(Interface.MessageType.Error, false, "X is invalid in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-//															} else if (!double.TryParse(s[1], System.Globalization.NumberStyles.Float, Culture, out y)) {
-//																Interface.AddMessage(Interface.MessageType.Error, false, "Y is invalid in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-//															} else if (!double.TryParse(s[2], System.Globalization.NumberStyles.Float, Culture, out z)) {
-//																Interface.AddMessage(Interface.MessageType.Error, false, "Z is invalid in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-//															} else {
-//																SoundPosition = new World.Vector3D(x, y, z);
-//															}
-//														} else {
-//															Interface.AddMessage(Interface.MessageType.Error, false, "Exactly 3 arguments are expected in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-//														}
-//													} break;
-//												case "soundradius":
-//													{
-//														double r;
-//														if (!double.TryParse(b, System.Globalization.NumberStyles.Float, Culture, out r)) {
-//															Interface.AddMessage(Interface.MessageType.Error, false, "Value is invalid in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-//														} else if (r < 0.0) {
-//															Interface.AddMessage(Interface.MessageType.Error, false, "Value is expected to be non-negative in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-//														} else {
-//															Result.Objects[ObjectCount].SoundRadius = r;
-//														}
-//													} break;
 												case "refreshrate":
 													{
 														double r;
@@ -525,14 +463,6 @@ namespace OpenBve {
 											Result.Objects[ObjectCount].States[j].Position = Position;
 										}
 									}
-//									if (SoundFiles != null) {
-//										Result.Objects[ObjectCount].SoundBufferIndices = new int[SoundFiles.Length];
-//										for (int k = 0; k < SoundFiles.Length; k++) {
-//											Result.Objects[ObjectCount].SoundBufferIndices[k] = SoundManager.LoadSound(SoundFiles[k], SoundRadius);
-//										}
-//										Result.Objects[ObjectCount].SoundPosition = SoundPosition;
-//										Result.Objects[ObjectCount].SoundRadius = SoundRadius;
-//									}
 								} else {
 									Result.Objects[ObjectCount].States = new ObjectManager.AnimatedObjectState[] { };
 								}

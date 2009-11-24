@@ -298,7 +298,6 @@ namespace OpenBve {
 						if (!Game.Sections[this.NextSectionIndex].Invisible) {
 							if (Game.Sections[this.NextSectionIndex].CurrentAspect >= 0) {
 								Train.CurrentSectionLimit = Game.Sections[this.NextSectionIndex].Aspects[Game.Sections[this.NextSectionIndex].CurrentAspect].Speed;
-								if (Train.CurrentSectionLimit == 0.0) { }
 							} else {
 								Train.CurrentSectionLimit = double.PositiveInfinity;
 							}
@@ -686,7 +685,9 @@ namespace OpenBve {
 					CheckEvents(ref Follower, i, 1, ta, tb);
 					i++;
 				}
-			} else i = 0;
+			} else {
+				i = 0;
+			}
 			double da = Follower.TrackPosition - CurrentTrack.Elements[i].StartingTrackPosition;
 			double db = NewTrackPosition - CurrentTrack.Elements[i].StartingTrackPosition;
 			// track

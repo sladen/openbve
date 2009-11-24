@@ -27,7 +27,7 @@ namespace OpenBve {
 		}
 
 		// members
-        private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
+		private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
 		private int[] EncodingCodepages = new int[0];
 		private Image JoystickImage = null;
 		private string[] LanguageFiles = new string[0];
@@ -2115,6 +2115,11 @@ namespace OpenBve {
 				Application.DoEvents();
 				// determine encoding
 				if (!UserSelectedEncoding) {
+					comboboxRouteEncoding.Tag = new object();
+					comboboxRouteEncoding.SelectedIndex = 0;
+					comboboxRouteEncoding.Tag = null;
+					comboboxRouteEncoding.Items[0] = "(UTF-8)";
+					Result.RouteEncoding = System.Text.Encoding.UTF8;
 					switch (Interface.GetEncodingFromFile(Result.RouteFile)) {
 						case Interface.Encoding.Utf8:
 							panelRouteEncoding.Enabled = false;
@@ -2146,27 +2151,26 @@ namespace OpenBve {
 							comboboxRouteEncoding.Items[0] = "(UTF-32 big endian)";
 							Result.RouteEncoding = System.Text.Encoding.GetEncoding(12001);
 							break;
-						default:
-							panelRouteEncoding.Enabled = true;
-							comboboxRouteEncoding.Tag = new object();
-							int i; for (i = 0; i < Interface.CurrentOptions.RouteEncodings.Length; i++) {
-								if (Interface.CurrentOptions.RouteEncodings[i].Value == Result.RouteFile) {
-									int j; for (j = 1; j < EncodingCodepages.Length; j++) {
-										if (EncodingCodepages[j] == Interface.CurrentOptions.RouteEncodings[i].Codepage) {
-											comboboxRouteEncoding.SelectedIndex = j;
-											Result.RouteEncoding = System.Text.Encoding.GetEncoding(EncodingCodepages[j]);
-											break;
-										}
-									} if (j == EncodingCodepages.Length) {
-										comboboxRouteEncoding.SelectedIndex = 0;
-										Result.RouteEncoding = System.Text.Encoding.UTF8;
-									} break;
+					}
+					panelRouteEncoding.Enabled = true;
+					comboboxRouteEncoding.Tag = new object();
+					int i;
+					for (i = 0; i < Interface.CurrentOptions.RouteEncodings.Length; i++) {
+						if (Interface.CurrentOptions.RouteEncodings[i].Value == Result.RouteFile) {
+							int j;
+							for (j = 1; j < EncodingCodepages.Length; j++) {
+								if (EncodingCodepages[j] == Interface.CurrentOptions.RouteEncodings[i].Codepage) {
+									comboboxRouteEncoding.SelectedIndex = j;
+									Result.RouteEncoding = System.Text.Encoding.GetEncoding(EncodingCodepages[j]);
+									break;
 								}
-							} if (i == Interface.CurrentOptions.RouteEncodings.Length) {
+							}
+							if (j == EncodingCodepages.Length) {
 								comboboxRouteEncoding.SelectedIndex = 0;
-								comboboxRouteEncoding.Items[0] = "(UTF-8)";
 								Result.RouteEncoding = System.Text.Encoding.UTF8;
-							} break;
+							}
+							break;
+						}
 					}
 					comboboxRouteEncoding.Tag = null;
 				}
@@ -2186,13 +2190,15 @@ namespace OpenBve {
 					} else {
 						string f = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Result.RouteFile), System.IO.Path.GetFileNameWithoutExtension(Result.RouteFile));
 						string[] e = new string[] { ".png", ".bmp", ".gif", ".tiff", ".tif", ".jpeg", ".jpg" };
-						int i; for (i = 0; i < e.Length; i++) {
+						int i;
+						for (i = 0; i < e.Length; i++) {
 							string g = Interface.GetCorrectedFileName(f + e[i]);
 							if (System.IO.File.Exists(g)) {
 								TryLoadImage(pictureboxRouteImage, g);
 								break;
 							}
-						} if (i == e.Length) {
+						}
+						if (i == e.Length) {
 							TryLoadImage(pictureboxRouteImage, "route_unknown.png");
 						}
 					}
@@ -2232,57 +2238,55 @@ namespace OpenBve {
 		private void ShowTrain(bool UserSelectedEncoding) {
 			if (!UserSelectedEncoding) {
 				comboboxTrainEncoding.Tag = new object();
+				comboboxTrainEncoding.SelectedIndex = 0;
+				comboboxTrainEncoding.Tag = null;
+				Result.TrainEncoding = System.Text.Encoding.UTF8;
 				switch (Interface.GetEncodingFromFile(Result.TrainFolder, "train.txt")) {
 					case Interface.Encoding.Utf8:
-						panelTrainEncoding.Enabled = false;
 						comboboxTrainEncoding.SelectedIndex = 0;
 						comboboxTrainEncoding.Items[0] = "(UTF-8)";
 						Result.TrainEncoding = System.Text.Encoding.UTF8;
 						break;
 					case Interface.Encoding.Utf16Le:
-						panelTrainEncoding.Enabled = false;
 						comboboxTrainEncoding.SelectedIndex = 0;
 						comboboxTrainEncoding.Items[0] = "(UTF-16 little endian)";
 						Result.TrainEncoding = System.Text.Encoding.Unicode;
 						break;
 					case Interface.Encoding.Utf16Be:
-						panelTrainEncoding.Enabled = false;
 						comboboxTrainEncoding.SelectedIndex = 0;
 						comboboxTrainEncoding.Items[0] = "(UTF-16 big endian)";
 						Result.TrainEncoding = System.Text.Encoding.BigEndianUnicode;
 						break;
 					case Interface.Encoding.Utf32Le:
-						panelTrainEncoding.Enabled = false;
 						comboboxTrainEncoding.SelectedIndex = 0;
 						comboboxTrainEncoding.Items[0] = "(UTF-32 little endian)";
 						Result.TrainEncoding = System.Text.Encoding.UTF32;
 						break;
 					case Interface.Encoding.Utf32Be:
-						panelTrainEncoding.Enabled = false;
 						comboboxTrainEncoding.SelectedIndex = 0;
 						comboboxTrainEncoding.Items[0] = "(UTF-32 big endian)";
 						Result.TrainEncoding = System.Text.Encoding.GetEncoding(12001);
 						break;
-					default:
-						panelTrainEncoding.Enabled = true;
-						int i; for (i = 0; i < Interface.CurrentOptions.TrainEncodings.Length; i++) {
-							if (Interface.CurrentOptions.TrainEncodings[i].Value == Result.TrainFolder) {
-								int j; for (j = 1; j < EncodingCodepages.Length; j++) {
-									if (EncodingCodepages[j] == Interface.CurrentOptions.TrainEncodings[i].Codepage) {
-										comboboxTrainEncoding.SelectedIndex = j;
-										Result.TrainEncoding = System.Text.Encoding.GetEncoding(EncodingCodepages[j]);
-										break;
-									}
-								} if (j == EncodingCodepages.Length) {
-									comboboxTrainEncoding.SelectedIndex = 0;
-									Result.TrainEncoding = System.Text.Encoding.UTF8;
-								} break;
+				}
+				int i;
+				for (i = 0; i < Interface.CurrentOptions.TrainEncodings.Length; i++) {
+					if (Interface.CurrentOptions.TrainEncodings[i].Value == Result.TrainFolder) {
+						int j;
+						for (j = 1; j < EncodingCodepages.Length; j++) {
+							if (EncodingCodepages[j] == Interface.CurrentOptions.TrainEncodings[i].Codepage) {
+								comboboxTrainEncoding.SelectedIndex = j;
+								Result.TrainEncoding = System.Text.Encoding.GetEncoding(EncodingCodepages[j]);
+								break;
 							}
-						} if (i == Interface.CurrentOptions.TrainEncodings.Length) {
+						}
+						if (j == EncodingCodepages.Length) {
 							comboboxTrainEncoding.SelectedIndex = 0;
 							Result.TrainEncoding = System.Text.Encoding.UTF8;
-						} break;
+						}
+						break;
+					}
 				}
+				panelTrainEncoding.Enabled = true;
 				comboboxTrainEncoding.Tag = null;
 			}
 			{

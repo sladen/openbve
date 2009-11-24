@@ -70,7 +70,6 @@
         	this.buttonIgnore.TabIndex = 7;
         	this.buttonIgnore.Text = "Ignore";
         	this.buttonIgnore.UseVisualStyleBackColor = true;
-        	this.buttonIgnore.Visible = false;
         	this.buttonIgnore.Click += new System.EventHandler(this.buttonIgnore_Click);
         	// 
         	// buttonCancel
@@ -228,6 +227,7 @@
         	// labelTrainPercentage
         	// 
         	this.labelTrainPercentage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+        	this.labelTrainPercentage.ForeColor = System.Drawing.Color.Black;
         	this.labelTrainPercentage.Location = new System.Drawing.Point(484, 144);
         	this.labelTrainPercentage.Name = "labelTrainPercentage";
         	this.labelTrainPercentage.Size = new System.Drawing.Size(48, 16);
@@ -238,6 +238,7 @@
         	// labelRoutePercentage
         	// 
         	this.labelRoutePercentage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+        	this.labelRoutePercentage.ForeColor = System.Drawing.Color.Black;
         	this.labelRoutePercentage.Location = new System.Drawing.Point(484, 104);
         	this.labelRoutePercentage.Name = "labelRoutePercentage";
         	this.labelRoutePercentage.Size = new System.Drawing.Size(48, 16);

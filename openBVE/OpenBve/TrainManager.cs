@@ -1189,12 +1189,12 @@ namespace OpenBve {
 					}
 				}
 				if (Train.AI != null) {
-					Train.AI.Trigger(Train);
+					Train.AI.Trigger(Train, TimeElapsed);
 				}
 			} else if (Train.State == TrainState.Bogus) {
 				// bogus train
 				if (Train.AI != null) {
-					Train.AI.Trigger(Train);
+					Train.AI.Trigger(Train, TimeElapsed);
 				}
 			}
 		}
@@ -3979,9 +3979,11 @@ namespace OpenBve {
 			UpdateSpeeds(Train, TimeElapsed);
 			// run sound
 			for (int i = 0; i < Train.Cars.Length; i++) {
-				const double invfac = 0.04; /// 90 km/h -> 1/x -> m/s
+				const double invfac = 0.04; // 90 km/h -> m/s -> 1/x
 				double spd = Math.Abs(Train.Cars[i].Specs.CurrentSpeed);
-				if (Train.Cars[i].Derailed) spd = 0.0;
+				if (Train.Cars[i].Derailed) {
+					spd = 0.0;
+				}
 				double pitch = spd * invfac;
 				double basegain = spd <= 2.77777777777778 ? 0.36 * spd : 1.0;
 				for (int j = 0; j < Train.Cars[i].Sounds.Run.Length; j++) {
@@ -4118,8 +4120,8 @@ namespace OpenBve {
 			UpdateTrainPassengers(Train, TimeElapsed);
 			// signals
 			if (Train.CurrentSectionLimit == 0.0) {
-				if (Train.Specs.CurrentEmergencyBrake.Driver & Train.Specs.CurrentAverageSpeed > -0.05 & Train.Specs.CurrentAverageSpeed < 0.05) {
-					Train.CurrentSectionLimit = 4.16666666666667;
+				if (Train.Specs.CurrentEmergencyBrake.Driver & Train.Specs.CurrentAverageSpeed > -0.03 & Train.Specs.CurrentAverageSpeed < 0.03) {
+					Train.CurrentSectionLimit = 6.94444444444444;
 					if (Train == PlayerTrain) {
 						string s = Interface.GetInterfaceString("message_signal_proceed");
 						double a = 3.6 * Train.CurrentSectionLimit;

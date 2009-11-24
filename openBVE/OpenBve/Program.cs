@@ -12,6 +12,8 @@ namespace OpenBve {
 		internal static Platform CurrentPlatform = Platform.Windows;
 		internal static bool CurrentlyRunOnMono = false;
 		internal static bool UseFilesystemHierarchyStandard = false;
+		internal enum ProgramType { OpenBve, RouteViewer, ObjectViewer, Other };
+		internal const ProgramType CurrentProgramType = ProgramType.OpenBve;
 		private static bool SdlWindowCreated = false;
 
 		// main
@@ -234,7 +236,8 @@ namespace OpenBve {
 			Renderer.ScreenWidth = Width;
 			Renderer.ScreenHeight = Height;
 			World.AspectRatio = (double)Renderer.ScreenWidth / (double)Renderer.ScreenHeight;
-			World.VerticalViewingAngle = 45.0 * 0.0174532925199433;
+			const double degree = 0.0174532925199433;
+			World.VerticalViewingAngle = 45.0 * degree;
 			World.HorizontalViewingAngle = 2.0 * Math.Atan(Math.Tan(0.5 * World.VerticalViewingAngle) * World.AspectRatio);
 			World.OriginalVerticalViewingAngle = World.VerticalViewingAngle;
 			World.ExtraViewingDistance = 50.0;

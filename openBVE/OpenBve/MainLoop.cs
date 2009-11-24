@@ -1616,8 +1616,7 @@ namespace OpenBve {
 						message += error.ToString();
 						break;
 				}
-				System.Windows.Forms.MessageBox.Show(message);
-				throw new Exception();
+				throw new InvalidOperationException(message);
 			}
 		}
 		#endif

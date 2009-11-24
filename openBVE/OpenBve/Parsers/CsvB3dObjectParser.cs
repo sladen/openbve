@@ -205,7 +205,7 @@ namespace OpenBve {
 											q = false;
 											break;
 										} else if (a[j] < 0 | a[j] >= Builder.Vertices.Length) {
-											Interface.AddMessage(Interface.MessageType.Error, false, "v" + j.ToString(Culture) + " references a non-existing vertex " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+											Interface.AddMessage(Interface.MessageType.Error, false, "v" + j.ToString(Culture) + " references a non-existing vertex in " + Command + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 											q = false;
 											break;
 										} else if (a[j] > 65535) {

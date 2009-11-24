@@ -1037,7 +1037,7 @@
         	        	        	| System.Windows.Forms.AnchorStyles.Left) 
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
         	this.textboxRouteEncodingPreview.BackColor = System.Drawing.SystemColors.Window;
-        	this.textboxRouteEncodingPreview.ForeColor = System.Drawing.SystemColors.ControlText;
+        	this.textboxRouteEncodingPreview.ForeColor = System.Drawing.SystemColors.WindowText;
         	this.textboxRouteEncodingPreview.Location = new System.Drawing.Point(104, 64);
         	this.textboxRouteEncodingPreview.Multiline = true;
         	this.textboxRouteEncodingPreview.Name = "textboxRouteEncodingPreview";

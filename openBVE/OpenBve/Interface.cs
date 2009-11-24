@@ -133,6 +133,7 @@ namespace OpenBve {
 			internal int SoundNumber;
 			internal bool ShowWarningMessages;
 			internal bool ShowErrorMessages;
+			internal int SmoothenOutTurns;
 			internal string RouteFolder;
 			internal string TrainFolder;
 			internal string[] RecentlyUsedRoutes;
@@ -169,6 +170,7 @@ namespace OpenBve {
 				this.SoundNumber = 16;
 				this.ShowWarningMessages = true;
 				this.ShowErrorMessages = true;
+				this.SmoothenOutTurns = 0;
 				this.ObjectOptimizationBasicThreshold = 10000;
 				this.ObjectOptimizationFullThreshold = 2500;
 				this.RouteFolder = "";
@@ -324,6 +326,11 @@ namespace OpenBve {
 													case "normal": Interface.CurrentOptions.GameMode = Interface.GameMode.Normal; break;
 													case "expert": Interface.CurrentOptions.GameMode = Interface.GameMode.Expert; break;
 													default: Interface.CurrentOptions.GameMode = Interface.GameMode.Normal; break;
+											} break;
+										case "turnsubdivision":
+											{
+												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												Interface.CurrentOptions.SmoothenOutTurns = a;
 											} break;
 									} break;
 								case "controls":
@@ -495,6 +502,7 @@ namespace OpenBve {
 			Builder.AppendLine("collisions = " + (CurrentOptions.Collisions ? "true" : "false"));
 			Builder.AppendLine("derailments = " + (CurrentOptions.Derailments ? "true" : "false"));
 			Builder.AppendLine("blackbox = " + (CurrentOptions.BlackBox ? "true" : "false"));
+			Builder.AppendLine("turnsubdivision = " + CurrentOptions.SmoothenOutTurns.ToString(Culture));
 			Builder.Append("mode = ");
 			switch (CurrentOptions.GameMode) {
 					case Interface.GameMode.Arcade: Builder.AppendLine("arcade"); break;

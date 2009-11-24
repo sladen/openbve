@@ -198,6 +198,16 @@ namespace OpenBve {
 						}
 					}
 				}
+				// check for car objects
+				int carObjects = 0;
+				for (int i = 0; i < Train.Cars.Length; i++) {
+					if (CarObjects[i] != null) {
+						carObjects++;
+					}
+				}
+				if (carObjects > 0 & carObjects < Train.Cars.Length) {
+					Interface.AddMessage(Interface.MessageType.Warning, false, "An incomplete set of exterior objects was provided in file " + FileName);
+				}
 			}
 		}
 
