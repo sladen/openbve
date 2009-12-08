@@ -27,7 +27,7 @@ namespace OpenBve {
 		}
 
 		// members
-		private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
+        private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
 		private int[] EncodingCodepages = new int[0];
 		private Image JoystickImage = null;
 		private string[] LanguageFiles = new string[0];
@@ -2177,7 +2177,8 @@ namespace OpenBve {
 				// parse route
 				try {
 					Game.Reset(false);
-					CsvRwRouteParser.ParseRoute(Result.RouteFile, Result.RouteEncoding, null, null, null, true);
+					bool IsRW = string.Equals(System.IO.Path.GetExtension(Result.RouteFile), ".rw", StringComparison.OrdinalIgnoreCase);
+					CsvRwRouteParser.ParseRoute(Result.RouteFile, IsRW, Result.RouteEncoding, null, null, null, true);
 					pictureboxRouteMap.Image = Illustrations.CreateRouteMap(pictureboxRouteMap.Width, pictureboxRouteMap.Height);
 					pictureboxRouteGradient.Image = Illustrations.CreateRouteGradientProfile(pictureboxRouteGradient.Width, pictureboxRouteGradient.Height);
 					// image

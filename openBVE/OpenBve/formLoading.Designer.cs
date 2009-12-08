@@ -125,7 +125,6 @@
         	this.buttonSave.TabIndex = 6;
         	this.buttonSave.Text = "Save report...";
         	this.buttonSave.UseVisualStyleBackColor = true;
-        	this.buttonSave.Visible = false;
         	this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
         	// 
         	// panelProblems
@@ -409,10 +408,10 @@
         	this.BackColor = System.Drawing.Color.White;
         	this.CancelButton = this.buttonCancel;
         	this.ClientSize = new System.Drawing.Size(540, 224);
-        	this.Controls.Add(this.labelSeparator);
-        	this.Controls.Add(this.buttonSave);
         	this.Controls.Add(this.buttonCancel);
         	this.Controls.Add(this.buttonIgnore);
+        	this.Controls.Add(this.buttonSave);
+        	this.Controls.Add(this.labelSeparator);
         	this.Controls.Add(this.labelPanel);
         	this.Controls.Add(this.panelLoading);
         	this.Controls.Add(this.panelProblems);

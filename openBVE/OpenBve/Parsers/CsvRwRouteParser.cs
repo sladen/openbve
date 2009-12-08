@@ -219,9 +219,8 @@ namespace OpenBve {
 		}
 
 		// parse route
-		internal static void ParseRoute(string FileName, System.Text.Encoding Encoding, string TrainPath, string ObjectPath, string SoundPath, bool PreviewOnly) {
+		internal static void ParseRoute(string FileName, bool IsRW, System.Text.Encoding Encoding, string TrainPath, string ObjectPath, string SoundPath, bool PreviewOnly) {
 			// initialize data
-			bool IsRW = string.Equals(System.IO.Path.GetExtension(FileName), ".rw", StringComparison.OrdinalIgnoreCase);
 			string CompatibilityFolder = Interface.GetDataFolder("Compatibility");
 			RouteData Data = new RouteData();
 			Data.BlockInterval = 25.0;
@@ -389,7 +388,7 @@ namespace OpenBve {
 				// continue
 				Data.SignalSpeeds = new double[] { 0.0, 6.94444444444444, 15.2777777777778, 20.8333333333333, double.PositiveInfinity, double.PositiveInfinity };
 			}
-			ParseRouteForData(FileName, Encoding, TrainPath, ObjectPath, SoundPath, ref Data, PreviewOnly);
+			ParseRouteForData(FileName, IsRW, Encoding, TrainPath, ObjectPath, SoundPath, ref Data, PreviewOnly);
 			if (Loading.Cancel) return;
 			ApplyRouteData(FileName, Encoding, ref Data, PreviewOnly);
 		}
@@ -403,115 +402,67 @@ namespace OpenBve {
 			internal int Line;
 			internal int Column;
 		}
-		private static void ParseRouteForData(string FileName, System.Text.Encoding Encoding, string TrainPath, string ObjectPath, string SoundPath, ref RouteData Data, bool PreviewOnly) {
+		private static void ParseRouteForData(string FileName, bool IsRW, System.Text.Encoding Encoding, string TrainPath, string ObjectPath, string SoundPath, ref RouteData Data, bool PreviewOnly) {
 			// parse
 			string[] Lines = System.IO.File.ReadAllLines(FileName, Encoding);
 			Expression[] Expressions;
-			PreprocessSplitIntoExpressions(FileName, Lines, Encoding, out Expressions);
-			PreprocessChrRndSub(FileName, ref Expressions);
+			PreprocessSplitIntoExpressions(FileName, IsRW, Lines, Encoding, out Expressions, true);
+			PreprocessChrRndSub(FileName, IsRW, ref Expressions);
 			double[] UnitOfLength = new double[] { 1.0 };
 			Data.UnitOfSpeed = 0.277777777777778;
-			PreprocessOptions(FileName, Encoding, Expressions, ref Data, ref UnitOfLength);
-			PreprocessSortByTrackPosition(FileName, UnitOfLength, ref Expressions);
-			ParseRouteForData(FileName, Encoding, Expressions, TrainPath, ObjectPath, SoundPath, UnitOfLength, ref Data, PreviewOnly);
+			PreprocessOptions(FileName, IsRW, Encoding, Expressions, ref Data, ref UnitOfLength);
+			PreprocessSortByTrackPosition(FileName, IsRW, UnitOfLength, ref Expressions);
+			ParseRouteForData(FileName, IsRW, Encoding, Expressions, TrainPath, ObjectPath, SoundPath, UnitOfLength, ref Data, PreviewOnly);
 			Game.RouteUnitOfLength = UnitOfLength;
 		}
 
 		// preprocess split into expressions
-		private static void PreprocessSplitIntoExpressions(string FileName, string[] Lines, System.Text.Encoding Encoding, out Expression[] Expressions) {
-			bool IsRW = string.Equals(System.IO.Path.GetExtension(FileName), ".rw", StringComparison.OrdinalIgnoreCase);
+		private static void PreprocessSplitIntoExpressions(string FileName, bool IsRW, string[] Lines, System.Text.Encoding Encoding, out Expression[] Expressions, bool AllowRwRouteDescription) {
 			Expressions = new Expression[4096];
 			int e = 0;
-			bool RwRouteDescription = true;
-//			// full-line preprocessing directives
-//			for (int i = 0; i < Lines.Length; i++) {
-//				Lines[i] = Lines[i].Trim();
-//				if (Lines[i].StartsWith("#include ", StringComparison.OrdinalIgnoreCase)) {
-//					// include
-//					string[] args = Lines[i].Substring(9).Split(new char[] { ','}, StringSplitOptions.None);
-//					for (int j = 0; j < args.Length; j++) {
-//						args[j] = args[j].Trim();
-//					}
-//					int count = args.Length + 1 >> 1;
-//					string[] files = new string[count];
-//					double[] probabilities = new double[count];
-//					double totalProbabilities = 0.0;
-//					bool failure = false;
-//					for (int j = 0; j < count; j++) {
-//						files[j] = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), args[2 * j]);
-//						if (!System.IO.File.Exists(files[j])) {
-//							Interface.AddMessage(Interface.MessageType.Error, false, "The specified file " + args[2 * j] + " could not be found at line " + (i + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) + " in file " + FileName);
-//							failure = true;
-//							break;
-//						}
-//						if (2 * j + 1 < args.Length) {
-//							if (!Interface.TryParseDoubleVb6(args[2 * j + 1], out probabilities[j])) {
-//								failure = true;
-//								break;
-//							} else if (probabilities[j] <= 0.0) {
-//								Interface.AddMessage(Interface.MessageType.Error, false, "Probabilities are required to be positive at line " + (i + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) + " in file " + FileName);
-//								failure = true;
-//								break;
-//							}
-//						} else {
-//							probabilities[j] = 1.0;
-//						}
-//						totalProbabilities += probabilities[j];
-//					}
-//					if (failure) {
-//						Lines[i] = "";
-//					} else if (totalProbabilities <= 0.0) {
-//						Interface.AddMessage(Interface.MessageType.Error, false, "No file was specified in #include at line " + (i + 1).ToString(System.Globalization.CultureInfo.InvariantCulture) + " in file " + FileName);
-//						Lines[i] = "";
-//					} else {
-//						double number = totalProbabilities * Game.Generator.NextDouble();
-//						double value = 0.0;
-//						int index = count - 1;
-//						for (int j = 0; j < count; j++) {
-//							value += probabilities[j];
-//							if (number < value) {
-//								index = j;
-//								break;
-//							}
-//						}
-//						string[] includeLines = System.IO.File.ReadAllLines(files[index], Encoding);
-//						Array.Resize<string>(ref Lines, Lines.Length + includeLines.Length - 1);
-//						for (int j = Lines.Length - 1; j >= i + includeLines.Length; j--) {
-//							Lines[j] = Lines[j - includeLines.Length + 1];
-//						}
-//						for (int j = 0; j < includeLines.Length; j++) {
-//							Lines[i + j] = includeLines[j];
-//						}
-//						i--;
-//					}
-//				}
-//			}
 			// full-line rw comments
 			if (IsRW) {
 				for (int i = 0; i < Lines.Length; i++) {
+					int Level = 0;
 					for (int j = 0; j < Lines[i].Length; j++) {
-						if (Lines[i][j] == '=') {
-							break;
-						} else if (Lines[i][j] == ';') {
-							Lines[i] = Lines[i].Substring(0, j).TrimEnd();
-							break;
+						switch (Lines[i][j]) {
+							case '(':
+								Level++;
+								break;
+							case ')':
+								Level--;
+								break;
+							case ';':
+								if (Level == 0) {
+									Lines[i] = Lines[i].Substring(0, j).TrimEnd();
+									j = Lines[i].Length;
+								}
+								break;
+							case '=':
+								if (Level == 0) {
+									j = Lines[i].Length;
+								}
+								break;
 						}
 					}
 				}
 			}
 			// parse
 			for (int i = 0; i < Lines.Length; i++) {
-				if (IsRW) {
+				if (IsRW & AllowRwRouteDescription) {
 					// ignore rw route description
-					if (RwRouteDescription) {
-						if (Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].IndexOf("]", StringComparison.Ordinal) > 0) {
-							RwRouteDescription = false;
-							Game.RouteComment = Game.RouteComment.Trim();
-						} else {
-							if (Game.RouteComment.Length != 0) Game.RouteComment += "\n";
-							Game.RouteComment += Lines[i];
-							continue;
+					if (
+						Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].IndexOf("]", StringComparison.Ordinal) > 0 |
+						Lines[i].StartsWith("$")
+					) {
+						AllowRwRouteDescription = false;
+						Game.RouteComment = Game.RouteComment.Trim();
+					} else {
+						if (Game.RouteComment.Length != 0) {
+							Game.RouteComment += "\n";
 						}
+						Game.RouteComment += Lines[i];
+						continue;
 					}
 				}
 				{
@@ -596,7 +547,7 @@ namespace OpenBve {
 		}
 
 		// preprocess chrrndsub
-		private static void PreprocessChrRndSub(string FileName, ref Expression[] Expressions) {
+		private static void PreprocessChrRndSub(string FileName, bool IsRW, ref Expression[] Expressions) {
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
 			System.Text.Encoding Encoding = new System.Text.ASCIIEncoding();
 			string[] Subs = new string[16];
@@ -640,62 +591,78 @@ namespace OpenBve {
 							switch (t.ToLowerInvariant()) {
 								case "$include":
 									{
-										string[] args = s.Split(';');
-										int count = (args.Length + 1) / 2;
-										string[] files = new string[count];
-										double[] weights = new double[count];
-										double weightsTotal = 0.0;
-										for (int ia = 0; ia < count; ia++) {
-											files[ia] = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), args[2 * ia]);
-											if (!System.IO.File.Exists(files[ia])) {
-												cont = true;
-												Interface.AddMessage(Interface.MessageType.Error, false, "The file " + files[ia] + " could not be found in " + t + Epilog);
-												break;
-											} else if (2 * ia + 1 < args.Length) {
-												if (!Interface.TryParseDoubleVb6(args[2 * ia + 1], out weights[ia])) {
-													cont = true;
-													Interface.AddMessage(Interface.MessageType.Error, false, "A weight is invalid in " + t + Epilog);
-													break;
-												} else if (weights[ia] <= 0.0) {
-													cont = true;
-													Interface.AddMessage(Interface.MessageType.Error, false, "A weight is not positive in " + t + Epilog);
-													break;
-												} else {
-													weightsTotal += weights[ia];
-												}
-											} else {
-												weights[ia] = 1.0;
-												weightsTotal += 1.0;
-											}
-										}
-										if (count == 0) {
+										if (j != 0) {
+											Interface.AddMessage(Interface.MessageType.Error, false, "The $Include directive must not appear within another statement" + Epilog);
 											cont = true;
-											Interface.AddMessage(Interface.MessageType.Error, false, "No file was specified in " + t + Epilog);
 											break;
-										} else if (!cont) {
-											double number = Game.Generator.NextDouble() * weightsTotal;
-											double value = 0.0;
-											int chosenIndex = 0;
+										} else {
+											string[] args = s.Split(';');
+											for (int ia = 0; ia < args.Length; ia++) {
+												args[ia] = args[ia].Trim();
+											}
+											int count = (args.Length + 1) / 2;
+											string[] files = new string[count];
+											double[] weights = new double[count];
+											double weightsTotal = 0.0;
 											for (int ia = 0; ia < count; ia++) {
-												value += weights[ia];
-												if (value > number) {
-													chosenIndex = ia;
+												files[ia] = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), args[2 * ia]);
+												if (!System.IO.File.Exists(files[ia])) {
+													cont = true;
+													Interface.AddMessage(Interface.MessageType.Error, false, "The file " + files[ia] + " could not be found in " + t + Epilog);
 													break;
+												} else if (2 * ia + 1 < args.Length) {
+													if (!Interface.TryParseDoubleVb6(args[2 * ia + 1], out weights[ia])) {
+														cont = true;
+														Interface.AddMessage(Interface.MessageType.Error, false, "A weight is invalid in " + t + Epilog);
+														break;
+													} else if (weights[ia] <= 0.0) {
+														cont = true;
+														Interface.AddMessage(Interface.MessageType.Error, false, "A weight is not positive in " + t + Epilog);
+														break;
+													} else {
+														weightsTotal += weights[ia];
+													}
+												} else {
+													weights[ia] = 1.0;
+													weightsTotal += 1.0;
 												}
 											}
-											Expression[] expr;
-											string[] lines = System.IO.File.ReadAllLines(files[chosenIndex], Encoding);
-											PreprocessSplitIntoExpressions(files[chosenIndex], lines, Encoding, out expr);
-											int length = Expressions.Length;
-											Array.Resize<Expression>(ref Expressions, length + expr.Length - 1);
-											for (int ia = Expressions.Length - 1; ia >= i + expr.Length; ia--) {
-												Expressions[ia] = Expressions[ia - expr.Length + 1];
+											if (count == 0) {
+												cont = true;
+												Interface.AddMessage(Interface.MessageType.Error, false, "No file was specified in " + t + Epilog);
+												break;
+											} else if (!cont) {
+												double number = Game.Generator.NextDouble() * weightsTotal;
+												double value = 0.0;
+												int chosenIndex = 0;
+												for (int ia = 0; ia < count; ia++) {
+													value += weights[ia];
+													if (value > number) {
+														chosenIndex = ia;
+														break;
+													}
+												}
+												Expression[] expr;
+												string[] lines = System.IO.File.ReadAllLines(files[chosenIndex], Encoding);
+												PreprocessSplitIntoExpressions(files[chosenIndex], IsRW, lines, Encoding, out expr, false);
+												int length = Expressions.Length;
+												if (expr.Length == 0) {
+													for (int ia = i; ia < Expressions.Length - 1; ia++) {
+														Expressions[ia] = Expressions[ia + 1];
+													}
+													Array.Resize<Expression>(ref Expressions, length - 1);
+												} else {
+													Array.Resize<Expression>(ref Expressions, length + expr.Length - 1);
+													for (int ia = Expressions.Length - 1; ia >= i + expr.Length; ia--) {
+														Expressions[ia] = Expressions[ia - expr.Length + 1];
+													}
+													for (int ia = 0; ia < expr.Length; ia++) {
+														Expressions[i + ia] = expr[ia];
+													}
+												}
+												i--;
+												cont = true;
 											}
-											for (int ia = 0; ia < expr.Length; ia++) {
-												Expressions[i + ia] = expr[ia];
-											}
-											i--;
-											cont = true;
 										}
 									}
 									break;
@@ -835,8 +802,7 @@ namespace OpenBve {
 		}
 
 		// preprocess options
-		private static void PreprocessOptions(string FileName, System.Text.Encoding Encoding, Expression[] Expressions, ref RouteData Data, ref double[] UnitOfLength) {
-			bool IsRW = string.Equals(System.IO.Path.GetExtension(FileName), ".rw", StringComparison.OrdinalIgnoreCase);
+		private static void PreprocessOptions(string FileName, bool IsRW, System.Text.Encoding Encoding, Expression[] Expressions, ref RouteData Data, ref double[] UnitOfLength) {
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
 			string Section = ""; bool SectionAlwaysPrefix = false;
 			// process expressions
@@ -1017,8 +983,7 @@ namespace OpenBve {
 			internal double TrackPosition;
 			internal Expression Expression;
 		}
-		private static void PreprocessSortByTrackPosition(string FileName, double[] UnitFactors, ref Expression[] Expressions) {
-			bool IsRW = string.Equals(System.IO.Path.GetExtension(FileName), ".rw", StringComparison.OrdinalIgnoreCase);
+		private static void PreprocessSortByTrackPosition(string FileName, bool IsRW, double[] UnitFactors, ref Expression[] Expressions) {
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
 			PositionedExpression[] p = new PositionedExpression[Expressions.Length]; int n = 0;
 			double a = -1.0;
@@ -1239,9 +1204,8 @@ namespace OpenBve {
 		}
 
 		// parse route for data
-		private static void ParseRouteForData(string FileName, System.Text.Encoding Encoding, Expression[] Expressions, string TrainPath, string ObjectPath, string SoundPath, double[] UnitOfLength, ref RouteData Data, bool PreviewOnly) {
+		private static void ParseRouteForData(string FileName, bool IsRW, System.Text.Encoding Encoding, Expression[] Expressions, string TrainPath, string ObjectPath, string SoundPath, double[] UnitOfLength, ref RouteData Data, bool PreviewOnly) {
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
-			bool IsRW = string.Equals(System.IO.Path.GetExtension(FileName), ".rw", StringComparison.OrdinalIgnoreCase);
 			string Section = ""; bool SectionAlwaysPrefix = false;
 			int BlockIndex = 0;
 			int BlocksUsed = Data.Blocks.Length;
@@ -5770,7 +5734,7 @@ namespace OpenBve {
 				TrackManager.CurrentTrack.Elements[n].Events[m] = new TrackManager.TrackEndEvent(Data.BlockInterval);
 			}
 			if (!PreviewOnly) {
-				SmoothenOutTurns(Interface.CurrentOptions.SmoothenOutTurns);
+				SmoothenOutTurns(4);
 			}
 		}
 		
@@ -5780,10 +5744,10 @@ namespace OpenBve {
 		
 		// smoothen out turns
 		private static void SmoothenOutTurns(int subdivisions) {
-			// subdivide track
 			if (subdivisions < 2) {
-				return;
+				throw new InvalidOperationException();
 			}
+			// subdivide track
 			int length = TrackManager.CurrentTrack.Elements.Length;
 			int newLength = (length - 1) * subdivisions + 1;
 			double[] midpointsTrackPositions = new double[newLength];
@@ -6016,7 +5980,6 @@ namespace OpenBve {
 					}
 				}
 			}
-			Game.InfoDebugString = "track length reduction: " + totalShortage.ToString("0.0000") + " m";
 			// correct events
 			for (int i = 0; i < TrackManager.CurrentTrack.Elements.Length - 1; i++) {
 				double startingTrackPosition = TrackManager.CurrentTrack.Elements[i].StartingTrackPosition;

@@ -38,9 +38,13 @@ namespace OpenBve {
 			buttonSave.Text = Interface.GetInterfaceString("loading_save");
 			buttonIgnore.Text = Interface.GetInterfaceString("loading_ignore");
 			buttonCancel.Text = Interface.GetInterfaceString("loading_cancel");
-			// for some reasons, the Ignore button does not show later on Mac if initially set to invisible
+			/* 
+			 * For some reasons, the Ignore and Save Report buttons do not show
+			 * up later on Mac OS X if initially set to invisible.
+			 * */
 			if (Program.CurrentPlatform != Program.Platform.Mac) {
 				buttonIgnore.Visible = false;
+				buttonSave.Visible = false;
 			}
 		}
 

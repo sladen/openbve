@@ -190,7 +190,8 @@ namespace OpenBve {
 			}
 			// route provided but no train
 			if (Result.RouteFile != null & Result.TrainFolder == null) {
-				CsvRwRouteParser.ParseRoute(Result.RouteFile, Result.RouteEncoding, null, null, null, true);
+				bool IsRW = string.Equals(System.IO.Path.GetExtension(Result.RouteFile), ".rw", StringComparison.OrdinalIgnoreCase);
+				CsvRwRouteParser.ParseRoute(Result.RouteFile, IsRW, Result.RouteEncoding, null, null, null, true);
 				if (Game.TrainName != null && Game.TrainName.Length != 0) {
 					string Folder = System.IO.Path.GetDirectoryName(Result.RouteFile);
 					while (true) {
