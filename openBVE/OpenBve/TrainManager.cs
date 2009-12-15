@@ -557,13 +557,15 @@ namespace OpenBve {
 
 		// move car
 		internal static void MoveCar(Train Train, int CarIndex, double Delta, double TimeElapsed) {
-			TrackManager.UpdateTrackFollower(ref Train.Cars[CarIndex].FrontAxle.Follower, Train.Cars[CarIndex].FrontAxle.Follower.TrackPosition + Delta, true, true);
 			if (Train.State != TrainState.Disposed) {
-				TrackManager.UpdateTrackFollower(ref Train.Cars[CarIndex].RearAxle.Follower, Train.Cars[CarIndex].RearAxle.Follower.TrackPosition + Delta, true, true);
+				TrackManager.UpdateTrackFollower(ref Train.Cars[CarIndex].FrontAxle.Follower, Train.Cars[CarIndex].FrontAxle.Follower.TrackPosition + Delta, true, true);
 				if (Train.State != TrainState.Disposed) {
-					TrackManager.UpdateTrackFollower(ref Train.Cars[CarIndex].BeaconReceiver, Train.Cars[CarIndex].BeaconReceiver.TrackPosition + Delta, true, true);
-					if (Train.State != TrainState.Disposed & Train.State != TrainManager.TrainState.Bogus) {
-						UpdateTopplingCantAndSpring(Train, CarIndex, TimeElapsed);
+					TrackManager.UpdateTrackFollower(ref Train.Cars[CarIndex].RearAxle.Follower, Train.Cars[CarIndex].RearAxle.Follower.TrackPosition + Delta, true, true);
+					if (Train.State != TrainState.Disposed) {
+						TrackManager.UpdateTrackFollower(ref Train.Cars[CarIndex].BeaconReceiver, Train.Cars[CarIndex].BeaconReceiver.TrackPosition + Delta, true, true);
+						if (Train.State != TrainState.Disposed & Train.State != TrainManager.TrainState.Bogus) {
+							UpdateTopplingCantAndSpring(Train, CarIndex, TimeElapsed);
+						}
 					}
 				}
 			}
@@ -4087,7 +4089,7 @@ namespace OpenBve {
 					Train.Cars[i].Sounds.Motor.CurrentAccelerationDirection = ndir;
 				}
 			}
-			// security system
+			// safety system
 			if (!Game.MinimalisticSimulation | Train != PlayerTrain) {
 				UpdateSafetySystem(Train, TimeElapsed);
 			}

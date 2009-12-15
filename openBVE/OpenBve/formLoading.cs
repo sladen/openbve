@@ -110,19 +110,21 @@ namespace OpenBve {
 
 		// save
 		private void buttonSave_Click(object sender, EventArgs e) {
-			// prepare
-			System.Text.StringBuilder Builder = new System.Text.StringBuilder();
-			for (int i = 0; i < Interface.MessageCount; i++) {
-				Builder.AppendLine(Interface.Messages[i].Text);
-			}
-			// save
-			SaveFileDialog Dialog = new SaveFileDialog();
-			Dialog.Filter = Interface.GetInterfaceString("dialog_textfiles") + "|*.txt|" + Interface.GetInterfaceString("dialog_allfiles") + "|*";
-			if (Dialog.ShowDialog() == DialogResult.OK) {
-				try {
-					System.IO.File.WriteAllText(Dialog.FileName, Builder.ToString(), System.Text.Encoding.UTF8);
-				} catch (Exception ex) {
-					MessageBox.Show(ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Hand);
+			if (Loading.Complete) {
+				// prepare
+				System.Text.StringBuilder Builder = new System.Text.StringBuilder();
+				for (int i = 0; i < Interface.MessageCount; i++) {
+					Builder.AppendLine(Interface.Messages[i].Text);
+				}
+				// save
+				SaveFileDialog Dialog = new SaveFileDialog();
+				Dialog.Filter = Interface.GetInterfaceString("dialog_textfiles") + "|*.txt|" + Interface.GetInterfaceString("dialog_allfiles") + "|*";
+				if (Dialog.ShowDialog() == DialogResult.OK) {
+					try {
+						System.IO.File.WriteAllText(Dialog.FileName, Builder.ToString(), System.Text.Encoding.UTF8);
+					} catch (Exception ex) {
+						MessageBox.Show(ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Hand);
+					}
 				}
 			}
 		}

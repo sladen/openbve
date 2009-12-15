@@ -5902,17 +5902,27 @@ namespace OpenBve {
 							double sa = Math.Sqrt(BC.X * BC.X + BC.Z * BC.Z);
 							double sb = Math.Sqrt(AC.X * AC.X + AC.Z * AC.Z);
 							double sc = Math.Sqrt(AB.X * AB.X + AB.Z * AB.Z);
-							double tab = 2.0 * sa * sb;
-							if (tab != 0.0) {
-								double og = Math.Acos((sa * sa + sb * sb - sc * sc) / tab);
-								TrackManager.TrackElement ote = TrackManager.CurrentTrack.Elements[i];
+							double denominator = 2.0 * sa * sb;
+							if (denominator != 0.0) {
+								double originalAngle;
+								{
+									double value = (sa * sa + sb * sb - sc * sc) / denominator;
+									if (value < -1.0) {
+										originalAngle = Math.PI;
+									} else if (value > 1.0) {
+										originalAngle = 0;
+									} else {
+										originalAngle = Math.Acos(value);
+									}
+								}
+								TrackManager.TrackElement originalTrackElement = TrackManager.CurrentTrack.Elements[i];
 								bestT = double.MaxValue;
 								bestJ = 0;
 								for (int j = -1; j <= 1; j++) {
-									double g = (double)j * og;
+									double g = (double)j * originalAngle;
 									double cosg = Math.Cos(g);
 									double sing = Math.Sin(g);
-									TrackManager.CurrentTrack.Elements[i] = ote;
+									TrackManager.CurrentTrack.Elements[i] = originalTrackElement;
 									World.Rotate(ref TrackManager.CurrentTrack.Elements[i].WorldDirection.X, ref TrackManager.CurrentTrack.Elements[i].WorldDirection.Y, ref TrackManager.CurrentTrack.Elements[i].WorldDirection.Z, 0.0, 1.0, 0.0, cosg, sing);
 									World.Rotate(ref TrackManager.CurrentTrack.Elements[i].WorldUp.X, ref TrackManager.CurrentTrack.Elements[i].WorldUp.Y, ref TrackManager.CurrentTrack.Elements[i].WorldUp.Z, 0.0, 1.0, 0.0, cosg, sing);
 									World.Rotate(ref TrackManager.CurrentTrack.Elements[i].WorldSide.X, ref TrackManager.CurrentTrack.Elements[i].WorldSide.Y, ref TrackManager.CurrentTrack.Elements[i].WorldSide.Z, 0.0, 1.0, 0.0, cosg, sing);
@@ -5927,10 +5937,10 @@ namespace OpenBve {
 									}
 								}
 								{
-									double g = (double)bestJ * og;
-									double cosg = Math.Cos(g);
-									double sing = Math.Sin(g);
-									TrackManager.CurrentTrack.Elements[i] = ote;
+									double newAngle = (double)bestJ * originalAngle;
+									double cosg = Math.Cos(newAngle);
+									double sing = Math.Sin(newAngle);
+									TrackManager.CurrentTrack.Elements[i] = originalTrackElement;
 									World.Rotate(ref TrackManager.CurrentTrack.Elements[i].WorldDirection.X, ref TrackManager.CurrentTrack.Elements[i].WorldDirection.Y, ref TrackManager.CurrentTrack.Elements[i].WorldDirection.Z, 0.0, 1.0, 0.0, cosg, sing);
 									World.Rotate(ref TrackManager.CurrentTrack.Elements[i].WorldUp.X, ref TrackManager.CurrentTrack.Elements[i].WorldUp.Y, ref TrackManager.CurrentTrack.Elements[i].WorldUp.Z, 0.0, 1.0, 0.0, cosg, sing);
 									World.Rotate(ref TrackManager.CurrentTrack.Elements[i].WorldSide.X, ref TrackManager.CurrentTrack.Elements[i].WorldSide.Y, ref TrackManager.CurrentTrack.Elements[i].WorldSide.Z, 0.0, 1.0, 0.0, cosg, sing);
