@@ -504,6 +504,7 @@ namespace OpenBve {
 									string t = Lines[i].Substring(a, j - a).Trim();
 									if (t.Length > 0 && !t.StartsWith(";")) {
 										Expressions[e] = new Expression();
+										Expressions[e].File = FileName;
 										Expressions[e].Text = t;
 										Expressions[e].Line = i + 1;
 										Expressions[e].Column = c + 1;
@@ -2688,10 +2689,10 @@ namespace OpenBve {
 													if (Data.Blocks[BlockIndex].RailType.Length <= idx) {
 														Array.Resize<int>(ref Data.Blocks[BlockIndex].RailType, idx + 1);
 													}
-													if (Arguments.Length >= 4) {
+													if (Arguments.Length >= 4 && Arguments[3].Length != 0) {
 														int sttype;
 														if (!Interface.TryParseIntVb6(Arguments[3], out sttype)) {
-															Interface.AddMessage(Interface.MessageType.Error, false, "RailStructureIndex is invalid in " + Command + "at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+															Interface.AddMessage(Interface.MessageType.Error, false, "RailStructureIndex is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 															sttype = 0;
 														}
 														if (sttype < 0) {
@@ -3793,7 +3794,7 @@ namespace OpenBve {
 												idx = 0;
 											}
 											if (idx < 0 | idx >= Data.Blocks[BlockIndex].RailPole.Length) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex does not reference an existing wall in Track.PoleEnd at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+												Interface.AddMessage(Interface.MessageType.Error, false, "RailIndex does not reference an existing pole in Track.PoleEnd at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 											} else {
 												if (idx >= Data.Blocks[BlockIndex].Rail.Length || (!Data.Blocks[BlockIndex].Rail[idx].RailStart & !Data.Blocks[BlockIndex].Rail[idx].RailEnd)) {
 													Interface.AddMessage(Interface.MessageType.Warning, false, "RailIndex could be out of range in Track.PoleEnd at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);

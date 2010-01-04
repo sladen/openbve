@@ -3878,8 +3878,10 @@ namespace OpenBve {
 				}
 			}
 			// update cars
-			for (int i = 0; i < Train.Cars.Length; i++) {
-				UpdateCar(Train, i, TimeElapsed);
+			if (!Game.MinimalisticSimulation) {
+				for (int i = 0; i < Train.Cars.Length; i++) {
+					UpdateCar(Train, i, TimeElapsed);
+				}
 			}
 			// update station and doors
 			UpdateTrainStation(Train, TimeElapsed);

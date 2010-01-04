@@ -2893,10 +2893,10 @@
         	this.Controls.Add(this.labelFillerOne);
         	this.Controls.Add(this.labelFillerTwo);
         	this.Controls.Add(this.labelFillerThree);
-        	this.Controls.Add(this.panelStart);
         	this.Controls.Add(this.panelOptions);
         	this.Controls.Add(this.panelControls);
         	this.Controls.Add(this.panelReview);
+        	this.Controls.Add(this.panelStart);
         	this.KeyPreview = true;
         	this.Name = "formMain";
         	this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
