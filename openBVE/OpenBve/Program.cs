@@ -119,8 +119,8 @@ namespace OpenBve {
 				for (int i = 0; i < n; i++) {
 					Interface.CurrentJoysticks[i].SdlHandle = Sdl.SDL_JoystickOpen(i);
 					if (CurrentPlatform == Platform.Windows) {
-						/// string returned is ascii packed in utf-16 (2 chars per codepoint)
 						string s = Sdl.SDL_JoystickName(i);
+						/* string returned is ascii packed in utf-16 (2 chars per codepoint) */
 						System.Text.StringBuilder t = new System.Text.StringBuilder(s.Length << 1);
 						for (int k = 0; k < s.Length; k++) {
 							int a = (int)s[k];
