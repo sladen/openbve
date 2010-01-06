@@ -1,3 +1,9 @@
+openbve (1.2.4.1-0ubuntu1) unreleased; urgency=low
+
+  * New upstream stable version (1.2.4.1) (LP: #444934)
+
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Wed,  6 Jan 2010 02:55:00 +0000
+
 openbve (1.2.2.0-0ubuntu1) unreleased; urgency=low
 
   * New upstream stable version (1.2.2.0) (LP: #444934)
