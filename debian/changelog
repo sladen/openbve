@@ -1,3 +1,8 @@
+openbve (1.2.4.1-0ubuntu2) unreleased; urgency=low
+
+	
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Wed,  6 Jan 2010 17:50:00 +0000
+
 openbve (1.2.4.1-0ubuntu1) lucid; urgency=low
 
   * New upstream stable version (1.2.4.1) (LP: #444934)
