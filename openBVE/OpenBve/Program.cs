@@ -23,7 +23,7 @@ namespace OpenBve {
 			Console.Error.WriteLine("WatchdogExit: starting timer");
 			System.Threading.Thread.Sleep(delay);
 			Console.Error.WriteLine("WatchdogExit: Something did not shutdown quickly enough, forcing exit");
-			Environment.Exit(1);
+			Environment.FailFast("WatchdogExit: Something did not shutdown quickly enough, forcing exit");
 		}
 
 		// main
