@@ -1,4 +1,4 @@
-openbve (1.2.3.1-0ubuntu1) unreleased; urgency=low
+openbve (1.2.4.1-0ubuntu1) lucid; urgency=low
 
   Openbve now uses a home-grown .wav parser for loading audio files.
 
@@ -7,7 +7,7 @@ openbve (1.2.3.1-0ubuntu1) unreleased; urgency=low
   route data packages have been rebuilt without a Vorbis recompression
   stage and so are now larger in download size.
 
- -- Paul Sladen <ubuntu@paul.sladen.org>  Wed,  6 Jan 2009 07:35:00 +0000
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Wed,  6 Jan 2009 07:58:00 +0000
 
 openbve (1.2.1.3-0ubuntu1) unreleased; urgency=low
 
