@@ -768,7 +768,13 @@ namespace OpenBve {
 						double ty = (rz * (dy * sx - dx * sy) + ry * (-dz * sx + dx * sz) + rx * (dz * sy - dy * sz)) * t;
 						double tz = (rz * (sy * ux - sx * uy) + ry * (-sz * ux + sx * uz) + rx * (sz * uy - sy * uz)) * t;
 						lookaheadYaw = tx * tz != 0.0 ? Math.Atan2(tx, tz) : 0.0;
-						lookaheadPitch = Math.Asin(ty);
+						if (ty < -1.0) {
+							lookaheadPitch = -0.5 * Math.PI;
+						} else if (ty > 1.0) {
+							lookaheadPitch = 0.5 * Math.PI;
+						} else {
+							lookaheadPitch = Math.Asin(ty);
+						}
 					} else {
 						lookaheadYaw = 0.0;
 						lookaheadPitch = 0.0;

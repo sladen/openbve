@@ -13,6 +13,8 @@ namespace OpenBve {
 		internal static Platform CurrentPlatform = Platform.Windows;
 		internal static bool CurrentlyRunOnMono = false;
 		internal static bool UseFilesystemHierarchyStandard = false;
+		internal enum ProgramType { OpenBve, RouteViewer, ObjectViewer, Other };
+		internal const ProgramType CurrentProgramType = ProgramType.OpenBve;
 		private static bool SdlWindowCreated = false;
 
 		internal static void WatchdogExit()
@@ -206,7 +208,8 @@ namespace OpenBve {
 			}
 			// route provided but no train
 			if (Result.RouteFile != null & Result.TrainFolder == null) {
-				CsvRwRouteParser.ParseRoute(Result.RouteFile, Result.RouteEncoding, null, null, null, true);
+				bool IsRW = string.Equals(System.IO.Path.GetExtension(Result.RouteFile), ".rw", StringComparison.OrdinalIgnoreCase);
+				CsvRwRouteParser.ParseRoute(Result.RouteFile, IsRW, Result.RouteEncoding, null, null, null, true);
 				if (Game.TrainName != null && Game.TrainName.Length != 0) {
 					string Folder = System.IO.Path.GetDirectoryName(Result.RouteFile);
 					while (true) {
@@ -252,7 +255,8 @@ namespace OpenBve {
 			Renderer.ScreenWidth = Width;
 			Renderer.ScreenHeight = Height;
 			World.AspectRatio = (double)Renderer.ScreenWidth / (double)Renderer.ScreenHeight;
-			World.VerticalViewingAngle = 45.0 * 0.0174532925199433;
+			const double degree = 0.0174532925199433;
+			World.VerticalViewingAngle = 45.0 * degree;
 			World.HorizontalViewingAngle = 2.0 * Math.Atan(Math.Tan(0.5 * World.VerticalViewingAngle) * World.AspectRatio);
 			World.OriginalVerticalViewingAngle = World.VerticalViewingAngle;
 			World.ExtraViewingDistance = 50.0;

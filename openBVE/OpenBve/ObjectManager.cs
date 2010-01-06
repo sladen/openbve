@@ -524,45 +524,13 @@ namespace OpenBve {
 					Renderer.HideObject(i);
 				}
 			}
-			// sound
-//			if (Object.SoundBufferIndices != null && Object.SoundBufferIndices.Length != 0) {
-//				if (Show) {
-//					int sound = Object.CurrentSound;
-//					if (UpdateFunctions) {
-//						if (Object.SoundFunction != null) {
-//							Object.CurrentSound = (int)Math.Round(Object.SoundFunction.Perform(Train, Position, TrackPosition, SectionIndex, TimeElapsed));
-//						} else {
-//							Object.CurrentSound = 0;
-//						}
-//					}
-//					if (sound != Object.CurrentSound & Object.SoundSourceIndex >= 0) {
-//						SoundManager.StopSound(ref Object.SoundSourceIndex);
-//						sound = Object.CurrentSound;
-//					}
-//					if (sound >= 0 & sound < Object.SoundBufferIndices.Length) {
-//						if (Object.SoundSourceIndex == -1) {
-//							int buffer = Object.SoundBufferIndices[sound];
-//							World.Vector3D pos = Position;
-//							pos.X += Object.SoundPosition.X * Side.X + Object.SoundPosition.Y * Up.X + Object.SoundPosition.Z * Direction.X;
-//							pos.Y += Object.SoundPosition.X * Side.Y + Object.SoundPosition.Y * Up.Y + Object.SoundPosition.Z * Direction.Y;
-//							pos.Z += Object.SoundPosition.X * Side.Z + Object.SoundPosition.Y * Up.Z + Object.SoundPosition.Z * Direction.Z;
-//							if (IsPartOfTrain) {
-//								SoundManager.PlaySound(ref Object.SoundSourceIndex, buffer, Train, CarIndex, pos, SoundManager.Importance.DontCare, true);
-//							} else {
-//								SoundManager.PlaySound(ref Object.SoundSourceIndex, buffer, pos, SoundManager.Importance.DontCare, true);
-//							}
-//						}
-//					}
-//				} else {
-//					if (Object.SoundSourceIndex >= 0) {
-//						SoundManager.StopSound(ref Object.SoundSourceIndex);
-//					}
-//				}
-//			}
 		}
 		
 		// update damping
 		internal static void UpdateDamping(ref Damping Damping, double TimeElapsed, ref double Angle) {
+			if (TimeElapsed < 0.0) {
+				TimeElapsed = 0.0;
+			}
 			if (Damping != null) {
 				if (Damping.CurrentTimeDelta > Damping.NaturalTime) {
 					// update

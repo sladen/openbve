@@ -99,7 +99,8 @@ namespace OpenBve {
 			World.CameraTrackFollower.CarIndex = -1;
 			World.CameraMode = World.CameraViewMode.Interior;
 			// load route
-			CsvRwRouteParser.ParseRoute(CurrentRouteFile, CurrentRouteEncoding, CurrentTrainFolder, ObjectFolder, SoundFolder, false);
+			bool IsRW = string.Equals(System.IO.Path.GetExtension(CurrentRouteFile), ".rw", StringComparison.OrdinalIgnoreCase);
+			CsvRwRouteParser.ParseRoute(CurrentRouteFile, IsRW, CurrentRouteEncoding, CurrentTrainFolder, ObjectFolder, SoundFolder, false);
 			System.Threading.Thread.Sleep(1); if (Cancel) return;
 			Game.CalculateSeaLevelConstants();
 			if (Game.BogusPretrainInstructions.Length != 0) {
@@ -224,11 +225,15 @@ namespace OpenBve {
 							// load default exterior object
 							string file = Interface.GetCombinedFileName(Interface.GetDataFolder("Compatibility"), "exterior.csv");
 							ObjectManager.StaticObject so = ObjectManager.LoadStaticObject(file, System.Text.Encoding.UTF8, ObjectManager.ObjectLoadMode.Normal, false, false, false);
-							double sx = TrainManager.Trains[k].Cars[i].Width;
-							double sy = TrainManager.Trains[k].Cars[i].Height;
-							double sz = TrainManager.Trains[k].Cars[i].Length;
-							CsvB3dObjectParser.ApplyScale(so, sx, sy, sz);
-							CarObjects[i] = so;
+							if (so == null) {
+								CarObjects[i] = null;
+							} else {
+								double sx = TrainManager.Trains[k].Cars[i].Width;
+								double sy = TrainManager.Trains[k].Cars[i].Height;
+								double sz = TrainManager.Trains[k].Cars[i].Length;
+								CsvB3dObjectParser.ApplyScale(so, sx, sy, sz);
+								CarObjects[i] = so;
+							}
 						}
 						if (CarObjects[i] != null) {
 							// add object
