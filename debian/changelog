@@ -1,3 +1,9 @@
+openbve (1.2.0.3-0ubuntu1build1) unreleased; urgency=low
+
+  * Force rebuild against Tao (non-installable) (LP: #444462)
+
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Wed,  6 Jan 2010 08:56:00 +0000
+
 openbve (1.2.0.3-0ubuntu1) karmic; urgency=low
 
   * New upstream stable version (1.2.0.3)
