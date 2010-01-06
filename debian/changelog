@@ -1,4 +1,4 @@
-openbve (1.2.0.3-0ubuntu1build1) unreleased; urgency=low
+openbve (1.2.0.3-0ubuntu1build1) karmic; urgency=low
 
   * Force rebuild against Tao (non-installable) (LP: #444462)
 
