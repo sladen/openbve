@@ -1,9 +1,9 @@
-openbve (1.2.4.4-0ubuntu1) unreleased; urgency=low
+openbve (1.2.4.4-0ubuntu1) lucid; urgency=low
 
   * New upstream development version (1.2.4.4)
   + fixes autoscaling (LP: #503913)
 	
- -- Paul Sladen <ubuntu@paul.sladen.org>  Thu,  7 Jan 2010 15:16:00 +0000
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Thu,  7 Jan 2010 15:18:00 +0000
 
 openbve (1.2.4.1-0ubuntu1) lucid; urgency=low
 
