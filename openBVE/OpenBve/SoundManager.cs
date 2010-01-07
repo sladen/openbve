@@ -232,10 +232,10 @@ namespace OpenBve {
 								double innerRadiusSquared = innerRadius * innerRadius;
 								const double rollOffFactor = 0.9;
 								if (distanceSquared < innerRadiusSquared) {
-									gain = 1.0 + (rollOffFactor - 1.0) * distanceSquared / innerRadiusSquared;
+									gain = 1.0 - (1.0 - rollOffFactor) * distanceSquared / innerRadiusSquared;
 								} else {
-									double value = (outerRadius - distance) / (innerRadius - outerRadius);
-									gain = rollOffFactor * value * value;
+									double value = distance / outerRadius;
+									gain = innerRadius * rollOffFactor * (1.0 - value * value * value) / distance;
 								}
 								
 								SoundsQueriedPlaying++;
@@ -280,7 +280,6 @@ namespace OpenBve {
 									Al.alSourcefv(j, Al.AL_VELOCITY, SoundSources[i].OpenAlVelocity);
 									Al.alSourcef(j, Al.AL_PITCH, SoundSources[i].Pitch);
 									float g = SoundSources[i].Gain * SoundSources[i].Gain * (float)gain;
-									//float g = SoundSources[i].Gain * (float)gain;
 									if (g > 1.0f) g = 1.0f;
 									Al.alSourcef(j, Al.AL_GAIN, g);
 								} else {

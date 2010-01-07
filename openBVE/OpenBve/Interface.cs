@@ -141,6 +141,8 @@ namespace OpenBve {
 			internal EncodingValue[] RouteEncodings;
 			internal EncodingValue[] TrainEncodings;
 			internal GameMode GameMode;
+			internal int MainMenuWidth;
+			internal int MainMenuHeight;
 			internal Options() {
 				this.LanguageCode = "en-US";
 				this.FullscreenMode = false;
@@ -178,6 +180,8 @@ namespace OpenBve {
 				this.RecentlyUsedLimit = 10;
 				this.RouteEncodings = new EncodingValue[] { };
 				this.TrainEncodings = new EncodingValue[] { };
+				this.MainMenuWidth = 0;
+				this.MainMenuHeight = 0;
 			}
 		}
 		internal static Options CurrentOptions;
@@ -249,6 +253,16 @@ namespace OpenBve {
 											{
 												int a = 32; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.FullscreenBits = a;
+											} break;
+										case "mainmenuwidth":
+											{
+												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												Interface.CurrentOptions.MainMenuWidth = a;
+											} break;
+										case "mainmenuheight":
+											{
+												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												Interface.CurrentOptions.MainMenuHeight = a;
 											} break;
 									} break;
 								case "quality":
@@ -452,6 +466,8 @@ namespace OpenBve {
 			Builder.AppendLine("fullscreenwidth = " + CurrentOptions.FullscreenWidth.ToString(Culture));
 			Builder.AppendLine("fullscreenheight = " + CurrentOptions.FullscreenHeight.ToString(Culture));
 			Builder.AppendLine("fullscreenbits = " + CurrentOptions.FullscreenBits.ToString(Culture));
+			Builder.AppendLine("mainmenuwidth = " + CurrentOptions.MainMenuWidth.ToString(Culture));
+			Builder.AppendLine("mainmenuheight = " + CurrentOptions.MainMenuHeight.ToString(Culture));
 			Builder.AppendLine();
 			Builder.AppendLine("[quality]");
 			{

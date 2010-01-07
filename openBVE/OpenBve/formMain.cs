@@ -27,7 +27,7 @@ namespace OpenBve {
 		}
 
 		// members
-        private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
+		private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
 		private int[] EncodingCodepages = new int[0];
 		private Image JoystickImage = null;
 		private string[] LanguageFiles = new string[0];
@@ -40,6 +40,13 @@ namespace OpenBve {
 
 		// load
 		private void formMain_Load(object sender, EventArgs e) {
+			this.MinimumSize = this.Size;
+			if (Interface.CurrentOptions.MainMenuWidth == -1 & Interface.CurrentOptions.MainMenuHeight == -1) {
+				this.WindowState = FormWindowState.Maximized;
+			} else if (Interface.CurrentOptions.MainMenuWidth > 0 & Interface.CurrentOptions.MainMenuHeight > 0) {
+				this.Size = new Size(Interface.CurrentOptions.MainMenuWidth, Interface.CurrentOptions.MainMenuHeight);
+				this.CenterToScreen();
+			}
 			try {
 				System.Diagnostics.FileVersionInfo Version = System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
 				if ((Version.FileMinorPart & 1) == 1) {
@@ -358,8 +365,8 @@ namespace OpenBve {
 			buttonClose.Text = Interface.GetInterfaceString("panel_close");
 			// options
 			labelOptionsTitle.Text = Interface.GetInterfaceString("options_title");
-			labelLanguage.Text = "▸ " + Interface.GetInterfaceString("options_language");
-			labelDisplay.Text = "▸ " + Interface.GetInterfaceString("options_display");
+			//labelLanguage.Text = "▸ " + Interface.GetInterfaceString("options_language");
+			//labelDisplay.Text = "▸ " + Interface.GetInterfaceString("options_display");
 			groupboxDisplayMode.Text = Interface.GetInterfaceString("options_display_mode");
 			radiobuttonWindow.Text = Interface.GetInterfaceString("options_display_mode_window");
 			radiobuttonFullscreen.Text = Interface.GetInterfaceString("options_display_mode_fullscreen");
@@ -373,7 +380,7 @@ namespace OpenBve {
 			labelFullscreenWidth.Text = Interface.GetInterfaceString("options_display_fullscreen_width");
 			labelFullscreenHeight.Text = Interface.GetInterfaceString("options_display_fullscreen_height");
 			labelFullscreenBits.Text = Interface.GetInterfaceString("options_display_fullscreen_bits");
-			labelQuality.Text = "▸ " + Interface.GetInterfaceString("options_quality");
+			//labelQuality.Text = "▸ " + Interface.GetInterfaceString("options_quality");
 			groupboxInterpolation.Text = Interface.GetInterfaceString("options_quality_interpolation");
 			labelInterpolation.Text = Interface.GetInterfaceString("options_quality_interpolation_mode");
 			comboboxInterpolation.Items[0] = Interface.GetInterfaceString("options_quality_interpolation_mode_nearest");
@@ -395,7 +402,7 @@ namespace OpenBve {
 			comboboxMotionBlur.Items[2] = Interface.GetInterfaceString("options_quality_distance_motionblur_medium");
 			comboboxMotionBlur.Items[3] = Interface.GetInterfaceString("options_quality_distance_motionblur_high");
 			labelMotionBlur.Text = Interface.GetInterfaceString("options_quality_distance_motionblur");
-			labelMiscellaneous.Text = "▸ " + Interface.GetInterfaceString("options_misc");
+			//labelMiscellaneous.Text = "▸ " + Interface.GetInterfaceString("options_misc");
 			groupboxSimulation.Text = Interface.GetInterfaceString("options_misc_simulation");
 			checkboxToppling.Text = Interface.GetInterfaceString("options_misc_simulation_toppling");
 			checkboxCollisions.Text = Interface.GetInterfaceString("options_misc_simulation_collisions");
@@ -568,6 +575,8 @@ namespace OpenBve {
 			Interface.CurrentOptions.ShowErrorMessages = checkboxErrorMessages.Checked;
 			Interface.CurrentOptions.RouteFolder = textboxRouteFolder.Text;
 			Interface.CurrentOptions.TrainFolder = textboxTrainFolder.Text;
+			Interface.CurrentOptions.MainMenuWidth = this.WindowState == FormWindowState.Maximized ? -1 : this.Size.Width;
+			Interface.CurrentOptions.MainMenuHeight = this.WindowState == FormWindowState.Maximized ? -1 : this.Size.Height;
 			if (Result.Start) {
 				// recently used routes
 				if (Interface.CurrentOptions.RecentlyUsedLimit > 0) {
@@ -671,14 +680,14 @@ namespace OpenBve {
 		private void formMain_Resize(object sender, EventArgs e) {
 			try {
 				int wt = panelStart.Width;
-				int ox = labelStart.Left / 2;
-				int wa = (wt - 5 * ox) * 51 / 97;
-				int wb = (wt - 5 * ox) * 46 / 97;
+				int ox = labelStart.Left;
+				int wa = (wt - 3 * ox) / 2;
+				int wb = (wt - 3 * ox) / 2;
 				groupboxRouteSelection.Width = wa;
-				groupboxRouteDetails.Left = 3 * ox + wa;
+				groupboxRouteDetails.Left = 2 * ox + wa;
 				groupboxRouteDetails.Width = wb;
 				groupboxTrainSelection.Width = wa;
-				groupboxTrainDetails.Left = 3 * ox + wa;
+				groupboxTrainDetails.Left = 2 * ox + wa;
 				groupboxTrainDetails.Width = wb;
 				int oy = (labelRoute.Top - labelStartTitleBackground.Height) / 2;
 				int ht = (labelStart.Top - labelRoute.Top - 4 * oy) / 2 - labelRoute.Height - oy;
@@ -712,10 +721,12 @@ namespace OpenBve {
 				comboboxLanguages.Focus();
 			}
 			formMain_Resize(null, null);
-			this.MinimumSize = this.Size;
-			Screen s = Screen.FromControl(this);
-			if ((double)this.Width >= 0.95 * (double)s.WorkingArea.Width | (double)this.Height >= 0.95 * (double)s.WorkingArea.Height) {
-				this.WindowState = FormWindowState.Maximized;
+			if (this.WindowState != FormWindowState.Maximized) {
+				Size sss = this.ClientRectangle.Size ;
+				Screen s = Screen.FromControl(this);
+				if ((double)this.Width >= 0.95 * (double)s.WorkingArea.Width | (double)this.Height >= 0.95 * (double)s.WorkingArea.Height) {
+					this.WindowState = FormWindowState.Maximized;
+				}
 			}
 			// command line arguments
 			if (Result.TrainFolder != null) {

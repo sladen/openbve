@@ -208,7 +208,7 @@ namespace OpenBve {
 							} else if (dataFormat == DataFormat.MicrosoftAdPcm) {
 								// Microsoft ADPCM
 								if (format.Channels != 1) {
-									throw new NotImplementedException("Unsupported wChannels for ADPCM in " + fileTitle);
+									throw new NotImplementedException("Multiple channels are not yet supported in " + fileTitle);
 								}
 								int blocks = (int)ckSize / blockSize;
 								dataBytes = new byte[2 * blocks * microsoftAdPcmSamplesPerBlock];
@@ -263,7 +263,6 @@ namespace OpenBve {
 										}
 									}
 									stream.Position += blockSize - ((microsoftAdPcmSamplesPerBlock - 1 >> 1) + 7);
-									System.IO.File.WriteAllBytes(@"C:\debug.dat", dataBytes);
 								}
 								stream.Position += (int)ckSize - blocks * blockSize;
 							} else {
