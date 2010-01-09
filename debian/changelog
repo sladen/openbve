@@ -1,3 +1,9 @@
+openbve (1.2.4.5-0ubuntu1) unreleased; urgency=low
+
+  * New upstream development version (1.2.4.5)
+	
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Sat,  9 Jan 2010 02:03:00 +0000
+
 openbve (1.2.4.4-0ubuntu1) lucid; urgency=low
 
   * New upstream development version (1.2.4.4)
