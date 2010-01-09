@@ -27,7 +27,7 @@ namespace OpenBve {
 		}
 
 		// members
-		private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
+        private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
 		private int[] EncodingCodepages = new int[0];
 		private Image JoystickImage = null;
 		private string[] LanguageFiles = new string[0];
