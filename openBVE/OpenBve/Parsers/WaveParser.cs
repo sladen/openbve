@@ -71,23 +71,38 @@ namespace OpenBve {
 			Big = 1
 		}
 		
-		/// <summary>Represents the data format within the WAV's data chunk.</summary>
-		private enum DataFormat {
-			/// <summary>The format is invalid or has not yet been initialized.</summary>
-			Invalid = 0,
-			/// <summary>The format is PCM.</summary>
-			Pcm = 1,
-			/// <summary>The format is Microsoft ADPCM.</summary>
-			MicrosoftAdPcm = 2
+		
+		// --- format-specific data ---
+		
+		/// <summary>Represents format-specific data.</summary>
+		private abstract class FormatData {
+			internal int BlockSize;
 		}
 		
+		/// <summary>Represents PCM-specific data.</summary>
+		private class PcmData : FormatData { }
 		
-		// --- members ---
-		
-		private static uint[] MicrosoftAdPcmAdaptionTable = new uint[] {
-			230, 230, 230, 230, 307, 409, 512, 614,
-			768, 614, 512, 409, 307, 230, 230, 230
-		};
+		/// <summary>Represents Microsoft-ADPCM-specific data.</summary>
+		private class MicrosoftAdPcmData : FormatData {
+			// structures
+			internal struct ChannelData {
+				internal int bPredictor;
+				internal short iDelta;
+				internal short iSamp1;
+				internal short iSamp2;
+				internal int iCoef1;
+				internal int iCoef2;
+			}
+			// members
+			internal int SamplesPerBlock;
+			internal short[][] Coefficients = null;
+			// read-only fields
+			internal static readonly short[] AdaptionTable = new short[] {
+				230, 230, 230, 230, 307, 409, 512, 614,
+				768, 614, 512, 409, 307, 230, 230, 230
+			};
+		}
+
 		
 		
 		// --- functions ---
@@ -118,11 +133,8 @@ namespace OpenBve {
 					}
 					// data chunks
 					WaveFormat format = new WaveFormat();
-					DataFormat dataFormat = DataFormat.Invalid;
+					FormatData data = null;
 					byte[] dataBytes = null;
-					long[][] microsoftAdPcmCoefficients = null;
-					ushort microsoftAdPcmSamplesPerBlock = 0;
-					int blockSize = 0;
 					while (stream.Position + 8 <= stream.Length) {
 						uint ckID = reader.ReadUInt32(); /* Chunk ID is character-based */
 						uint ckSize = ReadUInt32(reader, endianness);
@@ -139,7 +151,6 @@ namespace OpenBve {
 							}
 							uint dwAvgBytesPerSec = ReadUInt32(reader, endianness);
 							ushort wBlockAlign = ReadUInt16(reader, endianness);
-							blockSize = (int)wBlockAlign;
 							if (wFormatTag == 1) {
 								// PCM
 								if (ckSize < 16) {
@@ -156,7 +167,9 @@ namespace OpenBve {
 								format.SampleRate = (int)dwSamplesPerSec;
 								format.BitsPerSample = (int)wBitsPerSample;
 								format.Channels = (int)wChannels;
-								dataFormat = DataFormat.Pcm;
+								PcmData pcmData = new PcmData();
+								pcmData.BlockSize = (int)wBlockAlign;
+								data = pcmData;
 							} else if (wFormatTag == 2) {
 								// Microsoft ADPCM
 								if (ckSize < 22) {
@@ -167,20 +180,21 @@ namespace OpenBve {
 									throw new InvalidDataException("Unsupported wBitsPerSample in " + fileTitle);
 								}
 								ushort cbSize = ReadUInt16(reader, endianness);
-								microsoftAdPcmSamplesPerBlock = ReadUInt16(reader, endianness);
-								if (microsoftAdPcmSamplesPerBlock == 0 | microsoftAdPcmSamplesPerBlock > 2 * ((int)wBlockAlign - 6)) {
+								MicrosoftAdPcmData adpcmData = new MicrosoftAdPcmData();
+								adpcmData.SamplesPerBlock = ReadUInt16(reader, endianness);
+								if (adpcmData.SamplesPerBlock == 0 | adpcmData.SamplesPerBlock > 2 * ((int)wBlockAlign - 6)) {
 									throw new InvalidDataException("Unexpected nSamplesPerBlock in " + fileTitle);
 								}
 								ushort wNumCoef = ReadUInt16(reader, endianness);
 								if (ckSize < 22 + 4 * wNumCoef) {
 									throw new InvalidDataException("Unsupported fmt chunk size in " + fileTitle);
 								}
-								microsoftAdPcmCoefficients = new long[wNumCoef][];
+								adpcmData.Coefficients = new short[wNumCoef][];
 								for (int i = 0; i < wNumCoef; i++) {
 									unchecked {
-										microsoftAdPcmCoefficients[i] = new long[] {
-											(long)ReadUInt16(reader, endianness),
-											(long)ReadUInt16(reader, endianness)
+										adpcmData.Coefficients[i] = new short[] {
+											(short)ReadUInt16(reader, endianness),
+											(short)ReadUInt16(reader, endianness)
 										};
 									}
 								}
@@ -188,7 +202,8 @@ namespace OpenBve {
 								format.SampleRate = (int)dwSamplesPerSec;
 								format.BitsPerSample = 16;
 								format.Channels = (int)wChannels;
-								dataFormat = DataFormat.MicrosoftAdPcm;
+								adpcmData.BlockSize = wBlockAlign;
+								data = adpcmData;
 							} else {
 								// unsupported format
 								throw new InvalidDataException("Unsupported wFormatTag in " + fileTitle);
@@ -198,73 +213,92 @@ namespace OpenBve {
 							if (ckSize >= 0x80000000) {
 								throw new InvalidDataException("Unsupported data chunk size in " + fileTitle);
 							}
-							if (dataFormat == DataFormat.Pcm) {
+							if (data is PcmData) {
 								// PCM
 								int bytesPerSample = (format.BitsPerSample + 7) / 8;
 								int samples = (int)ckSize / (format.Channels * bytesPerSample);
 								int dataSize = samples * format.Channels * bytesPerSample;
 								dataBytes = reader.ReadBytes(dataSize);
 								stream.Position += ckSize - dataSize;
-							} else if (dataFormat == DataFormat.MicrosoftAdPcm) {
+							} else if (data is MicrosoftAdPcmData) {
 								// Microsoft ADPCM
-								if (format.Channels != 1) {
-									throw new NotImplementedException("Multiple channels are not yet supported in " + fileTitle);
-								}
-								int blocks = (int)ckSize / blockSize;
-								dataBytes = new byte[2 * blocks * microsoftAdPcmSamplesPerBlock];
+								MicrosoftAdPcmData adpcmData = (MicrosoftAdPcmData)data;
+								int blocks = (int)ckSize / adpcmData.BlockSize;
+								dataBytes = new byte[2 * blocks * format.Channels * adpcmData.SamplesPerBlock];
 								int position = 0;
 								for (int i = 0; i < blocks; i++) {
 									unchecked {
-										int bPredictor = (int)reader.ReadByte();
-										if (bPredictor >= microsoftAdPcmCoefficients.Length) {
-											throw new InvalidDataException("Invalid bPredictor in " + fileTitle);
-										}
-										ushort iDelta = ReadUInt16(reader, endianness);
-										short iSamp1 = (short)ReadUInt16(reader, endianness);
-										short iSamp2 = (short)ReadUInt16(reader, endianness);
-										dataBytes[position] = (byte)(ushort)iSamp2;
-										dataBytes[position + 1] = (byte)((ushort)iSamp2 >> 8);
-										dataBytes[position + 2] = (byte)(ushort)iSamp1;
-										dataBytes[position + 3] = (byte)((ushort)iSamp1 >> 8);
-										position += 4;
-										long iCoef1 = microsoftAdPcmCoefficients[bPredictor][0];
-										long iCoef2 = microsoftAdPcmCoefficients[bPredictor][1];
-										uint nibbleByte = 0;
-										bool nibbleFirst = true;
-										for (int j = 0; j < microsoftAdPcmSamplesPerBlock - 2; j++) {
-											int lPredSample = (int)(((long)iSamp1 * iCoef1 + (long)iSamp2 * iCoef2) >> 8);
-											int iErrorDeltaUnsigned;
-											if (nibbleFirst) {
-												nibbleByte = (uint)reader.ReadByte();
-												iErrorDeltaUnsigned = (int)(nibbleByte >> 4);
-												nibbleFirst = false;
+										MicrosoftAdPcmData.ChannelData[] channelData = new MicrosoftAdPcmData.ChannelData[format.Channels];
+										for (int j = 0; j < format.Channels; j++) {
+											channelData[j].bPredictor = (int)reader.ReadByte();
+											if (channelData[j].bPredictor >= adpcmData.Coefficients.Length) {
+												throw new InvalidDataException("Invalid bPredictor in " + fileTitle);
 											} else {
-												iErrorDeltaUnsigned = (int)(nibbleByte & 15);
-												nibbleFirst = true;
+												channelData[j].iCoef1 = (int)adpcmData.Coefficients[channelData[j].bPredictor][0];
+												channelData[j].iCoef2 = (int)adpcmData.Coefficients[channelData[j].bPredictor][1];
 											}
-											int iErrorDeltaSigned =
-												iErrorDeltaUnsigned >= 8 ? iErrorDeltaUnsigned - 16 : iErrorDeltaUnsigned;
-											int lNewSampInt = 
-												lPredSample + (int)iDelta * iErrorDeltaSigned;
-											short lNewSamp =
-												lNewSampInt <= -32768 ? (short)-32768 :
-												lNewSampInt >= 32767 ? (short)32767 :
-												(short)lNewSampInt;
-											iDelta =
-												(ushort)((uint)iDelta * MicrosoftAdPcmAdaptionTable[iErrorDeltaUnsigned] >> 8);
-											if (iDelta < 16) {
-												iDelta = 16;
-											}
-											iSamp2 = iSamp1;
-											iSamp1 = lNewSamp;
-											dataBytes[position] = (byte)(ushort)lNewSamp;
-											dataBytes[position + 1] = (byte)((ushort)lNewSamp >> 8);
+										}
+										for (int j = 0; j < format.Channels; j++) {
+											channelData[j].iDelta = (short)ReadUInt16(reader, endianness);
+										}
+										for (int j = 0; j < format.Channels; j++) {
+											channelData[j].iSamp1 = (short)ReadUInt16(reader, endianness);
+										}
+										for (int j = 0; j < format.Channels; j++) {
+											channelData[j].iSamp2 = (short)ReadUInt16(reader, endianness);
+										}
+										for (int j = 0; j < format.Channels; j++) {
+											dataBytes[position] = (byte)(ushort)channelData[j].iSamp2;
+											dataBytes[position + 1] = (byte)((ushort)channelData[j].iSamp2 >> 8);
 											position += 2;
 										}
+										for (int j = 0; j < format.Channels; j++) {
+											dataBytes[position] = (byte)(ushort)channelData[j].iSamp1;
+											dataBytes[position + 1] = (byte)((ushort)channelData[j].iSamp1 >> 8);
+											position += 2;
+										}
+										uint nibbleByte = 0;
+										bool nibbleFirst = true;
+										for (int j = 0; j < adpcmData.SamplesPerBlock - 2; j++) {
+											for (int k = 0; k < format.Channels; k++) {
+												int lPredSample =
+													(int)channelData[k].iSamp1 * channelData[k].iCoef1 +
+													(int)channelData[k].iSamp2 * channelData[k].iCoef2 >> 8;
+												int iErrorDeltaUnsigned;
+												if (nibbleFirst) {
+													nibbleByte = (uint)reader.ReadByte();
+													iErrorDeltaUnsigned = (int)(nibbleByte >> 4);
+													nibbleFirst = false;
+												} else {
+													iErrorDeltaUnsigned = (int)(nibbleByte & 15);
+													nibbleFirst = true;
+												}
+												int iErrorDeltaSigned =
+													iErrorDeltaUnsigned >= 8 ? iErrorDeltaUnsigned - 16 : iErrorDeltaUnsigned;
+												int lNewSampInt =
+													lPredSample + (int)channelData[k].iDelta * iErrorDeltaSigned;
+												short lNewSamp =
+													lNewSampInt <= -32768 ? (short)-32768 :
+													lNewSampInt >= 32767 ? (short)32767 :
+													(short)lNewSampInt;
+												channelData[k].iDelta = (short)(
+													(int)channelData[k].iDelta *
+													(int)MicrosoftAdPcmData.AdaptionTable[iErrorDeltaUnsigned] >> 8
+												);
+												if (channelData[k].iDelta < 16) {
+													channelData[k].iDelta = 16;
+												}
+												channelData[k].iSamp2 = channelData[k].iSamp1;
+												channelData[k].iSamp1 = lNewSamp;
+												dataBytes[position] = (byte)(ushort)lNewSamp;
+												dataBytes[position + 1] = (byte)((ushort)lNewSamp >> 8);
+												position += 2;
+											}
+										}
 									}
-									stream.Position += blockSize - ((microsoftAdPcmSamplesPerBlock - 1 >> 1) + 7);
+									stream.Position += adpcmData.BlockSize - (format.Channels * (adpcmData.SamplesPerBlock - 2) + 1 >> 1) - 7 * format.Channels;
 								}
-								stream.Position += (int)ckSize - blocks * blockSize;
+								stream.Position += (int)ckSize - blocks * adpcmData.BlockSize;
 							} else {
 								// invalid
 								throw new InvalidDataException("No fmt chunk before the data chunk in " + fileTitle);
@@ -334,20 +368,7 @@ namespace OpenBve {
 				return data;
 			} else if (data.Format.Channels != 1) {
 				// convert to mono first
-				int bytesPerSample = (data.Format.BitsPerSample + 7) / 8;
-				int samples = data.Bytes.Length / (data.Format.Channels * bytesPerSample);
-				byte[] bytes = new byte[samples * bytesPerSample];
-				const int chosenChannel = 0;
-				int to = 0;
-				for (int i = 0; i < samples; i++) {
-					int from = (i * data.Format.Channels + chosenChannel) * bytesPerSample;
-					for (int j = 0; j < bytesPerSample; j++) {
-						bytes[to] = data.Bytes[from + j];
-						to++;
-					}
-				}
-				WaveFormat format = new WaveFormat(data.Format.SampleRate, data.Format.BitsPerSample, 1);
-				return ConvertToMono8Or16(new WaveData(format, bytes));
+				return ConvertToMono(data);
 			} else if (data.Format.BitsPerSample < 8) {
 				// less than 8 bits per sample
 				WaveFormat format = new WaveFormat(data.Format.SampleRate, 8, 1);
@@ -358,9 +379,9 @@ namespace OpenBve {
 				return new WaveData(format, data.Bytes);
 			} else {
 				// more than 16 bits per sample
-				int bytesPerSample = (data.Format.BitsPerSample + 7) / 8;
+				int bytesPerSample = data.Format.BitsPerSample + 7 >> 3;
 				int samples = data.Bytes.Length / bytesPerSample;
-				byte[] bytes = new byte[2 * samples];
+				byte[] bytes = new byte[samples << 1];
 				for (int i = 0; i < samples; i++) {
 					int j = (i + 1) * bytesPerSample;
 					bytes[2 * i] = data.Bytes[j - 2];
@@ -368,6 +389,185 @@ namespace OpenBve {
 				}
 				WaveFormat format = new WaveFormat(data.Format.SampleRate, 16, 1);
 				return new WaveData(format, bytes);
+			}
+		}
+		
+		/// <summary>Converts the specified wave data to mono.</summary>
+		/// <param name="data">The original wave data.</param>
+		/// <returns>The wave data converted to mono.</returns>
+		/// <remarks>This function will try to mix the channels, but will revert to a single channel if silence, constructive or destructive interference is detected, or if the number of bits per channel exceeds 48.</remarks>
+		private static WaveData ConvertToMono(WaveData data) {
+			if (data.Format.Channels == 1) {
+				// is already mono
+				return data;
+			} else {
+				// convert to mono
+				int bytesPerSample = (data.Format.BitsPerSample + 7) / 8;
+				int samples = data.Bytes.Length / (data.Format.Channels * bytesPerSample);
+				/* 
+				 * In order to detect for silence, constructive interference and
+				 * destructive interference, compute the sums of the absolute values
+				 * of the signed samples in each channel, considering the high byte only.
+				 *  */
+				long[] channelSum = new long[data.Format.Channels];
+				int position = 0;
+				for (int i = 0; i < samples; i++) {
+					for (int j = 0; j < data.Format.Channels; j++) {
+						int value;
+						if (data.Format.BitsPerSample <= 8) {
+							value = (int)data.Bytes[position + bytesPerSample - 1] - 128;
+						} else {
+							unchecked {
+								value = (int)(sbyte)data.Bytes[position + bytesPerSample - 1];
+							}
+						}
+						channelSum[j] += Math.Abs(value);
+						position += bytesPerSample;
+					}
+				}
+				/*
+				 * Determine the highest of all channel sums.
+				 * */
+				long maximum = 0;
+				for (int i = 0; i < data.Format.Channels; i++) {
+					if (channelSum[i] > maximum) {
+						maximum = channelSum[i];
+					}
+				}
+				/*
+				 * Isolate channels which are not silent. A channel is considered not silent
+				 * if its sum is more than 0.39% of the highest sum found in all channels.
+				 * */
+				long silenceThreshold = maximum >> 8;
+				int[] nonSilentChannels = new int[data.Format.Channels];
+				int nonSilentChannelsCount = 0;
+				for (int i = 0; i < data.Format.Channels; i++) {
+					if (channelSum[i] >= silenceThreshold) {
+						nonSilentChannels[nonSilentChannelsCount] = i;
+						nonSilentChannelsCount++;
+					}
+				}
+				/*
+				 * If there is only one non-silent channel, use that channel.
+				 * Otherwise, try to mix the non-silent channels.
+				 * */
+				if (nonSilentChannelsCount == 1 | bytesPerSample > 3) {
+					/* Use the only non-silent channel. */
+					byte[] bytes = new byte[samples * bytesPerSample];
+					int channel = nonSilentChannels[0];
+					int to = 0;
+					int from = channel * bytesPerSample;
+					for (int i = 0; i < samples; i++) {
+						for (int j = 0; j < bytesPerSample; j++) {
+							bytes[to] = data.Bytes[from + j];
+							to++;
+						}
+						from += data.Format.Channels * bytesPerSample;
+					}
+					WaveFormat format = new WaveFormat(data.Format.SampleRate, data.Format.BitsPerSample, 1);
+					return ConvertToMono8Or16(new WaveData(format, bytes));
+				} else {
+					/*
+					 * Try mixing the non-silent channels. In order to detect for constructive
+					 * or destructive interference, compute the sum of the absolute values
+					 * of the signed samples in the mixed channel, considering the high
+					 * byte only.
+					 * */
+					long mixedSum = 0;
+					byte[] bytes = new byte[samples * bytesPerSample];
+					int from = 0;
+					int to = 0;
+					long bytesFullRange = 1 << (8 * bytesPerSample);
+					long bytesHalfRange = bytesFullRange >> 1;
+					for (int i = 0; i < samples; i++) {
+						long mixed = 0;
+						for (int j = 0; j < nonSilentChannelsCount; j++) {
+							if (j == 0) {
+								from += bytesPerSample * nonSilentChannels[0];
+							} else {
+								from += bytesPerSample * (nonSilentChannels[j] - nonSilentChannels[j - 1]);
+							}
+							if (bytesPerSample == 1) {
+								long sample = (long)data.Bytes[from] - 0x80;
+								mixed += sample;
+							} else {
+								ulong sampleUnsigned = 0;
+								for (int k = 0; k < bytesPerSample; k++) {
+									sampleUnsigned |= (ulong)data.Bytes[from + k] << (k << 3);
+								}
+								unchecked {
+									long sampleSigned = (long)sampleUnsigned;
+									if (sampleSigned >= bytesHalfRange) {
+										sampleSigned -= bytesFullRange;
+									}
+									mixed += sampleSigned;
+								}
+							}
+						}
+						mixedSum += Math.Abs(mixed >> (8 * bytesPerSample + 8));
+						if (bytesPerSample == 1) {
+							unchecked {
+								bytes[to] = (byte)(mixed + 0x80);
+							}
+						} else {
+							long mixedMaximum = (1 << (data.Format.BitsPerSample - 1)) - 1;
+							long mixedMinimum = -mixedMaximum - 1;
+							if (mixed < mixedMinimum) {
+								mixed = mixedMinimum;
+							} else if (mixed > mixedMaximum) {
+								mixed = mixedMaximum;
+							}
+							ulong mixedUnsigned;
+							unchecked {
+								if (mixed < 0) {
+									mixed += bytesFullRange;
+								}
+								mixedUnsigned = (ulong)mixed;
+								for (int k = 0; k < bytesPerSample; k++) {
+									bytes[to + k] = (byte)mixedUnsigned;
+									mixedUnsigned >>= 8;
+								}
+							}
+						}
+						from += bytesPerSample * (data.Format.Channels - nonSilentChannels[nonSilentChannelsCount - 1]);
+						to += bytesPerSample;
+					}
+					/*
+					 * Determine the lowest of all non-silent channel sums.
+					 * */
+					long minimum = long.MaxValue;
+					for (int i = 0; i < nonSilentChannelsCount; i++) {
+						if (channelSum[nonSilentChannels[i]] < minimum) {
+							minimum = channelSum[nonSilentChannels[i]];
+						}
+					}
+					/*
+					 * Detect constructive and destructive interference. If an interference is
+					 * detected, use the first non-silent channel, otherwise the mixed channel.
+					 * */
+					bool interference =
+						(double)mixedSum < 0.4 * (double)minimum ||
+						(double)mixedSum > 1.1 * (double)maximum;
+					if (interference) {
+						/* Interference detected. Use the first non-silent channel. */
+						int channel = nonSilentChannels[0];
+						from = channel * bytesPerSample;
+						to = 0;
+						for (int i = 0; i < samples; i++) {
+							for (int j = 0; j < bytesPerSample; j++) {
+								bytes[to] = data.Bytes[from + j];
+								to++;
+							}
+							from += data.Format.Channels * bytesPerSample;
+						}
+						WaveFormat format = new WaveFormat(data.Format.SampleRate, data.Format.BitsPerSample, 1);
+						return ConvertToMono8Or16(new WaveData(format, bytes));
+					} else {
+						/* No interference detected. Use the mixed channel. */
+						WaveFormat format = new WaveFormat(data.Format.SampleRate, data.Format.BitsPerSample, 1);
+						return ConvertToMono8Or16(new WaveData(format, bytes));
+					}
+				}
 			}
 		}
 		
