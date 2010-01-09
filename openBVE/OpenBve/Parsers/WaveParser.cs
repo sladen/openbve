@@ -104,6 +104,7 @@ namespace OpenBve {
 		}
 
 		
+		private static string DEBUGcurrentFile;
 		
 		// --- functions ---
 		
@@ -113,6 +114,7 @@ namespace OpenBve {
 		/// <remarks>Both RIFF and RIFX container formats are supported by this function.</remarks>
 		internal static WaveData LoadFromFile(string fileName) {
 			string fileTitle = Path.GetFileName(fileName);
+			DEBUGcurrentFile = fileTitle;
 			byte[] fileBytes = File.ReadAllBytes(fileName);
 			using (MemoryStream stream = new MemoryStream(fileBytes)) {
 				using (BinaryReader reader = new BinaryReader(stream)) {
@@ -479,6 +481,9 @@ namespace OpenBve {
 					int to = 0;
 					long bytesFullRange = 1 << (8 * bytesPerSample);
 					long bytesHalfRange = bytesFullRange >> 1;
+					long bytesMinimum = -bytesHalfRange;
+					long bytesMaximum = bytesHalfRange - 1;
+					int mixedRightShift = 8 * (bytesPerSample - 1);
 					for (int i = 0; i < samples; i++) {
 						long mixed = 0;
 						for (int j = 0; j < nonSilentChannelsCount; j++) {
@@ -504,18 +509,17 @@ namespace OpenBve {
 								}
 							}
 						}
-						mixedSum += Math.Abs(mixed >> (8 * bytesPerSample + 8));
 						if (bytesPerSample == 1) {
+							mixedSum += Math.Abs(mixed);
 							unchecked {
 								bytes[to] = (byte)(mixed + 0x80);
 							}
 						} else {
-							long mixedMaximum = (1 << (data.Format.BitsPerSample - 1)) - 1;
-							long mixedMinimum = -mixedMaximum - 1;
-							if (mixed < mixedMinimum) {
-								mixed = mixedMinimum;
-							} else if (mixed > mixedMaximum) {
-								mixed = mixedMaximum;
+							mixedSum += Math.Abs(mixed >> mixedRightShift);
+							if (mixed < bytesMinimum) {
+								mixed = bytesMinimum;
+							} else if (mixed > bytesMaximum) {
+								mixed = bytesMaximum;
 							}
 							ulong mixedUnsigned;
 							unchecked {
@@ -545,10 +549,10 @@ namespace OpenBve {
 					 * Detect constructive and destructive interference. If an interference is
 					 * detected, use the first non-silent channel, otherwise the mixed channel.
 					 * */
-					bool interference =
+					if (
 						(double)mixedSum < 0.4 * (double)minimum ||
-						(double)mixedSum > 1.1 * (double)maximum;
-					if (interference) {
+						(double)mixedSum > 1.1 * (double)maximum
+					) {
 						/* Interference detected. Use the first non-silent channel. */
 						int channel = nonSilentChannels[0];
 						from = channel * bytesPerSample;
