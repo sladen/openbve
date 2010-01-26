@@ -1010,11 +1010,11 @@ namespace OpenBve {
 				Count = 0;
 			}
 			if (TrainManager.PlayerTrain.Specs.Safety.Mode != TrainManager.SafetySystem.Plugin) {
-				if (TrainManager.PlayerTrain.Specs.Safety.Eb.Available | TrainManager.PlayerTrain.Specs.HasConstSpeed) {
+				if (TrainManager.PlayerTrain.Specs.Safety.Eb.Available & TrainManager.PlayerTrain.Specs.Safety.Ats.AtsAvailable | TrainManager.PlayerTrain.Specs.HasConstSpeed) {
 					CurrentLampCollection.Lamps[Count] = new Lamp(LampType.None);
 					Count++;
 				}
-				if (TrainManager.PlayerTrain.Specs.Safety.Eb.Available) {
+				if (TrainManager.PlayerTrain.Specs.Safety.Eb.Available & TrainManager.PlayerTrain.Specs.Safety.Ats.AtsAvailable) {
 					CurrentLampCollection.Lamps[Count] = new Lamp(LampType.Eb);
 					Count++;
 				}

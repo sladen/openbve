@@ -1913,7 +1913,7 @@ namespace OpenBve {
 			return Result;
 		}
 
-		// update security system
+		// update safety system
 		private static void UpdateSafetySystem(Train Train, double TimeElapsed) {
 			// plugin
 			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {

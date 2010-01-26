@@ -412,11 +412,11 @@ namespace OpenBve {
 											Game.MenuEntry[] a = Game.CurrentMenu;
 											int j = Game.CurrentMenuSelection.Length - 1;
 											{
-												int k = 0; while (k < j) {
+												int k = 0;
+												while (k < j) {
 													Game.MenuSubmenu b = a[Game.CurrentMenuSelection[k]] as Game.MenuSubmenu;
 													if (b == null) break;
 													a = b.Entries; k++;
-
 												}
 											}
 											if (a[Game.CurrentMenuSelection[j]] is Game.MenuCommand) {
@@ -441,9 +441,7 @@ namespace OpenBve {
 																for (int h = 0; h < TrainManager.PlayerTrain.Cars.Length; h++) {
 																	TrainManager.PlayerTrain.Cars[h].Specs.CurrentSpeed = 0.0;
 																}
-																double p = Game.Stations[k].Stops[t].TrackPosition;
-																p += TrainManager.PlayerTrain.Cars[0].FrontAxlePosition - 0.5 * TrainManager.PlayerTrain.Cars[0].Length;
-																double d = p - TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition;
+																double d = Game.Stations[k].Stops[t].TrackPosition - TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition + TrainManager.PlayerTrain.Cars[0].FrontAxlePosition - 0.5 * TrainManager.PlayerTrain.Cars[0].Length;
 																TrackManager.SuppressSoundEvents = true;
 																while (d != 0.0) {
 																	double x;
@@ -486,7 +484,7 @@ namespace OpenBve {
 																Game.Messages = new Game.Message[] { };
 																ObjectManager.UpdateAnimatedWorldObjects(TimeElapsed, true);
 															}
-														} 
+														}
 														break;
 													case Game.MenuTag.ExitToMainMenu:
 														Program.RestartProcessArguments = Interface.CurrentOptions.GameMode == Interface.GameMode.Arcade ? "/review" : "";
@@ -503,10 +501,21 @@ namespace OpenBve {
 												int n = Game.CurrentMenuSelection.Length;
 												Array.Resize<int>(ref Game.CurrentMenuSelection, n + 1);
 												Array.Resize<double>(ref Game.CurrentMenuOffsets, n + 1);
-												int k; for (k = 0; k < b.Entries.Length; k++) {
-													if (!(b.Entries[k] is Game.MenuCaption)) break;
+												/* Select the first non-caption entry. */
+												int selection;
+												for (selection = 0; selection < b.Entries.Length; selection++) {
+													if (!(b.Entries[selection] is Game.MenuCaption)) break;
 												}
-												Game.CurrentMenuSelection[n] = k < b.Entries.Length ? k : 0;
+												/* Select the current/next station if this menu has stations in it. */
+												for (int k = selection + 1; k < b.Entries.Length; k++) {
+													Game.MenuCommand c = b.Entries[k] as Game.MenuCommand;
+													if (c != null && c.Tag == Game.MenuTag.JumpToStation) {
+														if (c.Data <= TrainManager.PlayerTrain.CurrentSectionIndex) {
+															selection = k;
+														}
+													}
+												}
+												Game.CurrentMenuSelection[n] = selection < b.Entries.Length ? selection : 0;
 												Game.CurrentMenuOffsets[n] = double.NegativeInfinity;
 												a = b.Entries;
 												for (int h = 0; h < a.Length; h++) {
@@ -858,7 +867,7 @@ namespace OpenBve {
 										} break;
 									case Interface.Command.CameraPreviousPOI:
 										// camera: previous poi
-										if (Game.ApplyPointOfView(-1, true)) {
+										if (Game.ApplyPointOfInterest(-1, true)) {
 											if (World.CameraMode != World.CameraViewMode.Track & World.CameraMode != World.CameraViewMode.FlyBy & World.CameraMode != World.CameraViewMode.FlyByZooming) {
 												World.CameraMode = World.CameraViewMode.Track;
 												Game.AddMessage(Interface.GetInterfaceString("notification_track"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 2.0);
@@ -889,7 +898,7 @@ namespace OpenBve {
 										} break;
 									case Interface.Command.CameraNextPOI:
 										// camera: next poi
-										if (Game.ApplyPointOfView(1, true)) {
+										if (Game.ApplyPointOfInterest(1, true)) {
 											if (World.CameraMode != World.CameraViewMode.Track & World.CameraMode != World.CameraViewMode.FlyBy & World.CameraMode != World.CameraViewMode.FlyByZooming) {
 												World.CameraMode = World.CameraViewMode.Track;
 												Game.AddMessage(Interface.GetInterfaceString("notification_track"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 2.0);
@@ -1311,7 +1320,7 @@ namespace OpenBve {
 											Game.AddMessage(Interface.GetInterfaceString("notification_notavailableexpert"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 5.0);
 										} else {
 											if (TrainManager.PlayerTrain.AI == null) {
-												TrainManager.PlayerTrain.AI = new Game.SimplisticHumanDriverAI(TrainManager.PlayerTrain);
+												TrainManager.PlayerTrain.AI = new Game.SimpleHumanDriverAI(TrainManager.PlayerTrain);
 												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
 													Game.AddMessage(Interface.GetInterfaceString("notification_aiunable"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 10.0);
 												}

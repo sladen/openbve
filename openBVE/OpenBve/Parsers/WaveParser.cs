@@ -104,8 +104,6 @@ namespace OpenBve {
 		}
 
 		
-		private static string DEBUGcurrentFile;
-		
 		// --- functions ---
 		
 		/// <summary>Reads wave data from a RIFF/WAVE/PCM file.</summary>
@@ -114,7 +112,6 @@ namespace OpenBve {
 		/// <remarks>Both RIFF and RIFX container formats are supported by this function.</remarks>
 		internal static WaveData LoadFromFile(string fileName) {
 			string fileTitle = Path.GetFileName(fileName);
-			DEBUGcurrentFile = fileTitle;
 			byte[] fileBytes = File.ReadAllBytes(fileName);
 			using (MemoryStream stream = new MemoryStream(fileBytes)) {
 				using (BinaryReader reader = new BinaryReader(stream)) {

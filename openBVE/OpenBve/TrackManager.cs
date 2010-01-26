@@ -608,6 +608,8 @@ namespace OpenBve {
 			internal override void Trigger(int Direction, EventTriggerType TriggerType, TrainManager.Train Train, int CarIndex) {
 				if (TriggerType == EventTriggerType.RearCarRearAxle & Train != TrainManager.PlayerTrain) {
 					TrainManager.DisposeTrain(Train);
+				} else if (Train == TrainManager.PlayerTrain) {
+					Train.Cars[CarIndex].Derailed = true;
 				}
 			}
 		}

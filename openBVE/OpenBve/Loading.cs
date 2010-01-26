@@ -278,7 +278,7 @@ namespace OpenBve {
 				if (TrainManager.Trains[k] == TrainManager.PlayerTrain) {
 					TrainManager.Trains[k].TimetableDelta = 0.0;
 				} else if (TrainManager.Trains[k].State != TrainManager.TrainState.Bogus) {
-					TrainManager.Trains[k].AI = new Game.SimplisticHumanDriverAI(TrainManager.Trains[k]);
+					TrainManager.Trains[k].AI = new Game.SimpleHumanDriverAI(TrainManager.Trains[k]);
 					TrainManager.Trains[k].TimetableDelta = Game.PrecedingTrainTimeDeltas[k];
 					TrainManager.Trains[k].Specs.DoorOpenMode = TrainManager.DoorMode.Manual;
 					TrainManager.Trains[k].Specs.DoorCloseMode = TrainManager.DoorMode.Manual;
@@ -408,15 +408,8 @@ namespace OpenBve {
 				} else {
 					p = OtherFirstStationPosition;
 				}
-				if (TrainManager.Trains[i].Cars[0].FrontAxle.Follower.TrackPosition < 0.1) {
-					double d = 0.1 - TrainManager.Trains[i].Cars[0].FrontAxle.Follower.TrackPosition;
-					for (int j = 0; j < TrainManager.Trains[i].Cars.Length; j++) {
-						TrainManager.MoveCar(TrainManager.Trains[i], j, p + d, 0.01);
-					}
-				} else {
-					for (int j = 0; j < TrainManager.Trains[i].Cars.Length; j++) {
-						TrainManager.MoveCar(TrainManager.Trains[i], j, p, 0.01);
-					}
+				for (int j = 0; j < TrainManager.Trains[i].Cars.Length; j++) {
+					TrainManager.MoveCar(TrainManager.Trains[i], j, p, 0.01);
 				}
 			}
 			// time table

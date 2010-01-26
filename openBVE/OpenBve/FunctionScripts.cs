@@ -36,8 +36,8 @@ namespace OpenBve {
 			internal double[] Stack;
 			internal double[] Constants;
 			internal double LastResult;
-			internal double Perform(TrainManager.Train Train, int CarIndex, World.Vector3D Position, double TrackPosition, int SectionIndex, double TimeElapsed) {
-				ExecuteFunctionScript(this, Train, CarIndex, Position, TrackPosition, SectionIndex, TimeElapsed);
+			internal double Perform(TrainManager.Train Train, int CarIndex, World.Vector3D Position, double TrackPosition, int SectionIndex, bool IsPartOfTrain, double TimeElapsed) {
+				ExecuteFunctionScript(this, Train, CarIndex, Position, TrackPosition, SectionIndex, IsPartOfTrain, TimeElapsed);
 				return this.LastResult;
 			}
 			internal FunctionScript Clone() {
@@ -46,7 +46,7 @@ namespace OpenBve {
 		}
 
 		// execute function script
-		private static void ExecuteFunctionScript(FunctionScript Function, TrainManager.Train Train, int CarIndex, World.Vector3D Position, double TrackPosition, int SectionIndex, double TimeElapsed) {
+		private static void ExecuteFunctionScript(FunctionScript Function, TrainManager.Train Train, int CarIndex, World.Vector3D Position, double TrackPosition, int SectionIndex, bool IsPartOfTrain, double TimeElapsed) {
 			int s = 0, c = 0;
 			for (int i = 0; i < Function.Instructions.Length; i++) {
 				switch (Function.Instructions[i]) {
@@ -976,7 +976,17 @@ namespace OpenBve {
 						s++; break;
 						// sections
 					case Instructions.SectionAspectNumber:
-						if (SectionIndex >= 0 & SectionIndex < Game.Sections.Length) {
+						if (IsPartOfTrain) {
+							int nextSectionIndex = Train.CurrentSectionIndex + 1;
+							if (nextSectionIndex >= 0 & nextSectionIndex < Game.Sections.Length) {
+								int a = Game.Sections[nextSectionIndex].CurrentAspect;
+								if (a >= 0 & a < Game.Sections[nextSectionIndex].Aspects.Length) {
+									Function.Stack[s] = (double)Game.Sections[nextSectionIndex].Aspects[a].Number;
+								} else {
+									Function.Stack[s] = 0;
+								}
+							}
+						} else if (SectionIndex >= 0 & SectionIndex < Game.Sections.Length) {
 							int a = Game.Sections[SectionIndex].CurrentAspect;
 							if (a >= 0 & a < Game.Sections[SectionIndex].Aspects.Length) {
 								Function.Stack[s] = (double)Game.Sections[SectionIndex].Aspects[a].Number;
