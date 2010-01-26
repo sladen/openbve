@@ -221,13 +221,14 @@ namespace OpenBve {
 									SoundSources[i].OpenAlVelocity[2] = (float)-vz;
 								}
 							}
-							
+							// play the sound only if within the outer radius
 							double distanceSquared = px * px + py * py + pz * pz;
 							double distance = Math.Sqrt(distanceSquared);
 							double innerRadius = SoundSources[i].Radius;
 							double outerRadius = OuterRadiusFactor * innerRadius;
 							double outerRadiusSquared = outerRadius * outerRadius;
 							if (distanceSquared < outerRadiusSquared) {
+								// sound is in range
 								double gain;
 								double innerRadiusSquared = innerRadius * innerRadius;
 								const double rollOffFactor = 0.9;
@@ -237,11 +238,10 @@ namespace OpenBve {
 									double value = distance / outerRadius;
 									gain = innerRadius * rollOffFactor * (1.0 - value * value * value) / distance;
 								}
-								
 								SoundsQueriedPlaying++;
 								SoundsActuallyPlaying++;
-								
 								bool startPlaying = false;
+								// play sound if currently suppressed
 								if (SoundSources[i].Suppressed) {
 									if (SoundSources[i].SoundBufferIndex >= 0) {
 										UseSoundBuffer(SoundSources[i].SoundBufferIndex);
@@ -267,7 +267,7 @@ namespace OpenBve {
 										continue;
 									}
 								}
-								
+								// play or stop sound
 								if (startPlaying || IsPlaying(i)) {
 									SoundSources[i].OpenAlPosition[0] = (float)px;
 									SoundSources[i].OpenAlPosition[1] = (float)py;
@@ -286,7 +286,7 @@ namespace OpenBve {
 									StopSound(i, false);
 									continue;
 								}
-								
+								// update position and velocity of sound
 								if (startPlaying) {
 									if (!SoundSources[i].OpenAlSourceIndex.Valid) {
 										throw new InvalidOperationException("A bug in the sound manager. (7625)");
@@ -296,9 +296,8 @@ namespace OpenBve {
 									Al.alSourcef(j, Al.AL_REFERENCE_DISTANCE, SoundBuffers[SoundSources[i].SoundBufferIndex].Radius);
 									Al.alSourcePlay(j);
 								}
-								
 							} else {
-								
+								// sound is not in range
 								if (!SoundSources[i].Suppressed) {
 									if (SoundSources[i].Looped) {
 										if (SoundSources[i].OpenAlSourceIndex.Valid) {
@@ -314,17 +313,14 @@ namespace OpenBve {
 								} else if (!SoundSources[i].Looped) {
 									StopSound(i, false);
 								}
-								
 							}
-							
-							
 						}
 					}
 				}
 				// infrequent updates
 				InternalTimer += TimeElapsed;
 				if (InternalTimer > 1.0) {
-					InternalTimer -= 1.0;
+					InternalTimer = 0.0;
 					double Elevation = World.AbsoluteCameraPosition.Y + Game.RouteInitialElevation;
 					double AirTemperature = Game.GetAirTemperature(Elevation);
 					double AirPressure = Game.GetAirPressure(Elevation, AirTemperature);
@@ -359,10 +355,8 @@ namespace OpenBve {
 								} else {
 									SoundBuffers[SoundBufferIndex].OpenAlBufferIndex = new OpenAlIndex(0, false);
 								}
-							} catch (Exception ex) {
+							} catch {
 								SoundBuffers[SoundBufferIndex].OpenAlBufferIndex = new OpenAlIndex(0, false);
-								string message = System.IO.Path.GetFileName(SoundBuffers[SoundBufferIndex].FileName) + " could not be loaded: " + ex.Message;
-								Game.AddMessage(message, Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 5.0);
 							}
 						}
 					}

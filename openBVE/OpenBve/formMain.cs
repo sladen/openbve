@@ -27,7 +27,7 @@ namespace OpenBve {
 		}
 
 		// members
-		private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
+        private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
 		private int[] EncodingCodepages = new int[0];
 		private Image JoystickImage = null;
 		private string[] LanguageFiles = new string[0];
@@ -718,6 +718,20 @@ namespace OpenBve {
 				tabcontrolTrainSelection.Height = groupboxTrainSelection.Height - 3 * tabcontrolTrainSelection.Top / 2;
 				tabcontrolTrainDetails.Width = groupboxTrainDetails.Width - 2 * tabcontrolTrainDetails.Left;
 				tabcontrolTrainDetails.Height = groupboxTrainDetails.Height - 3 * tabcontrolTrainDetails.Top / 2;
+			} catch { }
+			try {
+				int width = Math.Min((panelOptions.Width - 24) / 2, 360);
+				panelOptionsLeft.Width = width;
+				panelOptionsRight.Left = panelOptionsLeft.Left + width + 8;
+				panelOptionsRight.Width = width;
+			} catch { }
+			try {
+				int width = Math.Min((panelReview.Width - 32) / 3, 360);
+				groupboxReviewRoute.Width = width;
+				groupboxReviewTrain.Left = groupboxReviewRoute.Left + width + 8;
+				groupboxReviewTrain.Width = width;
+				groupboxReviewDateTime.Left = groupboxReviewTrain.Left + width + 8;
+				groupboxReviewDateTime.Width = width;
 			} catch { }
 		}
 
