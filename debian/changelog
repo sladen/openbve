@@ -2,6 +2,7 @@ openbve (1.2.5.0-0ubuntu1) unreleased; urgency=low
 
   * New upstream stable version (1.2.5.0)
     fixes (LP: #505299)
+  * changelog.html: update (1.2.5.0)	
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Mon, 25 Jan 2010 03:33:00 +0000
 
