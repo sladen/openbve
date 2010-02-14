@@ -3,6 +3,7 @@ openbve (1.2.5.1-0ubuntu1) unreleased; urgency=low
   * New upstream stable version (1.2.5.1)
     fixes (LP: #505299)
   * changelog.html: update (1.2.5.1)
+  * rules: explicitly pass 'OpenBve.csproj' to xbuild
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Sun, 14 Feb 2010 23:07:00 +0000
 

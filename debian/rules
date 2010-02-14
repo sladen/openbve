@@ -14,7 +14,7 @@ build: build-stamp
 build-stamp: configure-stamp 
 	dh_testdir
 	for builddir in $(BUILDDIRS); do \
-	  (cd $$builddir && xbuild /p:Configuration=$(DEBUG_CONFIGURATION) ) || exit 1; \
+	  (cd $$builddir && xbuild /p:Configuration=$(DEBUG_CONFIGURATION) OpenBve.csproj) || exit 1; \
 	done
 	touch build-stamp
 
@@ -25,7 +25,7 @@ clean:
 	rm -rf $(TARGET)
 	# This was failing to make xbuild 1.9.1+dfsg-4ubuntu2 do anything useful
 	for builddir in $(BUILDDIRS); do \
-	  (cd $$builddir && echo "**NOT doing" xbuild /t:Clean); \
+	  (cd $$builddir && echo "**NOT doing" xbuild /t:Clean OpenBve.csproj); \
 	done
 	rm -rf openBVE/OpenBve/bin/
 	dh_clean
