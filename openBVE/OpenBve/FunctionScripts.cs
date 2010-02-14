@@ -122,17 +122,12 @@ namespace OpenBve {
 							} else if (b == 8.0) {
 								double t = a * a; t *= t;
 								Function.Stack[s - 2] = t * t;
-							} else if (a > 0.0) {
-								Function.Stack[s - 2] = Math.Pow(a, b);
-							} else if (a < 0.0) {
-								double x = Math.Round(b);
-								if (b - x >= -0.0001 & b - x <= 0.0001) {
-									Function.Stack[s - 2] = Math.Pow(-a, x) * Math.Cos(Math.PI * x);
-								} else {
-									Function.Stack[s - 2] = 0.0;
-								}
-							} else {
+							} else if (b == 0.0) {
 								Function.Stack[s - 2] = 1.0;
+							} else if (b < 0.0) {
+								Function.Stack[s - 2] = 0.0;
+							} else {
+								Function.Stack[s - 2] = Math.Pow(a, b);
 							}
 							s--; break;
 						}

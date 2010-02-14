@@ -195,9 +195,18 @@ namespace OpenBve {
 								TrainManager.Trains[k].Cars[i].Specs.DoorCloseFrequency = 0.2;
 							}
 						}
-						const double f = 0.1;
-						TrainManager.Trains[k].Cars[i].Specs.DoorOpenFrequency *= Math.Exp(f * (2.0 * Game.Generator.NextDouble() - 1.0));
-						TrainManager.Trains[k].Cars[i].Specs.DoorCloseFrequency *= Math.Exp(f * (2.0 * Game.Generator.NextDouble() - 1.0));
+						const double f = 0.015;
+						const double g = 2.75;
+						TrainManager.Trains[k].Cars[i].Specs.DoorOpenPitch = Math.Exp(f * Math.Tan(g * (Game.Generator.NextDouble() - 0.5)));
+						TrainManager.Trains[k].Cars[i].Specs.DoorClosePitch = Math.Exp(f * Math.Tan(g * (Game.Generator.NextDouble() - 0.5)));
+						TrainManager.Trains[k].Cars[i].Specs.DoorOpenFrequency /= TrainManager.Trains[k].Cars[i].Specs.DoorOpenPitch;
+						TrainManager.Trains[k].Cars[i].Specs.DoorCloseFrequency /= TrainManager.Trains[k].Cars[i].Specs.DoorClosePitch;
+						/* 
+						 * Remove the following two lines, then the pitch at which doors play 
+						 * takes their randomized opening and closing times into account.
+						 * */
+						TrainManager.Trains[k].Cars[i].Specs.DoorOpenPitch = 1.0;
+						TrainManager.Trains[k].Cars[i].Specs.DoorClosePitch = 1.0;
 					}
 				}
 				for (int i = 0; i < TrainManager.Trains[k].Cars.Length; i++) {

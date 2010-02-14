@@ -2212,6 +2212,10 @@ namespace OpenBve {
 						break;
 					}
 				}
+				double mass = 0.0;
+				for (int i = 0; i < TrainManager.PlayerTrain.Cars.Length; i++) {
+					mass += TrainManager.PlayerTrain.Cars[i].Specs.MassCurrent;
+				}
 				string[] Lines = new string[] {
 					"=system",
 					"fps: " + Game.InfoFrameRate.ToString("0.0", Culture) + (MainLoop.LimitFramerate ? " (low cpu)" : ""),
@@ -2227,6 +2231,8 @@ namespace OpenBve {
 					"air pressure: " + (0.001 * TrainManager.PlayerTrain.Specs.CurrentAirPressure).ToString("0.00", Culture) + " kPa",
 					"air density: " + TrainManager.PlayerTrain.Specs.CurrentAirDensity.ToString("0.0000", Culture) + " kg/m³",
 					"speed of sound: " + (Game.GetSpeedOfSound(TrainManager.PlayerTrain.Specs.CurrentAirDensity) * 3.6).ToString("0.00", Culture) + " km/h",
+					"passenger ratio: " + TrainManager.PlayerTrain.Passengers.PassengerRatio.ToString("0.00"),
+					"total mass: " + mass.ToString("0.00", Culture) + " kg",
 					"plugin: " + (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin ? (PluginManager.PluginValid ? "ok" : "error") : "n/a"),
 					"",
 					"=route",
