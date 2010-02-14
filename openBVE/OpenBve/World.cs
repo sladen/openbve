@@ -572,6 +572,7 @@ namespace OpenBve {
 				Source = Target;
 				return true;
 			} else {
+				double best = Source;
 				const int Precision = 8;
 				double a = Source;
 				double b = Target;
@@ -588,12 +589,13 @@ namespace OpenBve {
 						q = PerformCameraRestrictionTest();
 						if (q) {
 							a = x;
+							best = x;
 						} else {
 							b = x;
 						}
 						x = 0.5 * (a + b);
 					}
-					Source = a;
+					Source = best;
 					if (Zoom) ApplyZoom();
 					return q;
 				}
@@ -630,7 +632,7 @@ namespace OpenBve {
 		internal static void UpdateAbsoluteCamera(double TimeElapsed) {
 			// zoom
 			double zm = World.CameraCurrentAlignment.Zoom;
-			AdjustAlignment(ref World.CameraCurrentAlignment.Zoom, World.CameraAlignmentDirection.Zoom, ref World.CameraAlignmentSpeed.Zoom, TimeElapsed, World.CameraAlignmentSpeed.Zoom != 0.0);
+			AdjustAlignment(ref World.CameraCurrentAlignment.Zoom, World.CameraAlignmentDirection.Zoom, ref World.CameraAlignmentSpeed.Zoom, TimeElapsed, true);
 			if (zm != World.CameraCurrentAlignment.Zoom) {
 				ApplyZoom();
 			}
@@ -936,27 +938,29 @@ namespace OpenBve {
 			AdjustAlignment(ref Source, Direction, ref Speed, TimeElapsed, false);
 		}
 		private static void AdjustAlignment(ref double Source, double Direction, ref double Speed, double TimeElapsed, bool Zoom) {
-			if (TimeElapsed > 0.0) {
-				if (Direction == 0.0) {
-					double d = (0.025 + 5.0 * Math.Abs(Speed)) * TimeElapsed;
-					if (Speed >= -d & Speed <= d) {
-						Speed = 0.0;
+			if (Direction != 0.0 | Speed != 0.0) {
+				if (TimeElapsed > 0.0) {
+					if (Direction == 0.0) {
+						double d = (0.025 + 5.0 * Math.Abs(Speed)) * TimeElapsed;
+						if (Speed >= -d & Speed <= d) {
+							Speed = 0.0;
+						} else {
+							Speed -= (double)Math.Sign(Speed) * d;
+						}
 					} else {
-						Speed -= (double)Math.Sign(Speed) * d;
+						double t = Math.Abs(Direction);
+						double d = ((1.15 - 1.0 / (1.0 + 0.025 * Math.Abs(Speed)))) * TimeElapsed;
+						Speed += Direction * d;
+						if (Speed < -t) {
+							Speed = -t;
+						} else if (Speed > t) {
+							Speed = t;
+						}
 					}
-				} else {
-					double t = Math.Abs(Direction);
-					double d = ((1.15 - 1.0 / (1.0 + 0.025 * Math.Abs(Speed)))) * TimeElapsed;
-					Speed += Direction * d;
-					if (Speed < -t) {
-						Speed = -t;
-					} else if (Speed > t) {
-						Speed = t;
+					double x = Source + Speed * TimeElapsed;
+					if (!PerformProgressiveAdjustmentForCameraRestriction(ref Source, x, Zoom)) {
+						Speed = 0.0;
 					}
-				}
-				double x = Source + Speed * TimeElapsed;
-				if (!PerformProgressiveAdjustmentForCameraRestriction(ref Source, x, Zoom)) {
-					Speed = 0.0;
 				}
 			}
 		}

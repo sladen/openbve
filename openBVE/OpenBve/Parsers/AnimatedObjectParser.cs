@@ -24,14 +24,12 @@ namespace OpenBve {
 				} else {
 					Lines[i] = Lines[i].Trim();
 				}
-				if (Program.CurrentProgramType == Program.ProgramType.ObjectViewer | Program.CurrentProgramType == Program.ProgramType.RouteViewer) {
-					if (Lines[i].IndexOf("functionrpn", StringComparison.OrdinalIgnoreCase) >= 0) {
-						rpnUsed = true;
-					}
+				if (Lines[i].IndexOf("functionrpn", StringComparison.OrdinalIgnoreCase) >= 0) {
+					rpnUsed = true;
 				}
 			}
 			if (rpnUsed) {
-				Interface.AddMessage(Interface.MessageType.Warning, false, "An animated object file contains non-official RPN functions. Please get rid of them in file " + FileName);
+				Interface.AddMessage(Interface.MessageType.Error, false, "An animated object file contains RPN functions. These were never meant to be used directly, only for debugging. They won't be supported indefinately. Please get rid of them in file " + FileName);
 			}
 			for (int i = 0; i < Lines.Length; i++) {
 				if (Lines[i].Length != 0) {

@@ -58,6 +58,8 @@ namespace OpenBve {
 		private static double OuterRadiusFactorMinimum = 2.0;
 		private static double OuterRadiusFactorMaximum = 8.0;
 		private static double OuterRadiusSpeed = 0.0;
+		private const double OuterRadiusAcceleration = 0.5;
+		private const double OuterRadiusDeceleration = 1.0;
 		private static int SoundsQueriedPlaying = 0;
 		private static int SoundsActuallyPlaying = 0;
 		
@@ -81,9 +83,7 @@ namespace OpenBve {
 			} else {
 				OpenAlContext = IntPtr.Zero;
 			}
-			
 			Al.alDistanceModel(Al.AL_NONE);
-			
 			// outer radius
 			switch (Interface.CurrentOptions.SoundRange) {
 				case Interface.SoundRange.Low:
@@ -168,13 +168,13 @@ namespace OpenBve {
 					// outer radius
 					int n = Interface.CurrentOptions.SoundNumber - 3;
 					if (SoundsActuallyPlaying >= n) {
-						OuterRadiusSpeed -= TimeElapsed;
+						OuterRadiusSpeed -= OuterRadiusDeceleration * TimeElapsed;
 						if (OuterRadiusSpeed < -1.0) OuterRadiusSpeed = -1.0;
 					} else if (SoundsQueriedPlaying < n) {
-						OuterRadiusSpeed += TimeElapsed;
+						OuterRadiusSpeed += OuterRadiusAcceleration * TimeElapsed;
 						if (OuterRadiusSpeed > 1.0) OuterRadiusSpeed = 1.0;
 					} else {
-						OuterRadiusSpeed -= (double)Math.Sign(OuterRadiusSpeed) * TimeElapsed;
+						OuterRadiusSpeed -= (double)Math.Sign(OuterRadiusSpeed) * OuterRadiusDeceleration * TimeElapsed;
 						if (OuterRadiusSpeed * OuterRadiusSpeed <= TimeElapsed * TimeElapsed) {
 							OuterRadiusSpeed = 0.0;
 						}

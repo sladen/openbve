@@ -738,7 +738,8 @@ namespace OpenBve {
 				if (Train.Cars[i].Specs.IsMotorCar) {
 					// motor car
 					Train.Cars[i].Specs.AirBrake.Type = TrainManager.AirBrakeType.Main;
-					Train.Cars[i].Specs.Mass = MotorCarMass;
+					Train.Cars[i].Specs.MassEmpty = MotorCarMass;
+					Train.Cars[i].Specs.MassCurrent = MotorCarMass;
 					Train.Cars[i].Specs.AccelerationCurves = AccelerationCurves;
 					Train.Cars[i].Specs.AccelerationCurvesMultiplier = 1.0 + TrailerCars * TrailerCarMass / (MotorCars * MotorCarMass);
 					Train.Cars[i].Specs.AccelerationCurveMaximum = MaximumAcceleration;
@@ -788,7 +789,8 @@ namespace OpenBve {
 				} else {
 					// trailer car
 					Train.Cars[i].Specs.AirBrake.Type = Train == TrainManager.PlayerTrain & i == Train.DriverCar | BrakeType == TrainManager.CarBrakeType.ElectricCommandBrake ? TrainManager.AirBrakeType.Main : TrainManager.AirBrakeType.Auxillary;
-					Train.Cars[i].Specs.Mass = TrailerCarMass;
+					Train.Cars[i].Specs.MassEmpty = TrailerCarMass;
+					Train.Cars[i].Specs.MassCurrent = TrailerCarMass;
 					Train.Cars[i].Specs.AccelerationCurves = new TrainManager.AccelerationCurve[] { };
 					Train.Cars[i].Specs.AccelerationCurvesMultiplier = 0.0;
 					Train.Cars[i].Specs.AccelerationCurveMaximum = 0.0;
