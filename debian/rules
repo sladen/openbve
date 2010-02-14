@@ -23,11 +23,9 @@ clean:
 	dh_testroot
 	rm -f build-stamp configure-stamp
 	rm -rf $(TARGET)
-	# This was failing to make xbuild 1.9.1+dfsg-4ubuntu2 do anything useful
 	for builddir in $(BUILDDIRS); do \
-	  (cd $$builddir && echo "**NOT doing" xbuild /t:Clean OpenBve.csproj); \
+	  (cd $$builddir && xbuild /t:Clean OpenBve.csproj); \
 	done
-	rm -rf openBVE/OpenBve/bin/
 	dh_clean
 
 install: build
