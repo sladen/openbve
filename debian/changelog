@@ -1,4 +1,4 @@
-openbve (1.2.5.1-0ubuntu1) unreleased; urgency=low
+openbve (1.2.5.1-0ubuntu1) lucid; urgency=low
 
   * New upstream stable version (1.2.5.1)
     fixes (LP: #505299)
@@ -6,7 +6,7 @@ openbve (1.2.5.1-0ubuntu1) unreleased; urgency=low
   * rules: explicitly pass 'OpenBve.csproj' to xbuild
   * rules: use xbuild /t:Clean target now that it works
 
- -- Paul Sladen <ubuntu@paul.sladen.org>  Sun, 14 Feb 2010 23:07:00 +0000
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Mon, 15 Feb 2010 18:28:00 +0000
 
 openbve (1.2.4.5-0ubuntu1) unreleased; urgency=low
 
