@@ -58,7 +58,7 @@ binary-indep: build install
 	#dh_makeclilibs -i -V
 	#dh_installcligac -i
 	dh_clistrip
-	dh_clideps -d
+	dh_clideps -d -r
 	dh_compress
 	dh_gencontrol
 	dh_md5sums
