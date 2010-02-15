@@ -25,6 +25,7 @@ clean:
 	rm -rf $(TARGET)
 	for builddir in $(BUILDDIRS); do \
 	  (cd $$builddir && xbuild /t:Clean OpenBve.csproj); \
+	  rm -rf $$builddir/obj; \
 	done
 	dh_clean
 
