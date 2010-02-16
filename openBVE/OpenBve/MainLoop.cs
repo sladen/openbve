@@ -778,7 +778,7 @@ namespace OpenBve {
 									case Interface.Command.CameraInterior:
 										// camera: interior
 										SaveCameraSettings();
-										if (World.CameraMode == World.CameraViewMode.Interior & World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
+										if (World.CameraMode != World.CameraViewMode.InteriorLookAhead & World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
 											World.CameraMode = World.CameraViewMode.InteriorLookAhead;
 											Game.AddMessage(Interface.GetInterfaceString("notification_interior_lookahead"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 2.0);
 										} else {
