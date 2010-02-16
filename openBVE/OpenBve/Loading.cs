@@ -426,6 +426,9 @@ namespace OpenBve {
 			}
 			// initialize camera
 			System.Threading.Thread.Sleep(1); if (Cancel) return;
+			if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
+				World.CameraMode = World.CameraViewMode.InteriorLookAhead;
+			}
 			TrainManager.UpdateCamera(TrainManager.PlayerTrain);
 			TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, -1.0, true, false);
 			ObjectManager.UpdateVisibility(World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z);
