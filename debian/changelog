@@ -1,4 +1,4 @@
-openbve (1.2.5.2-0ubuntu1) unreleased; urgency=low
+openbve (1.2.5.2-0ubuntu1) lucid; urgency=low
 
   * New upstream stable version (1.2.5.2)
   * Tweak build-deps to use newer tao*-cil-dev packages
