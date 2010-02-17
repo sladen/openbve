@@ -1,6 +1,7 @@
 openbve (1.2.5.2-0ubuntu1) unreleased; urgency=low
 
   * New upstream stable version (1.2.5.2)
+  * Tweak build-deps to use newer tao*-cil-dev packages
 
  -- Paul Sladen <ubuntu@paul.sladen.org>  Tue, 16 Feb 2010 14:03:00 +0000
 
