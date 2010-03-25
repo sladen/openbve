@@ -3391,6 +3391,12 @@ namespace OpenBve {
 												Game.Stations[CurrentStation].StopMode = Game.StationStopMode.AllPass;
 											} else if (string.Equals(Arguments[1], "B", StringComparison.OrdinalIgnoreCase)) {
 												Game.Stations[CurrentStation].StopMode = Game.StationStopMode.PlayerPass;
+											} else if (Arguments[1].StartsWith("B:", StringComparison.InvariantCultureIgnoreCase)) {
+												Game.Stations[CurrentStation].StopMode = Game.StationStopMode.PlayerPass;
+												if (!Interface.TryParseTime(Arguments[1].Substring(2).TrimStart(), out arr)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "ArrivalTime is invalid in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+													arr = -1.0;
+												}
 											} else if (string.Equals(Arguments[1], "S", StringComparison.OrdinalIgnoreCase)) {
 												Game.Stations[CurrentStation].StopMode = Game.StationStopMode.PlayerStop;
 											} else if (Arguments[1].StartsWith("S:", StringComparison.InvariantCultureIgnoreCase)) {
@@ -3407,6 +3413,12 @@ namespace OpenBve {
 										if (Arguments.Length >= 3 && Arguments[2].Length > 0) {
 											if (string.Equals(Arguments[2], "T", StringComparison.OrdinalIgnoreCase) | string.Equals(Arguments[2], "=", StringComparison.OrdinalIgnoreCase)) {
 												Game.Stations[CurrentStation].IsTerminalStation = true;
+											} else if (Arguments[1].StartsWith("T:", StringComparison.InvariantCultureIgnoreCase)) {
+												Game.Stations[CurrentStation].IsTerminalStation = true;
+												if (!Interface.TryParseTime(Arguments[2].Substring(2).TrimStart(), out dep)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "DepartureTime is invalid in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+													dep = -1.0;
+												}
 											} else if (!Interface.TryParseTime(Arguments[2], out dep)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "DepartureTime is invalid in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 												dep = -1.0;
@@ -3575,6 +3587,12 @@ namespace OpenBve {
 												Game.Stations[CurrentStation].StopMode = Game.StationStopMode.AllPass;
 											} else if (string.Equals(Arguments[1], "B", StringComparison.OrdinalIgnoreCase)) {
 												Game.Stations[CurrentStation].StopMode = Game.StationStopMode.PlayerPass;
+											} else if (Arguments[1].StartsWith("B:", StringComparison.InvariantCultureIgnoreCase)) {
+												Game.Stations[CurrentStation].StopMode = Game.StationStopMode.PlayerPass;
+												if (!Interface.TryParseTime(Arguments[1].Substring(2).TrimStart(), out arr)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "ArrivalTime is invalid in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+													arr = -1.0;
+												}
 											} else if (string.Equals(Arguments[1], "S", StringComparison.OrdinalIgnoreCase)) {
 												Game.Stations[CurrentStation].StopMode = Game.StationStopMode.PlayerStop;
 											} else if (Arguments[1].StartsWith("S:", StringComparison.InvariantCultureIgnoreCase)) {
@@ -3591,6 +3609,12 @@ namespace OpenBve {
 										if (Arguments.Length >= 3 && Arguments[2].Length > 0) {
 											if (string.Equals(Arguments[2], "T", StringComparison.OrdinalIgnoreCase) | string.Equals(Arguments[2], "=", StringComparison.OrdinalIgnoreCase)) {
 												Game.Stations[CurrentStation].IsTerminalStation = true;
+											} else if (Arguments[1].StartsWith("T:", StringComparison.InvariantCultureIgnoreCase)) {
+												Game.Stations[CurrentStation].IsTerminalStation = true;
+												if (!Interface.TryParseTime(Arguments[2].Substring(2).TrimStart(), out dep)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "DepartureTime is invalid in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+													dep = -1.0;
+												}
 											} else if (!Interface.TryParseTime(Arguments[2], out dep)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "DepartureTime is invalid in Track.Station at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 												dep = -1.0;

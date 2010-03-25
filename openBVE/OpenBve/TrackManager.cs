@@ -184,6 +184,7 @@ namespace OpenBve {
 						if (Game.Stations[this.StationIndex].SafetySystem == Game.SafetySystem.Atc) {
 							Train.Specs.Safety.Atc.Transmitting = true;
 						}
+						Train.LastStation = this.StationIndex;
 					}
 				} else if (TriggerType == EventTriggerType.RearCarRearAxle) {
 					if (Direction < 0) {
@@ -220,8 +221,9 @@ namespace OpenBve {
 					}
 				} else if (TriggerType == EventTriggerType.RearCarRearAxle) {
 					if (Direction < 0) {
-						Train.Station = StationIndex;
+						Train.Station = this.StationIndex;
 						Train.StationRearCar = true;
+						Train.LastStation = this.StationIndex;
 					} else if (Direction > 0) {
 						if (Train.Station == StationIndex) {
 							if (Train == TrainManager.PlayerTrain) {

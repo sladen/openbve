@@ -503,6 +503,7 @@ namespace OpenBve {
 			internal int DriverCar;
 			internal TrainSpecs Specs;
 			internal TrainPassengers Passengers;
+			internal int LastStation;
 			internal int Station;
 			internal bool StationFrontCar;
 			internal bool StationRearCar;
@@ -586,8 +587,8 @@ namespace OpenBve {
 			Train.Specs.CurrentAirDensity = Game.GetAirDensity(Train.Specs.CurrentAirPressure, Train.Specs.CurrentAirTemperature);
 		}
 
-		// get acceleration
-		internal static double GetAcceleration(Train Train, int CarIndex, int CurveIndex, double Speed) {
+		// get acceleration output
+		internal static double GetAccelerationOutput(Train Train, int CarIndex, int CurveIndex, double Speed) {
 			if (CurveIndex < Train.Cars[CarIndex].Specs.AccelerationCurves.Length) {
 				if (Speed < 0.0) Speed = 0.0;
 				double a0 = Train.Cars[CarIndex].Specs.AccelerationCurves[CurveIndex].StageZeroAcceleration;
@@ -3409,31 +3410,37 @@ namespace OpenBve {
 
 		// update train passengers
 		private static void UpdateTrainPassengers(Train Train, double TimeElapsed) {
-			const double spdmax = 1.0;
-			double jerk = 1.0 / (0.1 + Train.Passengers.PassengerRatio);
-			const double acc = 0.15;
-			double d = Train.Passengers.CurrentAcceleration - Train.Specs.CurrentAverageAcceleration;
-			Train.Passengers.CurrentSpeedDifference += d * TimeElapsed;
-			double j = jerk * (1.0 - 2.0 * Math.Abs(Train.Passengers.CurrentSpeedDifference) / spdmax);
-			if (Train.Passengers.CurrentSpeedDifference < 0.0) {
-				Train.Passengers.CurrentAcceleration += j * TimeElapsed;
-			} else if (Train.Passengers.CurrentSpeedDifference > 0.0) {
-				Train.Passengers.CurrentAcceleration -= j * TimeElapsed;
-			}
-			if (Train.Passengers.CurrentSpeedDifference < 0.0) {
-				Train.Passengers.CurrentSpeedDifference += acc * TimeElapsed;
-				if (Train.Passengers.CurrentSpeedDifference > 0.0) Train.Passengers.CurrentSpeedDifference = 0.0;
-			} else if (Train.Passengers.CurrentAcceleration > 0.0) {
-				Train.Passengers.CurrentSpeedDifference -= acc * TimeElapsed;
-				if (Train.Passengers.CurrentSpeedDifference < 0.0) Train.Passengers.CurrentSpeedDifference = 0.0;
-			}
-			if (Math.Abs(Train.Passengers.CurrentAcceleration) > 2.0 * spdmax) {
+			double accelerationDifference = Train.Specs.CurrentAverageAcceleration - Train.Passengers.CurrentAcceleration;
+			double jerk = 0.25 + 0.10 * Math.Abs(accelerationDifference);
+			double accelerationQuanta = jerk * TimeElapsed;
+			if (Math.Abs(accelerationDifference) < accelerationQuanta) {
 				Train.Passengers.CurrentAcceleration = Train.Specs.CurrentAverageAcceleration;
+				accelerationDifference = 0.0;
+			} else {
+				Train.Passengers.CurrentAcceleration += (double)Math.Sign(accelerationDifference) * accelerationQuanta;
+				accelerationDifference = Train.Specs.CurrentAverageAcceleration - Train.Passengers.CurrentAcceleration;
+			}
+			Train.Passengers.CurrentSpeedDifference += accelerationDifference * TimeElapsed;
+			double acceleration = 0.10 + 0.35 * Math.Abs(Train.Passengers.CurrentSpeedDifference);
+			double speedQuanta = acceleration * TimeElapsed;
+			if (Math.Abs(Train.Passengers.CurrentSpeedDifference) < speedQuanta) {
 				Train.Passengers.CurrentSpeedDifference = 0.0;
-				Train.Passengers.FallenOver = true;
+			} else {
+				Train.Passengers.CurrentSpeedDifference -= (double)Math.Sign(Train.Passengers.CurrentSpeedDifference) * speedQuanta;
+			}
+			if (Train.Passengers.PassengerRatio > 0.0) {
+				double threshold = 1.0 / Train.Passengers.PassengerRatio;
+				if (Math.Abs(Train.Passengers.CurrentSpeedDifference) > threshold) {
+					Train.Passengers.FallenOver = true;
+				} else {
+					Train.Passengers.FallenOver = false;
+				}
 			} else {
 				Train.Passengers.FallenOver = false;
 			}
+			//if (Train == PlayerTrain) {
+			//	Game.InfoDebugString = accelerationDifference.ToString("0.0000").PadLeft(8) + Train.Passengers.CurrentSpeedDifference.ToString("0.0000").PadLeft(8) + "   " + Train.Passengers.FallenOver.ToString();
+			//}
 		}
 
 		// update speeds
@@ -3479,7 +3486,7 @@ namespace OpenBve {
 						if (DecelerationDueToMotor[i] == 0.0) {
 							if (Train.Specs.CurrentReverser.Actual != 0 & Train.Specs.CurrentPowerNotch.Actual > 0 & !Train.Specs.CurrentHoldBrake.Actual & !Train.Specs.CurrentEmergencyBrake.Actual) {
 								// target acceleration
-								a = GetAcceleration(Train, i, Train.Specs.CurrentPowerNotch.Actual - 1, (double)Train.Specs.CurrentReverser.Actual * Train.Cars[i].Specs.CurrentSpeed);
+								a = GetAccelerationOutput(Train, i, Train.Specs.CurrentPowerNotch.Actual - 1, (double)Train.Specs.CurrentReverser.Actual * Train.Cars[i].Specs.CurrentSpeed);
 								// readhesion device
 								if (a > Train.Cars[i].Specs.ReAdhesionDevice.MaximumAccelerationOutput) {
 									a = Train.Cars[i].Specs.ReAdhesionDevice.MaximumAccelerationOutput;
@@ -3606,34 +3613,36 @@ namespace OpenBve {
 						double ra = Math.Abs(0.5 * (rf + rr) * Game.RouteAccelerationDueToGravity);
 						if (a > ra) a = ra;
 					}
+					double factor = Train.Cars[i].Specs.MassEmpty / Train.Cars[i].Specs.MassCurrent;
 					if (a >= wf) {
 						wheellock = true;
 					} else {
-						FrictionBrakeAcceleration += 0.5 * a;
+						FrictionBrakeAcceleration += 0.5 * a * factor;
 					}
 					if (a >= wr) {
 						wheellock = true;
 					} else {
-						FrictionBrakeAcceleration += 0.5 * a;
+						FrictionBrakeAcceleration += 0.5 * a * factor;
 					}
 				} else if (Train.Cars[i].Derailed) {
 					FrictionBrakeAcceleration += Game.CoefficientOfGroundFriction * Game.RouteAccelerationDueToGravity;
 				}
 				// motor
 				if (Train.Specs.CurrentReverser.Actual != 0) {
+					double factor = Train.Cars[i].Specs.MassEmpty / Train.Cars[i].Specs.MassCurrent;
 					if (Train.Cars[i].Specs.CurrentAccelerationOutput > 0.0) {
-						PowerRollingCouplerAcceleration += (double)Train.Specs.CurrentReverser.Actual * Train.Cars[i].Specs.CurrentAccelerationOutput;
+						PowerRollingCouplerAcceleration += (double)Train.Specs.CurrentReverser.Actual * Train.Cars[i].Specs.CurrentAccelerationOutput * factor;
 					} else {
 						double a = -Train.Cars[i].Specs.CurrentAccelerationOutput;
 						if (a >= wf) {
 							Train.Cars[i].FrontAxle.CurrentWheelSlip = true;
 						} else if (!Train.Cars[i].Derailed) {
-							FrictionBrakeAcceleration += 0.5 * a;
+							FrictionBrakeAcceleration += 0.5 * a * factor;
 						}
 						if (a >= wr) {
 							Train.Cars[i].RearAxle.CurrentWheelSlip = true;
 						} else {
-							FrictionBrakeAcceleration += 0.5 * a;
+							FrictionBrakeAcceleration += 0.5 * a * factor;
 						}
 					}
 				} else {
@@ -3859,16 +3868,11 @@ namespace OpenBve {
 		
 		// update train mass
 		private static void UpdateTrainMassFromPassengerRatio(Train Train) {
-			return;
-			/*
-			 * This feature will only be available in v1.2.6.
-			 * */
 			for (int i = 0; i < Train.Cars.Length; i++) {
 				double area = Train.Cars[i].Width * Train.Cars[i].Length;
-				const double areaPerPassenger = 1.0;
-				double passengers = Train.Passengers.PassengerRatio * area / areaPerPassenger;
-				double passengerFactor = 0.9 + 0.2 * Game.Generator.NextDouble();
-				passengers = Math.Round(passengers * passengerFactor);
+				const double passengersPerArea = 1.0;
+				double randomFactor = 0.9 + 0.2 * Game.Generator.NextDouble();
+				double passengers = Math.Round(randomFactor * Train.Passengers.PassengerRatio * passengersPerArea * area);
 				const double massPerPassenger = 70.0;
 				double passengerMass = passengers * massPerPassenger;
 				Train.Cars[i].Specs.MassCurrent = Train.Cars[i].Specs.MassEmpty + passengerMass;

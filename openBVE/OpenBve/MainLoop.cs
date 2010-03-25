@@ -506,11 +506,20 @@ namespace OpenBve {
 												for (selection = 0; selection < b.Entries.Length; selection++) {
 													if (!(b.Entries[selection] is Game.MenuCaption)) break;
 												}
-												/* Select the current/next station if this menu has stations in it. */
+												/* Select the next station if this menu has stations in it. */
+												int station = TrainManager.PlayerTrain.LastStation;
+												if (TrainManager.PlayerTrain.Station == -1 | TrainManager.PlayerTrain.StationState != TrainManager.TrainStopState.Pending) {
+													for (int k = station + 1; k < Game.Stations.Length; k++) {
+														if (Game.StopsAtStation(k, TrainManager.PlayerTrain)) {
+															station = k;
+															break;
+														}
+													}
+												}
 												for (int k = selection + 1; k < b.Entries.Length; k++) {
 													Game.MenuCommand c = b.Entries[k] as Game.MenuCommand;
 													if (c != null && c.Tag == Game.MenuTag.JumpToStation) {
-														if (c.Data <= TrainManager.PlayerTrain.CurrentSectionIndex) {
+														if (c.Data <= station) {
 															selection = k;
 														}
 													}
