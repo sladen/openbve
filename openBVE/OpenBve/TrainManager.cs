@@ -626,9 +626,17 @@ namespace OpenBve {
 		}
 
 		// get critical wheelslip acceleration
-		private static double GetCriticalWheelSlipAcceleration(Train Train, int CarIndex, double AdhesionMultiplier, double UpY) {
+		private static double GetCriticalWheelSlipAccelerationForElectricMotor(Train Train, int CarIndex, double AdhesionMultiplier, double UpY, double Speed) {
 			double NormalForceAcceleration = UpY * Game.RouteAccelerationDueToGravity;
-			return Train.Cars[CarIndex].Specs.CoefficientOfStaticFriction * AdhesionMultiplier * NormalForceAcceleration;
+			// TODO: Implement formula that depends on speed here.
+			double coefficient = Train.Cars[CarIndex].Specs.CoefficientOfStaticFriction;
+			return coefficient * AdhesionMultiplier * NormalForceAcceleration;
+		}
+		private static double GetCriticalWheelSlipAccelerationForFrictionBrake(Train Train, int CarIndex, double AdhesionMultiplier, double UpY, double Speed) {
+			double NormalForceAcceleration = UpY * Game.RouteAccelerationDueToGravity;
+			// TODO: Implement formula that depends on speed here.
+			double coefficient = Train.Cars[CarIndex].Specs.CoefficientOfStaticFriction;
+			return coefficient * AdhesionMultiplier * NormalForceAcceleration;
 		}
 
 		// update toppling, cant and spring
@@ -3476,10 +3484,18 @@ namespace OpenBve {
 				}
 				// power
 				double wheelspin = 0.0;
-				double wf = GetCriticalWheelSlipAcceleration(Train, i, Train.Cars[i].FrontAxle.Follower.AdhesionMultiplier, Train.Cars[i].FrontAxle.Follower.WorldUp.Y);
-				double wr = GetCriticalWheelSlipAcceleration(Train, i, Train.Cars[i].RearAxle.Follower.AdhesionMultiplier, Train.Cars[i].RearAxle.Follower.WorldUp.Y);
-				if (Train.Cars[i].Derailed) wf = 0.0;
-				if (Train.Cars[i].Derailed) wr = 0.0;
+				double wheelSlipAccelerationMotorFront = GetCriticalWheelSlipAccelerationForElectricMotor(Train, i, Train.Cars[i].FrontAxle.Follower.AdhesionMultiplier, Train.Cars[i].FrontAxle.Follower.WorldUp.Y, Train.Cars[i].Specs.CurrentSpeed);
+				double wheelSlipAccelerationMotorRear = GetCriticalWheelSlipAccelerationForElectricMotor(Train, i, Train.Cars[i].RearAxle.Follower.AdhesionMultiplier, Train.Cars[i].RearAxle.Follower.WorldUp.Y, Train.Cars[i].Specs.CurrentSpeed);
+				double wheelSlipAccelerationBrakeFront = GetCriticalWheelSlipAccelerationForFrictionBrake(Train, i, Train.Cars[i].FrontAxle.Follower.AdhesionMultiplier, Train.Cars[i].FrontAxle.Follower.WorldUp.Y, Train.Cars[i].Specs.CurrentSpeed);
+				double wheelSlipAccelerationBrakeRear = GetCriticalWheelSlipAccelerationForFrictionBrake(Train, i, Train.Cars[i].RearAxle.Follower.AdhesionMultiplier, Train.Cars[i].RearAxle.Follower.WorldUp.Y, Train.Cars[i].Specs.CurrentSpeed);
+				if (Train.Cars[i].Derailed) {
+					wheelSlipAccelerationMotorFront = 0.0;
+					wheelSlipAccelerationBrakeFront = 0.0;
+				}
+				if (Train.Cars[i].Derailed) {
+					wheelSlipAccelerationMotorRear = 0.0;
+					wheelSlipAccelerationBrakeRear = 0.0;
+				}
 				if (DecelerationDueToMotor[i] == 0.0) {
 					double a;
 					if (Train.Cars[i].Specs.IsMotorCar) {
@@ -3492,13 +3508,13 @@ namespace OpenBve {
 									a = Train.Cars[i].Specs.ReAdhesionDevice.MaximumAccelerationOutput;
 								}
 								// wheel slip
-								if (a < wf) {
+								if (a < wheelSlipAccelerationMotorFront) {
 									Train.Cars[i].FrontAxle.CurrentWheelSlip = false;
 								} else {
 									Train.Cars[i].FrontAxle.CurrentWheelSlip = true;
 									wheelspin += (double)Train.Specs.CurrentReverser.Actual * a * Train.Cars[i].Specs.MassCurrent;
 								}
-								if (a < wr) {
+								if (a < wheelSlipAccelerationMotorRear) {
 									Train.Cars[i].RearAxle.CurrentWheelSlip = false;
 								} else {
 									Train.Cars[i].RearAxle.CurrentWheelSlip = true;
@@ -3614,12 +3630,12 @@ namespace OpenBve {
 						if (a > ra) a = ra;
 					}
 					double factor = Train.Cars[i].Specs.MassEmpty / Train.Cars[i].Specs.MassCurrent;
-					if (a >= wf) {
+					if (a >= wheelSlipAccelerationBrakeFront) {
 						wheellock = true;
 					} else {
 						FrictionBrakeAcceleration += 0.5 * a * factor;
 					}
-					if (a >= wr) {
+					if (a >= wheelSlipAccelerationBrakeRear) {
 						wheellock = true;
 					} else {
 						FrictionBrakeAcceleration += 0.5 * a * factor;
@@ -3634,12 +3650,12 @@ namespace OpenBve {
 						PowerRollingCouplerAcceleration += (double)Train.Specs.CurrentReverser.Actual * Train.Cars[i].Specs.CurrentAccelerationOutput * factor;
 					} else {
 						double a = -Train.Cars[i].Specs.CurrentAccelerationOutput;
-						if (a >= wf) {
+						if (a >= wheelSlipAccelerationMotorFront) {
 							Train.Cars[i].FrontAxle.CurrentWheelSlip = true;
 						} else if (!Train.Cars[i].Derailed) {
 							FrictionBrakeAcceleration += 0.5 * a * factor;
 						}
-						if (a >= wr) {
+						if (a >= wheelSlipAccelerationMotorRear) {
 							Train.Cars[i].RearAxle.CurrentWheelSlip = true;
 						} else {
 							FrictionBrakeAcceleration += 0.5 * a * factor;

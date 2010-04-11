@@ -949,7 +949,7 @@ namespace OpenBve {
 												Interface.AddMessage(Interface.MessageType.Error, false, "FactorInKmph is expected to be positive in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 												Data.UnitOfSpeed = 0.277777777777778;
 											} else {
-												Data.UnitOfSpeed *= 3.6;
+												Data.UnitOfSpeed *= 0.277777777777778;
 											}
 										}
 									} break;
