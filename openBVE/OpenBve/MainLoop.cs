@@ -11,6 +11,7 @@ namespace OpenBve {
 		private static bool Quit = false;
 		private static int TimeFactor = 1;
 		private static ViewPortMode CurrentViewPortMode = ViewPortMode.Scenery;
+		private static bool UpdateViewportAndViewingDistancesInNextFrame = false;
 
 		// --------------------------------
 
@@ -122,6 +123,14 @@ namespace OpenBve {
 					World.UpdateAbsoluteCamera(TimeElapsed);
 				} else if (World.CameraMode != World.CameraViewMode.Interior) {
 					World.UpdateAbsoluteCamera(TimeElapsed);
+				}
+				if (UpdateViewportAndViewingDistancesInNextFrame) {
+					UpdateViewportAndViewingDistancesInNextFrame = false;
+					World.CameraAlignmentDirection = new World.CameraAlignment();
+					World.CameraAlignmentSpeed = new World.CameraAlignment();
+					UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
+					World.UpdateAbsoluteCamera(TimeElapsed);
+					World.UpdateViewingDistances();
 				}
 				Game.UpdateScore(TimeElapsed);
 				Game.UpdateMessages();
@@ -812,6 +821,8 @@ namespace OpenBve {
 											if (!World.PerformCameraRestrictionTest()) {
 												World.InitializeCameraRestriction();
 											}
+										} else {
+											UpdateViewportAndViewingDistancesInNextFrame = true;
 										}
 										break;
 									case Interface.Command.CameraExterior:

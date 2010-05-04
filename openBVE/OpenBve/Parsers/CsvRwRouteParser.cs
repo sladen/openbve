@@ -3526,10 +3526,14 @@ namespace OpenBve {
 													ttidx = -1;
 												} else {
 													if (ttidx < 0) {
-														Interface.AddMessage(Interface.MessageType.Error, false, "TimetableIndex is expected to be non-negative in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+														if (Program.CurrentProgramType == Program.ProgramType.OpenBve) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "TimetableIndex is expected to be non-negative in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+														}
 														ttidx = -1;
 													} else if (ttidx >= Data.TimetableDaytime.Length & ttidx >= Data.TimetableNighttime.Length) {
-														Interface.AddMessage(Interface.MessageType.Error, false, "TimetableIndex references textures not loaded in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+														if (Program.CurrentProgramType == Program.ProgramType.OpenBve) {
+															Interface.AddMessage(Interface.MessageType.Error, false, "TimetableIndex references textures not loaded in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+														}
 														ttidx = -1;
 													}
 													tdt = ttidx >= 0 & ttidx < Data.TimetableDaytime.Length ? Data.TimetableDaytime[ttidx] : -1;
@@ -4645,6 +4649,20 @@ namespace OpenBve {
 				}
 				World.TargetBackground = World.CurrentBackground;
 			}
+			// brightness
+			int CurrentBrightnessElement = -1;
+			int CurrentBrightnessEvent = -1;
+			float CurrentBrightnessValue = 1.0f;
+			double CurrentBrightnessTrackPosition = (double)Data.FirstUsedBlock * Data.BlockInterval;
+			if (!PreviewOnly) {
+				for (int i = Data.FirstUsedBlock; i < Data.Blocks.Length; i++) {
+					if (Data.Blocks[i].Brightness != null && Data.Blocks[i].Brightness.Length != 0) {
+						CurrentBrightnessValue = Data.Blocks[i].Brightness[0].Value;
+						CurrentBrightnessTrackPosition = Data.Blocks[i].Brightness[0].Value;
+						break;
+					}
+				}
+			}
 			// create objects and track
 			World.Vector3D Position = new World.Vector3D(0.0, 0.0, 0.0);
 			World.Vector2D Direction = new World.Vector2D(0.0, 1.0);
@@ -4660,10 +4678,6 @@ namespace OpenBve {
 			int PreviousFogEvent = -1;
 			Game.Fog PreviousFog = new Game.Fog(Game.NoFogStart, Game.NoFogEnd, new World.ColorRGB(128, 128, 128), -Data.BlockInterval);
 			Game.Fog CurrentFog = new Game.Fog(Game.NoFogStart, Game.NoFogEnd, new World.ColorRGB(128, 128, 128), 0.0);
-			int CurrentBrightnessElement = -1;
-			int CurrentBrightnessEvent = -1;
-			float CurrentBrightnessValue = 1.0f;
-			double CurrentBrightnessTrackPosition = (double)Data.FirstUsedBlock * Data.BlockInterval;
 			// process blocks
 			double progressFactor = Data.Blocks.Length - Data.FirstUsedBlock == 0 ? 0.5 : 0.5 / (double)(Data.Blocks.Length - Data.FirstUsedBlock);
 			for (int i = Data.FirstUsedBlock; i < Data.Blocks.Length; i++) {

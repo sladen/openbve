@@ -172,7 +172,7 @@ namespace OpenBve {
 				this.ShowWarningMessages = true;
 				this.ShowErrorMessages = true;
 				this.ObjectOptimizationBasicThreshold = 10000;
-				this.ObjectOptimizationFullThreshold = 2500;
+				this.ObjectOptimizationFullThreshold = 1000;
 				this.RouteFolder = "";
 				this.TrainFolder = "";
 				this.RecentlyUsedRoutes = new string[] { };

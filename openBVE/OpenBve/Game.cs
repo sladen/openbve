@@ -1062,6 +1062,7 @@ namespace OpenBve {
 					TimeLastProcessed = SecondsSinceMidnight;
 				} else if (SecondsSinceMidnight - TimeLastProcessed >= CurrentInterval) {
 					TimeLastProcessed = SecondsSinceMidnight;
+					double spd = Train.Specs.CurrentAverageSpeed;
 					// door states
 					bool doorsopen = false;
 					for (int i = 0; i < Train.Cars.Length; i++) {
@@ -1161,8 +1162,12 @@ namespace OpenBve {
 						// eb
 						TrainManager.AcknowledgeSafetySystem(Train, TrainManager.AcknowledgementType.Eb);
 					}
+					if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Atc & !Train.Specs.Safety.Atc.Transmitting) {
+						if (Train.Specs.Safety.Ats.AtsAvailable & spd < 0.277777777777778) {
+							Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.None;
+						}
+					}
 					// do the ai
-					double spd = Train.Specs.CurrentAverageSpeed;
 					Train.Specs.CurrentConstSpeed = false;
 					TrainManager.ApplyHoldBrake(Train, false);
 					int stopIndex = Train.Station >= 0 ? GetStopIndex(Train.Station, Train.Cars.Length) : -1;
@@ -1215,10 +1220,12 @@ namespace OpenBve {
 								}
 							} else if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Boarding) {
 								// still boarding
-								if (Stations[Train.Station].SafetySystem == SafetySystem.Ats & Train.Specs.Safety.Mode != TrainManager.SafetySystem.AtsSn & Train.Specs.Safety.Mode != TrainManager.SafetySystem.AtsP) {
-									Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.AtsSn;
-								} else if (Stations[Train.Station].SafetySystem == SafetySystem.Atc & Train.Specs.Safety.Mode != TrainManager.SafetySystem.Atc & Train.Specs.Safety.Atc.Available) {
-									Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.Atc;
+								if (Train.Specs.Safety.Mode != TrainManager.SafetySystem.Plugin) {
+									if (Stations[Train.Station].SafetySystem == SafetySystem.Ats & Train.Specs.Safety.Ats.AtsAvailable & Train.Specs.Safety.Mode != TrainManager.SafetySystem.AtsSn & Train.Specs.Safety.Mode != TrainManager.SafetySystem.AtsP) {
+										Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.AtsSn;
+									} else if (Stations[Train.Station].SafetySystem == SafetySystem.Atc & Train.Specs.Safety.Mode != TrainManager.SafetySystem.Atc & Train.Specs.Safety.Atc.Available) {
+										Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.Atc;
+									}
 								}
 							} else {
 								// not at station - close doors

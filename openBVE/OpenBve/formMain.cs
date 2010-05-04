@@ -27,7 +27,7 @@ namespace OpenBve {
 		}
 
 		// members
-        private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
+		private OpenBve.formMain.MainDialogResult Result = new MainDialogResult();
 		private int[] EncodingCodepages = new int[0];
 		private Image JoystickImage = null;
 		private string[] LanguageFiles = new string[0];
@@ -1127,10 +1127,10 @@ namespace OpenBve {
 
 		// route encoding
 		private void comboboxRouteEncoding_SelectedIndexChanged(object sender, EventArgs e) {
-			int i = comboboxRouteEncoding.SelectedIndex;
-			if (i >= 0 & i < EncodingCodepages.Length) {
-				Result.RouteEncoding = System.Text.Encoding.GetEncoding(EncodingCodepages[i]);
-				if (comboboxRouteEncoding.Tag == null) {
+			if (comboboxRouteEncoding.Tag == null) {
+				int i = comboboxRouteEncoding.SelectedIndex;
+				if (i >= 0 & i < EncodingCodepages.Length) {
+					Result.RouteEncoding = System.Text.Encoding.GetEncoding(EncodingCodepages[i]);
 					if (i == 0) {
 						// remove from cache
 						for (int j = 0; j < Interface.CurrentOptions.RouteEncodings.Length; j++) {
@@ -1329,10 +1329,10 @@ namespace OpenBve {
 
 		// train encoding
 		private void comboboxTrainEncoding_SelectedIndexChanged(object sender, EventArgs e) {
-			int i = comboboxTrainEncoding.SelectedIndex;
-			if (i >= 0 & i < EncodingCodepages.Length) {
-				Result.TrainEncoding = System.Text.Encoding.GetEncoding(EncodingCodepages[i]);
-				if (comboboxTrainEncoding.Tag == null) {
+			if (comboboxTrainEncoding.Tag == null) {
+				int i = comboboxTrainEncoding.SelectedIndex;
+				if (i >= 0 & i < EncodingCodepages.Length) {
+					Result.TrainEncoding = System.Text.Encoding.GetEncoding(EncodingCodepages[i]);
 					if (i == 0) {
 						// remove from cache
 						for (int j = 0; j < Interface.CurrentOptions.TrainEncodings.Length; j++) {
@@ -2142,8 +2142,8 @@ namespace OpenBve {
 				if (!UserSelectedEncoding) {
 					comboboxRouteEncoding.Tag = new object();
 					comboboxRouteEncoding.SelectedIndex = 0;
-					comboboxRouteEncoding.Tag = null;
 					comboboxRouteEncoding.Items[0] = "(UTF-8)";
+					comboboxRouteEncoding.Tag = null;
 					Result.RouteEncoding = System.Text.Encoding.UTF8;
 					switch (Interface.GetEncodingFromFile(Result.RouteFile)) {
 						case Interface.Encoding.Utf8:
@@ -2265,6 +2265,7 @@ namespace OpenBve {
 			if (!UserSelectedEncoding) {
 				comboboxTrainEncoding.Tag = new object();
 				comboboxTrainEncoding.SelectedIndex = 0;
+				comboboxTrainEncoding.Items[0] = "(UTF-8)";
 				comboboxTrainEncoding.Tag = null;
 				Result.TrainEncoding = System.Text.Encoding.UTF8;
 				switch (Interface.GetEncodingFromFile(Result.TrainFolder, "train.txt")) {
