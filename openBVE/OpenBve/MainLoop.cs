@@ -11,6 +11,7 @@ namespace OpenBve {
 		private static bool Quit = false;
 		private static int TimeFactor = 1;
 		private static ViewPortMode CurrentViewPortMode = ViewPortMode.Scenery;
+		private static bool UpdateViewportAndViewingDistancesInNextFrame = false;
 
 		// --------------------------------
 
@@ -122,6 +123,14 @@ namespace OpenBve {
 					World.UpdateAbsoluteCamera(TimeElapsed);
 				} else if (World.CameraMode != World.CameraViewMode.Interior) {
 					World.UpdateAbsoluteCamera(TimeElapsed);
+				}
+				if (UpdateViewportAndViewingDistancesInNextFrame) {
+					UpdateViewportAndViewingDistancesInNextFrame = false;
+					World.CameraAlignmentDirection = new World.CameraAlignment();
+					World.CameraAlignmentSpeed = new World.CameraAlignment();
+					UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
+					World.UpdateAbsoluteCamera(TimeElapsed);
+					World.UpdateViewingDistances();
 				}
 				Game.UpdateScore(TimeElapsed);
 				Game.UpdateMessages();
@@ -506,11 +515,20 @@ namespace OpenBve {
 												for (selection = 0; selection < b.Entries.Length; selection++) {
 													if (!(b.Entries[selection] is Game.MenuCaption)) break;
 												}
-												/* Select the current/next station if this menu has stations in it. */
+												/* Select the next station if this menu has stations in it. */
+												int station = TrainManager.PlayerTrain.LastStation;
+												if (TrainManager.PlayerTrain.Station == -1 | TrainManager.PlayerTrain.StationState != TrainManager.TrainStopState.Pending) {
+													for (int k = station + 1; k < Game.Stations.Length; k++) {
+														if (Game.StopsAtStation(k, TrainManager.PlayerTrain)) {
+															station = k;
+															break;
+														}
+													}
+												}
 												for (int k = selection + 1; k < b.Entries.Length; k++) {
 													Game.MenuCommand c = b.Entries[k] as Game.MenuCommand;
 													if (c != null && c.Tag == Game.MenuTag.JumpToStation) {
-														if (c.Data <= TrainManager.PlayerTrain.CurrentSectionIndex) {
+														if (c.Data <= station) {
 															selection = k;
 														}
 													}
@@ -803,6 +821,8 @@ namespace OpenBve {
 											if (!World.PerformCameraRestrictionTest()) {
 												World.InitializeCameraRestriction();
 											}
+										} else {
+											UpdateViewportAndViewingDistancesInNextFrame = true;
 										}
 										break;
 									case Interface.Command.CameraExterior:

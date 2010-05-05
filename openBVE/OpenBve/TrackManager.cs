@@ -88,12 +88,14 @@ namespace OpenBve {
 			override internal void Trigger(int Direction, EventTriggerType TriggerType, TrainManager.Train Train, int CarIndex) {
 				if (TriggerType == EventTriggerType.FrontCarFrontAxle | TriggerType == EventTriggerType.OtherCarFrontAxle) {
 					if (Direction < 0) {
-						Train.Cars[CarIndex].Brightness.NextBrightness = Train.Cars[CarIndex].Brightness.PreviousBrightness;
+						//Train.Cars[CarIndex].Brightness.NextBrightness = Train.Cars[CarIndex].Brightness.PreviousBrightness;
+						Train.Cars[CarIndex].Brightness.NextBrightness = this.CurrentBrightness;
 						Train.Cars[CarIndex].Brightness.NextTrackPosition = Train.Cars[CarIndex].FrontAxle.Follower.TrackPosition;
 						Train.Cars[CarIndex].Brightness.PreviousBrightness = this.PreviousBrightness;
 						Train.Cars[CarIndex].Brightness.PreviousTrackPosition = Train.Cars[CarIndex].FrontAxle.Follower.TrackPosition - this.PreviousDistance;
 					} else if (Direction > 0) {
-						Train.Cars[CarIndex].Brightness.PreviousBrightness = Train.Cars[CarIndex].Brightness.NextBrightness;
+						//Train.Cars[CarIndex].Brightness.PreviousBrightness = Train.Cars[CarIndex].Brightness.NextBrightness;
+						Train.Cars[CarIndex].Brightness.PreviousBrightness = this.CurrentBrightness;
 						Train.Cars[CarIndex].Brightness.PreviousTrackPosition = Train.Cars[CarIndex].FrontAxle.Follower.TrackPosition;
 						Train.Cars[CarIndex].Brightness.NextBrightness = this.NextBrightness;
 						Train.Cars[CarIndex].Brightness.NextTrackPosition = Train.Cars[CarIndex].FrontAxle.Follower.TrackPosition + this.NextDistance;
@@ -184,6 +186,7 @@ namespace OpenBve {
 						if (Game.Stations[this.StationIndex].SafetySystem == Game.SafetySystem.Atc) {
 							Train.Specs.Safety.Atc.Transmitting = true;
 						}
+						Train.LastStation = this.StationIndex;
 					}
 				} else if (TriggerType == EventTriggerType.RearCarRearAxle) {
 					if (Direction < 0) {
@@ -220,8 +223,9 @@ namespace OpenBve {
 					}
 				} else if (TriggerType == EventTriggerType.RearCarRearAxle) {
 					if (Direction < 0) {
-						Train.Station = StationIndex;
+						Train.Station = this.StationIndex;
 						Train.StationRearCar = true;
+						Train.LastStation = this.StationIndex;
 					} else if (Direction > 0) {
 						if (Train.Station == StationIndex) {
 							if (Train == TrainManager.PlayerTrain) {
