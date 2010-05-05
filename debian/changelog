@@ -1,8 +1,8 @@
-openbve (1.2.6.3-0ubuntu1) UNRELEASED; urgency=low
+openbve (1.2.6.3-0ubuntu1) maverick; urgency=low
 
   * New upstream stable version (1.2.6.3)
 
- -- Paul Sladen <ubuntu@paul.sladen.org>  Wed,  5 May 2010 07:24:00 +0000
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Wed,  5 May 2010 11:20:00 +0100
 
 openbve (1.2.5.2-0ubuntu1) lucid; urgency=low
 
