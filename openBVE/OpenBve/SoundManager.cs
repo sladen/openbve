@@ -110,6 +110,8 @@ namespace OpenBve {
 				Alc.alcMakeContextCurrent(IntPtr.Zero);
 				Alc.alcDestroyContext(OpenAlContext);
 				OpenAlContext = IntPtr.Zero;
+			}
+			if (OpenAlDevice != IntPtr.Zero) {
 				Alc.alcCloseDevice(OpenAlDevice);
 				OpenAlDevice = IntPtr.Zero;
 			}

@@ -128,6 +128,8 @@ namespace OpenBve {
 			internal bool BlackBox;
 			internal bool UseJoysticks;
 			internal double JoystickAxisThreshold;
+			internal int KeyRepeatDelay;
+			internal int KeyRepeatInterval;
 			internal bool UseSound;
 			internal SoundRange SoundRange;
 			internal int SoundNumber;
@@ -166,6 +168,8 @@ namespace OpenBve {
 				this.BlackBox = false;
 				this.UseJoysticks = true;
 				this.JoystickAxisThreshold = 0.0;
+				this.KeyRepeatDelay = 500;
+				this.KeyRepeatInterval = 100;
 				this.UseSound = true;
 				this.SoundRange = SoundRange.Low;
 				this.SoundNumber = 16;
@@ -350,6 +354,16 @@ namespace OpenBve {
 												double a = 0.0; double.TryParse(Value, NumberStyles.Float, Culture, out a);
 												Interface.CurrentOptions.JoystickAxisThreshold = a;
 											} break;
+										case "keyrepeatdelay":
+											{
+												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												Interface.CurrentOptions.KeyRepeatDelay = a;
+											} break;
+										case "keyrepeatinterval":
+											{
+												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												Interface.CurrentOptions.KeyRepeatInterval = a;
+											} break;
 									} break;
 								case "sound":
 									switch (Key) {
@@ -526,6 +540,8 @@ namespace OpenBve {
 			Builder.AppendLine("[controls]");
 			Builder.AppendLine("usejoysticks = " + (CurrentOptions.UseJoysticks ? "true" : "false"));
 			Builder.AppendLine("joystickaxisthreshold = " + CurrentOptions.JoystickAxisThreshold.ToString(Culture));
+			Builder.AppendLine("keyrepeatdelay = " + CurrentOptions.KeyRepeatDelay.ToString(Culture));
+			Builder.AppendLine("keyrepeatinterval = " + CurrentOptions.KeyRepeatInterval.ToString(Culture));
 			Builder.AppendLine();
 			Builder.AppendLine("[sound]");
 			Builder.AppendLine("usesound = " + (CurrentOptions.UseSound ? "true" : "false"));

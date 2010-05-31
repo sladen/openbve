@@ -662,7 +662,10 @@ namespace OpenBve {
 			// cant and radius
 			double c;
 			if (!Train.Cars[CarIndex].Derailed) {
-				c = 0.5 * (Train.Cars[CarIndex].FrontAxle.Follower.CurveCant + Train.Cars[CarIndex].RearAxle.Follower.CurveCant);
+				//c = 0.5 * (Train.Cars[CarIndex].FrontAxle.Follower.CurveCant + Train.Cars[CarIndex].RearAxle.Follower.CurveCant);
+				double ca = Train.Cars[CarIndex].FrontAxle.Follower.CurveCant;
+				double cb = Train.Cars[CarIndex].RearAxle.Follower.CurveCant;
+				c = Math.Tan(0.5 * (Math.Atan(ca) + Math.Atan(cb)));
 			} else {
 				c = 0.0;
 			}
@@ -770,14 +773,10 @@ namespace OpenBve {
 					Train.Cars[CarIndex].Derailed = true;
 				}
 			}
-			// toppling roll and positions
+			// toppling roll
 			if (Interface.CurrentOptions.Toppling | Train.Cars[CarIndex].Derailed) {
 				double a = Train.Cars[CarIndex].Specs.CurrentRollDueToTopplingAngle;
 				double ab = Train.Cars[CarIndex].Specs.CurrentRollDueToTopplingAngle + Train.Cars[CarIndex].Specs.CurrentRollDueToCantAngle;
-				double sa = (double)Math.Sign(a);
-				double gh = 0.5 * Game.RouteRailGauge;
-				double x = (sa - sa * Math.Cos(a)) * gh;
-				double y = gh * Math.Sin(Math.Abs(a));
 				double h = Train.Cars[CarIndex].Specs.CenterOfGravityHeight;
 				double s = Math.Abs(Train.Cars[CarIndex].Specs.CurrentSpeed);
 				double rmax = 2.0 * h * s * s / (Game.RouteAccelerationDueToGravity * Game.RouteRailGauge);
@@ -816,6 +815,15 @@ namespace OpenBve {
 					if (td > d) td = d;
 					a += td * TimeElapsed;
 				}
+				Train.Cars[CarIndex].Specs.CurrentRollDueToTopplingAngle = a;
+			} else {
+				Train.Cars[CarIndex].Specs.CurrentRollDueToTopplingAngle = 0.0;
+			}
+			// apply position due to cant/toppling
+			{
+				double a = Train.Cars[CarIndex].Specs.CurrentRollDueToTopplingAngle + Train.Cars[CarIndex].Specs.CurrentRollDueToCantAngle;
+				double x = Math.Sign(a) * 0.5 * Game.RouteRailGauge * (1.0 - Math.Cos(a));
+				double y = Math.Abs(0.5 * Game.RouteRailGauge * Math.Sin(a));
 				double cx = sx * x + ux * y;
 				double cy = sy * x + uy * y;
 				double cz = sz * x + uz * y;
@@ -825,9 +833,6 @@ namespace OpenBve {
 				Train.Cars[CarIndex].RearAxle.Follower.WorldPosition.X += cx;
 				Train.Cars[CarIndex].RearAxle.Follower.WorldPosition.Y += cy;
 				Train.Cars[CarIndex].RearAxle.Follower.WorldPosition.Z += cz;
-				Train.Cars[CarIndex].Specs.CurrentRollDueToTopplingAngle = a;
-			} else {
-				Train.Cars[CarIndex].Specs.CurrentRollDueToTopplingAngle = 0.0;
 			}
 			// apply rolling
 			{

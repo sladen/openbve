@@ -195,12 +195,13 @@ namespace OpenBve {
 							if (Interface.CurrentControls[i].Method == Interface.ControlMethod.Keyboard) {
 								if (Interface.CurrentControls[i].Element == Event.key.keysym.sym & Interface.CurrentControls[i].Modifier == CurrentKeyboardModifier) {
 									Interface.CurrentControls[i].AnalogState = 1.0;
-									if (Interface.CurrentControls[i].DigitalState != Interface.DigitalControlState.PressedAcknowledged) {
-										Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Pressed;
-									}
+									//if (Interface.CurrentControls[i].DigitalState != Interface.DigitalControlState.PressedAcknowledged) {
+									Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Pressed;
+									//}
 								}
 							}
-						} break;
+						}
+						break;
 						// key up
 					case Sdl.SDL_KEYUP:
 						if (Event.key.keysym.sym == Sdl.SDLK_LSHIFT | Event.key.keysym.sym == Sdl.SDLK_RSHIFT) CurrentKeyboardModifier &= ~Interface.KeyboardModifier.Shift;
@@ -210,12 +211,13 @@ namespace OpenBve {
 							if (Interface.CurrentControls[i].Method == Interface.ControlMethod.Keyboard) {
 								if (Interface.CurrentControls[i].Element == Event.key.keysym.sym) {
 									Interface.CurrentControls[i].AnalogState = 0.0;
-									if (Interface.CurrentControls[i].DigitalState != Interface.DigitalControlState.ReleasedAcknowledged) {
-										Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Released;
-									}
+									//if (Interface.CurrentControls[i].DigitalState != Interface.DigitalControlState.ReleasedAcknowledged) {
+									Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Released;
+									//}
 								}
 							}
-						} break;
+						}
+						break;
 						// joystick button down
 					case Sdl.SDL_JOYBUTTONDOWN:
 						if (Interface.CurrentOptions.UseJoysticks) {

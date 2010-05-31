@@ -205,6 +205,7 @@ namespace OpenBve {
 			internal double BlockInterval;
 			internal double UnitOfSpeed;
 			internal bool AccurateObjectDisposal;
+			internal bool SignedCant;
 			internal bool FogTransitionMode;
 			internal StructureData Structure;
 			internal SignalData[] SignalData;
@@ -1394,6 +1395,19 @@ namespace OpenBve {
 											ValueBasedSections = a == 1;
 										}
 									} break;
+								case "options.cantbehavior":
+									if (Arguments.Length < 1) {
+										Interface.AddMessage(Interface.MessageType.Error, false, Command + " is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+									} else {
+										int a;
+										if (!Interface.TryParseIntVb6(Arguments[0], out a)) {
+											Interface.AddMessage(Interface.MessageType.Error, false, "Mode is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+										} else if (a != 0 & a != 1) {
+											Interface.AddMessage(Interface.MessageType.Error, false, "Mode is expected to be either 0 or 1 in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+										} else {
+											Data.SignedCant = a == 1;
+										}
+									} break;
 								case "options.fogbehavior":
 									if (Arguments.Length < 1) {
 										Interface.AddMessage(Interface.MessageType.Error, false, Command + " is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
@@ -2581,6 +2595,7 @@ namespace OpenBve {
 								case "options.objectvisibility":
 								case "options.sectionbehavior":
 								case "options.fogbehavior":
+								case "options.cantbehavior":
 								case "route.comment":
 								case "route.image":
 								case "route.timetable":
@@ -2795,24 +2810,28 @@ namespace OpenBve {
 									} break;
 								case "track.curve":
 									{
-										double r = 0.0;
-										if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], UnitOfLength, out r)) {
+										double radius = 0.0;
+										if (Arguments.Length >= 1 && Arguments[0].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[0], UnitOfLength, out radius)) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "Radius is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
-											r = 0.0;
+											radius = 0.0;
 										}
-										double c = 0.0;
-										if (Arguments.Length >= 2 && Arguments[1].Length > 1 && !Interface.TryParseDoubleVb6(Arguments[1], out c)) {
+										double cant = 0.0;
+										if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseDoubleVb6(Arguments[1], out cant)) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "CantInMillimeters is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
-											c = 0.0;
-										}
-										c *= 0.001;
-										if (r >= -0.0001 & r <= 0.0001) {
-											Data.Blocks[BlockIndex].CurrentTrackState.CurveRadius = 0.0;
-											Data.Blocks[BlockIndex].CurrentTrackState.CurveCant = 0.0;
+											cant = 0.0;
 										} else {
-											Data.Blocks[BlockIndex].CurrentTrackState.CurveRadius = r;
-											Data.Blocks[BlockIndex].CurrentTrackState.CurveCant = Math.Abs(c) * Math.Sign(r);
+											cant *= 0.001;
 										}
+										if (Data.SignedCant) {
+											if (radius != 0.0) {
+												cant *= (double)Math.Sign(radius);
+											}
+										} else {
+											cant = Math.Abs(cant) * (double)Math.Sign(radius);
+										}
+										Data.Blocks[BlockIndex].CurrentTrackState.CurveRadius = radius;
+										Data.Blocks[BlockIndex].CurrentTrackState.CurveCant = cant;
+										Data.Blocks[BlockIndex].CurrentTrackState.CurveCantTangent = 0.0;
 									} break;
 								case "track.turn":
 									{
@@ -5731,27 +5750,12 @@ namespace OpenBve {
 				if (TrackManager.CurrentTrack.Elements[i].CurveCant == 0.0) {
 					TrackManager.CurrentTrack.Elements[i].CurveCant = TrackManager.CurrentTrack.Elements[i - 1].CurveCant;
 				} else if (TrackManager.CurrentTrack.Elements[i - 1].CurveCant != 0.0) {
-					if (TrackManager.CurrentTrack.Elements[i].CurveCant * TrackManager.CurrentTrack.Elements[i - 1].CurveCant > 0.0) {
+					if (Math.Sign(TrackManager.CurrentTrack.Elements[i - 1].CurveCant) == Math.Sign(TrackManager.CurrentTrack.Elements[i].CurveCant)) {
 						if (Math.Abs(TrackManager.CurrentTrack.Elements[i - 1].CurveCant) > Math.Abs(TrackManager.CurrentTrack.Elements[i].CurveCant)) {
 							TrackManager.CurrentTrack.Elements[i].CurveCant = TrackManager.CurrentTrack.Elements[i - 1].CurveCant;
 						}
 					} else {
 						TrackManager.CurrentTrack.Elements[i].CurveCant = 0.5 * (TrackManager.CurrentTrack.Elements[i].CurveCant + TrackManager.CurrentTrack.Elements[i - 1].CurveCant);
-					}
-				}
-			}
-			for (int i = 0; i < CurrentTrackLength - 1; i++) {
-				if (TrackManager.CurrentTrack.Elements[i].CurveCant == 0.0) {
-					if (TrackManager.CurrentTrack.Elements[i + 1].CurveCant != 0.0) {
-						TrackManager.CurrentTrack.Elements[i].CurveCantInterpolation = TrackManager.CantInterpolationMode.BiasBackward;
-					}
-				} else if (TrackManager.CurrentTrack.Elements[i + 1].CurveCant == 0.0) {
-					TrackManager.CurrentTrack.Elements[i].CurveCantInterpolation = TrackManager.CantInterpolationMode.BiasForward;
-				} else if (TrackManager.CurrentTrack.Elements[i].CurveCant * TrackManager.CurrentTrack.Elements[i + 1].CurveCant > 0) {
-					if (Math.Abs(TrackManager.CurrentTrack.Elements[i].CurveCant) < Math.Abs(TrackManager.CurrentTrack.Elements[i + 1].CurveCant)) {
-						TrackManager.CurrentTrack.Elements[i].CurveCantInterpolation = TrackManager.CantInterpolationMode.BiasBackward;
-					} else if (Math.Abs(TrackManager.CurrentTrack.Elements[i].CurveCant) > Math.Abs(TrackManager.CurrentTrack.Elements[i + 1].CurveCant)) {
-						TrackManager.CurrentTrack.Elements[i].CurveCantInterpolation = TrackManager.CantInterpolationMode.BiasForward;
 					}
 				}
 			}
@@ -5773,10 +5777,49 @@ namespace OpenBve {
 				TrackManager.CurrentTrack.Elements[n].Events[m] = new TrackManager.TrackEndEvent(Data.BlockInterval);
 			}
 			if (!PreviewOnly) {
+				ComputeCantTangents();
 				SmoothenOutTurns(4);
+				ComputeCantTangents();
 			}
 		}
 		
+		
+		// ------------------
+		
+		// compute cant tangents
+		private static void ComputeCantTangents() {
+			if (TrackManager.CurrentTrack.Elements.Length == 1) {
+				TrackManager.CurrentTrack.Elements[0].CurveCantTangent = 0.0;
+			} else if (TrackManager.CurrentTrack.Elements.Length != 0) {
+				double[] deltas = new double[TrackManager.CurrentTrack.Elements.Length - 1];
+				for (int i = 0; i < TrackManager.CurrentTrack.Elements.Length - 1; i++) {
+					deltas[i] = TrackManager.CurrentTrack.Elements[i + 1].CurveCant - TrackManager.CurrentTrack.Elements[i].CurveCant;
+				}
+				double[] tangents = new double[TrackManager.CurrentTrack.Elements.Length];
+				tangents[0] = deltas[0];
+				tangents[TrackManager.CurrentTrack.Elements.Length - 1] = deltas[TrackManager.CurrentTrack.Elements.Length - 2];
+				for (int i = 1; i < TrackManager.CurrentTrack.Elements.Length - 1; i++) {
+					tangents[i] = 0.5 * (deltas[i - 1] + deltas[i]);
+				}
+				for (int i = 0; i < TrackManager.CurrentTrack.Elements.Length - 1; i++) {
+					if (deltas[i] == 0.0) {
+						tangents[i] = 0.0;
+						tangents[i + 1] = 0.0;
+					} else {
+						double a = tangents[i] / deltas[i];
+						double b = tangents[i + 1] / deltas[i];
+						if (a * a + b * b > 9.0) {
+							double t = 3.0 / Math.Sqrt(a * a + b * b);
+							tangents[i] = t * a * deltas[i];
+							tangents[i + 1] = t * b * deltas[i];
+						}
+					}
+				}
+				for (int i = 0; i < TrackManager.CurrentTrack.Elements.Length; i++) {
+					TrackManager.CurrentTrack.Elements[i].CurveCantTangent = tangents[i];
+				}
+			}
+		}
 		
 		// ------------------
 		
@@ -5802,7 +5845,7 @@ namespace OpenBve {
 					TrackManager.TrackFollower follower = new TrackManager.TrackFollower();
 					double r = (double)m / (double)subdivisions;
 					double p = (1.0 - r) * TrackManager.CurrentTrack.Elements[q].StartingTrackPosition + r * TrackManager.CurrentTrack.Elements[q + 1].StartingTrackPosition;
-					double c = (1.0 - r) * TrackManager.CurrentTrack.Elements[q].CurveCant + r * TrackManager.CurrentTrack.Elements[q + 1].CurveCant;
+					//double c = (1.0 - r) * TrackManager.CurrentTrack.Elements[q].CurveCantX + r * TrackManager.CurrentTrack.Elements[q + 1].CurveCantX;
 					TrackManager.UpdateTrackFollower(ref follower, -1.0, true, false);
 					TrackManager.UpdateTrackFollower(ref follower, p, true, false);
 					midpointsTrackPositions[i] = p;
@@ -5810,7 +5853,7 @@ namespace OpenBve {
 					midpointsWorldDirections[i] = follower.WorldDirection;
 					midpointsWorldUps[i] = follower.WorldUp;
 					midpointsWorldSides[i] = follower.WorldSide;
-					midpointsCant[i] = c;
+					midpointsCant[i] = follower.CurveCant;
 				}
 			}
 			Array.Resize<TrackManager.TrackElement>(ref TrackManager.CurrentTrack.Elements, newLength);
@@ -5900,8 +5943,8 @@ namespace OpenBve {
 							TrackManager.UpdateTrackFollower(ref follower, p - 1.0, true, false);
 							TrackManager.UpdateTrackFollower(ref follower, p, true, false);
 							TrackManager.CurrentTrack.Elements[i].CurveRadius = r;
-							TrackManager.CurrentTrack.Elements[i].CurveCant = TrackManager.CurrentTrack.Elements[i].CurveCant;
-							TrackManager.CurrentTrack.Elements[i].CurveCantInterpolation = TrackManager.CurrentTrack.Elements[i].CurveCantInterpolation;
+							//TrackManager.CurrentTrack.Elements[i].CurveCant = TrackManager.CurrentTrack.Elements[i].CurveCant;
+							//TrackManager.CurrentTrack.Elements[i].CurveCantInterpolation = TrackManager.CurrentTrack.Elements[i].CurveCantInterpolation;
 							TrackManager.CurrentTrack.Elements[i].WorldPosition = follower.WorldPosition;
 							TrackManager.CurrentTrack.Elements[i].WorldDirection = follower.WorldDirection;
 							TrackManager.CurrentTrack.Elements[i].WorldUp = follower.WorldUp;

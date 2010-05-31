@@ -2260,7 +2260,7 @@ namespace OpenBve {
 					"=camera",
 					"position: " + World.CameraTrackFollower.TrackPosition.ToString("0.00", Culture) + " m",
 					"curve radius: " + World.CameraTrackFollower.CurveRadius.ToString("0.00", Culture) + " m",
-					"curve cant: " + (1000.0 * World.CameraTrackFollower.CurveCant).ToString("0.00", Culture) + " mm",
+					"curve cant: " + (1000.0 * Math.Abs(World.CameraTrackFollower.CurveCant)).ToString("0.00", Culture) + " mm" + (World.CameraTrackFollower.CurveCant < 0.0 ? " (left)" : World.CameraTrackFollower.CurveCant > 0.0 ? " (right)" : ""),
 					"",
 					"=sound",
 					"sounds playing: " + soundsPlaying.ToString(Culture),
