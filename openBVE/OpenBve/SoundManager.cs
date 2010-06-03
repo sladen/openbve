@@ -499,7 +499,7 @@ namespace OpenBve {
 		}
 		internal static void StopSound(ref int SoundSourceIndex) {
 			if (OpenAlContext != IntPtr.Zero) {
-				if (SoundSourceIndex >= 0 && SoundSources[SoundSourceIndex] != null) {
+				if (SoundSourceIndex >= 0 && SoundSourceIndex < SoundSources.Length && SoundSources[SoundSourceIndex] != null) {
 					if (SoundSources[SoundSourceIndex].OpenAlSourceIndex.Valid) {
 						int i = SoundSources[SoundSourceIndex].OpenAlSourceIndex.Index;
 						Al.alSourceStop(i);
@@ -532,7 +532,7 @@ namespace OpenBve {
 		// is playing
 		internal static bool IsPlaying(int SoundSourceIndex) {
 			if (OpenAlContext != IntPtr.Zero) {
-				if (SoundSourceIndex >= 0 && SoundSources[SoundSourceIndex] != null) {
+				if (SoundSourceIndex >= 0 && SoundSourceIndex < SoundSources.Length && SoundSources[SoundSourceIndex] != null) {
 					if (SoundSources[SoundSourceIndex].Suppressed) {
 						return true;
 					} else {

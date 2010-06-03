@@ -152,7 +152,8 @@ namespace OpenBve {
 			internal double CurrentAccelerationOutput;
 			internal double CurrentRollDueToTopplingAngle;
 			internal double CurrentRollDueToCantAngle;
-			internal double CurrentRollDueToCantAngularSpeed;
+			internal double CurrentRollDueToShakingAngle;
+			internal double CurrentRollDueToShakingAngularSpeed;
 			internal double CurrentRollShakeDirection;
 			internal double CurrentPitchDueToAccelerationAngle;
 			internal double CurrentPitchDueToAccelerationAngularSpeed;
@@ -683,14 +684,14 @@ namespace OpenBve {
 				r = 0.0;
 				rs = 0.0;
 			}
-			// roll due to toppling/cant/shaking
+			// roll due to shaking
 			{
-				double a0 = Train.Cars[CarIndex].Specs.CurrentRollDueToCantAngle;
-				double a1 = Math.Atan(c / Game.RouteRailGauge);
+				double a0 = Train.Cars[CarIndex].Specs.CurrentRollDueToShakingAngle;
+				double a1;
 				if (Train.Cars[CarIndex].Specs.CurrentRollShakeDirection != 0.0) {
 					const double c0 = 0.03;
 					const double c1 = 0.15;
-					a1 += c1 * Math.Atan(c0 * Train.Cars[CarIndex].Specs.CurrentRollShakeDirection);
+					a1 = c1 * Math.Atan(c0 * Train.Cars[CarIndex].Specs.CurrentRollShakeDirection);
 					double d = 0.5 + Train.Cars[CarIndex].Specs.CurrentRollShakeDirection * Train.Cars[CarIndex].Specs.CurrentRollShakeDirection;
 					if (Train.Cars[CarIndex].Specs.CurrentRollShakeDirection < 0.0) {
 						Train.Cars[CarIndex].Specs.CurrentRollShakeDirection += d * TimeElapsed;
@@ -699,23 +700,30 @@ namespace OpenBve {
 						Train.Cars[CarIndex].Specs.CurrentRollShakeDirection -= d * TimeElapsed;
 						if (Train.Cars[CarIndex].Specs.CurrentRollShakeDirection < 0.0) Train.Cars[CarIndex].Specs.CurrentRollShakeDirection = 0.0;
 					}
+				} else {
+					a1 = 0.0;
 				}
 				double SpringAcceleration;
 				if (!Train.Cars[CarIndex].Derailed) {
 					SpringAcceleration = 15.0 * Math.Abs(a1 - a0);
 				} else {
-					SpringAcceleration = 1.0 * Math.Abs(a1 - a0);
+					SpringAcceleration = 1.5 * Math.Abs(a1 - a0);
 				}
-				double SpringDeceleration = 0.5 * SpringAcceleration;
-				Train.Cars[CarIndex].Specs.CurrentRollDueToCantAngularSpeed += (double)Math.Sign(a1 - a0) * SpringAcceleration * TimeElapsed;
-				double x = (double)Math.Sign(Train.Cars[CarIndex].Specs.CurrentRollDueToCantAngularSpeed) * SpringDeceleration * TimeElapsed;
-				if (Math.Abs(x) < Math.Abs(Train.Cars[CarIndex].Specs.CurrentRollDueToCantAngularSpeed)) {
-					Train.Cars[CarIndex].Specs.CurrentRollDueToCantAngularSpeed -= x;
+				double SpringDeceleration = 0.25 * SpringAcceleration;
+				Train.Cars[CarIndex].Specs.CurrentRollDueToShakingAngularSpeed += (double)Math.Sign(a1 - a0) * SpringAcceleration * TimeElapsed;
+				double x = (double)Math.Sign(Train.Cars[CarIndex].Specs.CurrentRollDueToShakingAngularSpeed) * SpringDeceleration * TimeElapsed;
+				if (Math.Abs(x) < Math.Abs(Train.Cars[CarIndex].Specs.CurrentRollDueToShakingAngularSpeed)) {
+					Train.Cars[CarIndex].Specs.CurrentRollDueToShakingAngularSpeed -= x;
 				} else {
-					Train.Cars[CarIndex].Specs.CurrentRollDueToCantAngularSpeed = 0.0;
+					Train.Cars[CarIndex].Specs.CurrentRollDueToShakingAngularSpeed = 0.0;
 				}
-				a0 += Train.Cars[CarIndex].Specs.CurrentRollDueToCantAngularSpeed * TimeElapsed;
-				Train.Cars[CarIndex].Specs.CurrentRollDueToCantAngle = a0;
+				a0 += Train.Cars[CarIndex].Specs.CurrentRollDueToShakingAngularSpeed * TimeElapsed;
+				Train.Cars[CarIndex].Specs.CurrentRollDueToShakingAngle = a0;
+			}
+			// roll due to cant (incorporates shaking)
+			{
+				double cantAngle = Math.Atan(c / Game.RouteRailGauge);
+				Train.Cars[CarIndex].Specs.CurrentRollDueToCantAngle = cantAngle + Train.Cars[CarIndex].Specs.CurrentRollDueToShakingAngle;
 			}
 			// pitch due to acceleration
 			{
@@ -875,20 +883,26 @@ namespace OpenBve {
 			}
 			// spring sound
 			{
-				double a = Train.Cars[CarIndex].Specs.CurrentRollDueToCantAngle;
+				double a = Train.Cars[CarIndex].Specs.CurrentRollDueToShakingAngle;
 				double diff = a - Train.Cars[CarIndex].Sounds.SpringPlayedAngle;
-				if (diff < -0.0275) {
+				//const double angleTolerance = 0.0174532925199433;
+				const double angleTolerance = 0.001;
+				if (diff < -angleTolerance) {
 					int snd = Train.Cars[CarIndex].Sounds.SpringL.SoundBufferIndex;
 					if (snd >= 0) {
-						World.Vector3D pos = Train.Cars[CarIndex].Sounds.SpringL.Position;
-						SoundManager.PlaySound(snd, Train, CarIndex, pos, SoundManager.Importance.DontCare, false);
+						if (!SoundManager.IsPlaying(Train.Cars[CarIndex].Sounds.SpringL.SoundSourceIndex)) {
+							World.Vector3D pos = Train.Cars[CarIndex].Sounds.SpringL.Position;
+							SoundManager.PlaySound(ref Train.Cars[CarIndex].Sounds.SpringL.SoundSourceIndex, snd, Train, CarIndex, pos, SoundManager.Importance.DontCare, false);
+						}
 					}
 					Train.Cars[CarIndex].Sounds.SpringPlayedAngle = a;
-				} else if (diff > 0.0275) {
+				} else if (diff > angleTolerance) {
 					int snd = Train.Cars[CarIndex].Sounds.SpringR.SoundBufferIndex;
 					if (snd >= 0) {
-						World.Vector3D pos = Train.Cars[CarIndex].Sounds.SpringR.Position;
-						SoundManager.PlaySound(snd, Train, CarIndex, pos, SoundManager.Importance.DontCare, false);
+						if (!SoundManager.IsPlaying(Train.Cars[CarIndex].Sounds.SpringR.SoundSourceIndex)) {
+							World.Vector3D pos = Train.Cars[CarIndex].Sounds.SpringR.Position;
+							SoundManager.PlaySound(ref Train.Cars[CarIndex].Sounds.SpringR.SoundSourceIndex, snd, Train, CarIndex, pos, SoundManager.Importance.DontCare, false);
+						}
 					}
 					Train.Cars[CarIndex].Sounds.SpringPlayedAngle = a;
 				}

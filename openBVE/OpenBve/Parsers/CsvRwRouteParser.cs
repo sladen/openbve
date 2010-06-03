@@ -2797,6 +2797,11 @@ namespace OpenBve {
 											Interface.AddMessage(Interface.MessageType.Error, false, "Value is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 											r = 2.0;
 										}
+										if (r < 0.0) {
+											r = 0.0;
+										} else if (r > 8.0) {
+											r = 8.0;
+										}
 										Data.Blocks[BlockIndex].Accuracy = r;
 									} break;
 								case "track.pitch":
@@ -4732,8 +4737,8 @@ namespace OpenBve {
 				World.Cross(TrackManager.CurrentTrack.Elements[n].WorldDirection.X, TrackManager.CurrentTrack.Elements[n].WorldDirection.Y, TrackManager.CurrentTrack.Elements[n].WorldDirection.Z, TrackManager.CurrentTrack.Elements[n].WorldSide.X, TrackManager.CurrentTrack.Elements[n].WorldSide.Y, TrackManager.CurrentTrack.Elements[n].WorldSide.Z, out TrackManager.CurrentTrack.Elements[n].WorldUp.X, out TrackManager.CurrentTrack.Elements[n].WorldUp.Y, out TrackManager.CurrentTrack.Elements[n].WorldUp.Z);
 				TrackManager.CurrentTrack.Elements[n].StartingTrackPosition = StartingDistance;
 				TrackManager.CurrentTrack.Elements[n].Events = new TrackManager.GeneralEvent[] { };
-				TrackManager.CurrentTrack.Elements[n].Inaccuracy = 0.5 * (Math.Tanh(0.2 * Data.Blocks[i].Accuracy - 2.3) + 1);
 				TrackManager.CurrentTrack.Elements[n].AdhesionMultiplier = Data.Blocks[i].AdhesionMultiplier;
+				TrackManager.CurrentTrack.Elements[n].CsvRwAccuracyLevel = Data.Blocks[i].Accuracy;
 				// background
 				if (!PreviewOnly) {
 					if (Data.Blocks[i].Background >= 0) {
@@ -5778,14 +5783,68 @@ namespace OpenBve {
 			}
 			if (!PreviewOnly) {
 				ComputeCantTangents();
-				SmoothenOutTurns(4);
-				ComputeCantTangents();
+				int subdivisions = (int)Math.Floor(Data.BlockInterval / 5.0);
+				if (subdivisions >= 2) {
+					SmoothenOutTurns(subdivisions);
+					ComputeCantTangents();
+				}
+				AssignTrackInaccuracy();
 			}
 		}
 		
+		// ------------------
+
+		// assign track inaccuracy
+		private static void AssignTrackInaccuracy() {
+			Random inaccuracyGenerator = new Random(1);
+			double lastPosition = -100000.0;
+			int lastIndex = -1;
+			for (int i = 0; i < TrackManager.CurrentTrack.Elements.Length; i++) {
+				double accuracy = TrackManager.CurrentTrack.Elements[i].CsvRwAccuracyLevel;
+				if (accuracy > 0.0) {
+					double delta = TrackManager.CurrentTrack.Elements[i].StartingTrackPosition - lastPosition;
+					double interval = 125.0 / (accuracy + 1.0);
+					if (delta >= interval) {
+						double fx = 0.015 * accuracy;
+						TrackManager.CurrentTrack.Elements[i].InaccuracyOffsetX = fx * (2.0 * inaccuracyGenerator.NextDouble() - 1.0) * Game.RouteRailGauge;
+						double fy = 0.010 * accuracy;
+						TrackManager.CurrentTrack.Elements[i].InaccuracyOffsetY = fy * (2.0 * inaccuracyGenerator.NextDouble() - 1.0) * Game.RouteRailGauge;
+						double fc = 0.010 * accuracy;
+						TrackManager.CurrentTrack.Elements[i].InaccuracyCant = fc * (2.0 * inaccuracyGenerator.NextDouble() - 1.0) * Game.RouteRailGauge;
+						for (int j = lastIndex + 1; j < i; j++) {
+							double t =
+								(TrackManager.CurrentTrack.Elements[j].StartingTrackPosition - TrackManager.CurrentTrack.Elements[lastIndex].StartingTrackPosition) /
+								(TrackManager.CurrentTrack.Elements[i].StartingTrackPosition - TrackManager.CurrentTrack.Elements[lastIndex].StartingTrackPosition);
+							TrackManager.CurrentTrack.Elements[j].InaccuracyOffsetX = (1.0 - t) * TrackManager.CurrentTrack.Elements[lastIndex].InaccuracyOffsetX + t * TrackManager.CurrentTrack.Elements[i].InaccuracyOffsetX;
+							TrackManager.CurrentTrack.Elements[j].InaccuracyOffsetY = (1.0 - t) * TrackManager.CurrentTrack.Elements[lastIndex].InaccuracyOffsetY + t * TrackManager.CurrentTrack.Elements[i].InaccuracyOffsetY;
+							TrackManager.CurrentTrack.Elements[j].InaccuracyCant = (1.0 - t) * TrackManager.CurrentTrack.Elements[lastIndex].InaccuracyCant + t * TrackManager.CurrentTrack.Elements[i].InaccuracyCant;
+						}
+						lastPosition += interval * Math.Floor((TrackManager.CurrentTrack.Elements[i].StartingTrackPosition - lastPosition) / interval);
+						lastIndex = i;
+					} else {
+						TrackManager.CurrentTrack.Elements[i].InaccuracyOffsetX = 0.0;
+						TrackManager.CurrentTrack.Elements[i].InaccuracyOffsetY = 0.0;
+						TrackManager.CurrentTrack.Elements[i].InaccuracyCant = 0.0;
+					}
+				} else {
+					TrackManager.CurrentTrack.Elements[i].InaccuracyOffsetX = 0.0;
+					TrackManager.CurrentTrack.Elements[i].InaccuracyOffsetY = 0.0;
+					TrackManager.CurrentTrack.Elements[i].InaccuracyCant = 0.0;
+					lastPosition = TrackManager.CurrentTrack.Elements[i].StartingTrackPosition;
+					lastIndex = i;
+				}
+			}
+			if (lastIndex >= 0) {
+				for (int i = lastIndex + 1; i < TrackManager.CurrentTrack.Elements.Length; i++) {
+					TrackManager.CurrentTrack.Elements[i].InaccuracyOffsetX = TrackManager.CurrentTrack.Elements[lastIndex].InaccuracyOffsetX;
+					TrackManager.CurrentTrack.Elements[i].InaccuracyOffsetY = TrackManager.CurrentTrack.Elements[lastIndex].InaccuracyOffsetY;
+					TrackManager.CurrentTrack.Elements[i].InaccuracyCant = TrackManager.CurrentTrack.Elements[lastIndex].InaccuracyCant;
+				}
+			}
+		}
 		
 		// ------------------
-		
+
 		// compute cant tangents
 		private static void ComputeCantTangents() {
 			if (TrackManager.CurrentTrack.Elements.Length == 1) {
@@ -5838,6 +5897,9 @@ namespace OpenBve {
 			World.Vector3D[] midpointsWorldUps = new World.Vector3D[newLength];
 			World.Vector3D[] midpointsWorldSides = new World.Vector3D[newLength];
 			double[] midpointsCant = new double[newLength];
+			double[] midpointsInaccuracyOffsetX = new double[newLength];
+			double[] midpointsInaccuracyOffsetY = new double[newLength];
+			double[] midpointsInaccuracyCant = new double[newLength];
 			for (int i = 0; i < newLength; i++) {
 				int m = i % subdivisions;
 				if (m != 0) {
@@ -5845,7 +5907,6 @@ namespace OpenBve {
 					TrackManager.TrackFollower follower = new TrackManager.TrackFollower();
 					double r = (double)m / (double)subdivisions;
 					double p = (1.0 - r) * TrackManager.CurrentTrack.Elements[q].StartingTrackPosition + r * TrackManager.CurrentTrack.Elements[q + 1].StartingTrackPosition;
-					//double c = (1.0 - r) * TrackManager.CurrentTrack.Elements[q].CurveCantX + r * TrackManager.CurrentTrack.Elements[q + 1].CurveCantX;
 					TrackManager.UpdateTrackFollower(ref follower, -1.0, true, false);
 					TrackManager.UpdateTrackFollower(ref follower, p, true, false);
 					midpointsTrackPositions[i] = p;
@@ -5854,6 +5915,9 @@ namespace OpenBve {
 					midpointsWorldUps[i] = follower.WorldUp;
 					midpointsWorldSides[i] = follower.WorldSide;
 					midpointsCant[i] = follower.CurveCant;
+					midpointsInaccuracyOffsetX[i] = (1.0 - r) * TrackManager.CurrentTrack.Elements[q].InaccuracyOffsetX + r * TrackManager.CurrentTrack.Elements[q + 1].InaccuracyOffsetX;
+					midpointsInaccuracyOffsetY[i] = (1.0 - r) * TrackManager.CurrentTrack.Elements[q].InaccuracyOffsetY + r * TrackManager.CurrentTrack.Elements[q + 1].InaccuracyOffsetY;
+					midpointsInaccuracyCant[i] = (1.0 - r) * TrackManager.CurrentTrack.Elements[q].InaccuracyCant + r * TrackManager.CurrentTrack.Elements[q + 1].InaccuracyCant;
 				}
 			}
 			Array.Resize<TrackManager.TrackElement>(ref TrackManager.CurrentTrack.Elements, newLength);
@@ -5873,6 +5937,10 @@ namespace OpenBve {
 					TrackManager.CurrentTrack.Elements[i].WorldUp = midpointsWorldUps[i];
 					TrackManager.CurrentTrack.Elements[i].WorldSide = midpointsWorldSides[i];
 					TrackManager.CurrentTrack.Elements[i].CurveCant = midpointsCant[i];
+					TrackManager.CurrentTrack.Elements[i].CurveCantTangent = 0.0;
+					TrackManager.CurrentTrack.Elements[i].InaccuracyOffsetX = midpointsInaccuracyOffsetX[i];
+					TrackManager.CurrentTrack.Elements[i].InaccuracyOffsetY = midpointsInaccuracyOffsetY[i];
+					TrackManager.CurrentTrack.Elements[i].InaccuracyCant = midpointsInaccuracyCant[i];
 				}
 			}
 			// find turns

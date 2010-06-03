@@ -626,24 +626,31 @@ namespace OpenBve {
 			internal double CurveRadius;
 			internal double CurveCant;
 			internal double CurveCantTangent;
-			internal double Inaccuracy;
 			internal double AdhesionMultiplier;
+			/// <summary>Only used to carry intermediate information during the route loading stage. The runtime information is stored in the InaccuracyXXX fields.</summary>
+			internal double CsvRwAccuracyLevel;
 			internal World.Vector3D WorldPosition;
 			internal World.Vector3D WorldDirection;
 			internal World.Vector3D WorldUp;
 			internal World.Vector3D WorldSide;
+			internal double InaccuracyOffsetX;
+			internal double InaccuracyOffsetY;
+			internal double InaccuracyCant;
 			internal GeneralEvent[] Events;
 			internal TrackElement(double StartingTrackPosition) {
 				this.StartingTrackPosition = StartingTrackPosition;
 				this.CurveRadius = 0.0;
 				this.CurveCant = 0.0;
 				this.CurveCantTangent = 0.0;
-				this.Inaccuracy = 0.0;
 				this.AdhesionMultiplier = 1.0;
+				this.CsvRwAccuracyLevel = 2.0;
 				this.WorldPosition = new World.Vector3D(0.0, 0.0, 0.0);
 				this.WorldDirection = new World.Vector3D(0.0, 0.0, 1.0);
 				this.WorldUp = new World.Vector3D(0.0, 1.0, 0.0);
 				this.WorldSide = new World.Vector3D(1.0, 0.0, 0.0);
+				this.InaccuracyOffsetX = 0.0;
+				this.InaccuracyOffsetY = 0.0;
+				this.InaccuracyCant = 0.0;
 				this.Events = new GeneralEvent[] { };
 			}
 		}
@@ -743,7 +750,7 @@ namespace OpenBve {
 						}
 						double t2 = t * t;
 						double t3 = t2 * t;
-						Follower.CurveCant = 
+						Follower.CurveCant =
 							(2.0 * t3 - 3.0 * t2 + 1.0) * CurrentTrack.Elements[i].CurveCant +
 							(t3 - 2.0 * t2 + t) * CurrentTrack.Elements[i].CurveCantTangent +
 							(-2.0 * t3 + 3.0 * t2) * CurrentTrack.Elements[i + 1].CurveCant +
@@ -775,7 +782,7 @@ namespace OpenBve {
 						}
 						double t2 = t * t;
 						double t3 = t2 * t;
-						Follower.CurveCant = 
+						Follower.CurveCant =
 							(2.0 * t3 - 3.0 * t2 + 1.0) * CurrentTrack.Elements[i].CurveCant +
 							(t3 - 2.0 * t2 + t) * CurrentTrack.Elements[i].CurveCantTangent +
 							(-2.0 * t3 + 3.0 * t2) * CurrentTrack.Elements[i + 1].CurveCant +
@@ -791,22 +798,37 @@ namespace OpenBve {
 			Follower.AdhesionMultiplier = CurrentTrack.Elements[i].AdhesionMultiplier;
 			// inaccuracy
 			if (AddTrackInaccurary) {
-				// x
-				double f = NewTrackPosition;
-				f = 0.02 * Math.Sin(0.4843 * f) + 0.12 * Math.Sin(0.1246 * f) + 0.08 * Math.Sin(0.0974 * f);
-				f *= CurrentTrack.Elements[i].Inaccuracy;
-				// y
-				double g = NewTrackPosition;
-				g = 0.02 * Math.Sin(0.4172 * g) + 0.04 * Math.Sin(0.2251 * g) + 0.10 * Math.Sin(0.1156 * g);
-				g *= CurrentTrack.Elements[i].Inaccuracy;
-				// x & y
-				Follower.WorldPosition.X += f * Follower.WorldSide.X + g * Follower.WorldUp.X;
-				Follower.WorldPosition.Y += f * Follower.WorldSide.Y + g * Follower.WorldUp.Y;
-				Follower.WorldPosition.Z += f * Follower.WorldSide.Z + g * Follower.WorldUp.Z;
-				// cant
-				double h = NewTrackPosition;
-				h = 0.06 * Math.Sin(0.3196 * h) + 0.14 * Math.Sin(0.7211 * h) + 0.21 * Math.Sin(0.3932 * h);
-				Follower.CurveCant += h * CurrentTrack.Elements[i].Inaccuracy;
+//				// x
+//				double f = NewTrackPosition;
+//				f = 0.02 * Math.Sin(0.4843 * f) + 0.12 * Math.Sin(0.1246 * f) + 0.08 * Math.Sin(0.0974 * f);
+//				f *= CurrentTrack.Elements[i].Inaccuracy;
+//				// y
+//				double g = NewTrackPosition;
+//				g = 0.02 * Math.Sin(0.4172 * g) + 0.04 * Math.Sin(0.2251 * g) + 0.10 * Math.Sin(0.1156 * g);
+//				g *= CurrentTrack.Elements[i].Inaccuracy;
+//				// x & y
+//				Follower.WorldPosition.X += f * Follower.WorldSide.X + g * Follower.WorldUp.X;
+//				Follower.WorldPosition.Y += f * Follower.WorldSide.Y + g * Follower.WorldUp.Y;
+//				Follower.WorldPosition.Z += f * Follower.WorldSide.Z + g * Follower.WorldUp.Z;
+//				// cant
+//				double h = NewTrackPosition;
+//				h = 0.06 * Math.Sin(0.3196 * h) + 0.14 * Math.Sin(0.7211 * h) + 0.21 * Math.Sin(0.3932 * h);
+//				Follower.CurveCant += h * CurrentTrack.Elements[i].Inaccuracy;\
+				if (i < CurrentTrack.Elements.Length - 1) {
+					double t = db / (CurrentTrack.Elements[i + 1].StartingTrackPosition - CurrentTrack.Elements[i].StartingTrackPosition);
+					if (t < 0.0) {
+						t = 0.0;
+					} else if (t > 1.0) {
+						t = 1.0;
+					}
+					double x = (1.0 - t) * CurrentTrack.Elements[i].InaccuracyOffsetX + t * CurrentTrack.Elements[i + 1].InaccuracyOffsetX;
+					double y = (1.0 - t) * CurrentTrack.Elements[i].InaccuracyOffsetY + t * CurrentTrack.Elements[i + 1].InaccuracyOffsetY;
+					double c = (1.0 - t) * CurrentTrack.Elements[i].InaccuracyCant + t * CurrentTrack.Elements[i + 1].InaccuracyCant;
+					Follower.WorldPosition.X += x * Follower.WorldSide.X + y * Follower.WorldUp.X;
+					Follower.WorldPosition.Y += x * Follower.WorldSide.Y + y * Follower.WorldUp.Y;
+					Follower.WorldPosition.Z += x * Follower.WorldSide.Z + y * Follower.WorldUp.Z;
+					Follower.CurveCant += c;
+				}				
 			}
 			// events
 			CheckEvents(ref Follower, i, Math.Sign(db - da), da, db);

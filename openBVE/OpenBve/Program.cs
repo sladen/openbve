@@ -290,7 +290,9 @@ namespace OpenBve {
 				// create window
 				Sdl.SDL_WM_SetCaption(Application.ProductName, null);
 				if (Interface.CurrentOptions.KeyRepeatDelay > 0 & Interface.CurrentOptions.KeyRepeatInterval > 0) {
-					Sdl.SDL_EnableKeyRepeat(Interface.CurrentOptions.KeyRepeatDelay, Interface.CurrentOptions.KeyRepeatInterval);
+					int sdlDelay = Math.Max(1, Interface.CurrentOptions.KeyRepeatDelay - Interface.CurrentOptions.KeyRepeatInterval);
+					int sdlInterval = Interface.CurrentOptions.KeyRepeatInterval;
+					Sdl.SDL_EnableKeyRepeat(sdlDelay, sdlInterval);
 				}
 				// anisotropic filtering
 				string[] Extensions = Gl.glGetString(Gl.GL_EXTENSIONS).Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
