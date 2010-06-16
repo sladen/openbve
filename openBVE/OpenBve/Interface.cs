@@ -128,8 +128,8 @@ namespace OpenBve {
 			internal bool BlackBox;
 			internal bool UseJoysticks;
 			internal double JoystickAxisThreshold;
-			internal int KeyRepeatDelay;
-			internal int KeyRepeatInterval;
+			internal double KeyRepeatDelay;
+			internal double KeyRepeatInterval;
 			internal bool UseSound;
 			internal SoundRange SoundRange;
 			internal int SoundNumber;
@@ -168,8 +168,8 @@ namespace OpenBve {
 				this.BlackBox = false;
 				this.UseJoysticks = true;
 				this.JoystickAxisThreshold = 0.0;
-				this.KeyRepeatDelay = 500;
-				this.KeyRepeatInterval = 100;
+				this.KeyRepeatDelay = 0.5;
+				this.KeyRepeatInterval = 0.1;
 				this.UseSound = true;
 				this.SoundRange = SoundRange.Low;
 				this.SoundNumber = 16;
@@ -357,12 +357,14 @@ namespace OpenBve {
 										case "keyrepeatdelay":
 											{
 												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
-												Interface.CurrentOptions.KeyRepeatDelay = a;
+												if (a <= 0) a = 500;
+												Interface.CurrentOptions.KeyRepeatDelay = 0.001 * (double)a;
 											} break;
 										case "keyrepeatinterval":
 											{
 												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
-												Interface.CurrentOptions.KeyRepeatInterval = a;
+												if (a <= 0) a = 100;
+												Interface.CurrentOptions.KeyRepeatInterval = 0.001 * (double)a;
 											} break;
 									} break;
 								case "sound":
@@ -540,8 +542,8 @@ namespace OpenBve {
 			Builder.AppendLine("[controls]");
 			Builder.AppendLine("usejoysticks = " + (CurrentOptions.UseJoysticks ? "true" : "false"));
 			Builder.AppendLine("joystickaxisthreshold = " + CurrentOptions.JoystickAxisThreshold.ToString(Culture));
-			Builder.AppendLine("keyrepeatdelay = " + CurrentOptions.KeyRepeatDelay.ToString(Culture));
-			Builder.AppendLine("keyrepeatinterval = " + CurrentOptions.KeyRepeatInterval.ToString(Culture));
+			Builder.AppendLine("keyrepeatdelay = " + (1000.0 * CurrentOptions.KeyRepeatDelay).ToString("0", Culture));
+			Builder.AppendLine("keyrepeatinterval = " + (1000.0 * CurrentOptions.KeyRepeatInterval).ToString("0", Culture));
 			Builder.AppendLine();
 			Builder.AppendLine("[sound]");
 			Builder.AppendLine("usesound = " + (CurrentOptions.UseSound ? "true" : "false"));

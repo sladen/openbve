@@ -1000,6 +1000,12 @@ namespace OpenBve {
 			Function.LastResult = Function.Stack[s - 1];
 		}
 
+		// get postfix notation from infix notation
+		internal static string GetPostfixNotationFromInfixNotation(string Expression) {
+			string Function = GetFunctionNotationFromInfixNotation(Expression, true);
+			return GetPostfixNotationFromFunctionNotation(Function);
+		}
+		
 		// get function script from infix notation
 		internal static FunctionScript GetFunctionScriptFromInfixNotation(string Expression) {
 			string Function = GetFunctionNotationFromInfixNotation(Expression, true);

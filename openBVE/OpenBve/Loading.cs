@@ -66,9 +66,10 @@ namespace OpenBve {
 					return Subfolder;
 				}
 				System.IO.DirectoryInfo Info = System.IO.Directory.GetParent(Folder);
-				if (Info == null) return null;
+				if (Info == null) break;
 				Folder = Info.FullName;
 			}
+			return null;
 		}
 
 		// load threaded

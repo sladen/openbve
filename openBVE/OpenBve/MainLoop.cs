@@ -63,10 +63,13 @@ namespace OpenBve {
 				CheckForOpenGlError("MainLoop");
 				#endif
 				// timer
+				double RealTimeElapsed;
 				double TimeElapsed;
 				if (Game.SecondsSinceMidnight >= Game.StartupTime) {
-					TimeElapsed = Timers.GetElapsedTime() * (double)TimeFactor;
+					RealTimeElapsed = Timers.GetElapsedTime();
+					TimeElapsed = RealTimeElapsed * (double)TimeFactor;
 				} else {
+					RealTimeElapsed = 0.0;
 					TimeElapsed = Game.StartupTime - Game.SecondsSinceMidnight;
 				}
 				TotalTimeElapsedForInfo += TimeElapsed;
@@ -79,11 +82,12 @@ namespace OpenBve {
 					TotalTimeElapsedForSectionUpdate = 0.0;
 				}
 				if (TotalTimeElapsedForInfo >= 0.2) {
-					Game.InfoFrameRate = (double)TotalFramesElapsed / TotalTimeElapsedForInfo;
+					Game.InfoFrameRate = (double)TimeFactor * (double)TotalFramesElapsed / TotalTimeElapsedForInfo;
 					TotalTimeElapsedForInfo = 0.0;
 					TotalFramesElapsed = 0;
 				}
 				// events
+				UpdateControlRepeats(RealTimeElapsed);
 				ProcessEvents();
 				World.CameraAlignmentDirection = new World.CameraAlignment();
 				World.UpdateMouseGrab(TimeElapsed);
@@ -142,6 +146,7 @@ namespace OpenBve {
 				Game.UpdateBlackBox();
 				// pause/menu
 				while (Game.CurrentInterface != Game.InterfaceType.Normal) {
+					UpdateControlRepeats(RealTimeElapsed);
 					ProcessEvents();
 					ProcessControls(0.0);
 					if (Quit) break;
@@ -169,6 +174,45 @@ namespace OpenBve {
 
 		// --------------------------------
 
+		// repeats
+		private struct ControlRepeat {
+			internal int ControlIndex;
+			internal double Countdown;
+			internal ControlRepeat(int controlIndex, double countdown) {
+				this.ControlIndex = controlIndex;
+				this.Countdown = countdown;
+			}
+		}
+		private static ControlRepeat[] RepeatControls = new ControlRepeat[16];
+		private static int RepeatControlsUsed = 0;
+		private static void AddControlRepeat(int controlIndex) {
+			if (RepeatControls.Length == RepeatControlsUsed) {
+				Array.Resize<ControlRepeat>(ref RepeatControls, RepeatControls.Length << 1);
+			}
+			RepeatControls[RepeatControlsUsed] = new ControlRepeat(controlIndex, Interface.CurrentOptions.KeyRepeatDelay);
+			RepeatControlsUsed++;
+		}
+		private static void RemoveControlRepeat(int controlIndex) {
+			for (int i = 0; i < RepeatControlsUsed; i++) {
+				if (RepeatControls[i].ControlIndex == controlIndex) {
+					RepeatControls[i] = RepeatControls[RepeatControlsUsed - 1];
+					RepeatControlsUsed--;
+					break;
+				}
+			}
+		}
+		private static void UpdateControlRepeats(double timeElapsed) {
+			for (int i = 0; i < RepeatControlsUsed; i++) {
+				RepeatControls[i].Countdown -= timeElapsed;
+				if (RepeatControls[i].Countdown <= 0.0) {
+					int j = RepeatControls[i].ControlIndex;
+					Interface.CurrentControls[j].AnalogState = 1.0;
+					Interface.CurrentControls[j].DigitalState = Interface.DigitalControlState.Pressed;
+					RepeatControls[i].Countdown += Interface.CurrentOptions.KeyRepeatInterval;
+				}
+			}
+		}
+		
 		// process events
 		private static Interface.KeyboardModifier CurrentKeyboardModifier = Interface.KeyboardModifier.None;
 		private static void ProcessEvents() {
@@ -195,9 +239,8 @@ namespace OpenBve {
 							if (Interface.CurrentControls[i].Method == Interface.ControlMethod.Keyboard) {
 								if (Interface.CurrentControls[i].Element == Event.key.keysym.sym & Interface.CurrentControls[i].Modifier == CurrentKeyboardModifier) {
 									Interface.CurrentControls[i].AnalogState = 1.0;
-									//if (Interface.CurrentControls[i].DigitalState != Interface.DigitalControlState.PressedAcknowledged) {
 									Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Pressed;
-									//}
+									AddControlRepeat(i);
 								}
 							}
 						}
@@ -211,9 +254,8 @@ namespace OpenBve {
 							if (Interface.CurrentControls[i].Method == Interface.ControlMethod.Keyboard) {
 								if (Interface.CurrentControls[i].Element == Event.key.keysym.sym) {
 									Interface.CurrentControls[i].AnalogState = 0.0;
-									//if (Interface.CurrentControls[i].DigitalState != Interface.DigitalControlState.ReleasedAcknowledged) {
 									Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Released;
-									//}
+									RemoveControlRepeat(i);
 								}
 							}
 						}
@@ -227,6 +269,7 @@ namespace OpenBve {
 										if (Interface.CurrentControls[i].Device == (int)Event.jbutton.which & Interface.CurrentControls[i].Element == (int)Event.jbutton.button) {
 											Interface.CurrentControls[i].AnalogState = 1.0;
 											Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Pressed;
+											AddControlRepeat(i);
 										}
 									}
 								}
@@ -241,6 +284,7 @@ namespace OpenBve {
 										if (Interface.CurrentControls[i].Device == (int)Event.jbutton.which & Interface.CurrentControls[i].Element == (int)Event.jbutton.button) {
 											Interface.CurrentControls[i].AnalogState = 0.0;
 											Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Released;
+											RemoveControlRepeat(i);
 										}
 									}
 								}
@@ -1312,7 +1356,7 @@ namespace OpenBve {
 										break;
 									case Interface.Command.TimetableToggle:
 										// option: timetable
-										if (Timetable.CustomTrainIndex >= 0) {
+										if (Timetable.CustomObjectsUsed != 0) {
 											if (Timetable.CustomVisible) {
 												Timetable.CustomVisible = false;
 												Renderer.OptionTimetable = true;

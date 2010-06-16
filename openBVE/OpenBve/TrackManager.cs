@@ -633,9 +633,6 @@ namespace OpenBve {
 			internal World.Vector3D WorldDirection;
 			internal World.Vector3D WorldUp;
 			internal World.Vector3D WorldSide;
-			internal double InaccuracyOffsetX;
-			internal double InaccuracyOffsetY;
-			internal double InaccuracyCant;
 			internal GeneralEvent[] Events;
 			internal TrackElement(double StartingTrackPosition) {
 				this.StartingTrackPosition = StartingTrackPosition;
@@ -648,9 +645,6 @@ namespace OpenBve {
 				this.WorldDirection = new World.Vector3D(0.0, 0.0, 1.0);
 				this.WorldUp = new World.Vector3D(0.0, 1.0, 0.0);
 				this.WorldSide = new World.Vector3D(1.0, 0.0, 0.0);
-				this.InaccuracyOffsetX = 0.0;
-				this.InaccuracyOffsetY = 0.0;
-				this.InaccuracyCant = 0.0;
 				this.Events = new GeneralEvent[] { };
 			}
 		}
@@ -798,37 +792,19 @@ namespace OpenBve {
 			Follower.AdhesionMultiplier = CurrentTrack.Elements[i].AdhesionMultiplier;
 			// inaccuracy
 			if (AddTrackInaccurary) {
-				if (true) {
 					double z = NewTrackPosition;
 					double inaccuracy = CurrentTrack.Elements[i].CsvRwAccuracyLevel;
-					double x = 0.14 * Math.Sin(0.4843 * z) + 0.82 * Math.Sin(0.1246 * z) + 0.55 * Math.Sin(0.0974 * z);
+					double x = 0.14 * Math.Sin(0.4843 * z) + 0.82 * Math.Sin(0.1546 * z) + 0.55 * Math.Sin(0.0974 * z);
 					x *= 0.0035 * Game.RouteRailGauge * inaccuracy;
 					double y = 0.18 * Math.Sin(0.4172 * z) + 0.37 * Math.Sin(0.2251 * z) + 0.91 * Math.Sin(0.1156 * z);
 					y *= 0.0020 * Game.RouteRailGauge * inaccuracy;
-					double c = 0.23 * Math.Sin(0.2131 * z) + 0.54 * Math.Sin(0.4807 * z) + 0.81 * Math.Sin(0.2621 * z);
-					c *= 0.0009 * Game.RouteRailGauge * Math.Exp(0.6 * inaccuracy);
+					double c = 0.54 * Math.Sin(0.4607 * z) + 0.81 * Math.Sin(0.2721 * z) + 0.23 * Math.Sin(0.1931 * z);
+					//c *= 0.0009 * Game.RouteRailGauge * Math.Exp(0.6 * inaccuracy);
+					c *= 0.00135 * Game.RouteRailGauge * Math.Exp(0.5 * inaccuracy);
 					Follower.WorldPosition.X += x * Follower.WorldSide.X + y * Follower.WorldUp.X;
 					Follower.WorldPosition.Y += x * Follower.WorldSide.Y + y * Follower.WorldUp.Y;
 					Follower.WorldPosition.Z += x * Follower.WorldSide.Z + y * Follower.WorldUp.Z;
 					Follower.CurveCant += c;
-				}
-				if (false) {
-					if (i < CurrentTrack.Elements.Length - 1) {
-						double t = db / (CurrentTrack.Elements[i + 1].StartingTrackPosition - CurrentTrack.Elements[i].StartingTrackPosition);
-						if (t < 0.0) {
-							t = 0.0;
-						} else if (t > 1.0) {
-							t = 1.0;
-						}
-						double x = (1.0 - t) * CurrentTrack.Elements[i].InaccuracyOffsetX + t * CurrentTrack.Elements[i + 1].InaccuracyOffsetX;
-						double y = (1.0 - t) * CurrentTrack.Elements[i].InaccuracyOffsetY + t * CurrentTrack.Elements[i + 1].InaccuracyOffsetY;
-						double c = (1.0 - t) * CurrentTrack.Elements[i].InaccuracyCant + t * CurrentTrack.Elements[i + 1].InaccuracyCant;
-						Follower.WorldPosition.X += x * Follower.WorldSide.X + y * Follower.WorldUp.X;
-						Follower.WorldPosition.Y += x * Follower.WorldSide.Y + y * Follower.WorldUp.Y;
-						Follower.WorldPosition.Z += x * Follower.WorldSide.Z + y * Follower.WorldUp.Z;
-						Follower.CurveCant += c;
-					}
-				}
 			}
 			// events
 			CheckEvents(ref Follower, i, Math.Sign(db - da), da, db);

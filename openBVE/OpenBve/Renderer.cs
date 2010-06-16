@@ -71,7 +71,6 @@ namespace OpenBve {
 		private static bool TransparentColorDepthSorting = false;
 
 		// options
-		internal static bool OptionLighting = true;
 		internal static World.ColorRGB OptionAmbientColor = new World.ColorRGB(160, 160, 160);
 		internal static World.ColorRGB OptionDiffuseColor = new World.ColorRGB(160, 160, 160);
 		internal static World.Vector3Df OptionLightPosition = new World.Vector3Df(0.223606797749979f, 0.86602540378444f, -0.447213595499958f);
@@ -81,6 +80,7 @@ namespace OpenBve {
 		internal static bool OptionBackfaceCulling = true;
 
 		// interface options
+		internal const bool OptionHeadlight = false; // for testing purposes
 		internal static bool OptionTimetable = false;
 		internal static double OptionTimetablePosition = 0.0;
 		internal static bool OptionClock = false;
@@ -109,7 +109,6 @@ namespace OpenBve {
 			AlphaList = new ObjectFace[][] { new ObjectFace[256], new ObjectFace[256]};
 			AlphaListDistance = new double[][] { new double[256], new double[256] };
 			AlphaListCount = new int[] { 0, 0 };
-			OptionLighting = true;
 			OptionAmbientColor = new World.ColorRGB(160, 160, 160);
 			OptionDiffuseColor = new World.ColorRGB(160, 160, 160);
 			OptionLightPosition = new World.Vector3Df(0.223606797749979f, 0.86602540378444f, -0.447213595499958f);
@@ -180,29 +179,34 @@ namespace OpenBve {
 
 		// initialize lighting
 		internal static void InitializeLighting() {
-			if (OptionAmbientColor.R == 255 & OptionAmbientColor.G == 255 & OptionAmbientColor.B == 255 & OptionDiffuseColor.R == 0 & OptionDiffuseColor.G == 0 & OptionDiffuseColor.B == 0) {
-				OptionLighting = false;
-			} else {
-				OptionLighting = true;
+			Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { inv255 * (float)OptionAmbientColor.R, inv255 * (float)OptionAmbientColor.G, inv255 * (float)OptionAmbientColor.B, 1.0f });
+			Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { inv255 * (float)OptionDiffuseColor.R, inv255 * (float)OptionDiffuseColor.G, inv255 * (float)OptionDiffuseColor.B, 1.0f });
+			if (OptionHeadlight) {
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_AMBIENT, new float[] { 1.0f, 1.0f, 1.0f, 1.0f });
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_DIFFUSE, new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_POSITION, new float[] { 0.0f, 0.0f, 0.0f, 0.0f });
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_SPOT_DIRECTION, new float[] { 0.0f, 0.0f, -1.0f });
+				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_SPOT_CUTOFF, 45.0f);
+				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_SPOT_EXPONENT, 128.0f);
+				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_CONSTANT_ATTENUATION, 0.0f);
+				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_LINEAR_ATTENUATION, 0.0f);
+				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_QUADRATIC_ATTENUATION, 0.001f);
 			}
-			if (OptionLighting) {
-				Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { inv255 * (float)OptionAmbientColor.R, inv255 * (float)OptionAmbientColor.G, inv255 * (float)OptionAmbientColor.B, 1.0f });
-				Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { inv255 * (float)OptionDiffuseColor.R, inv255 * (float)OptionDiffuseColor.G, inv255 * (float)OptionDiffuseColor.B, 1.0f });
-				Gl.glLightModelfv(Gl.GL_LIGHT_MODEL_AMBIENT, new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
-				Gl.glCullFace(Gl.GL_FRONT); CullEnabled = true; // possibly undocumented, but required for correct lighting
-				Gl.glEnable(Gl.GL_LIGHT0);
-				Gl.glEnable(Gl.GL_COLOR_MATERIAL);
-				Gl.glColorMaterial(Gl.GL_FRONT_AND_BACK, Gl.GL_AMBIENT_AND_DIFFUSE);
-				Gl.glShadeModel(Gl.GL_SMOOTH);
-				float x = ((float)OptionAmbientColor.R + (float)OptionAmbientColor.G + (float)OptionAmbientColor.B);
-				float y = ((float)OptionDiffuseColor.R + (float)OptionDiffuseColor.G + (float)OptionDiffuseColor.B);
-				if (x < y) x = y;
-				OptionLightingResultingAmount = 0.00208333333333333f * x;
-				if (OptionLightingResultingAmount > 1.0f) OptionLightingResultingAmount = 1.0f;
-				Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
-			} else {
-				Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
+			Gl.glLightModelfv(Gl.GL_LIGHT_MODEL_AMBIENT, new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
+			Gl.glCullFace(Gl.GL_FRONT); CullEnabled = true; // possibly undocumented, but required for correct lighting
+			Gl.glEnable(Gl.GL_LIGHT0);
+			if (OptionHeadlight) {
+				Gl.glEnable(Gl.GL_LIGHT1);
 			}
+			Gl.glEnable(Gl.GL_COLOR_MATERIAL);
+			Gl.glColorMaterial(Gl.GL_FRONT_AND_BACK, Gl.GL_AMBIENT_AND_DIFFUSE);
+			Gl.glShadeModel(Gl.GL_SMOOTH);
+			float x = ((float)OptionAmbientColor.R + (float)OptionAmbientColor.G + (float)OptionAmbientColor.B);
+			float y = ((float)OptionDiffuseColor.R + (float)OptionDiffuseColor.G + (float)OptionDiffuseColor.B);
+			if (x < y) x = y;
+			OptionLightingResultingAmount = 0.00208333333333333f * x;
+			if (OptionLightingResultingAmount > 1.0f) OptionLightingResultingAmount = 1.0f;
+			Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
 			Gl.glDepthFunc(Gl.GL_LEQUAL);
 		}
 		
@@ -251,8 +255,15 @@ namespace OpenBve {
 			double uy = World.AbsoluteCameraUp.Y;
 			double uz = World.AbsoluteCameraUp.Z;
 			Glu.gluLookAt(0.0, 0.0, 0.0, dx, dy, dz, ux, uy, uz);
-			if (OptionLighting) {
-				Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_POSITION, new float[] { OptionLightPosition.X, OptionLightPosition.Y, OptionLightPosition.Z, 0.0f });
+			Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_POSITION, new float[] { OptionLightPosition.X, OptionLightPosition.Y, OptionLightPosition.Z, 0.0f });
+			if (OptionHeadlight) {
+				World.Vector3D position = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.WorldPosition;
+				position.X -= cx;
+				position.Y -= cy;
+				position.Z -= cz;
+				World.Vector3D direction = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.WorldDirection;
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_POSITION, new float[] { (float)position.X, (float)position.Y, (float)position.Z, 1.0f });
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_SPOT_DIRECTION, new float[] { (float)direction.X, (float)direction.Y, (float)direction.Z });
 			}
 			// fog
 			double fd = Game.NextFog.TrackPosition - Game.PreviousFog.TrackPosition;
@@ -290,22 +301,17 @@ namespace OpenBve {
 				Gl.glDisable(Gl.GL_FOG); FogEnabled = false;
 			}
 			// render polygons
-			bool optionLighting = OptionLighting;
 			for (int k = 0; k < 2; k++) {
 				// initialize
 				LastBoundTexture = 0;
 				if (k == 0) {
 					// world
-					if (OptionLighting) {
-						if (!LightingEnabled) {
-							Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
-						}
-						if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
-							Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { inv255 * (float)OptionAmbientColor.R, inv255 * (float)OptionAmbientColor.G, inv255 * (float)OptionAmbientColor.B, 1.0f });
-							Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { inv255 * (float)OptionDiffuseColor.R, inv255 * (float)OptionDiffuseColor.G, inv255 * (float)OptionDiffuseColor.B, 1.0f });
-						}
-					} else if (LightingEnabled) {
-						Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
+					if (!LightingEnabled) {
+						Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
+					}
+					if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
+						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { inv255 * (float)OptionAmbientColor.R, inv255 * (float)OptionAmbientColor.G, inv255 * (float)OptionAmbientColor.B, 1.0f });
+						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { inv255 * (float)OptionDiffuseColor.R, inv255 * (float)OptionDiffuseColor.G, inv255 * (float)OptionDiffuseColor.B, 1.0f });
 					}
 				} else {
 					// overlay
@@ -322,7 +328,6 @@ namespace OpenBve {
 						if (!LightingEnabled) {
 							Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
 						}
-						OptionLighting = true;
 						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
 						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
 					} else {
@@ -330,7 +335,7 @@ namespace OpenBve {
 						if (LightingEnabled) {
 							Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = true;
 						}
-						OptionLighting = false;
+						//OptionLighting = false; //###
 						if (!BlendEnabled) {
 							Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 						}
@@ -425,7 +430,6 @@ namespace OpenBve {
 					}
 				}
 			}
-			OptionLighting = optionLighting;
 			// render overlays
 			if (LightingEnabled) {
 				Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
@@ -526,7 +530,7 @@ namespace OpenBve {
 					LightingEnabled = false;
 				}
 			} else {
-				if (OptionLighting & !LightingEnabled) {
+				if (!LightingEnabled) {
 					Gl.glEnable(Gl.GL_LIGHTING);
 					LightingEnabled = true;
 				}

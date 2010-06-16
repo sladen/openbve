@@ -766,14 +766,15 @@ namespace OpenBve {
 									if (Width > 0.0 & Height > 0.0) {
 										int j = CreateElement(Train, LocationX, LocationY, Width, Height, 0.5, 0.5, (double)Layer * StackDistance, PanelResolution, PanelLeft, PanelRight, PanelTop, PanelBottom, PanelBitmapWidth, PanelBitmapHeight, PanelCenterX, PanelCenterY, PanelOriginX, PanelOriginY, DriverX, DriverY, DriverZ, -1, -1, new World.ColorRGBA(255, 255, 255, 255), false);
 										Train.Cars[0].Sections[0].Elements[j].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("timetable");
-										Timetable.CustomTrainIndex = Train.TrainIndex;
-										Timetable.CustomCarIndex = 0;
-										Timetable.CustomSectionIndex = 0;
-										Timetable.CustomElementIndex = j;
-										for (int k = 0; k < Timetable.CustomTextureIndices.Length; k++) {
-											TextureManager.Textures[Timetable.CustomTextureIndices[k]].TransparentColor = TransparentColor;
-											TextureManager.Textures[Timetable.CustomTextureIndices[k]].TransparentColorUsed = 1;
-										}
+										Timetable.AddObjectForCustomTimetable(Train.Cars[0].Sections[0].Elements[j]);
+//										Timetable.CustomTrainIndex = Train.TrainIndex;
+//										Timetable.CustomCarIndex = 0;
+//										Timetable.CustomSectionIndex = 0;
+//										Timetable.CustomElementIndex = j;
+//										for (int k = 0; k < Timetable.CustomTextureIndices.Length; k++) {
+//											TextureManager.Textures[Timetable.CustomTextureIndices[k]].TransparentColor = TransparentColor;
+//											TextureManager.Textures[Timetable.CustomTextureIndices[k]].TransparentColorUsed = 1;
+//										}
 									}
 								} break;
 						}

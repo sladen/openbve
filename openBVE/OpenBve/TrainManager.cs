@@ -662,13 +662,14 @@ namespace OpenBve {
 			}
 			// cant and radius
 			double c;
-			if (true || !Train.Cars[CarIndex].Derailed) {
+			//if (true || !Train.Cars[CarIndex].Derailed) {
+			{
 				//c = 0.5 * (Train.Cars[CarIndex].FrontAxle.Follower.CurveCant + Train.Cars[CarIndex].RearAxle.Follower.CurveCant);
 				double ca = Train.Cars[CarIndex].FrontAxle.Follower.CurveCant;
 				double cb = Train.Cars[CarIndex].RearAxle.Follower.CurveCant;
 				c = Math.Tan(0.5 * (Math.Atan(ca) + Math.Atan(cb)));
-			} else {
-				c = 0.0;
+				//} else {
+				//	c = 0.0;
 			}
 			double r, rs;
 			if (Train.Cars[CarIndex].FrontAxle.Follower.CurveRadius != 0.0 & Train.Cars[CarIndex].RearAxle.Follower.CurveRadius != 0.0) {
