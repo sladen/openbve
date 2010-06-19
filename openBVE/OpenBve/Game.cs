@@ -1504,9 +1504,9 @@ namespace OpenBve {
 							}
 						}
 						// power / brake
-						if (Train == TrainManager.PlayerTrain) {
-							//Game.InfoDebugString = "ahead=" + lookahead.ToString("0.00") + ", dec=" + dec.ToString("0.0000") + ", cruise=" + decelerationCruise.ToString("0.0000") + ", brake=" + decelerationStart.ToString("0.0000") + ", force=" + forceBrakeMode.ToString();
-						}
+						//if (Train == TrainManager.PlayerTrain) {
+						//	Game.InfoDebugString = "ahead=" + lookahead.ToString("0.00") + ", dec=" + dec.ToString("0.0000") + ", cruise=" + decelerationCruise.ToString("0.0000") + ", brake=" + decelerationStart.ToString("0.0000") + ", force=" + forceBrakeMode.ToString();
+						//}
 						if (!BrakeMode & dec > decelerationStart | BrakeMode & dec > decelerationCruise | forceBrakeMode) {
 							// brake
 							BrakeMode = true;

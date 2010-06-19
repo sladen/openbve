@@ -910,6 +910,11 @@ namespace OpenBve {
 			}
 			// flange sound
 			{
+				/*
+				 * This determines the amount of flange noise as a result from the angle at which the
+				 * line that forms between the axles hits the rail, i.e. the less perpendicular that
+				 * line is to the rails, the more flange noise there will be.
+				 * */
 				World.Vector3D d = World.Vector3D.Subtract(Train.Cars[CarIndex].FrontAxle.Follower.WorldPosition, Train.Cars[CarIndex].RearAxle.Follower.WorldPosition);
 				World.Normalize(ref d.X, ref d.Y, ref d.Z);
 				double b0 = d.X * Train.Cars[CarIndex].RearAxle.Follower.WorldSide.X + d.Y * Train.Cars[CarIndex].RearAxle.Follower.WorldSide.Y + d.Z * Train.Cars[CarIndex].RearAxle.Follower.WorldSide.Z;
@@ -918,6 +923,16 @@ namespace OpenBve {
 				double pitch = 0.5 + 0.04 * spd;
 				double b2 = Math.Abs(b0) + Math.Abs(b1);
 				double basegain = b2 * spd;
+				/*
+				 * This determines additional flange noise as a result from the roll angle of the car
+				 * compared to the roll angle of the rails, i.e. if the car bounces due to inaccuracies,
+				 * there will be additional flange noise.
+				 * */
+				double cdti = Math.Abs(Train.Cars[CarIndex].FrontAxle.Follower.CantDueToInaccuracy) + Math.Abs(Train.Cars[CarIndex].RearAxle.Follower.CantDueToInaccuracy);
+				basegain += 0.8 * spd * cdti;
+				/*
+				 * This applies the settings.
+				 * */
 				if (basegain < 0.0) basegain = 0.0;
 				if (basegain > 0.75) basegain = 0.75;
 				if (pitch > Train.Cars[CarIndex].Sounds.FlangePitch) {
@@ -3466,9 +3481,6 @@ namespace OpenBve {
 			} else {
 				Train.Passengers.FallenOver = false;
 			}
-			//if (Train == PlayerTrain) {
-			//	Game.InfoDebugString = accelerationDifference.ToString("0.0000").PadLeft(8) + Train.Passengers.CurrentSpeedDifference.ToString("0.0000").PadLeft(8) + "   " + Train.Passengers.FallenOver.ToString();
-			//}
 		}
 
 		// update speeds

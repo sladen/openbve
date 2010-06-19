@@ -71,6 +71,7 @@ namespace OpenBve {
 		private static bool TransparentColorDepthSorting = false;
 
 		// options
+		internal static bool OptionLighting = true;
 		internal static World.ColorRGB OptionAmbientColor = new World.ColorRGB(160, 160, 160);
 		internal static World.ColorRGB OptionDiffuseColor = new World.ColorRGB(160, 160, 160);
 		internal static World.Vector3Df OptionLightPosition = new World.Vector3Df(0.223606797749979f, 0.86602540378444f, -0.447213595499958f);
@@ -109,6 +110,7 @@ namespace OpenBve {
 			AlphaList = new ObjectFace[][] { new ObjectFace[256], new ObjectFace[256]};
 			AlphaListDistance = new double[][] { new double[256], new double[256] };
 			AlphaListCount = new int[] { 0, 0 };
+			OptionLighting = true;
 			OptionAmbientColor = new World.ColorRGB(160, 160, 160);
 			OptionDiffuseColor = new World.ColorRGB(160, 160, 160);
 			OptionLightPosition = new World.Vector3Df(0.223606797749979f, 0.86602540378444f, -0.447213595499958f);
@@ -301,17 +303,22 @@ namespace OpenBve {
 				Gl.glDisable(Gl.GL_FOG); FogEnabled = false;
 			}
 			// render polygons
+			bool optionLighting = OptionLighting;
 			for (int k = 0; k < 2; k++) {
 				// initialize
 				LastBoundTexture = 0;
 				if (k == 0) {
 					// world
-					if (!LightingEnabled) {
-						Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
-					}
-					if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
-						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { inv255 * (float)OptionAmbientColor.R, inv255 * (float)OptionAmbientColor.G, inv255 * (float)OptionAmbientColor.B, 1.0f });
-						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { inv255 * (float)OptionDiffuseColor.R, inv255 * (float)OptionDiffuseColor.G, inv255 * (float)OptionDiffuseColor.B, 1.0f });
+					if (OptionLighting) {
+						if (!LightingEnabled) {
+							Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
+						}
+						if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
+							Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { inv255 * (float)OptionAmbientColor.R, inv255 * (float)OptionAmbientColor.G, inv255 * (float)OptionAmbientColor.B, 1.0f });
+							Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { inv255 * (float)OptionDiffuseColor.R, inv255 * (float)OptionDiffuseColor.G, inv255 * (float)OptionDiffuseColor.B, 1.0f });
+						}
+					} else if (LightingEnabled) {
+						Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
 					}
 				} else {
 					// overlay
@@ -328,6 +335,7 @@ namespace OpenBve {
 						if (!LightingEnabled) {
 							Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
 						}
+						OptionLighting = true;
 						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
 						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
 					} else {
@@ -335,7 +343,7 @@ namespace OpenBve {
 						if (LightingEnabled) {
 							Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = true;
 						}
-						//OptionLighting = false; //###
+						OptionLighting = false;
 						if (!BlendEnabled) {
 							Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 						}
@@ -430,6 +438,7 @@ namespace OpenBve {
 					}
 				}
 			}
+			OptionLighting = optionLighting;
 			// render overlays
 			if (LightingEnabled) {
 				Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
@@ -530,7 +539,7 @@ namespace OpenBve {
 					LightingEnabled = false;
 				}
 			} else {
-				if (!LightingEnabled) {
+				if (OptionLighting & !LightingEnabled) {
 					Gl.glEnable(Gl.GL_LIGHTING);
 					LightingEnabled = true;
 				}

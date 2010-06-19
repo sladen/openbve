@@ -627,7 +627,6 @@ namespace OpenBve {
 			internal double CurveCant;
 			internal double CurveCantTangent;
 			internal double AdhesionMultiplier;
-			/// <summary>Only used to carry intermediate information during the route loading stage. The runtime information is stored in the InaccuracyXXX fields.</summary>
 			internal double CsvRwAccuracyLevel;
 			internal World.Vector3D WorldPosition;
 			internal World.Vector3D WorldDirection;
@@ -665,6 +664,7 @@ namespace OpenBve {
 			internal World.Vector3D WorldSide;
 			internal double CurveRadius;
 			internal double CurveCant;
+			internal double CantDueToInaccuracy;
 			internal double AdhesionMultiplier;
 			internal EventTriggerType TriggerType;
 			internal TrainManager.Train Train;
@@ -792,25 +792,77 @@ namespace OpenBve {
 			Follower.AdhesionMultiplier = CurrentTrack.Elements[i].AdhesionMultiplier;
 			// inaccuracy
 			if (AddTrackInaccurary) {
-					double z = NewTrackPosition;
-					double inaccuracy = CurrentTrack.Elements[i].CsvRwAccuracyLevel;
-					double x = 0.14 * Math.Sin(0.4843 * z) + 0.82 * Math.Sin(0.1546 * z) + 0.55 * Math.Sin(0.0974 * z);
-					x *= 0.0035 * Game.RouteRailGauge * inaccuracy;
-					double y = 0.18 * Math.Sin(0.4172 * z) + 0.37 * Math.Sin(0.2251 * z) + 0.91 * Math.Sin(0.1156 * z);
-					y *= 0.0020 * Game.RouteRailGauge * inaccuracy;
-					double c = 0.54 * Math.Sin(0.4607 * z) + 0.81 * Math.Sin(0.2721 * z) + 0.23 * Math.Sin(0.1931 * z);
-					//c *= 0.0009 * Game.RouteRailGauge * Math.Exp(0.6 * inaccuracy);
-					c *= 0.00135 * Game.RouteRailGauge * Math.Exp(0.5 * inaccuracy);
-					Follower.WorldPosition.X += x * Follower.WorldSide.X + y * Follower.WorldUp.X;
-					Follower.WorldPosition.Y += x * Follower.WorldSide.Y + y * Follower.WorldUp.Y;
-					Follower.WorldPosition.Z += x * Follower.WorldSide.Z + y * Follower.WorldUp.Z;
-					Follower.CurveCant += c;
+				double x, y, c;
+				if (i < CurrentTrack.Elements.Length - 1) {
+					double t = db / (CurrentTrack.Elements[i + 1].StartingTrackPosition - CurrentTrack.Elements[i].StartingTrackPosition);
+					if (t < 0.0) {
+						t = 0.0;
+					} else if (t > 1.0) {
+						t = 1.0;
+					}
+					double x1, y1, c1;
+					double x2, y2, c2;
+					GetInaccuracies(NewTrackPosition, CurrentTrack.Elements[i].CsvRwAccuracyLevel, out x1, out y1, out c1);
+					GetInaccuracies(NewTrackPosition, CurrentTrack.Elements[i + 1].CsvRwAccuracyLevel, out x2, out y2, out c2);
+					x = (1.0 - t) * x1 + t * x2;
+					y = (1.0 - t) * y1 + t * y2;
+					c = (1.0 - t) * c1 + t * c2;
+				} else {
+					GetInaccuracies(NewTrackPosition, CurrentTrack.Elements[i].CsvRwAccuracyLevel, out x, out y, out c);
+				}
+				Follower.WorldPosition.X += x * Follower.WorldSide.X + y * Follower.WorldUp.X;
+				Follower.WorldPosition.Y += x * Follower.WorldSide.Y + y * Follower.WorldUp.Y;
+				Follower.WorldPosition.Z += x * Follower.WorldSide.Z + y * Follower.WorldUp.Z;
+				Follower.CurveCant += c;
+				Follower.CantDueToInaccuracy = c;
+			} else {
+				Follower.CantDueToInaccuracy = 0.0;
 			}
 			// events
 			CheckEvents(ref Follower, i, Math.Sign(db - da), da, db);
 			// finish
 			Follower.TrackPosition = NewTrackPosition;
 			Follower.LastTrackElement = i;
+		}
+		
+		// get inaccuracies
+		private static void GetInaccuracies(double position, double inaccuracy, out double x, out double y, out double c) {
+			
+//			double z = position;
+//			if (inaccuracy <= 0.0) {
+//				x = 0.0;
+//				y = 0.0;
+//				c = 0.0;
+//			} else if (inaccuracy < 3.0) {
+//				x = 0.27 * Math.Sin(0.2422 * z) + 0.80 * Math.Sin(0.0623 * z) + 0.54 * Math.Sin(0.0487 * z);
+//				x *= 0.0072 * Game.RouteRailGauge * inaccuracy;
+//				y = 0.34 * Math.Sin(0.2086 * z) + 0.35 * Math.Sin(0.1126 * z) + 0.87 * Math.Sin(0.0578 * z);
+//				y *= 0.0042 * Game.RouteRailGauge * inaccuracy;
+//				c = 0.43 * Math.Sin(0.1066 * z) + 0.50 * Math.Sin(0.2404 * z) + 0.75 * Math.Sin(0.1311 * z);
+//				c *= 0.0020 * Game.RouteRailGauge * Math.Exp(0.4 * inaccuracy);
+//			} else {
+//				x = 0.14 * Math.Sin(0.5843 * z) + 0.82 * Math.Sin(0.2246 * z) + 0.55 * Math.Sin(0.1974 * z);
+//				x *= 0.0035 * Game.RouteRailGauge * inaccuracy;
+//				y = 0.18 * Math.Sin(0.5172 * z) + 0.37 * Math.Sin(0.3251 * z) + 0.91 * Math.Sin(0.2156 * z);
+//				y *= 0.0020 * Game.RouteRailGauge * inaccuracy;
+//				c = 0.23 * Math.Sin(0.3131 * z) + 0.54 * Math.Sin(0.5807 * z) + 0.81 * Math.Sin(0.3621 * z);
+//				c *= 0.0020 * Game.RouteRailGauge * Math.Exp(0.4 * inaccuracy);
+//			}
+			
+			if (inaccuracy <= 0.0) {
+				x = 0.0;
+				y = 0.0;
+				c = 0.0;
+			} else {
+				double z = 0.25 * position * inaccuracy;
+				x = 0.14 * Math.Sin(0.5843 * z) + 0.82 * Math.Sin(0.2246 * z) + 0.55 * Math.Sin(0.1974 * z);
+				x *= 0.0035 * Game.RouteRailGauge * inaccuracy;
+				y = 0.18 * Math.Sin(0.5172 * z) + 0.37 * Math.Sin(0.3251 * z) + 0.91 * Math.Sin(0.2156 * z);
+				y *= 0.0020 * Game.RouteRailGauge * inaccuracy;
+				c = 0.23 * Math.Sin(0.3131 * z) + 0.54 * Math.Sin(0.5807 * z) + 0.81 * Math.Sin(0.3621 * z);
+				c *= 0.0025 * Game.RouteRailGauge * inaccuracy;
+			}
+			
 		}
 
 		// check events

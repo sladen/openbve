@@ -423,6 +423,21 @@ namespace OpenBve {
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
+												case "textureoverride":
+													switch (b.ToLowerInvariant()) {
+														case "none":
+															break;
+														case "timetable":
+															if (!timetableUsed) {
+																Timetable.AddObjectForCustomTimetable(Result.Objects[ObjectCount]);
+																timetableUsed = true;
+															}
+															break;
+														default:
+															Interface.AddMessage(Interface.MessageType.Error, false, "Unrecognized value in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+															break;
+													}
+													break;
 												case "refreshrate":
 													{
 														double r;
@@ -432,13 +447,6 @@ namespace OpenBve {
 															Interface.AddMessage(Interface.MessageType.Error, false, "Value is expected to be non-negative in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 														} else {
 															Result.Objects[ObjectCount].RefreshRate = r;
-														}
-													} break;
-												case "timetable":
-													if (string.Equals(b, "true", StringComparison.OrdinalIgnoreCase)) {
-														if (!timetableUsed) {
-															Timetable.AddObjectForCustomTimetable(Result.Objects[ObjectCount]);
-															timetableUsed = true;
 														}
 													} break;
 												default:
