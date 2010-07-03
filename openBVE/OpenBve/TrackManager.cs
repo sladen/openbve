@@ -669,6 +669,9 @@ namespace OpenBve {
 			internal EventTriggerType TriggerType;
 			internal TrainManager.Train Train;
 			internal int CarIndex;
+			internal void UpdateWorldCoordinates(bool AddTrackInaccuracy) {
+				UpdateTrackFollower(ref this, this.TrackPosition, true, AddTrackInaccuracy);
+			}
 		}
 		internal static void UpdateTrackFollower(ref TrackFollower Follower, double NewTrackPosition, bool UpdateWorldCoordinates, bool AddTrackInaccurary) {
 			if (CurrentTrack.Elements.Length == 0) return;
@@ -854,10 +857,11 @@ namespace OpenBve {
 				y = 0.0;
 				c = 0.0;
 			} else {
-				double z = 0.25 * position * inaccuracy;
+				double z = Math.Pow(0.25 * inaccuracy, 1.2) * position;
 				x = 0.14 * Math.Sin(0.5843 * z) + 0.82 * Math.Sin(0.2246 * z) + 0.55 * Math.Sin(0.1974 * z);
 				x *= 0.0035 * Game.RouteRailGauge * inaccuracy;
-				y = 0.18 * Math.Sin(0.5172 * z) + 0.37 * Math.Sin(0.3251 * z) + 0.91 * Math.Sin(0.2156 * z);
+				//y = 0.18 * Math.Sin(0.5172 * z) + 0.37 * Math.Sin(0.3251 * z) + 0.91 * Math.Sin(0.2156 * z);
+				y = 0.18 * Math.Sin(0.5172 * z) + 0.37 * Math.Sin(0.3251 * z) + 0.91 * Math.Sin(0.3773 * z);
 				y *= 0.0020 * Game.RouteRailGauge * inaccuracy;
 				c = 0.23 * Math.Sin(0.3131 * z) + 0.54 * Math.Sin(0.5807 * z) + 0.81 * Math.Sin(0.3621 * z);
 				c *= 0.0025 * Game.RouteRailGauge * inaccuracy;

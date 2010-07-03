@@ -55,6 +55,13 @@ namespace OpenBve {
 				}
 				Game.MinimalisticSimulation = false;
 			}
+			// timetable
+			if (TrainManager.PlayerTrain.Station >= 0) {
+				Timetable.UpdateCustomTimetable(Game.Stations[TrainManager.PlayerTrain.Station].TimetableDaytimeTexture, Game.Stations[TrainManager.PlayerTrain.Station].TimetableNighttimeTexture);
+				if (Timetable.CustomObjectsUsed != 0 & Timetable.CustomTimetableAvailable) {
+					Timetable.CurrentTimetable = Timetable.TimetableState.Custom;
+				}
+			}
 			// loop
 			Asynchronous.Initialize();
 			World.InitializeCameraRestriction();
@@ -92,29 +99,43 @@ namespace OpenBve {
 				World.CameraAlignmentDirection = new World.CameraAlignment();
 				World.UpdateMouseGrab(TimeElapsed);
 				ProcessControls(TimeElapsed);
-				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) {
-					World.UpdateAbsoluteCamera(TimeElapsed);
-				}
+//				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) {
+//					World.UpdateAbsoluteCamera(TimeElapsed);
+//				}
 				if (Quit) break;
 				// update in pieces
 				{
 					const double w = 0.1;
 					double u = TimeElapsed;
 					while (true) {
-						double v = u < w ? u : w; u -= v;
+						double v = u < w ? u : w;
+						u -= v;
 						Game.SecondsSinceMidnight += v;
-						double a = World.CameraTrackFollower.TrackPosition;
+						//double a = World.CameraTrackFollower.TrackPosition;
 						TrainManager.UpdateTrains(v);
-						double b = World.CameraTrackFollower.TrackPosition;
-						if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
-							World.CameraTrackFollower.TrackPosition = a;
-							TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, b, false, false);
-						}
-						if (u <= 0.0) break;
+						//double b = World.CameraTrackFollower.TrackPosition;
+//						if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
+//							World.CameraTrackFollower.TrackPosition = a;
+//							TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, b, false, false);
+//						}
+						if (u <= 0.00000001) break;
 					}
 				}
 				// update in one piece
+				
 				ObjectManager.UpdateAnimatedWorldObjects(TimeElapsed, false);
+
+				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
+					TrainManager.UpdateCamera(TrainManager.PlayerTrain);
+				}
+
+				if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
+					World.UpdateDriverBody(TimeElapsed);
+				}
+				World.UpdateAbsoluteCamera(TimeElapsed);
+
+				TrainManager.UpdateTrainObjects(TimeElapsed);
+				
 				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
 					ObjectManager.UpdateVisibility(World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z);
 					int d = TrainManager.PlayerTrain.DriverCar;
@@ -122,12 +143,8 @@ namespace OpenBve {
 				} else {
 					World.CameraSpeed = 0.0;
 				}
-				if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
-					World.UpdateDriverBody(TimeElapsed);
-					World.UpdateAbsoluteCamera(TimeElapsed);
-				} else if (World.CameraMode != World.CameraViewMode.Interior) {
-					World.UpdateAbsoluteCamera(TimeElapsed);
-				}
+				
+				
 				if (UpdateViewportAndViewingDistancesInNextFrame) {
 					UpdateViewportAndViewingDistancesInNextFrame = false;
 					World.CameraAlignmentDirection = new World.CameraAlignment();
@@ -818,13 +835,43 @@ namespace OpenBve {
 									case Interface.Command.TimetableUp:
 										// timetable up
 										if (TimeElapsed > 0.0) {
-											Renderer.OptionTimetablePosition += 64.0 * Interface.CurrentControls[i].AnalogState * TimeElapsed;
-											if (Renderer.OptionTimetablePosition > 0.0) Renderer.OptionTimetablePosition = 0.0;
+											const double scrollSpeed = 250.0;
+											if (Timetable.CurrentTimetable == Timetable.TimetableState.Default) {
+												Timetable.DefaultTimetablePosition += scrollSpeed * Interface.CurrentControls[i].AnalogState * TimeElapsed;
+												if (Timetable.DefaultTimetablePosition > 0.0) Timetable.DefaultTimetablePosition = 0.0;
+											} else if (Timetable.CurrentTimetable == Timetable.TimetableState.Custom) {
+												Timetable.CustomTimetablePosition += scrollSpeed * Interface.CurrentControls[i].AnalogState * TimeElapsed;
+												if (Timetable.CustomTimetablePosition > 0.0) Timetable.CustomTimetablePosition = 0.0;
+											}
 										} break;
 									case Interface.Command.TimetableDown:
 										// timetable down
 										if (TimeElapsed > 0.0) {
-											Renderer.OptionTimetablePosition -= 64.0 * Interface.CurrentControls[i].AnalogState * TimeElapsed;
+											const double scrollSpeed = 250.0;
+											if (Timetable.CurrentTimetable == Timetable.TimetableState.Default) {
+												Timetable.DefaultTimetablePosition -= scrollSpeed * Interface.CurrentControls[i].AnalogState * TimeElapsed;
+												int texture = Timetable.DefaultTimetableTexture;
+												double max;
+												if (texture >= 0) {
+													max = Math.Min(Renderer.ScreenHeight - TextureManager.Textures[texture].ClipHeight, 0.0);
+												} else {
+													max = 0.0;
+												}
+												if (Timetable.DefaultTimetablePosition < max) Timetable.DefaultTimetablePosition = max;
+											} else if (Timetable.CurrentTimetable == Timetable.TimetableState.Custom) {
+												Timetable.CustomTimetablePosition -= scrollSpeed * Interface.CurrentControls[i].AnalogState * TimeElapsed;
+												int texture = Timetable.CurrentCustomTimetableDaytimeTextureIndex;
+												if (texture == -1) {
+													texture = Timetable.CurrentCustomTimetableNighttimeTextureIndex;
+												}
+												double max;
+												if (texture >= 0) {
+													max = Math.Min(Renderer.ScreenHeight - TextureManager.Textures[texture].ClipHeight, 0.0);
+												} else {
+													max = 0.0;
+												}
+												if (Timetable.CustomTimetablePosition < max) Timetable.CustomTimetablePosition = max;
+											}
 										} break;
 								}
 							}
@@ -1356,17 +1403,27 @@ namespace OpenBve {
 										break;
 									case Interface.Command.TimetableToggle:
 										// option: timetable
-										if (Timetable.CustomObjectsUsed != 0) {
-											if (Timetable.CustomVisible) {
-												Timetable.CustomVisible = false;
-												Renderer.OptionTimetable = true;
-											} else if (Renderer.OptionTimetable) {
-												Renderer.OptionTimetable = false;
-											} else {
-												Timetable.CustomVisible = true;
+										if (Timetable.CustomTimetableAvailable) {
+											switch (Timetable.CurrentTimetable) {
+												case Timetable.TimetableState.Custom:
+													Timetable.CurrentTimetable = Timetable.TimetableState.Default;
+													break;
+												case Timetable.TimetableState.Default:
+													Timetable.CurrentTimetable = Timetable.TimetableState.None;
+													break;
+												default:
+													Timetable.CurrentTimetable = Timetable.TimetableState.Custom;
+													break;
 											}
 										} else {
-											Renderer.OptionTimetable = !Renderer.OptionTimetable;
+											switch (Timetable.CurrentTimetable) {
+												case Timetable.TimetableState.Default:
+													Timetable.CurrentTimetable = Timetable.TimetableState.None;
+													break;
+												default:
+													Timetable.CurrentTimetable = Timetable.TimetableState.Default;
+													break;
+											}
 										} break;
 									case Interface.Command.DebugWireframe:
 										// option: wireframe

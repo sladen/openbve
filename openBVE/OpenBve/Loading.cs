@@ -80,7 +80,11 @@ namespace OpenBve {
 			try {
 				LoadEverythingThreaded();
 			} catch (Exception ex) {
-				Interface.AddMessage(Interface.MessageType.Critical, false, "The route and train loader encountered the following critical error: " + ex.Message);
+				if (PluginManager.PluginError) {
+					Interface.AddMessage(Interface.MessageType.Critical, false, "The plugin " + PluginManager.PluginName + " caused a critical error in the route and train loader: " + ex.Message);
+				} else {
+					Interface.AddMessage(Interface.MessageType.Critical, false, "The route and train loader encountered the following critical error: " + ex.Message);
+				}
 			}
 			#endif
 			Complete = true;
@@ -205,7 +209,7 @@ namespace OpenBve {
 						TrainManager.Trains[k].Cars[i].Specs.DoorOpenFrequency /= TrainManager.Trains[k].Cars[i].Specs.DoorOpenPitch;
 						TrainManager.Trains[k].Cars[i].Specs.DoorCloseFrequency /= TrainManager.Trains[k].Cars[i].Specs.DoorClosePitch;
 						/* 
-						 * Remove the following two lines, then the pitch at which doors play 
+						 * Remove the following two lines, then the pitch at which doors play
 						 * takes their randomized opening and closing times into account.
 						 * */
 						TrainManager.Trains[k].Cars[i].Specs.DoorOpenPitch = 1.0;
@@ -422,10 +426,10 @@ namespace OpenBve {
 					TrainManager.MoveCar(TrainManager.Trains[i], j, p, 0.01);
 				}
 			}
-			// time table
+			// timetable
 			System.Threading.Thread.Sleep(1); if (Cancel) return;
-			if (Timetable.TimetableDescription.Length == 0) {
-				Timetable.TimetableDescription = Game.LogTrainName;
+			if (Timetable.DefaultTimetableDescription.Length == 0) {
+				Timetable.DefaultTimetableDescription = Game.LogTrainName;
 			}
 			// initialize camera
 			System.Threading.Thread.Sleep(1); if (Cancel) return;

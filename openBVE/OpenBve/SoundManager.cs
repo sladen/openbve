@@ -412,7 +412,9 @@ namespace OpenBve {
 
 		// get sound length
 		internal static double GetSoundLength(int SoundBufferIndex) {
-			if (OpenAlContext != IntPtr.Zero) {
+			if (SoundBuffers[SoundBufferIndex].Duration != 0.0) {
+				return SoundBuffers[SoundBufferIndex].Duration;
+			} else if (OpenAlContext != IntPtr.Zero) {
 				UseSoundBuffer(SoundBufferIndex);
 				return SoundBuffers[SoundBufferIndex].Duration;
 			} else {

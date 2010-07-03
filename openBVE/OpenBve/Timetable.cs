@@ -4,20 +4,27 @@ using System.Drawing;
 namespace OpenBve {
 	internal static class Timetable {
 
-		// members
-		internal static string TimetableDescription = "";
-		internal static int TimetableTexture = -1;
+		// members (built-in timetable)
+		internal static string DefaultTimetableDescription = "";
+		internal static int DefaultTimetableTexture = -1;
+		internal static double DefaultTimetablePosition = 0.0;
 		
-//		internal static int CustomTrainIndex = -1;
-//		internal static int CustomCarIndex = -1;
-//		internal static int CustomSectionIndex = -1;
-//		internal static int CustomElementIndex = -1;
-
+		// members (custom timetable)
 		internal static ObjectManager.AnimatedObject[] CustomObjects = new ObjectManager.AnimatedObject[16];
 		internal static int CustomObjectsUsed = 0;
-
 		internal static int[] CustomTextureIndices = new int[] { };
-		internal static bool CustomVisible = false;
+		internal static bool CustomTimetableAvailable = false;
+		internal static int CurrentCustomTimetableDaytimeTextureIndex = -1;
+		internal static int CurrentCustomTimetableNighttimeTextureIndex = -1;
+		internal static double CustomTimetablePosition = 0.0;
+		
+		// members (interface)
+		internal enum TimetableState {
+			None = 0,
+			Custom = 1,
+			Default = 2
+		}
+		internal static TimetableState CurrentTimetable = TimetableState.None;
 
 		// data
 		internal struct Time {
@@ -196,7 +203,7 @@ namespace OpenBve {
 				float x0 = offsetx + 8;
 				float y0 = 8;
 				if (k == 1) {
-					t = TimetableDescription;
+					t = DefaultTimetableDescription;
 					g.DrawString(t, f, Brushes.Black, new RectangleF(x0, 6, descriptionwidth, descriptionheight + 8));
 					y0 += descriptionheight + 2;
 				}
@@ -374,7 +381,7 @@ namespace OpenBve {
 				h = (int)Math.Ceiling((double)(y0 + 18 * (Table.Stations.Length + 1) + 4));
 				// description
 				if (k == 0) {
-					t = TimetableDescription;
+					t = DefaultTimetableDescription;
 					s = g.MeasureString(t, f, w - 16);
 					descriptionwidth = s.Width;
 					descriptionheight = s.Height + 2;
@@ -391,7 +398,7 @@ namespace OpenBve {
 				} else {
 					// create texture
 					g.Dispose();
-					TimetableTexture = TextureManager.RegisterTexture(b, true);
+					DefaultTimetableTexture = TextureManager.RegisterTexture(b, true);
 					b.Dispose();
 				}
 			}
@@ -399,31 +406,6 @@ namespace OpenBve {
 
 		// update custom timetable
 		internal static void UpdateCustomTimetable(int DaytimeTextureIndex, int NighttimeTextureIndex) {
-//			int t = CustomTrainIndex;
-//			if (t >= 0) {
-//				int c = CustomCarIndex;
-//				if (c >= 0) {
-//					int s = CustomSectionIndex;
-//					if (s >= 0) {
-//						int e = CustomElementIndex;
-//						if (e >= 0) {
-//							for (int a = 0; a < TrainManager.Trains[t].Cars[c].Sections[s].Elements[e].States.Length; a++) {
-//								for (int m = 0; m < TrainManager.Trains[t].Cars[c].Sections[s].Elements[e].States[a].Object.Mesh.Materials.Length; m++) {
-//									if (DaytimeTextureIndex >= 0) {
-//										TrainManager.Trains[t].Cars[c].Sections[s].Elements[e].States[a].Object.Mesh.Materials[m].DaytimeTextureIndex = DaytimeTextureIndex;
-//									}
-//									if (NighttimeTextureIndex >= 0) {
-//										TrainManager.Trains[t].Cars[c].Sections[s].Elements[e].States[a].Object.Mesh.Materials[m].NighttimeTextureIndex = NighttimeTextureIndex;
-//									}
-//									if (TrainManager.Trains[CustomTrainIndex].Cars[CustomCarIndex].CurrentSection == CustomSectionIndex) {
-//										TrainManager.InitializeCarSectionElement(TrainManager.Trains[CustomTrainIndex], CustomCarIndex, CustomSectionIndex, CustomElementIndex, 0);
-//									}
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
 			for (int i = 0; i < CustomObjectsUsed; i++) {
 				for (int j = 0; j < CustomObjects[i].States.Length; j++) {
 					for (int k = 0; k < CustomObjects[i].States[j].Object.Mesh.Materials.Length; k++) {
@@ -436,10 +418,20 @@ namespace OpenBve {
 					}
 				}
 			}
+			if (DaytimeTextureIndex >= 0) {
+				CurrentCustomTimetableDaytimeTextureIndex = DaytimeTextureIndex;
+			}
+			if (NighttimeTextureIndex >= 0) {
+				CurrentCustomTimetableNighttimeTextureIndex = NighttimeTextureIndex;
+			}
+			if (CurrentCustomTimetableDaytimeTextureIndex >= 0 | CurrentCustomTimetableNighttimeTextureIndex >= 0) {
+				CustomTimetableAvailable = true;
+			} else {
+				CustomTimetableAvailable = false;
+			}
 		}
 		
-		
-		
+		// add object for custom timetable
 		internal static void AddObjectForCustomTimetable(ObjectManager.AnimatedObject obj) {
 			if (CustomObjectsUsed >= CustomObjects.Length) {
 				Array.Resize<ObjectManager.AnimatedObject>(ref CustomObjects, CustomObjects.Length << 1);

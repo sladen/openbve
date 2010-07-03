@@ -90,14 +90,21 @@ namespace OpenBve {
 			internal World.Vector2D TextureShiftYDirection;
 			internal FunctionScripts.FunctionScript TextureShiftXFunction;
 			internal FunctionScripts.FunctionScript TextureShiftYFunction;
+			
+			//internal double LEDMaximumAngle;
 			internal bool LEDClockwiseWinding;
-			internal double LEDMaximumAngle;
+			internal double LEDInitialAngle;
+			internal double LEDLastAngle;
+			/// <summary>If LEDFunction is used, an array of five vectors representing the bottom-left, up-left, up-right, bottom-right and center coordinates of the LED square, or a null reference otherwise.</summary>
+			internal World.Vector3D[] LEDVectors;
 			internal FunctionScripts.FunctionScript LEDFunction;
+			
 			// misc
 			internal double RefreshRate;
 			internal double CurrentTrackZOffset;
-			internal double TimeLastUpdated;
-			internal double TimeNextUpdated;
+			internal double SecondsSinceLastUpdate;
+			//internal double TimeLastUpdated;
+			//internal double TimeNextUpdated;
 			internal int ObjectIndex;
 			// methods
 			internal bool IsFreeOfFunctions() {
@@ -137,12 +144,22 @@ namespace OpenBve {
 				Result.TextureShiftXFunction = this.TextureShiftXFunction == null ? null : this.TextureShiftXFunction.Clone();
 				Result.TextureShiftYFunction = this.TextureShiftYFunction == null ? null : this.TextureShiftYFunction.Clone();
 				Result.LEDClockwiseWinding = this.LEDClockwiseWinding;
-				Result.LEDMaximumAngle = this.LEDMaximumAngle;
+				Result.LEDInitialAngle = this.LEDInitialAngle;
+				Result.LEDLastAngle = this.LEDLastAngle;
+				if (this.LEDVectors != null) {
+					Result.LEDVectors = new World.Vector3D[this.LEDVectors.Length];
+					for (int i = 0; i < this.LEDVectors.Length; i++) {
+						Result.LEDVectors[i] = this.LEDVectors[i];
+					}
+				} else {
+					Result.LEDVectors = null;
+				}
 				Result.LEDFunction = this.LEDFunction == null ? null : this.LEDFunction.Clone();
 				Result.RefreshRate = this.RefreshRate;
 				Result.CurrentTrackZOffset = 0.0;
-				Result.TimeNextUpdated = 0.0;
-				Result.TimeLastUpdated = 0.0;
+				//Result.TimeNextUpdated = 0.0;//###
+				//Result.TimeLastUpdated = 0.0;//###
+				Result.SecondsSinceLastUpdate = 0.0;
 				Result.ObjectIndex = -1;
 				return Result;
 			}
@@ -315,7 +332,11 @@ namespace OpenBve {
 			double ledangle;
 			if (led) {
 				if (UpdateFunctions) {
+					double lastangle = Object.LEDFunction.LastResult;
 					ledangle = Object.LEDFunction.Perform(Train, CarIndex, Position, TrackPosition, SectionIndex, IsPartOfTrain, TimeElapsed);
+					if (ledangle == lastangle) {
+						led = false;
+					}
 				} else {
 					ledangle = Object.LEDFunction.LastResult;
 				}
@@ -332,138 +353,277 @@ namespace OpenBve {
 			}
 			// led
 			if (led) {
-				double max = Object.LEDMaximumAngle;
-				for (int j = 0; j < 5; j++) {
-					double pos1 = 0.0;
-					double pos2 = 1.0;
-					switch (j) {
-						case 0:
-							if (ledangle <= -0.5 * Math.PI) {
-								pos1 = 0.5;
-							} else if (ledangle >= 0.5 * Math.PI) {
-								pos1 = 1.0;
-							} else {
-								pos1 = 0.5 * Math.Tan(ledangle - 2.0 * Math.PI) + 0.5;
-								if (pos1 < 0.5) pos1 = 0.5;
-								else if (pos1 > 1.0) pos1 = 1.0;
-							}
-							if (max <= -0.5 * Math.PI) {
-								pos2 = 0.5;
-							} else if (max >= 0.5 * Math.PI) {
-								pos2 = 1.0;
-							} else {
-								pos2 = 0.5 * Math.Tan(max - 2.0 * Math.PI) + 0.5;
-								if (pos2 < 0.5) pos2 = 0.5;
-								else if (pos2 > 1.0) pos2 = 1.0;
-							}
-							break;
-						case 1:
-							if (ledangle <= 0.0) {
-								pos1 = 0.0;
-							} else if (ledangle >= Math.PI) {
-								pos1 = 1.0;
-							} else {
-								pos1 = 0.5 * Math.Tan(ledangle - 0.5 * Math.PI) + 0.5;
-								if (pos1 < 0.0) pos1 = 0.0;
-								else if (pos1 > 1.0) pos1 = 1.0;
-							}
-							if (max <= 0.0) {
-								pos2 = 0.0;
-							} else if (max >= Math.PI) {
-								pos2 = 1.0;
-							} else {
-								pos2 = 0.5 * Math.Tan(max - 0.5 * Math.PI) + 0.5;
-								if (pos2 < 0.0) pos2 = 0.0;
-								else if (pos2 > 1.0) pos2 = 1.0;
-							}
-							break;
-						case 2:
-							if (ledangle <= 0.5 * Math.PI) {
-								pos1 = 0.0;
-							} else if (ledangle >= 1.5 * Math.PI) {
-								pos1 = 1.0;
-							} else {
-								pos1 = 0.5 * Math.Tan(ledangle - Math.PI) + 0.5;
-								if (pos1 < 0.0) pos1 = 0.0;
-								else if (pos1 > 1.0) pos1 = 1.0;
-							}
-							if (max <= 0.5 * Math.PI) {
-								pos2 = 0.0;
-							} else if (max >= 1.5 * Math.PI) {
-								pos2 = 1.0;
-							} else {
-								pos2 = 0.5 * Math.Tan(max - Math.PI) + 0.5;
-								if (pos2 < 0.0) pos2 = 0.0;
-								else if (pos2 > 1.0) pos2 = 1.0;
-							}
-							break;
-						case 3:
-							if (ledangle <= Math.PI) {
-								pos1 = 0.0;
-							} else if (ledangle >= 2.0 * Math.PI) {
-								pos1 = 1.0;
-							} else {
-								pos1 = 0.5 * Math.Tan(ledangle - 1.5 * Math.PI) + 0.5;
-								if (pos1 < 0.0) pos1 = 0.0;
-								else if (pos1 > 1.0) pos1 = 1.0;
-							}
-							if (max <= Math.PI) {
-								pos2 = 0.0;
-							} else if (max >= 2.0 * Math.PI) {
-								pos2 = 1.0;
-							} else {
-								pos2 = 0.5 * Math.Tan(max - 1.5 * Math.PI) + 0.5;
-								if (pos2 < 0.0) pos2 = 0.0;
-								else if (pos2 > 1.0) pos2 = 1.0;
-							}
-							break;
-						case 4:
-							if (ledangle <= 1.5 * Math.PI) {
-								pos1 = 0.0;
-							} else if (ledangle >= 2.5 * Math.PI) {
-								pos1 = 0.5;
-							} else {
-								pos1 = 0.5 * Math.Tan(ledangle - 2.0 * Math.PI) + 0.5;
-								if (pos1 < 0.0) pos1 = 0.0;
-								else if (pos1 > 0.5) pos1 = 0.5;
-							}
-							if (max <= 1.5 * Math.PI) {
-								pos2 = 0.0;
-							} else if (max >= 2.5 * Math.PI) {
-								pos2 = 0.5;
-							} else {
-								pos2 = 0.5 * Math.Tan(max - 2.0 * Math.PI) + 0.5;
-								if (pos2 < 0.0) pos2 = 0.0;
-								else if (pos2 > 0.5) pos2 = 0.5;
-							}
-							break;
+				/*
+				 * Edges:         Vertices:
+				 * 0 - bottom     0 - bottom-left
+				 * 1 - left       1 - top-left
+				 * 2 - top        2 - top-right
+				 * 3 - right      3 - bottom-right
+				 *                4 - center
+				 * */
+				int v = 1;
+				if (Object.LEDClockwiseWinding) {
+					/* winding is clockwise*/
+					if (ledangle < Object.LEDInitialAngle) {
+						ledangle = Object.LEDInitialAngle;
 					}
-					int k = 2 * j + 1;
-					double cpos1 = 1.0 - pos1;
-					double cpos2 = 1.0 - pos2;
-					double x0 = Object.States[s].Object.Mesh.Vertices[k].Coordinates.X;
-					double y0 = Object.States[s].Object.Mesh.Vertices[k].Coordinates.Y;
-					double z0 = Object.States[s].Object.Mesh.Vertices[k].Coordinates.Z;
-					double x1 = Object.States[s].Object.Mesh.Vertices[k + 1].Coordinates.X;
-					double y1 = Object.States[s].Object.Mesh.Vertices[k + 1].Coordinates.Y;
-					double z1 = Object.States[s].Object.Mesh.Vertices[k + 1].Coordinates.Z;
-					if (Object.LEDClockwiseWinding) {
-						ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.X = x0 * cpos1 + x1 * pos1;
-						ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Y = y0 * cpos1 + y1 * pos1;
-						ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Z = z0 * cpos1 + z1 * pos1;
-						ObjectManager.Objects[i].Mesh.Vertices[k + 1].Coordinates.X = x0 * cpos2 + x1 * pos2;
-						ObjectManager.Objects[i].Mesh.Vertices[k + 1].Coordinates.Y = y0 * cpos2 + y1 * pos2;
-						ObjectManager.Objects[i].Mesh.Vertices[k + 1].Coordinates.Z = z0 * cpos2 + z1 * pos2;
-					} else {
-						ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.X = x0 * cpos2 + x1 * pos2;
-						ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Y = y0 * cpos2 + y1 * pos2;
-						ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Z = z0 * cpos2 + z1 * pos2;
-						ObjectManager.Objects[i].Mesh.Vertices[k + 1].Coordinates.X = x0 * cpos1 + x1 * pos1;
-						ObjectManager.Objects[i].Mesh.Vertices[k + 1].Coordinates.Y = y0 * cpos1 + y1 * pos1;
-						ObjectManager.Objects[i].Mesh.Vertices[k + 1].Coordinates.Z = z0 * cpos1 + z1 * pos1;
+					if (ledangle < Object.LEDLastAngle) {
+						int currentEdge = ((int)Math.Floor(0.636619772367582 * (ledangle + 0.785398163397449)) % 4 + 4) % 4;
+						int lastEdge = ((int)Math.Floor(0.636619772367582 * (Object.LEDLastAngle + 0.785398163397449)) % 4 + 4) % 4;
+						if (lastEdge < currentEdge) {
+							lastEdge += 4;
+						}
+						if (currentEdge == lastEdge) {
+							/* current angle to last angle */
+							double t = 0.636619772367582 * (ledangle + 0.785398163397449);
+							t = t - Math.Floor(t);
+							t = 0.5 * (1.0 + Math.Atan(1.5574077246549 * (2.0 * t - 1.0)));
+							t = 0.5 * (1.0 - Math.Tan(0.25 * (Math.PI - 2.0 * Math.PI * t)));
+							double cx = (1.0 - t) * Object.LEDVectors[(currentEdge + 3) % 4].X + t * Object.LEDVectors[currentEdge].X;
+							double cy = (1.0 - t) * Object.LEDVectors[(currentEdge + 3) % 4].Y + t * Object.LEDVectors[currentEdge].Y;
+							double cz = (1.0 - t) * Object.LEDVectors[(currentEdge + 3) % 4].Z + t * Object.LEDVectors[currentEdge].Z;
+							Object.States[s].Object.Mesh.Vertices[v + 0].Coordinates = new World.Vector3D(cx, cy, cz);
+							t = 0.636619772367582 * (Object.LEDLastAngle + 0.785398163397449);
+							t = t - Math.Floor(t);
+							t = 0.5 * (1.0 - Math.Tan(0.25 * (Math.PI - 2.0 * Math.PI * t)));
+							double lx = (1.0 - t) * Object.LEDVectors[(lastEdge + 3) % 4].X + t * Object.LEDVectors[lastEdge].X;
+							double ly = (1.0 - t) * Object.LEDVectors[(lastEdge + 3) % 4].Y + t * Object.LEDVectors[lastEdge].Y;
+							double lz = (1.0 - t) * Object.LEDVectors[(lastEdge + 3) % 4].Z + t * Object.LEDVectors[lastEdge].Z;
+							Object.States[s].Object.Mesh.Vertices[v + 1].Coordinates = new World.Vector3D(lx, ly, lz);
+							v += 2;
+						} else {
+							{
+								/* current angle to square vertex */
+								double t = 0.636619772367582 * (ledangle + 0.785398163397449);
+								t = t - Math.Floor(t);
+								t = 0.5 * (1.0 - Math.Tan(0.25 * (Math.PI - 2.0 * Math.PI * t)));
+								double cx = (1.0 - t) * Object.LEDVectors[(currentEdge + 3) % 4].X + t * Object.LEDVectors[currentEdge].X;
+								double cy = (1.0 - t) * Object.LEDVectors[(currentEdge + 3) % 4].Y + t * Object.LEDVectors[currentEdge].Y;
+								double cz = (1.0 - t) * Object.LEDVectors[(currentEdge + 3) % 4].Z + t * Object.LEDVectors[currentEdge].Z;
+								Object.States[s].Object.Mesh.Vertices[v + 0].Coordinates = new World.Vector3D(cx, cy, cz);
+								Object.States[s].Object.Mesh.Vertices[v + 1].Coordinates = Object.LEDVectors[currentEdge];
+								v += 2;
+							}
+							for (int j = currentEdge + 1; j < lastEdge; j++) {
+								/* square-vertex to square-vertex */
+								Object.States[s].Object.Mesh.Vertices[v + 0].Coordinates = Object.LEDVectors[(j + 3) % 4];
+								Object.States[s].Object.Mesh.Vertices[v + 1].Coordinates = Object.LEDVectors[j % 4];
+								v += 2;
+							}
+							{
+								/* square vertex to last angle */
+								double t = 0.636619772367582 * (Object.LEDLastAngle + 0.785398163397449);
+								t = t - Math.Floor(t);
+								t = 0.5 * (1.0 - Math.Tan(0.25 * (Math.PI - 2.0 * Math.PI * t)));
+								double lx = (1.0 - t) * Object.LEDVectors[(lastEdge + 3) % 4].X + t * Object.LEDVectors[lastEdge % 4].X;
+								double ly = (1.0 - t) * Object.LEDVectors[(lastEdge + 3) % 4].Y + t * Object.LEDVectors[lastEdge % 4].Y;
+								double lz = (1.0 - t) * Object.LEDVectors[(lastEdge + 3) % 4].Z + t * Object.LEDVectors[lastEdge % 4].Z;
+								Object.States[s].Object.Mesh.Vertices[v + 0].Coordinates = Object.LEDVectors[(lastEdge + 3) % 4];
+								Object.States[s].Object.Mesh.Vertices[v + 1].Coordinates = new World.Vector3D(lx, ly, lz);
+								v += 2;
+							}
+						}
+					}
+				} else {
+					/* winding is counter-clockwise*/
+					if (ledangle > Object.LEDInitialAngle) {
+						ledangle = Object.LEDInitialAngle;
+					}
+					if (ledangle > Object.LEDLastAngle) {
+						int currentEdge = ((int)Math.Floor((ledangle + 0.785398163397449) / 1.5707963267949) % 4 + 4) % 4;
+						int lastEdge = ((int)Math.Floor((Object.LEDLastAngle + 0.785398163397449) / 1.5707963267949) % 4 + 4) % 4;
+						if (currentEdge < lastEdge) {
+							currentEdge += 4;
+						}
+						if (currentEdge == lastEdge) {
+							/* current angle to last angle */
+							double t = 0.636619772367582 * (Object.LEDLastAngle + 0.785398163397449);
+							t = t - Math.Floor(t);
+							t = 0.5 * (1.0 - Math.Tan(0.25 * (Math.PI - 2.0 * Math.PI * t)));
+							double lx = (1.0 - t) * Object.LEDVectors[(lastEdge + 3) % 4].X + t * Object.LEDVectors[lastEdge].X;
+							double ly = (1.0 - t) * Object.LEDVectors[(lastEdge + 3) % 4].Y + t * Object.LEDVectors[lastEdge].Y;
+							double lz = (1.0 - t) * Object.LEDVectors[(lastEdge + 3) % 4].Z + t * Object.LEDVectors[lastEdge].Z;
+							Object.States[s].Object.Mesh.Vertices[v + 0].Coordinates = new World.Vector3D(lx, ly, lz);
+							t = 0.636619772367582 * (ledangle + 0.785398163397449);
+							t = t - Math.Floor(t);
+							t = 0.5 * (1.0 + Math.Atan(1.5574077246549 * (2.0 * t - 1.0)));
+							t = 0.5 * (1.0 - Math.Tan(0.25 * (Math.PI - 2.0 * Math.PI * t)));
+							double cx = (1.0 - t) * Object.LEDVectors[(currentEdge + 3) % 4].X + t * Object.LEDVectors[currentEdge].X;
+							double cy = (1.0 - t) * Object.LEDVectors[(currentEdge + 3) % 4].Y + t * Object.LEDVectors[currentEdge].Y;
+							double cz = (1.0 - t) * Object.LEDVectors[(currentEdge + 3) % 4].Z + t * Object.LEDVectors[currentEdge].Z;
+							Object.States[s].Object.Mesh.Vertices[v + 1].Coordinates = new World.Vector3D(cx, cy, cz);
+							v += 2;
+						} else {
+							{
+								/* current angle to square vertex */
+								double t = 0.636619772367582 * (ledangle + 0.785398163397449);
+								t = t - Math.Floor(t);
+								t = 0.5 * (1.0 - Math.Tan(0.25 * (Math.PI - 2.0 * Math.PI * t)));
+								double cx = (1.0 - t) * Object.LEDVectors[(currentEdge + 3) % 4].X + t * Object.LEDVectors[currentEdge % 4].X;
+								double cy = (1.0 - t) * Object.LEDVectors[(currentEdge + 3) % 4].Y + t * Object.LEDVectors[currentEdge % 4].Y;
+								double cz = (1.0 - t) * Object.LEDVectors[(currentEdge + 3) % 4].Z + t * Object.LEDVectors[currentEdge % 4].Z;
+								Object.States[s].Object.Mesh.Vertices[v + 0].Coordinates = Object.LEDVectors[(currentEdge + 3) % 4];
+								Object.States[s].Object.Mesh.Vertices[v + 1].Coordinates = new World.Vector3D(cx, cy, cz);
+								v += 2;
+							}
+							for (int j = currentEdge - 1; j > lastEdge; j--) {
+								/* square-vertex to square-vertex */
+								Object.States[s].Object.Mesh.Vertices[v + 0].Coordinates = Object.LEDVectors[(j + 3) % 4];
+								Object.States[s].Object.Mesh.Vertices[v + 1].Coordinates = Object.LEDVectors[j % 4];
+								v += 2;
+							}
+							{
+								/* square vertex to last angle */
+								double t = 0.636619772367582 * (Object.LEDLastAngle + 0.785398163397449);
+								t = t - Math.Floor(t);
+								t = 0.5 * (1.0 - Math.Tan(0.25 * (Math.PI - 2.0 * Math.PI * t)));
+								double lx = (1.0 - t) * Object.LEDVectors[(lastEdge + 3) % 4].X + t * Object.LEDVectors[lastEdge].X;
+								double ly = (1.0 - t) * Object.LEDVectors[(lastEdge + 3) % 4].Y + t * Object.LEDVectors[lastEdge].Y;
+								double lz = (1.0 - t) * Object.LEDVectors[(lastEdge + 3) % 4].Z + t * Object.LEDVectors[lastEdge].Z;
+								Object.States[s].Object.Mesh.Vertices[v + 0].Coordinates = new World.Vector3D(lx, ly, lz);
+								Object.States[s].Object.Mesh.Vertices[v + 1].Coordinates = Object.LEDVectors[lastEdge % 4];
+								v += 2;
+							}
+						}
 					}
 				}
+				for (int j = v; v < 11; v++) {
+					Object.States[s].Object.Mesh.Vertices[j].Coordinates = Object.LEDVectors[4];
+				}
 			}
+//			if (led) {
+//				double max = Object.LEDMaximumAngle;
+//				for (int j = 0; j < 5; j++) {
+//					double pos1 = 0.0;
+//					double pos2 = 1.0;
+//					switch (j) {
+//						case 0:
+//							if (ledangle <= -0.5 * Math.PI) {
+//								pos1 = 0.5;
+//							} else if (ledangle >= 0.5 * Math.PI) {
+//								pos1 = 1.0;
+//							} else {
+//								pos1 = 0.5 * Math.Tan(ledangle - 2.0 * Math.PI) + 0.5;
+//								if (pos1 < 0.5) pos1 = 0.5;
+//								else if (pos1 > 1.0) pos1 = 1.0;
+//							}
+//							if (max <= -0.5 * Math.PI) {
+//								pos2 = 0.5;
+//							} else if (max >= 0.5 * Math.PI) {
+//								pos2 = 1.0;
+//							} else {
+//								pos2 = 0.5 * Math.Tan(max - 2.0 * Math.PI) + 0.5;
+//								if (pos2 < 0.5) pos2 = 0.5;
+//								else if (pos2 > 1.0) pos2 = 1.0;
+//							}
+//							break;
+//						case 1:
+//							if (ledangle <= 0.0) {
+//								pos1 = 0.0;
+//							} else if (ledangle >= Math.PI) {
+//								pos1 = 1.0;
+//							} else {
+//								pos1 = 0.5 * Math.Tan(ledangle - 0.5 * Math.PI) + 0.5;
+//								if (pos1 < 0.0) pos1 = 0.0;
+//								else if (pos1 > 1.0) pos1 = 1.0;
+//							}
+//							if (max <= 0.0) {
+//								pos2 = 0.0;
+//							} else if (max >= Math.PI) {
+//								pos2 = 1.0;
+//							} else {
+//								pos2 = 0.5 * Math.Tan(max - 0.5 * Math.PI) + 0.5;
+//								if (pos2 < 0.0) pos2 = 0.0;
+//								else if (pos2 > 1.0) pos2 = 1.0;
+//							}
+//							break;
+//						case 2:
+//							if (ledangle <= 0.5 * Math.PI) {
+//								pos1 = 0.0;
+//							} else if (ledangle >= 1.5 * Math.PI) {
+//								pos1 = 1.0;
+//							} else {
+//								pos1 = 0.5 * Math.Tan(ledangle - Math.PI) + 0.5;
+//								if (pos1 < 0.0) pos1 = 0.0;
+//								else if (pos1 > 1.0) pos1 = 1.0;
+//							}
+//							if (max <= 0.5 * Math.PI) {
+//								pos2 = 0.0;
+//							} else if (max >= 1.5 * Math.PI) {
+//								pos2 = 1.0;
+//							} else {
+//								pos2 = 0.5 * Math.Tan(max - Math.PI) + 0.5;
+//								if (pos2 < 0.0) pos2 = 0.0;
+//								else if (pos2 > 1.0) pos2 = 1.0;
+//							}
+//							break;
+//						case 3:
+//							if (ledangle <= Math.PI) {
+//								pos1 = 0.0;
+//							} else if (ledangle >= 2.0 * Math.PI) {
+//								pos1 = 1.0;
+//							} else {
+//								pos1 = 0.5 * Math.Tan(ledangle - 1.5 * Math.PI) + 0.5;
+//								if (pos1 < 0.0) pos1 = 0.0;
+//								else if (pos1 > 1.0) pos1 = 1.0;
+//							}
+//							if (max <= Math.PI) {
+//								pos2 = 0.0;
+//							} else if (max >= 2.0 * Math.PI) {
+//								pos2 = 1.0;
+//							} else {
+//								pos2 = 0.5 * Math.Tan(max - 1.5 * Math.PI) + 0.5;
+//								if (pos2 < 0.0) pos2 = 0.0;
+//								else if (pos2 > 1.0) pos2 = 1.0;
+//							}
+//							break;
+//						case 4:
+//							if (ledangle <= 1.5 * Math.PI) {
+//								pos1 = 0.0;
+//							} else if (ledangle >= 2.5 * Math.PI) {
+//								pos1 = 0.5;
+//							} else {
+//								pos1 = 0.5 * Math.Tan(ledangle - 2.0 * Math.PI) + 0.5;
+//								if (pos1 < 0.0) pos1 = 0.0;
+//								else if (pos1 > 0.5) pos1 = 0.5;
+//							}
+//							if (max <= 1.5 * Math.PI) {
+//								pos2 = 0.0;
+//							} else if (max >= 2.5 * Math.PI) {
+//								pos2 = 0.5;
+//							} else {
+//								pos2 = 0.5 * Math.Tan(max - 2.0 * Math.PI) + 0.5;
+//								if (pos2 < 0.0) pos2 = 0.0;
+//								else if (pos2 > 0.5) pos2 = 0.5;
+//							}
+//							break;
+//					}
+//					int k = 2 * j + 1;
+//					double cpos1 = 1.0 - pos1;
+//					double cpos2 = 1.0 - pos2;
+//					double x0 = Object.States[s].Object.Mesh.Vertices[k].Coordinates.X;
+//					double y0 = Object.States[s].Object.Mesh.Vertices[k].Coordinates.Y;
+//					double z0 = Object.States[s].Object.Mesh.Vertices[k].Coordinates.Z;
+//					double x1 = Object.States[s].Object.Mesh.Vertices[k + 1].Coordinates.X;
+//					double y1 = Object.States[s].Object.Mesh.Vertices[k + 1].Coordinates.Y;
+//					double z1 = Object.States[s].Object.Mesh.Vertices[k + 1].Coordinates.Z;
+//					if (Object.LEDClockwiseWinding) {
+//						ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.X = x0 * cpos1 + x1 * pos1;
+//						ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Y = y0 * cpos1 + y1 * pos1;
+//						ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Z = z0 * cpos1 + z1 * pos1;
+//						ObjectManager.Objects[i].Mesh.Vertices[k + 1].Coordinates.X = x0 * cpos2 + x1 * pos2;
+//						ObjectManager.Objects[i].Mesh.Vertices[k + 1].Coordinates.Y = y0 * cpos2 + y1 * pos2;
+//						ObjectManager.Objects[i].Mesh.Vertices[k + 1].Coordinates.Z = z0 * cpos2 + z1 * pos2;
+//					} else {
+//						ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.X = x0 * cpos2 + x1 * pos2;
+//						ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Y = y0 * cpos2 + y1 * pos2;
+//						ObjectManager.Objects[i].Mesh.Vertices[k].Coordinates.Z = z0 * cpos2 + z1 * pos2;
+//						ObjectManager.Objects[i].Mesh.Vertices[k + 1].Coordinates.X = x0 * cpos1 + x1 * pos1;
+//						ObjectManager.Objects[i].Mesh.Vertices[k + 1].Coordinates.Y = y0 * cpos1 + y1 * pos1;
+//						ObjectManager.Objects[i].Mesh.Vertices[k + 1].Coordinates.Z = z0 * cpos1 + z1 * pos1;
+//					}
+//				}
+//			}
 			// update vertices
 			for (int k = 0; k < Object.States[s].Object.Mesh.Vertices.Length; k++) {
 				// rotate
@@ -680,12 +840,16 @@ namespace OpenBve {
 				double pb = AnimatedWorldObjects[i].TrackPosition + z + AnimatedWorldObjects[i].Radius;
 				double ta = World.CameraTrackFollower.TrackPosition - World.BackgroundImageDistance - 4.0 * World.ExtraViewingDistance;
 				double tb = World.CameraTrackFollower.TrackPosition + World.BackgroundImageDistance + 4.0 * World.ExtraViewingDistance;
-				bool v = pb >= ta & pa <= tb;
-				if (v) {
-					if (Game.SecondsSinceMidnight >= AnimatedWorldObjects[i].Object.TimeNextUpdated | ForceUpdate) {
-						double timeDelta = Game.SecondsSinceMidnight - AnimatedWorldObjects[i].Object.TimeLastUpdated;
-						AnimatedWorldObjects[i].Object.TimeNextUpdated = Game.SecondsSinceMidnight + AnimatedWorldObjects[i].Object.RefreshRate;
-						AnimatedWorldObjects[i].Object.TimeLastUpdated = Game.SecondsSinceMidnight;
+				bool visible = pb >= ta & pa <= tb;
+				if (visible | ForceUpdate) {
+					if (AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate >= AnimatedWorldObjects[i].Object.RefreshRate | ForceUpdate) {
+						//if (Game.SecondsSinceMidnight >= AnimatedWorldObjects[i].Object.TimeNextUpdated | ForceUpdate) {//###
+						//double timeDelta = Game.SecondsSinceMidnight - AnimatedWorldObjects[i].Object.TimeLastUpdated;
+						//AnimatedWorldObjects[i].Object.TimeNextUpdated = Game.SecondsSinceMidnight + AnimatedWorldObjects[i].Object.RefreshRate;
+						//AnimatedWorldObjects[i].Object.TimeLastUpdated = Game.SecondsSinceMidnight;
+						double timeDelta = AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate;
+						AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate = TimeElapsed;
+						
 						TrainManager.Train train = null;
 						double trainDistance = double.MaxValue;
 						for (int j = 0; j < TrainManager.Trains.Length; j++) {
@@ -703,19 +867,22 @@ namespace OpenBve {
 							}
 						}
 						UpdateAnimatedObject(ref AnimatedWorldObjects[i].Object, false, train, train == null ? 0 : train.DriverCar, AnimatedWorldObjects[i].SectionIndex, AnimatedWorldObjects[i].TrackPosition, AnimatedWorldObjects[i].Position, AnimatedWorldObjects[i].Direction, AnimatedWorldObjects[i].Up, AnimatedWorldObjects[i].Side, false, true, true, timeDelta);
+					} else {
+						AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate += TimeElapsed;
 					}
 					if (!AnimatedWorldObjects[i].Visible) {
 						Renderer.ShowObject(AnimatedWorldObjects[i].Object.ObjectIndex, false);
 						AnimatedWorldObjects[i].Visible = true;
 					}
 				} else {
+					AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate += TimeElapsed;
 					if (AnimatedWorldObjects[i].Visible) {
 						Renderer.HideObject(AnimatedWorldObjects[i].Object.ObjectIndex);
 						AnimatedWorldObjects[i].Visible = false;
 					}
-					if (ForceUpdate) {
-						AnimatedWorldObjects[i].Object.TimeNextUpdated = Game.SecondsSinceMidnight;
-					}
+//					if (ForceUpdate) {//###
+//						AnimatedWorldObjects[i].Object.TimeNextUpdated = Game.SecondsSinceMidnight;
+//					}
 				}
 			}
 		}

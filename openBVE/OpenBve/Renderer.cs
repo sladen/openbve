@@ -82,8 +82,6 @@ namespace OpenBve {
 
 		// interface options
 		internal const bool OptionHeadlight = false; // for testing purposes
-		internal static bool OptionTimetable = false;
-		internal static double OptionTimetablePosition = 0.0;
 		internal static bool OptionClock = false;
 		internal enum SpeedDisplayMode { None, Kmph, Mph }
 		internal static SpeedDisplayMode OptionSpeed = SpeedDisplayMode.None;
@@ -115,7 +113,6 @@ namespace OpenBve {
 			OptionDiffuseColor = new World.ColorRGB(160, 160, 160);
 			OptionLightPosition = new World.Vector3Df(0.223606797749979f, 0.86602540378444f, -0.447213595499958f);
 			OptionLightingResultingAmount = 1.0f;
-			OptionTimetablePosition = 0.0;
 			OptionClock = false;
 			OptionBrakeSystems = false;
 		}
@@ -259,12 +256,13 @@ namespace OpenBve {
 			Glu.gluLookAt(0.0, 0.0, 0.0, dx, dy, dz, ux, uy, uz);
 			Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_POSITION, new float[] { OptionLightPosition.X, OptionLightPosition.Y, OptionLightPosition.Z, 0.0f });
 			if (OptionHeadlight) {
-				World.Vector3D position = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.WorldPosition;
-				position.X -= cx;
-				position.Y -= cy;
-				position.Z -= cz;
+				World.Vector3D trainPosition = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.WorldPosition;
+				World.Vector3D trainDirection = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.WorldDirection;
+				trainPosition.X -= cx;
+				trainPosition.Y -= cy;
+				trainPosition.Z -= cz;
 				World.Vector3D direction = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.WorldDirection;
-				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_POSITION, new float[] { (float)position.X, (float)position.Y, (float)position.Z, 1.0f });
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_POSITION, new float[] { (float)trainPosition.X, (float)trainPosition.Y, (float)trainPosition.Z, 1.0f });
 				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_SPOT_DIRECTION, new float[] { (float)direction.X, (float)direction.Y, (float)direction.Z });
 			}
 			// fog
@@ -1022,7 +1020,7 @@ namespace OpenBve {
 			} else {
 				Count = 0;
 			}
-			if (TrainManager.PlayerTrain.Specs.Safety.Mode != TrainManager.SafetySystem.Plugin) {
+			if (TrainManager.PlayerTrain.Specs.Safety.Mode != TrainManager.SafetySystem.Plugin & World.CameraRestriction != World.CameraRestrictionMode.NotAvailable) {
 				if (TrainManager.PlayerTrain.Specs.Safety.Eb.Available & TrainManager.PlayerTrain.Specs.Safety.Ats.AtsAvailable | TrainManager.PlayerTrain.Specs.HasConstSpeed) {
 					CurrentLampCollection.Lamps[Count] = new Lamp(LampType.None);
 					Count++;
@@ -2142,13 +2140,37 @@ namespace OpenBve {
 					}
 				}
 				// timetable
-				if (OptionTimetable) {
-					int t = Timetable.TimetableTexture;
+				if (Timetable.CurrentTimetable == Timetable.TimetableState.Default) {
+					// default
+					int t = Timetable.DefaultTimetableTexture;
 					if (t >= 0) {
 						int w = TextureManager.Textures[t].ClipWidth;
 						int h = TextureManager.Textures[t].ClipHeight;
 						Gl.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-						RenderOverlayTexture(t, (double)(ScreenWidth - w), OptionTimetablePosition, (double)ScreenWidth, (double)h + OptionTimetablePosition);
+						RenderOverlayTexture(t, (double)(ScreenWidth - w), Timetable.DefaultTimetablePosition, (double)ScreenWidth, (double)h + Timetable.DefaultTimetablePosition);
+					}
+				} else if (Timetable.CurrentTimetable == Timetable.TimetableState.Custom & Timetable.CustomObjectsUsed == 0) {
+					// custom
+					int td = Timetable.CurrentCustomTimetableDaytimeTextureIndex;
+					if (td >= 0) {
+						int w = TextureManager.Textures[td].ClipWidth;
+						int h = TextureManager.Textures[td].ClipHeight;
+						Gl.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+						RenderOverlayTexture(td, (double)(ScreenWidth - w), Timetable.CustomTimetablePosition, (double)ScreenWidth, (double)h + Timetable.CustomTimetablePosition);
+					}
+					int tn = Timetable.CurrentCustomTimetableDaytimeTextureIndex;
+					if (tn >= 0) {
+						int w = TextureManager.Textures[tn].ClipWidth;
+						int h = TextureManager.Textures[tn].ClipHeight;
+						float alpha;
+						if (td >= 0) {
+							double t = (TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition - TrainManager.PlayerTrain.Cars[0].Brightness.PreviousTrackPosition) / (TrainManager.PlayerTrain.Cars[0].Brightness.NextTrackPosition - TrainManager.PlayerTrain.Cars[0].Brightness.PreviousTrackPosition);
+							alpha = (float)((1.0 - t) * TrainManager.PlayerTrain.Cars[0].Brightness.PreviousBrightness + t * TrainManager.PlayerTrain.Cars[0].Brightness.NextBrightness);
+						} else {
+							alpha = 1.0f;
+						}
+						Gl.glColor4f(1.0f, 1.0f, 1.0f, alpha);
+						RenderOverlayTexture(tn, (double)(ScreenWidth - w), Timetable.CustomTimetablePosition, (double)ScreenWidth, (double)h + Timetable.CustomTimetablePosition);
 					}
 				}
 			} else if (CurrentOutputMode == OutputMode.Debug) {

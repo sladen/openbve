@@ -1444,7 +1444,7 @@ namespace OpenBve {
 										if (Arguments.Length < 1) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "" + Command + " is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 										} else {
-											Timetable.TimetableDescription = Arguments[0];
+											Timetable.DefaultTimetableDescription = Arguments[0];
 										}
 									} break;
 								case "route.change":
@@ -1718,6 +1718,9 @@ namespace OpenBve {
 														}
 													}
 													string f = Interface.GetCombinedFileName(TrainPath, Arguments[0]);
+													if (!System.IO.File.Exists(f)) {
+														f = Interface.GetCombinedFileName(ObjectPath, Arguments[0]);
+													}
 													if (System.IO.File.Exists(f)) {
 														Data.TimetableDaytime[CommandIndex1] = TextureManager.RegisterTexture(f, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 														TextureManager.UseTexture(Data.TimetableDaytime[CommandIndex1], TextureManager.UseMode.Normal);
@@ -1745,6 +1748,9 @@ namespace OpenBve {
 														}
 													}
 													string f = Interface.GetCombinedFileName(TrainPath, Arguments[0]);
+													if (!System.IO.File.Exists(f)) {
+														f = Interface.GetCombinedFileName(ObjectPath, Arguments[0]);
+													}
 													if (System.IO.File.Exists(f)) {
 														Data.TimetableNighttime[CommandIndex1] = TextureManager.RegisterTexture(f, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 														TextureManager.UseTexture(Data.TimetableNighttime[CommandIndex1], TextureManager.UseMode.Normal);
@@ -2799,8 +2805,8 @@ namespace OpenBve {
 										}
 										if (r < 0.0) {
 											r = 0.0;
-										} else if (r > 8.0) {
-											r = 8.0;
+										} else if (r > 4.0) {
+											r = 4.0;
 										}
 										Data.Blocks[BlockIndex].Accuracy = r;
 									} break;
