@@ -136,12 +136,17 @@ namespace OpenBve {
 													} else {
 														const double c = 4.439346232277577;
 														AccelerationCurves[n].StageTwoExponent = 1.0 - Math.Log(a) * AccelerationCurves[n].StageTwoSpeed * c;
-														if (AccelerationCurves[n].StageTwoExponent > 4.0) {
+														if (AccelerationCurves[n].StageTwoExponent <= 0.0) {
+															AccelerationCurves[n].StageTwoExponent = 1.0;
+														} else if (AccelerationCurves[n].StageTwoExponent > 4.0) {
 															AccelerationCurves[n].StageTwoExponent = 4.0;
 														}
 													}
 												} else {
 													AccelerationCurves[n].StageTwoExponent = a;
+													if (AccelerationCurves[n].StageTwoExponent <= 0.0) {
+														AccelerationCurves[n].StageTwoExponent = 1.0;
+													}
 												}
 											} break;
 									}
@@ -467,6 +472,8 @@ namespace OpenBve {
 				Interface.AddMessage(Interface.MessageType.Error, false, "TrailerCarMass is expected to be positive in " + FileName);
 				TrailerCarMass = 1.0;
 			}
+						if (Train.Specs.MaximumPowerNotch <= 0) Train.Specs.MaximumPowerNotch = 8;
+			if (Train.Specs.MaximumBrakeNotch <= 0) Train.Specs.MaximumBrakeNotch = 8;
 			// apply data
 			Train.Specs.TotalMass = (double)MotorCars * MotorCarMass + (double)TrailerCars * TrailerCarMass;
 			if (MotorCars < 1) MotorCars = 1;
@@ -475,8 +482,6 @@ namespace OpenBve {
 			Train.Cars = new TrainManager.Car[Cars];
 			double DistanceBetweenTheCars = 0.3;
 			// brake system
-			if (Train.Specs.MaximumPowerNotch <= 0) Train.Specs.MaximumPowerNotch = 8;
-			if (Train.Specs.MaximumBrakeNotch <= 0) Train.Specs.MaximumBrakeNotch = 8;
 			double OperatingPressure;
 			if (BrakePipePressure <= 0.0) {
 				if (BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
@@ -494,8 +499,39 @@ namespace OpenBve {
 			} else {
 				OperatingPressure = BrakePipePressure;
 			}
+			// acceleration curves
 			double MaximumAcceleration = 0.0;
-			for (int i = 0; i < AccelerationCurves.Length; i++) {
+			for (int i = 0; i < Math.Min(AccelerationCurves.Length, Train.Specs.MaximumPowerNotch); i++) {
+				bool errors = false;
+				if (AccelerationCurves[i].StageZeroAcceleration <= 0.0) {
+					AccelerationCurves[i].StageZeroAcceleration = 1.0;
+					errors = true;
+				}
+				if (AccelerationCurves[i].StageOneAcceleration <= 0.0) {
+					AccelerationCurves[i].StageOneAcceleration = 1.0;
+					errors = true;
+				}
+				if (AccelerationCurves[i].StageOneSpeed <= 0.0) {
+					AccelerationCurves[i].StageOneSpeed = 1.0;
+					errors = true;
+				}
+				if (AccelerationCurves[i].StageTwoSpeed <= 0.0) {
+					AccelerationCurves[i].StageTwoSpeed = 1.0;
+					errors = true;
+				}
+				if (AccelerationCurves[i].StageTwoExponent <= 0.0) {
+					AccelerationCurves[i].StageTwoExponent = 1.0;
+					errors = true;
+				}
+				if (AccelerationCurves[i].StageOneSpeed > AccelerationCurves[i].StageTwoSpeed) {
+					double x = 0.5 * (AccelerationCurves[i].StageOneSpeed + AccelerationCurves[i].StageTwoSpeed);
+					AccelerationCurves[i].StageOneSpeed = x;
+					AccelerationCurves[i].StageTwoSpeed = x;
+					errors = true;
+				}
+				if (errors) {
+					Interface.AddMessage(Interface.MessageType.Error, false, "Entry " + (i + 1).ToString(Culture) + " in the #ACCELERATION section is missing or invalid in " + FileName);
+				}
 				if (AccelerationCurves[i].StageZeroAcceleration > MaximumAcceleration) {
 					MaximumAcceleration = AccelerationCurves[i].StageZeroAcceleration;
 				}

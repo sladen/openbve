@@ -55,6 +55,13 @@ namespace OpenBve {
 				}
 				Game.MinimalisticSimulation = false;
 			}
+			// timetable
+			if (TrainManager.PlayerTrain.Station >= 0) {
+				Timetable.UpdateCustomTimetable(Game.Stations[TrainManager.PlayerTrain.Station].TimetableDaytimeTexture, Game.Stations[TrainManager.PlayerTrain.Station].TimetableNighttimeTexture);
+				if (Timetable.CustomObjectsUsed != 0 & Timetable.CustomTimetableAvailable) {
+					Timetable.CurrentTimetable = Timetable.TimetableState.Custom;
+				}
+			}
 			// loop
 			Asynchronous.Initialize();
 			World.InitializeCameraRestriction();
@@ -63,10 +70,13 @@ namespace OpenBve {
 				CheckForOpenGlError("MainLoop");
 				#endif
 				// timer
+				double RealTimeElapsed;
 				double TimeElapsed;
 				if (Game.SecondsSinceMidnight >= Game.StartupTime) {
-					TimeElapsed = Timers.GetElapsedTime() * (double)TimeFactor;
+					RealTimeElapsed = Timers.GetElapsedTime();
+					TimeElapsed = RealTimeElapsed * (double)TimeFactor;
 				} else {
+					RealTimeElapsed = 0.0;
 					TimeElapsed = Game.StartupTime - Game.SecondsSinceMidnight;
 				}
 				TotalTimeElapsedForInfo += TimeElapsed;
@@ -79,38 +89,53 @@ namespace OpenBve {
 					TotalTimeElapsedForSectionUpdate = 0.0;
 				}
 				if (TotalTimeElapsedForInfo >= 0.2) {
-					Game.InfoFrameRate = (double)TotalFramesElapsed / TotalTimeElapsedForInfo;
+					Game.InfoFrameRate = (double)TimeFactor * (double)TotalFramesElapsed / TotalTimeElapsedForInfo;
 					TotalTimeElapsedForInfo = 0.0;
 					TotalFramesElapsed = 0;
 				}
 				// events
+				UpdateControlRepeats(RealTimeElapsed);
 				ProcessEvents();
 				World.CameraAlignmentDirection = new World.CameraAlignment();
 				World.UpdateMouseGrab(TimeElapsed);
 				ProcessControls(TimeElapsed);
-				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) {
-					World.UpdateAbsoluteCamera(TimeElapsed);
-				}
+//				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) {
+//					World.UpdateAbsoluteCamera(TimeElapsed);
+//				}
 				if (Quit) break;
 				// update in pieces
 				{
 					const double w = 0.1;
 					double u = TimeElapsed;
 					while (true) {
-						double v = u < w ? u : w; u -= v;
+						double v = u < w ? u : w;
+						u -= v;
 						Game.SecondsSinceMidnight += v;
-						double a = World.CameraTrackFollower.TrackPosition;
+						//double a = World.CameraTrackFollower.TrackPosition;
 						TrainManager.UpdateTrains(v);
-						double b = World.CameraTrackFollower.TrackPosition;
-						if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
-							World.CameraTrackFollower.TrackPosition = a;
-							TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, b, false, false);
-						}
-						if (u <= 0.0) break;
+						//double b = World.CameraTrackFollower.TrackPosition;
+//						if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
+//							World.CameraTrackFollower.TrackPosition = a;
+//							TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, b, false, false);
+//						}
+						if (u <= 0.00000001) break;
 					}
 				}
 				// update in one piece
+				
 				ObjectManager.UpdateAnimatedWorldObjects(TimeElapsed, false);
+
+				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
+					TrainManager.UpdateCamera(TrainManager.PlayerTrain);
+				}
+
+				if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
+					World.UpdateDriverBody(TimeElapsed);
+				}
+				World.UpdateAbsoluteCamera(TimeElapsed);
+
+				TrainManager.UpdateTrainObjects(TimeElapsed);
+				
 				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
 					ObjectManager.UpdateVisibility(World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z);
 					int d = TrainManager.PlayerTrain.DriverCar;
@@ -118,12 +143,8 @@ namespace OpenBve {
 				} else {
 					World.CameraSpeed = 0.0;
 				}
-				if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
-					World.UpdateDriverBody(TimeElapsed);
-					World.UpdateAbsoluteCamera(TimeElapsed);
-				} else if (World.CameraMode != World.CameraViewMode.Interior) {
-					World.UpdateAbsoluteCamera(TimeElapsed);
-				}
+				
+				
 				if (UpdateViewportAndViewingDistancesInNextFrame) {
 					UpdateViewportAndViewingDistancesInNextFrame = false;
 					World.CameraAlignmentDirection = new World.CameraAlignment();
@@ -142,6 +163,7 @@ namespace OpenBve {
 				Game.UpdateBlackBox();
 				// pause/menu
 				while (Game.CurrentInterface != Game.InterfaceType.Normal) {
+					UpdateControlRepeats(RealTimeElapsed);
 					ProcessEvents();
 					ProcessControls(0.0);
 					if (Quit) break;
@@ -169,6 +191,45 @@ namespace OpenBve {
 
 		// --------------------------------
 
+		// repeats
+		private struct ControlRepeat {
+			internal int ControlIndex;
+			internal double Countdown;
+			internal ControlRepeat(int controlIndex, double countdown) {
+				this.ControlIndex = controlIndex;
+				this.Countdown = countdown;
+			}
+		}
+		private static ControlRepeat[] RepeatControls = new ControlRepeat[16];
+		private static int RepeatControlsUsed = 0;
+		private static void AddControlRepeat(int controlIndex) {
+			if (RepeatControls.Length == RepeatControlsUsed) {
+				Array.Resize<ControlRepeat>(ref RepeatControls, RepeatControls.Length << 1);
+			}
+			RepeatControls[RepeatControlsUsed] = new ControlRepeat(controlIndex, Interface.CurrentOptions.KeyRepeatDelay);
+			RepeatControlsUsed++;
+		}
+		private static void RemoveControlRepeat(int controlIndex) {
+			for (int i = 0; i < RepeatControlsUsed; i++) {
+				if (RepeatControls[i].ControlIndex == controlIndex) {
+					RepeatControls[i] = RepeatControls[RepeatControlsUsed - 1];
+					RepeatControlsUsed--;
+					break;
+				}
+			}
+		}
+		private static void UpdateControlRepeats(double timeElapsed) {
+			for (int i = 0; i < RepeatControlsUsed; i++) {
+				RepeatControls[i].Countdown -= timeElapsed;
+				if (RepeatControls[i].Countdown <= 0.0) {
+					int j = RepeatControls[i].ControlIndex;
+					Interface.CurrentControls[j].AnalogState = 1.0;
+					Interface.CurrentControls[j].DigitalState = Interface.DigitalControlState.Pressed;
+					RepeatControls[i].Countdown += Interface.CurrentOptions.KeyRepeatInterval;
+				}
+			}
+		}
+		
 		// process events
 		private static Interface.KeyboardModifier CurrentKeyboardModifier = Interface.KeyboardModifier.None;
 		private static void ProcessEvents() {
@@ -195,12 +256,12 @@ namespace OpenBve {
 							if (Interface.CurrentControls[i].Method == Interface.ControlMethod.Keyboard) {
 								if (Interface.CurrentControls[i].Element == Event.key.keysym.sym & Interface.CurrentControls[i].Modifier == CurrentKeyboardModifier) {
 									Interface.CurrentControls[i].AnalogState = 1.0;
-									if (Interface.CurrentControls[i].DigitalState != Interface.DigitalControlState.PressedAcknowledged) {
-										Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Pressed;
-									}
+									Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Pressed;
+									AddControlRepeat(i);
 								}
 							}
-						} break;
+						}
+						break;
 						// key up
 					case Sdl.SDL_KEYUP:
 						if (Event.key.keysym.sym == Sdl.SDLK_LSHIFT | Event.key.keysym.sym == Sdl.SDLK_RSHIFT) CurrentKeyboardModifier &= ~Interface.KeyboardModifier.Shift;
@@ -210,12 +271,12 @@ namespace OpenBve {
 							if (Interface.CurrentControls[i].Method == Interface.ControlMethod.Keyboard) {
 								if (Interface.CurrentControls[i].Element == Event.key.keysym.sym) {
 									Interface.CurrentControls[i].AnalogState = 0.0;
-									if (Interface.CurrentControls[i].DigitalState != Interface.DigitalControlState.ReleasedAcknowledged) {
-										Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Released;
-									}
+									Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Released;
+									RemoveControlRepeat(i);
 								}
 							}
-						} break;
+						}
+						break;
 						// joystick button down
 					case Sdl.SDL_JOYBUTTONDOWN:
 						if (Interface.CurrentOptions.UseJoysticks) {
@@ -225,6 +286,7 @@ namespace OpenBve {
 										if (Interface.CurrentControls[i].Device == (int)Event.jbutton.which & Interface.CurrentControls[i].Element == (int)Event.jbutton.button) {
 											Interface.CurrentControls[i].AnalogState = 1.0;
 											Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Pressed;
+											AddControlRepeat(i);
 										}
 									}
 								}
@@ -239,6 +301,7 @@ namespace OpenBve {
 										if (Interface.CurrentControls[i].Device == (int)Event.jbutton.which & Interface.CurrentControls[i].Element == (int)Event.jbutton.button) {
 											Interface.CurrentControls[i].AnalogState = 0.0;
 											Interface.CurrentControls[i].DigitalState = Interface.DigitalControlState.Released;
+											RemoveControlRepeat(i);
 										}
 									}
 								}
@@ -772,13 +835,43 @@ namespace OpenBve {
 									case Interface.Command.TimetableUp:
 										// timetable up
 										if (TimeElapsed > 0.0) {
-											Renderer.OptionTimetablePosition += 64.0 * Interface.CurrentControls[i].AnalogState * TimeElapsed;
-											if (Renderer.OptionTimetablePosition > 0.0) Renderer.OptionTimetablePosition = 0.0;
+											const double scrollSpeed = 250.0;
+											if (Timetable.CurrentTimetable == Timetable.TimetableState.Default) {
+												Timetable.DefaultTimetablePosition += scrollSpeed * Interface.CurrentControls[i].AnalogState * TimeElapsed;
+												if (Timetable.DefaultTimetablePosition > 0.0) Timetable.DefaultTimetablePosition = 0.0;
+											} else if (Timetable.CurrentTimetable == Timetable.TimetableState.Custom) {
+												Timetable.CustomTimetablePosition += scrollSpeed * Interface.CurrentControls[i].AnalogState * TimeElapsed;
+												if (Timetable.CustomTimetablePosition > 0.0) Timetable.CustomTimetablePosition = 0.0;
+											}
 										} break;
 									case Interface.Command.TimetableDown:
 										// timetable down
 										if (TimeElapsed > 0.0) {
-											Renderer.OptionTimetablePosition -= 64.0 * Interface.CurrentControls[i].AnalogState * TimeElapsed;
+											const double scrollSpeed = 250.0;
+											if (Timetable.CurrentTimetable == Timetable.TimetableState.Default) {
+												Timetable.DefaultTimetablePosition -= scrollSpeed * Interface.CurrentControls[i].AnalogState * TimeElapsed;
+												int texture = Timetable.DefaultTimetableTexture;
+												double max;
+												if (texture >= 0) {
+													max = Math.Min(Renderer.ScreenHeight - TextureManager.Textures[texture].ClipHeight, 0.0);
+												} else {
+													max = 0.0;
+												}
+												if (Timetable.DefaultTimetablePosition < max) Timetable.DefaultTimetablePosition = max;
+											} else if (Timetable.CurrentTimetable == Timetable.TimetableState.Custom) {
+												Timetable.CustomTimetablePosition -= scrollSpeed * Interface.CurrentControls[i].AnalogState * TimeElapsed;
+												int texture = Timetable.CurrentCustomTimetableDaytimeTextureIndex;
+												if (texture == -1) {
+													texture = Timetable.CurrentCustomTimetableNighttimeTextureIndex;
+												}
+												double max;
+												if (texture >= 0) {
+													max = Math.Min(Renderer.ScreenHeight - TextureManager.Textures[texture].ClipHeight, 0.0);
+												} else {
+													max = 0.0;
+												}
+												if (Timetable.CustomTimetablePosition < max) Timetable.CustomTimetablePosition = max;
+											}
 										} break;
 								}
 							}
@@ -1310,17 +1403,27 @@ namespace OpenBve {
 										break;
 									case Interface.Command.TimetableToggle:
 										// option: timetable
-										if (Timetable.CustomTrainIndex >= 0) {
-											if (Timetable.CustomVisible) {
-												Timetable.CustomVisible = false;
-												Renderer.OptionTimetable = true;
-											} else if (Renderer.OptionTimetable) {
-												Renderer.OptionTimetable = false;
-											} else {
-												Timetable.CustomVisible = true;
+										if (Timetable.CustomTimetableAvailable) {
+											switch (Timetable.CurrentTimetable) {
+												case Timetable.TimetableState.Custom:
+													Timetable.CurrentTimetable = Timetable.TimetableState.Default;
+													break;
+												case Timetable.TimetableState.Default:
+													Timetable.CurrentTimetable = Timetable.TimetableState.None;
+													break;
+												default:
+													Timetable.CurrentTimetable = Timetable.TimetableState.Custom;
+													break;
 											}
 										} else {
-											Renderer.OptionTimetable = !Renderer.OptionTimetable;
+											switch (Timetable.CurrentTimetable) {
+												case Timetable.TimetableState.Default:
+													Timetable.CurrentTimetable = Timetable.TimetableState.None;
+													break;
+												default:
+													Timetable.CurrentTimetable = Timetable.TimetableState.Default;
+													break;
+											}
 										} break;
 									case Interface.Command.DebugWireframe:
 										// option: wireframe

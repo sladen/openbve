@@ -371,14 +371,7 @@ namespace OpenBve {
 											double cx = 0.25 * (x0 + x1 + x2 + x3);
 											double cy = 0.25 * (y0 + y1 + y2 + y3);
 											double cz = 0.25 * (z0 + z1 + z2 + z3);
-											World.Vertex[] vertices = new World.Vertex[] {
-												new World.Vertex(cx, cy, cz),
-												new World.Vertex(x3, y3, z3), new World.Vertex(x0, y0, z0),
-												new World.Vertex(x0, y0, z0), new World.Vertex(x1, y1, z1),
-												new World.Vertex(x1, y1, z1), new World.Vertex(x2, y2, z2),
-												new World.Vertex(x2, y2, z2), new World.Vertex(x3, y3, z3),
-												new World.Vertex(x3, y3, z3), new World.Vertex(x0, y0, z0)
-											};
+											World.Vertex[] vertices = new World.Vertex[11];
 											int[][] faces = new int[][] {
 												new int[] { 0, 1, 2 },
 												new int[] { 0, 3, 4 },
@@ -388,16 +381,25 @@ namespace OpenBve {
 											};
 											Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh = new World.Mesh(vertices, faces, NeedleColor[1]);
 											Train.Cars[0].Sections[0].Elements[j].LEDClockwiseWinding = true;
-											Train.Cars[0].Sections[0].Elements[j].LEDMaximumAngle = 2.0 * Math.PI - Angle;
+											Train.Cars[0].Sections[0].Elements[j].LEDInitialAngle = Angle - 2.0 * Math.PI;
+											Train.Cars[0].Sections[0].Elements[j].LEDLastAngle = 2.0 * Math.PI - Angle;
+											Train.Cars[0].Sections[0].Elements[j].LEDVectors = new World.Vector3D[] {
+												new World.Vector3D(x0, y0, z0),
+												new World.Vector3D(x1, y1, z1),
+												new World.Vector3D(x2, y2, z2),
+												new World.Vector3D(x3, y3, z3),
+												new World.Vector3D(cx, cy, cz)
+											};
 											double c0 = (Angle * (Maximum - Minimum) - 2.0 * Minimum * Math.PI) / (Maximum - Minimum);
 											double c1 = 2.0 * (Math.PI - Angle) / (Maximum - Minimum);
-											string Variable = "0";
+											string Variable;
 											switch (NeedleType[1]) {
 													case 1: Variable = "brakecylinder"; break;
 													case 2: Variable = "straightairpipe"; break;
 													case 3: Variable = "brakepipe"; break;
 													case 4: Variable = "equalizingreservoir"; break;
 													case 5: Variable = "mainreservoir"; break;
+													default: Variable = "0"; break;
 											}
 											Train.Cars[0].Sections[0].Elements[j].LEDFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(Variable + " " + c1.ToString(Culture) + " " + c0.ToString(Culture) + " fma");
 										}
@@ -613,14 +615,7 @@ namespace OpenBve {
 										double cx = 0.25 * (x0 + x1 + x2 + x3);
 										double cy = 0.25 * (y0 + y1 + y2 + y3);
 										double cz = 0.25 * (z0 + z1 + z2 + z3);
-										World.Vertex[] vertices = new World.Vertex[] {
-											new World.Vertex(cx, cy, cz),
-											new World.Vertex(x3, y3, z3), new World.Vertex(x0, y0, z0),
-											new World.Vertex(x0, y0, z0), new World.Vertex(x1, y1, z1),
-											new World.Vertex(x1, y1, z1), new World.Vertex(x2, y2, z2),
-											new World.Vertex(x2, y2, z2), new World.Vertex(x3, y3, z3),
-											new World.Vertex(x3, y3, z3), new World.Vertex(x0, y0, z0)
-										};
+										World.Vertex[] vertices = new World.Vertex[11];
 										int[][] faces = new int[][] {
 											new int[] { 0, 1, 2 },
 											new int[] { 0, 3, 4 },
@@ -630,7 +625,15 @@ namespace OpenBve {
 										};
 										Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh = new World.Mesh(vertices, faces, Needle);
 										Train.Cars[0].Sections[0].Elements[j].LEDClockwiseWinding = true;
-										Train.Cars[0].Sections[0].Elements[j].LEDMaximumAngle = 2.0 * Math.PI - Angle;
+										Train.Cars[0].Sections[0].Elements[j].LEDInitialAngle = Angle - 2.0 * Math.PI;
+										Train.Cars[0].Sections[0].Elements[j].LEDLastAngle = 2.0 * Math.PI - Angle;
+										Train.Cars[0].Sections[0].Elements[j].LEDVectors = new World.Vector3D[] {
+											new World.Vector3D(x0, y0, z0),
+											new World.Vector3D(x1, y1, z1),
+											new World.Vector3D(x2, y2, z2),
+											new World.Vector3D(x3, y3, z3),
+											new World.Vector3D(cx, cy, cz)
+										};
 										double c0 = Angle;
 										double c1 = 2.0 * (Math.PI - Angle) / Maximum;
 										Train.Cars[0].Sections[0].Elements[j].LEDFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("speedometer abs " + c1.ToString(Culture) + " " + c0.ToString(Culture) + " fma");

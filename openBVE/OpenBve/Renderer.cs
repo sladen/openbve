@@ -81,8 +81,7 @@ namespace OpenBve {
 		internal static bool OptionBackfaceCulling = true;
 
 		// interface options
-		internal static bool OptionTimetable = false;
-		internal static double OptionTimetablePosition = 0.0;
+		internal const bool OptionHeadlight = false; // for testing purposes
 		internal static bool OptionClock = false;
 		internal enum SpeedDisplayMode { None, Kmph, Mph }
 		internal static SpeedDisplayMode OptionSpeed = SpeedDisplayMode.None;
@@ -114,7 +113,6 @@ namespace OpenBve {
 			OptionDiffuseColor = new World.ColorRGB(160, 160, 160);
 			OptionLightPosition = new World.Vector3Df(0.223606797749979f, 0.86602540378444f, -0.447213595499958f);
 			OptionLightingResultingAmount = 1.0f;
-			OptionTimetablePosition = 0.0;
 			OptionClock = false;
 			OptionBrakeSystems = false;
 		}
@@ -180,29 +178,34 @@ namespace OpenBve {
 
 		// initialize lighting
 		internal static void InitializeLighting() {
-			if (OptionAmbientColor.R == 255 & OptionAmbientColor.G == 255 & OptionAmbientColor.B == 255 & OptionDiffuseColor.R == 0 & OptionDiffuseColor.G == 0 & OptionDiffuseColor.B == 0) {
-				OptionLighting = false;
-			} else {
-				OptionLighting = true;
+			Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { inv255 * (float)OptionAmbientColor.R, inv255 * (float)OptionAmbientColor.G, inv255 * (float)OptionAmbientColor.B, 1.0f });
+			Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { inv255 * (float)OptionDiffuseColor.R, inv255 * (float)OptionDiffuseColor.G, inv255 * (float)OptionDiffuseColor.B, 1.0f });
+			if (OptionHeadlight) {
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_AMBIENT, new float[] { 1.0f, 1.0f, 1.0f, 1.0f });
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_DIFFUSE, new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_POSITION, new float[] { 0.0f, 0.0f, 0.0f, 0.0f });
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_SPOT_DIRECTION, new float[] { 0.0f, 0.0f, -1.0f });
+				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_SPOT_CUTOFF, 45.0f);
+				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_SPOT_EXPONENT, 128.0f);
+				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_CONSTANT_ATTENUATION, 0.0f);
+				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_LINEAR_ATTENUATION, 0.0f);
+				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_QUADRATIC_ATTENUATION, 0.001f);
 			}
-			if (OptionLighting) {
-				Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { inv255 * (float)OptionAmbientColor.R, inv255 * (float)OptionAmbientColor.G, inv255 * (float)OptionAmbientColor.B, 1.0f });
-				Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { inv255 * (float)OptionDiffuseColor.R, inv255 * (float)OptionDiffuseColor.G, inv255 * (float)OptionDiffuseColor.B, 1.0f });
-				Gl.glLightModelfv(Gl.GL_LIGHT_MODEL_AMBIENT, new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
-				Gl.glCullFace(Gl.GL_FRONT); CullEnabled = true; // possibly undocumented, but required for correct lighting
-				Gl.glEnable(Gl.GL_LIGHT0);
-				Gl.glEnable(Gl.GL_COLOR_MATERIAL);
-				Gl.glColorMaterial(Gl.GL_FRONT_AND_BACK, Gl.GL_AMBIENT_AND_DIFFUSE);
-				Gl.glShadeModel(Gl.GL_SMOOTH);
-				float x = ((float)OptionAmbientColor.R + (float)OptionAmbientColor.G + (float)OptionAmbientColor.B);
-				float y = ((float)OptionDiffuseColor.R + (float)OptionDiffuseColor.G + (float)OptionDiffuseColor.B);
-				if (x < y) x = y;
-				OptionLightingResultingAmount = 0.00208333333333333f * x;
-				if (OptionLightingResultingAmount > 1.0f) OptionLightingResultingAmount = 1.0f;
-				Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
-			} else {
-				Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
+			Gl.glLightModelfv(Gl.GL_LIGHT_MODEL_AMBIENT, new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
+			Gl.glCullFace(Gl.GL_FRONT); CullEnabled = true; // possibly undocumented, but required for correct lighting
+			Gl.glEnable(Gl.GL_LIGHT0);
+			if (OptionHeadlight) {
+				Gl.glEnable(Gl.GL_LIGHT1);
 			}
+			Gl.glEnable(Gl.GL_COLOR_MATERIAL);
+			Gl.glColorMaterial(Gl.GL_FRONT_AND_BACK, Gl.GL_AMBIENT_AND_DIFFUSE);
+			Gl.glShadeModel(Gl.GL_SMOOTH);
+			float x = ((float)OptionAmbientColor.R + (float)OptionAmbientColor.G + (float)OptionAmbientColor.B);
+			float y = ((float)OptionDiffuseColor.R + (float)OptionDiffuseColor.G + (float)OptionDiffuseColor.B);
+			if (x < y) x = y;
+			OptionLightingResultingAmount = 0.00208333333333333f * x;
+			if (OptionLightingResultingAmount > 1.0f) OptionLightingResultingAmount = 1.0f;
+			Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
 			Gl.glDepthFunc(Gl.GL_LEQUAL);
 		}
 		
@@ -251,8 +254,16 @@ namespace OpenBve {
 			double uy = World.AbsoluteCameraUp.Y;
 			double uz = World.AbsoluteCameraUp.Z;
 			Glu.gluLookAt(0.0, 0.0, 0.0, dx, dy, dz, ux, uy, uz);
-			if (OptionLighting) {
-				Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_POSITION, new float[] { OptionLightPosition.X, OptionLightPosition.Y, OptionLightPosition.Z, 0.0f });
+			Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_POSITION, new float[] { OptionLightPosition.X, OptionLightPosition.Y, OptionLightPosition.Z, 0.0f });
+			if (OptionHeadlight) {
+				World.Vector3D trainPosition = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.WorldPosition;
+				World.Vector3D trainDirection = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.WorldDirection;
+				trainPosition.X -= cx;
+				trainPosition.Y -= cy;
+				trainPosition.Z -= cz;
+				World.Vector3D direction = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.WorldDirection;
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_POSITION, new float[] { (float)trainPosition.X, (float)trainPosition.Y, (float)trainPosition.Z, 1.0f });
+				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_SPOT_DIRECTION, new float[] { (float)direction.X, (float)direction.Y, (float)direction.Z });
 			}
 			// fog
 			double fd = Game.NextFog.TrackPosition - Game.PreviousFog.TrackPosition;
@@ -1009,7 +1020,7 @@ namespace OpenBve {
 			} else {
 				Count = 0;
 			}
-			if (TrainManager.PlayerTrain.Specs.Safety.Mode != TrainManager.SafetySystem.Plugin) {
+			if (TrainManager.PlayerTrain.Specs.Safety.Mode != TrainManager.SafetySystem.Plugin & World.CameraRestriction != World.CameraRestrictionMode.NotAvailable) {
 				if (TrainManager.PlayerTrain.Specs.Safety.Eb.Available & TrainManager.PlayerTrain.Specs.Safety.Ats.AtsAvailable | TrainManager.PlayerTrain.Specs.HasConstSpeed) {
 					CurrentLampCollection.Lamps[Count] = new Lamp(LampType.None);
 					Count++;
@@ -2129,13 +2140,37 @@ namespace OpenBve {
 					}
 				}
 				// timetable
-				if (OptionTimetable) {
-					int t = Timetable.TimetableTexture;
+				if (Timetable.CurrentTimetable == Timetable.TimetableState.Default) {
+					// default
+					int t = Timetable.DefaultTimetableTexture;
 					if (t >= 0) {
 						int w = TextureManager.Textures[t].ClipWidth;
 						int h = TextureManager.Textures[t].ClipHeight;
 						Gl.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-						RenderOverlayTexture(t, (double)(ScreenWidth - w), OptionTimetablePosition, (double)ScreenWidth, (double)h + OptionTimetablePosition);
+						RenderOverlayTexture(t, (double)(ScreenWidth - w), Timetable.DefaultTimetablePosition, (double)ScreenWidth, (double)h + Timetable.DefaultTimetablePosition);
+					}
+				} else if (Timetable.CurrentTimetable == Timetable.TimetableState.Custom & Timetable.CustomObjectsUsed == 0) {
+					// custom
+					int td = Timetable.CurrentCustomTimetableDaytimeTextureIndex;
+					if (td >= 0) {
+						int w = TextureManager.Textures[td].ClipWidth;
+						int h = TextureManager.Textures[td].ClipHeight;
+						Gl.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+						RenderOverlayTexture(td, (double)(ScreenWidth - w), Timetable.CustomTimetablePosition, (double)ScreenWidth, (double)h + Timetable.CustomTimetablePosition);
+					}
+					int tn = Timetable.CurrentCustomTimetableDaytimeTextureIndex;
+					if (tn >= 0) {
+						int w = TextureManager.Textures[tn].ClipWidth;
+						int h = TextureManager.Textures[tn].ClipHeight;
+						float alpha;
+						if (td >= 0) {
+							double t = (TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition - TrainManager.PlayerTrain.Cars[0].Brightness.PreviousTrackPosition) / (TrainManager.PlayerTrain.Cars[0].Brightness.NextTrackPosition - TrainManager.PlayerTrain.Cars[0].Brightness.PreviousTrackPosition);
+							alpha = (float)((1.0 - t) * TrainManager.PlayerTrain.Cars[0].Brightness.PreviousBrightness + t * TrainManager.PlayerTrain.Cars[0].Brightness.NextBrightness);
+						} else {
+							alpha = 1.0f;
+						}
+						Gl.glColor4f(1.0f, 1.0f, 1.0f, alpha);
+						RenderOverlayTexture(tn, (double)(ScreenWidth - w), Timetable.CustomTimetablePosition, (double)ScreenWidth, (double)h + Timetable.CustomTimetablePosition);
 					}
 				}
 			} else if (CurrentOutputMode == OutputMode.Debug) {
@@ -2260,7 +2295,7 @@ namespace OpenBve {
 					"=camera",
 					"position: " + World.CameraTrackFollower.TrackPosition.ToString("0.00", Culture) + " m",
 					"curve radius: " + World.CameraTrackFollower.CurveRadius.ToString("0.00", Culture) + " m",
-					"curve cant: " + (1000.0 * World.CameraTrackFollower.CurveCant).ToString("0.00", Culture) + " mm",
+					"curve cant: " + (1000.0 * Math.Abs(World.CameraTrackFollower.CurveCant)).ToString("0.00", Culture) + " mm" + (World.CameraTrackFollower.CurveCant < 0.0 ? " (left)" : World.CameraTrackFollower.CurveCant > 0.0 ? " (right)" : ""),
 					"",
 					"=sound",
 					"sounds playing: " + soundsPlaying.ToString(Culture),

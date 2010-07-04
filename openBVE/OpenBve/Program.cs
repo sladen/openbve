@@ -5,7 +5,7 @@ using System.Threading;
 using System.Windows.Forms;
 
 namespace OpenBve {
-	internal static class Program {
+	internal static partial class Program {
 
 		// system
 		internal static string RestartProcessArguments = null;

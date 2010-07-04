@@ -110,6 +110,8 @@ namespace OpenBve {
 				Alc.alcMakeContextCurrent(IntPtr.Zero);
 				Alc.alcDestroyContext(OpenAlContext);
 				OpenAlContext = IntPtr.Zero;
+			}
+			if (OpenAlDevice != IntPtr.Zero) {
 				Alc.alcCloseDevice(OpenAlDevice);
 				OpenAlDevice = IntPtr.Zero;
 			}
@@ -410,7 +412,9 @@ namespace OpenBve {
 
 		// get sound length
 		internal static double GetSoundLength(int SoundBufferIndex) {
-			if (OpenAlContext != IntPtr.Zero) {
+			if (SoundBuffers[SoundBufferIndex].Duration != 0.0) {
+				return SoundBuffers[SoundBufferIndex].Duration;
+			} else if (OpenAlContext != IntPtr.Zero) {
 				UseSoundBuffer(SoundBufferIndex);
 				return SoundBuffers[SoundBufferIndex].Duration;
 			} else {
@@ -497,7 +501,7 @@ namespace OpenBve {
 		}
 		internal static void StopSound(ref int SoundSourceIndex) {
 			if (OpenAlContext != IntPtr.Zero) {
-				if (SoundSourceIndex >= 0 && SoundSources[SoundSourceIndex] != null) {
+				if (SoundSourceIndex >= 0 && SoundSourceIndex < SoundSources.Length && SoundSources[SoundSourceIndex] != null) {
 					if (SoundSources[SoundSourceIndex].OpenAlSourceIndex.Valid) {
 						int i = SoundSources[SoundSourceIndex].OpenAlSourceIndex.Index;
 						Al.alSourceStop(i);
@@ -530,7 +534,7 @@ namespace OpenBve {
 		// is playing
 		internal static bool IsPlaying(int SoundSourceIndex) {
 			if (OpenAlContext != IntPtr.Zero) {
-				if (SoundSourceIndex >= 0 && SoundSources[SoundSourceIndex] != null) {
+				if (SoundSourceIndex >= 0 && SoundSourceIndex < SoundSources.Length && SoundSources[SoundSourceIndex] != null) {
 					if (SoundSources[SoundSourceIndex].Suppressed) {
 						return true;
 					} else {

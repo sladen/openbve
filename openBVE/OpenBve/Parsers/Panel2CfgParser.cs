@@ -5,7 +5,7 @@ namespace OpenBve {
 
 		// constants
 		internal static double StackDistance = 0.000001;
-		/// <remarks>EyeDistance is required to be 1.0 by UpdateCarSectionElement and by UpdateCameraRestriction, thus cannot be easily changed</remarks>
+		/// <remarks>EyeDistance is required to be 1.0 by UpdateCarSectionElement and by UpdateCameraRestriction, thus cannot be easily changed.</remarks>
 		internal const double EyeDistance = 1.0;
 		
 		// parse panel config
@@ -646,12 +646,6 @@ namespace OpenBve {
 											}
 										} i++;
 									} i--;
-									if (InitialAngle < -3.14159265358979 | InitialAngle > 3.14159265358979) {
-										Interface.AddMessage(Interface.MessageType.Warning, false, "InitialAngle should be between -180 and 180 in " + Section + " in " + FileName);
-									}
-									if (LastAngle < -3.14159265358979 | LastAngle > 3.14159265358979) {
-										Interface.AddMessage(Interface.MessageType.Warning, false, "LastAngle should be between -180 and 180 in " + Section + " in " + FileName);
-									}
 									if (Radius != 0.0) {
 										// create element
 										int j = CreateElement(Train, LocationX - Radius, LocationY - Radius, 2.0 * Radius, 2.0 * Radius, 0.5, 0.5, (double)Layer * StackDistance, PanelResolution, PanelLeft, PanelRight, PanelTop, PanelBottom, PanelBitmapWidth, PanelBitmapHeight, PanelCenterX, PanelCenterY, PanelOriginX, PanelOriginY, DriverX, DriverY, DriverZ, -1, -1, Color, false);
@@ -672,14 +666,7 @@ namespace OpenBve {
 										double cx = 0.25 * (x0 + x1 + x2 + x3);
 										double cy = 0.25 * (y0 + y1 + y2 + y3);
 										double cz = 0.25 * (z0 + z1 + z2 + z3);
-										World.Vertex[] vertices = new World.Vertex[] {
-											new World.Vertex(cx, cy, cz),
-											new World.Vertex(x3, y3, z3), new World.Vertex(x0, y0, z0),
-											new World.Vertex(x0, y0, z0), new World.Vertex(x1, y1, z1),
-											new World.Vertex(x1, y1, z1), new World.Vertex(x2, y2, z2),
-											new World.Vertex(x2, y2, z2), new World.Vertex(x3, y3, z3),
-											new World.Vertex(x3, y3, z3), new World.Vertex(x0, y0, z0)
-										};
+										World.Vertex[] vertices = new World.Vertex[11];
 										int[][] faces = new int[][] {
 											new int[] { 0, 1, 2 },
 											new int[] { 0, 3, 4 },
@@ -689,7 +676,15 @@ namespace OpenBve {
 										};
 										Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh = new World.Mesh(vertices, faces, Color);
 										Train.Cars[0].Sections[0].Elements[j].LEDClockwiseWinding = InitialAngle <= LastAngle;
-										Train.Cars[0].Sections[0].Elements[j].LEDMaximumAngle = LastAngle;
+										Train.Cars[0].Sections[0].Elements[j].LEDInitialAngle = InitialAngle;
+										Train.Cars[0].Sections[0].Elements[j].LEDLastAngle = LastAngle;
+										Train.Cars[0].Sections[0].Elements[j].LEDVectors = new World.Vector3D[] {
+											new World.Vector3D(x0, y0, z0),
+											new World.Vector3D(x1, y1, z1),
+											new World.Vector3D(x2, y2, z2),
+											new World.Vector3D(x3, y3, z3),
+											new World.Vector3D(cx, cy, cz)
+										};
 										string f = GetStackLanguageFromSubject(Train, Subject, Section + " in " + FileName);
 										double a0 = (InitialAngle * Maximum - LastAngle * Minimum) / (Maximum - Minimum);
 										double a1 = (LastAngle - InitialAngle) / (Maximum - Minimum);
@@ -766,14 +761,7 @@ namespace OpenBve {
 									if (Width > 0.0 & Height > 0.0) {
 										int j = CreateElement(Train, LocationX, LocationY, Width, Height, 0.5, 0.5, (double)Layer * StackDistance, PanelResolution, PanelLeft, PanelRight, PanelTop, PanelBottom, PanelBitmapWidth, PanelBitmapHeight, PanelCenterX, PanelCenterY, PanelOriginX, PanelOriginY, DriverX, DriverY, DriverZ, -1, -1, new World.ColorRGBA(255, 255, 255, 255), false);
 										Train.Cars[0].Sections[0].Elements[j].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("timetable");
-										Timetable.CustomTrainIndex = Train.TrainIndex;
-										Timetable.CustomCarIndex = 0;
-										Timetable.CustomSectionIndex = 0;
-										Timetable.CustomElementIndex = j;
-										for (int k = 0; k < Timetable.CustomTextureIndices.Length; k++) {
-											TextureManager.Textures[Timetable.CustomTextureIndices[k]].TransparentColor = TransparentColor;
-											TextureManager.Textures[Timetable.CustomTextureIndices[k]].TransparentColorUsed = 1;
-										}
+										Timetable.AddObjectForCustomTimetable(Train.Cars[0].Sections[0].Elements[j]);
 									}
 								} break;
 						}

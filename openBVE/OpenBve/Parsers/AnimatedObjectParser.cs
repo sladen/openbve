@@ -144,7 +144,10 @@ namespace OpenBve {
 								Result.Objects[ObjectCount].RefreshRate = 0.0;
 								Result.Objects[ObjectCount].ObjectIndex = -1;
 								World.Vector3D Position = new World.Vector3D(0.0, 0.0, 0.0);
+								bool timetableUsed = false;
 								string[] StateFiles = null;
+								string StateFunctionRpn = null;
+								int StateFunctionLine = -1;
 								while (i < Lines.Length && !(Lines[i].StartsWith("[", StringComparison.Ordinal) & Lines[i].EndsWith("]", StringComparison.Ordinal))) {
 									if (Lines[i].Length != 0) {
 										int j = Lines[i].IndexOf("=", StringComparison.Ordinal);
@@ -196,15 +199,15 @@ namespace OpenBve {
 													} break;
 												case "statefunction":
 													try {
-														Result.Objects[ObjectCount].StateFunction = FunctionScripts.GetFunctionScriptFromInfixNotation(b);
+														StateFunctionLine = i;
+														StateFunctionRpn = FunctionScripts.GetPostfixNotationFromInfixNotation(b);
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
 												case "statefunctionrpn":
-													try {
-														Result.Objects[ObjectCount].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(b);
-													} catch (Exception ex) {
-														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+													{
+														StateFunctionLine = i;
+														StateFunctionRpn = b;
 													} break;
 												case "translatexdirection":
 												case "translateydirection":
@@ -420,6 +423,21 @@ namespace OpenBve {
 													} catch (Exception ex) {
 														Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													} break;
+												case "textureoverride":
+													switch (b.ToLowerInvariant()) {
+														case "none":
+															break;
+														case "timetable":
+															if (!timetableUsed) {
+																Timetable.AddObjectForCustomTimetable(Result.Objects[ObjectCount]);
+																timetableUsed = true;
+															}
+															break;
+														default:
+															Interface.AddMessage(Interface.MessageType.Error, false, "Unrecognized value in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+															break;
+													}
+													break;
 												case "refreshrate":
 													{
 														double r;
@@ -444,6 +462,21 @@ namespace OpenBve {
 								}
 								i--;
 								if (StateFiles != null) {
+									// create the object
+									if (timetableUsed) {
+										if (StateFunctionRpn != null) {
+											StateFunctionRpn = "timetable 0 == " + StateFunctionRpn + " -1 ?";
+										} else {
+											StateFunctionRpn = "timetable";
+										}
+									}
+									if (StateFunctionRpn != null) {
+										try {
+											Result.Objects[ObjectCount].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(StateFunctionRpn);
+										} catch (Exception ex) {
+											Interface.AddMessage(Interface.MessageType.Error, false, ex.Message + " in StateFunction at line " + (StateFunctionLine + 1).ToString(Culture) + " in file " + FileName);
+										}
+									}
 									Result.Objects[ObjectCount].States = new ObjectManager.AnimatedObjectState[StateFiles.Length];
 									bool ForceTextureRepeatX = Result.Objects[ObjectCount].TextureShiftXFunction != null & Result.Objects[ObjectCount].TextureShiftXDirection.X != 0.0 |
 										Result.Objects[ObjectCount].TextureShiftYFunction != null & Result.Objects[ObjectCount].TextureShiftYDirection.Y != 0.0;

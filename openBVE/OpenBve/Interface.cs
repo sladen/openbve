@@ -128,6 +128,8 @@ namespace OpenBve {
 			internal bool BlackBox;
 			internal bool UseJoysticks;
 			internal double JoystickAxisThreshold;
+			internal double KeyRepeatDelay;
+			internal double KeyRepeatInterval;
 			internal bool UseSound;
 			internal SoundRange SoundRange;
 			internal int SoundNumber;
@@ -166,6 +168,8 @@ namespace OpenBve {
 				this.BlackBox = false;
 				this.UseJoysticks = true;
 				this.JoystickAxisThreshold = 0.0;
+				this.KeyRepeatDelay = 0.5;
+				this.KeyRepeatInterval = 0.1;
 				this.UseSound = true;
 				this.SoundRange = SoundRange.Low;
 				this.SoundNumber = 16;
@@ -350,6 +354,18 @@ namespace OpenBve {
 												double a = 0.0; double.TryParse(Value, NumberStyles.Float, Culture, out a);
 												Interface.CurrentOptions.JoystickAxisThreshold = a;
 											} break;
+										case "keyrepeatdelay":
+											{
+												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												if (a <= 0) a = 500;
+												Interface.CurrentOptions.KeyRepeatDelay = 0.001 * (double)a;
+											} break;
+										case "keyrepeatinterval":
+											{
+												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												if (a <= 0) a = 100;
+												Interface.CurrentOptions.KeyRepeatInterval = 0.001 * (double)a;
+											} break;
 									} break;
 								case "sound":
 									switch (Key) {
@@ -526,6 +542,8 @@ namespace OpenBve {
 			Builder.AppendLine("[controls]");
 			Builder.AppendLine("usejoysticks = " + (CurrentOptions.UseJoysticks ? "true" : "false"));
 			Builder.AppendLine("joystickaxisthreshold = " + CurrentOptions.JoystickAxisThreshold.ToString(Culture));
+			Builder.AppendLine("keyrepeatdelay = " + (1000.0 * CurrentOptions.KeyRepeatDelay).ToString("0", Culture));
+			Builder.AppendLine("keyrepeatinterval = " + (1000.0 * CurrentOptions.KeyRepeatInterval).ToString("0", Culture));
 			Builder.AppendLine();
 			Builder.AppendLine("[sound]");
 			Builder.AppendLine("usesound = " + (CurrentOptions.UseSound ? "true" : "false"));
