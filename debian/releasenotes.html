@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="SHORTCUT ICON" href="common/favicon.png" />
 <meta name="keywords" content="openBVE,homepage" />
-<title>Release notes</title>
+<title>Changelog</title>
 </head>
 <body style="font-family:sans-serif;font-size:small">
 <table width="100%" cellspacing="0" style="min-width:1090px">
@@ -29,40 +29,33 @@
 <tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04_inverted.png)">
 </td></tr>
 <tr><td height="24">
-<font color="#0060A0" size="+1"><b>Release notes (version 1.2)&nbsp;</b></font>
+<font color="#0060A0" size="+1"><b>Release notes (v1.2.7)&nbsp;</b></font>
 </td></tr>
 <tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04.png)">
 </td></tr>
 </table><br />
 <table><tr style="height: 4px;"><td /></tr></table>
-
-<table style="border-collapse:collapse;">
-<tr><th bgcolor="#D0D0D0" style="border:2px; border-style: ridge; padding:4px">Date</th><td bgcolor="#F0F0F0" style="border:2px; border-style: ridge; padding:4px">2009-07-26</td></tr>
-</table><br />
-It has been 18 weeks since the release of version 1.0, and now, version 1.2 provides the next major update to openBVE.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
+Here you can find a summary of changes since the previous 1.2.6 series.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF"><b>&nbsp;3D cabs&nbsp;</b></font>
+<font color="#FFFFFF"><b>&nbsp;Superelevation (cant)&nbsp;</b></font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
-<br />This version focuses on the introduction of 3D cabs, which feel vastly different from the old-fashioned 2D cabs. You are now able to move and rotate the camera freely in all directions and can observe controls which could not have been previously depicted.<br /><br />
-<table style="border-collapse:collapse;">
-<tr><td bgcolor="#F0F0F0" style="border:2px; border-style: ridge; padding:4px"><a href="http&#58;&#47;&#47;railsimroutes.net/blog/?p=886"><img src="http&#58;&#47;&#47;railsimroutes.net/blog/images/thumbnails/xcs_14_openbve_19.png" alt="" /></a></td></tr>
-</table><br />
-You can manually adjust the camera, be it with the keyboard, or - new - with the mouse. Just right-click at any time to enable mouse grab and move the mouse to rotate the view. Right-clicking again disables the grab. Not only can you take a look at scenery and stations from new angles, but can also track signs and signals easier, as well as anticipate curves.<br /><br />There is a new interior camera mode which you can access by pressing CAMERA_INTERIOR (F1 key), which is called <b>Interior (look-ahead)</b>. This camera mode focuses the view on the upcoming track and thus rotates the view automatically so that the focused part of the track is in the center of the screen.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
+In previous versions of openBVE, superelevation on curves, also known as cant, was simulated in a rather cheap way by making the car body simply roll around its axis. While this provided for the most noticable effect, namely that the train was slanted on curves, it was not quite realistic due to the way most real curves are laid out.<br /><br />From now on, openBVE assumes that the outer rail on a curve is slightly elevated, hence the term superelevation. This means that the car body does not simply roll around its axis anymore; rather, the outer wheel now actually rises above level. If you observe very closely, you are certainly going to notice this difference.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF"><b>&nbsp;The body/head model&nbsp;</b></font>
+<font color="#FFFFFF"><b>&nbsp;Track accuracy&nbsp;</b></font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
-<br />In addition to these things, 3D cabs also employ a new body/head model. Upon accelerating or braking, the body pitches forward/backward, and in curves, the body might roll to the sides before adjusting to the forces.<br /><br />Rotating the camera view actually rotates the head. If you look closely, you can see the perspective differences resulting from the new body/head model. This is due to the fact that the eyes are not stationary, but move in space whenever the body or head rotate.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
+In previous versions of openBVE, poor accuracy of the track would make the car body undergo horizontal and vertical shifts, while the car body itself would remain entirely level. From now on, the level of track accuracy mainly affects the degree to which the car body bounces on the track. This also produces more noticable flange noises.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF"><b>&nbsp;Summing up&nbsp;</b></font>
+<font color="#FFFFFF"><b>&nbsp;Key and joystick button repeats&nbsp;</b></font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
-<br />All in all, the experience should be one step closer to reality as you can "feel" the forces in the train, and can look freely around as you like.<br /><br />Now, the one question you'd probably like to ask is: <em>Where can I get some trains which have a 3D cab from?</em><br /><br />Well, as the new version has just been released, you might need to be a bit patient before the first real content is released by their developers. Until then, you can try the <a href="develop/index.html">113-1000atccab-3D</a> add-on I developed for demonstrational purposes - just don't expect any serious content here.<br /><br />
-<table style="border-collapse:collapse;">
-<tr><td bgcolor="#F0F0F0" style="border:2px; border-style: ridge; padding:4px"><a href="develop/index.html"><img src="common/113-1000atccab-3d_2.jpg" alt="" /></a></td></tr>
-</table><br />
-Hopefully, the first real trains employing 3D cabs will arrive soon. When they do, I hope you will enjoy...
+You can now hold down a key or a joystick button, and the event will fire multiple times until the key or button is released again. This makes operating the power and brake levers more comfortably from now on.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF"><b>&nbsp;For add-on developers&nbsp;</b></font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+Route developers can now specify outward cant on curves, meaning track that does not slant toward the curve center but away from it. They can now specify cant on straight track, as well. See the documentation for CSV/RW routes for more information, in particular the new <em>Options.CantBehavior</em> and the updated <em>Track.Curve</em> commands.<br /><br />Train developers can now use the custom timetable bitmaps as set up by CSV/RW routes in animated objects, intended to be used in 3D cabs. See the documentation for animated objects for more information, in particular the new <em>SpecialTexture</em> parameter in the <em>[Object]</em> section.
 </td></tr></table>
 </td></tr>
 </table>

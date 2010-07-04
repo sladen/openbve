@@ -35,10 +35,88 @@
 </td></tr>
 </table><br />
 <table><tr style="height: 4px;"><td /></tr></table>
-This changelog is intended for advanced users and developers. It does <b>not</b> summarize important changes for regular users.<br /><br />↷ <a href="#history12">1.2 series (stable)</a><br />
+This changelog is intended for advanced users and developers. It does not summarize important changes for regular users.<br /><br />↷ <a href="#dev">Current development release</a><br />
+↷ <a href="#history12">1.2 series (stable)</a><br />
 ↷ <a href="#history11">1.1 series (development)</a><br />
 ↷ <a href="#history10">1.0 series (stable)</a><br />
 ↷ <a href="#history09">0.9 series (development)</a><br />
+<br /><a name="development" />
+<br /><a name="dev" />
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF"><b>&nbsp;1.2.6.100 series (development)&nbsp;</b></font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.2.6.105 (2010-07-02)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />Superelevation is now simulated. In previous versions, the train would simply roll around its z-axis, while now, one wheel is actually elevated on banked curves.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />The cant interpolation algorithm has been rewritten to make use of monotone cubic interpolation. This makes the train tilt on banked curves much more smoothly than before, when linear interpolation was used.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />The simulation of track inaccuracy has been overhauled. Aside from the previous horizontal and vertical offsets, cant is now irregular as well and lets the train shake to the sides. If the level of track accuracy changes from one block to the next, interpolation is now used, where before, the axles could make sudden jumps.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />The fly-by cameras now focus on the front car of the nearest train. Previously, the fly-by cameras would only focus on the player's train and shifted focus from the front car to the rear car on approach.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />Custom timetables that can be set up by route developers are now available in all trains. Previously, only trains where custom timetables were explicitly enabled could show them. For trains which explicitly support custom timetables, the timetables are shown as part of the 3D scenery (just as before), while for non-supported trains, they are shown as part of the UI overlay (and then can be scrolled using Shift+Up and Shift+Down just as with the default timetables). <b>Note: This feature may be partly removed again for v1.2.7!</b></td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Interface</b></font><br />Keys and joystick buttons now employ key repeat, meaning that holding down a key or button will trigger the associated event multiple times until the key or button is released again. The default delay and repetition intervals are 500 and 100 milliseconds, respectively, and can be customized in the <em>options.cfg</em> file.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing routes</b></font><br />The new Options.CantBehavior command allows to change the way cant works in the Track.Curve command. The default behavior is that cant is unsigned, i.e. the sign is ignored and the superelevation is always towards the curve center, and that cant cannot be applied on straight track. The new behavior is that cant is signed, i.e. inward banking or outward banking can explicitly be set up, and that cant can also be applied on straight track.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing routes</b></font><br />The Train.Timetable command now accepts files that are relative to the Object folder in addition to the previous model of interpreting files relative to the current train's folder. <b>Note: This feature may be removed again for v1.2.7!</b></td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing objects</b></font><br />Animated objects can now show the timetable as set up by CSV/RW routes. See the <em>SpecialTexture</em> parameter in the documentation for the <em>[Object]</em> section. This allows to integrate the custom timetable as part of the 3D cab geometry.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing trains</b></font><br />The [DigitalGauge] section in the panel2.cfg was previously confined to angles that did not span across the 6 o'clock position, i.e. angles between -180 and 180 degrees. This limitation has been overcome now due to a rewrite of the code that creates the individual triangles that make up the LED square.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Sound</b></font><br />When a train starts from standstill or when the camera is moved in sound range of a train, all run sounds of all cars start playing simultaneously. This leads to an undesired echo effect. To counteract this effect, track positions are assigned at which the run sounds start playing from the start, thus asynchronizing the car run sounds again. This is not done regularly, but only when considered necessary.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Cant was ignored on curves if the <em>CantInMillimeters</em> parameter in <em>Track.Curve</em> was a single character in length.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Some animated objects would stop being updated if jumping backward in time, for example when using the <em>Jump to Station</em> command.</td>
+</tr></table>
 <br /><a name="stable" />
 <br /><a name="history12" />
 <br /><table><tr style="height: 4px;"><td /></tr></table>
@@ -46,6 +124,81 @@ This changelog is intended for advanced users and developers. It does <b>not</b>
 <font color="#FFFFFF"><b>&nbsp;1.2 series (stable)&nbsp;</b></font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.2.6.3 (2010-05-02)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />The first Track.Brightness command in CSV/RW routes did not work correctly unless it was Track.Brightness(255). This got unnoticed earlier because many routes employ multiple Track.Brightness commands before the starting location.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Selecting a route or train in the main menu could lead to a race condition that caused the user-selected encoding to switch back to UTF-8.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.2.6.1 (2010-04-06)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />Changed the light arrangement of the built-in six aspect Japanese signal to match real installations more closely.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />The Options.UnitOfSpeed command in CSV/RW routes could produce erroneous results in some cases.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.2.6.0 (2010-03-14)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />Passengers boarding the train now increase the mass of the train. This means that the performance of the train can slightly vary depending on how crowded the train is. The degree of crowdedness is set primarily by route developers (Track.Sta command), but is also slightly randomized.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />The cruising and braking behavior of the AI has been revised.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />The passenger discomfort algorithm has been rewritten. It is now a little less sensitive and better incorporates the degree of crowdedness in the train. Consequently, it does not cause discomfort messages any longer when the train has no passengers on board.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Developing routes</b></font><br />A new option for the departure time has been added to the Track.Sta and Track.Station commands. It allows to set a departure time for terminal stations, intended to allow an otherwise forced red signal to change to green eventually.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />When entering the <em>Jump to Station</em> menu, just any station could be highlighted by default. Now, it is always the next station (as originally intended).</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />The player train's AI would previously depart from a terminal station if the terminal station required the train to not open any doors (e.g. a siding).</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.2.5.2 (2010-02-16)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />Made <em>Interior (look ahead)</em> the default view mode for 3D cabs.</td>
+</tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v1.2.5.1 (2010-02-14)&nbsp;</font>
@@ -64,7 +217,7 @@ This changelog is intended for advanced users and developers. It does <b>not</b>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Passengers should get stuck between the doors every once in a while - a feature that was introduced in v1.0.5.0. This feature never worked at all until now.</td>
+<td><font color="red"><b>Bugfix</b></font><br />Passengers should get stuck between the doors every once in a while - a feature that was introduced in v1.0.5. This feature never worked at all until now.</td>
 </tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
@@ -89,7 +242,7 @@ This changelog is intended for advanced users and developers. It does <b>not</b>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />In the <em>Jump to Station</em> menu, the next station is now the one highlighted by default. Previously, it was always the first station in the list.</td>
+<td><font color="red"><b>Interface</b></font><br />In the <em>Jump to Station</em> menu, the current station is now the one highlighted by default. Previously, it was always the first station in the list.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
