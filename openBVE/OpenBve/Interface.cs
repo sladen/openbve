@@ -1076,7 +1076,8 @@ namespace OpenBve {
 						return InterfaceStrings[i].Text;
 					}
 				}
-			} return Name;
+			}
+			return Name;
 		}
 		internal struct InterfaceQuickReference {
 			internal string HandleForward;
@@ -2394,7 +2395,7 @@ namespace OpenBve {
 			for (int i = 0; i < Text.Length; i++) {
 				if (Text[i] == '\\') {
 					Builder.Append(Text, Start, i - Start);
-					if (i + 1 <= Text.Length) {
+					if (i + 1 < Text.Length) {
 						switch (Text[i + 1]) {
 								case 'a': Builder.Append('\a'); break;
 								case 'b': Builder.Append('\b'); break;
@@ -2419,8 +2420,12 @@ namespace OpenBve {
 									Interface.AddMessage(MessageType.Error, false, "Insufficient characters available in " + Text + " to decode control character escape sequence");
 									return Text;
 								} break;
-								case '"': Builder.Append('"'); break;
-								case '\\': Builder.Append('\\'); break;
+							case '"':
+								Builder.Append('"');
+								break;
+							case '\\':
+								Builder.Append('\\');
+								break;
 							case 'x':
 								if (i + 3 < Text.Length) {
 									Builder.Append(char.ConvertFromUtf32(Convert.ToInt32(Text.Substring(i + 2, 2), 16)));
@@ -2441,7 +2446,8 @@ namespace OpenBve {
 								Interface.AddMessage(MessageType.Error, false, "Unrecognized escape sequence found in " + Text + ".");
 								return Text;
 						}
-						i++; Start = i + 1;
+						i++;
+						Start = i + 1;
 					} else {
 						Interface.AddMessage(MessageType.Error, false, "Insufficient characters available in " + Text + " to decode escape sequence.");
 						return Text;

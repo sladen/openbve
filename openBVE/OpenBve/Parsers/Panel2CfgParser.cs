@@ -646,6 +646,16 @@ namespace OpenBve {
 											}
 										} i++;
 									} i--;
+									if (Radius == 0.0) {
+										Interface.AddMessage(Interface.MessageType.Error, false, "Radius is required to be non-zero in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+									}
+									if (Minimum == Maximum) {
+										Interface.AddMessage(Interface.MessageType.Error, false, "Minimum and Maximum must not be equal in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+										Radius = 0.0;
+									}
+									if (Math.Abs(InitialAngle - LastAngle) > 6.28318531) {
+										Interface.AddMessage(Interface.MessageType.Warning, false, "The absolute difference between InitialAngle and LastAngle exceeds 360 degrees in " + Section + " at line " + (i + 1).ToString(Culture) + " in " + FileName);
+									}
 									if (Radius != 0.0) {
 										// create element
 										int j = CreateElement(Train, LocationX - Radius, LocationY - Radius, 2.0 * Radius, 2.0 * Radius, 0.5, 0.5, (double)Layer * StackDistance, PanelResolution, PanelLeft, PanelRight, PanelTop, PanelBottom, PanelBitmapWidth, PanelBitmapHeight, PanelCenterX, PanelCenterY, PanelOriginX, PanelOriginY, DriverX, DriverY, DriverZ, -1, -1, Color, false);
