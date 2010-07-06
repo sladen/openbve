@@ -1,3 +1,9 @@
+openbve (1.2.6.106-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream development version (1.2.6.106)
+
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Tue,  6 Jul 2010 02:45:00 +0100
+
 openbve (1.2.6.105-0ubuntu1) UNRELEASED; urgency=low
 
   * New upstream development version (1.2.6.105)
