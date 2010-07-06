@@ -339,13 +339,17 @@ namespace OpenBve {
 					}
 				}
 				if (j == LanguageFiles.Length) {
+					#if !DEBUG
 					try {
+						#endif
 						string File = Interface.GetCombinedFileName(Folder, "en-US.cfg");
 						Interface.LoadLanguage(File);
 						ApplyLanguage();
+						#if !DEBUG
 					} catch (Exception ex) {
 						MessageBox.Show(ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Hand);
 					}
+					#endif
 				}
 			}
 			// lists
@@ -672,12 +676,20 @@ namespace OpenBve {
 				Interface.CurrentOptions.TrainEncodings = a;
 			}
 			// finish
+			#if !DEBUG
 			try {
+				#endif
 				Interface.SaveOptions();
+				#if !DEBUG
 			} catch { }
+			#endif
+			#if !DEBUG
 			try {
+				#endif
 				Interface.SaveControls(null);
+				#if !DEBUG
 			} catch { }
+			#endif
 		}
 
 		// resize
@@ -1404,45 +1416,32 @@ namespace OpenBve {
 			if (i >= 0 & i < LanguageFiles.Length) {
 				string Code = System.IO.Path.GetFileNameWithoutExtension(LanguageFiles[i]);
 				string Folder = Interface.GetDataFolder("Flags");
-				string File = Interface.GetCombinedFileName(Folder, Code + ".png");
-				if (System.IO.File.Exists(File)) {
-					pictureboxLanguage.Image = Image.FromFile(File);
-				} else {
-					int k = Code.IndexOf('-');
-					if (k > 0) {
-						string a = Code.Substring(0, k);
-						string b = Code.Substring(k + 1);
-						File = Interface.GetCombinedFileName(Folder, b + ".png");
-						if (System.IO.File.Exists(File)) {
-							pictureboxLanguage.Image = Image.FromFile(File);
-						} else {
-							File = Interface.GetCombinedFileName(Folder, a + ".png");
-							if (System.IO.File.Exists(File)) {
-								pictureboxLanguage.Image = Image.FromFile(File);
-							} else {
-								File = Interface.GetCombinedFileName(Folder, "unknown.png");
-								if (System.IO.File.Exists(File)) {
-									pictureboxLanguage.Image = Image.FromFile(File);
-								} else {
-									pictureboxLanguage.Image = null;
-								}
-							}
-						}
-					} else {
-						File = Interface.GetCombinedFileName(Folder, "unknown.png");
-						if (System.IO.File.Exists(File)) {
-							pictureboxLanguage.Image = Image.FromFile(File);
-						} else {
-							pictureboxLanguage.Image = null;
-						}
-					}
-				}
+				#if !DEBUG
 				try {
+					#endif
 					Interface.LoadLanguage(LanguageFiles[i]);
-					CurrentLanguageCode = Code;
+					#if !DEBUG
 				} catch (Exception ex) {
 					MessageBox.Show(ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Hand);
 				}
+				#endif
+				#if !DEBUG
+				try {
+					#endif
+					string Flag = Interface.GetInterfaceString("language_flag");
+					string File = Interface.GetCombinedFileName(Folder, Flag);
+					if (!System.IO.File.Exists(File)) {
+						File = Interface.GetCombinedFileName(Folder, "unknown.png");
+					}
+					if (System.IO.File.Exists(File)) {
+						pictureboxLanguage.Image = Image.FromFile(File);
+					} else {
+						pictureboxLanguage.Image = null;
+					}
+					CurrentLanguageCode = Code;
+					#if !DEBUG
+				} catch { }
+				#endif
 				ApplyLanguage();
 			}
 		}

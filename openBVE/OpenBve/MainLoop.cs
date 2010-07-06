@@ -55,6 +55,9 @@ namespace OpenBve {
 				}
 				Game.MinimalisticSimulation = false;
 			}
+			// animated objects
+			ObjectManager.UpdateAnimatedWorldObjects(0.0, true);
+			TrainManager.UpdateTrainObjects(0.0, true);
 			// timetable
 			if (TrainManager.PlayerTrain.Station >= 0) {
 				Timetable.UpdateCustomTimetable(Game.Stations[TrainManager.PlayerTrain.Station].TimetableDaytimeTexture, Game.Stations[TrainManager.PlayerTrain.Station].TimetableNighttimeTexture);
@@ -134,7 +137,7 @@ namespace OpenBve {
 				}
 				World.UpdateAbsoluteCamera(TimeElapsed);
 
-				TrainManager.UpdateTrainObjects(TimeElapsed);
+				TrainManager.UpdateTrainObjects(TimeElapsed, false);
 				
 				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
 					ObjectManager.UpdateVisibility(World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z);
@@ -513,6 +516,7 @@ namespace OpenBve {
 																for (int h = 0; h < TrainManager.PlayerTrain.Cars.Length; h++) {
 																	TrainManager.PlayerTrain.Cars[h].Specs.CurrentSpeed = 0.0;
 																}
+																TrainManager.UnDerailTrain(TrainManager.PlayerTrain);
 																double d = Game.Stations[k].Stops[t].TrackPosition - TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition + TrainManager.PlayerTrain.Cars[0].FrontAxlePosition - 0.5 * TrainManager.PlayerTrain.Cars[0].Length;
 																TrackManager.SuppressSoundEvents = true;
 																while (d != 0.0) {
@@ -554,7 +558,8 @@ namespace OpenBve {
 																Game.CurrentScore.DepartureStation = k;
 																Game.CurrentInterface = Game.InterfaceType.Normal;
 																Game.Messages = new Game.Message[] { };
-																ObjectManager.UpdateAnimatedWorldObjects(TimeElapsed, true);
+																ObjectManager.UpdateAnimatedWorldObjects(0.0, true);
+																TrainManager.UpdateTrainObjects(0.0, true);
 															}
 														}
 														break;
