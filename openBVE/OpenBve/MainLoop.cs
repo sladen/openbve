@@ -102,9 +102,6 @@ namespace OpenBve {
 				World.CameraAlignmentDirection = new World.CameraAlignment();
 				World.UpdateMouseGrab(TimeElapsed);
 				ProcessControls(TimeElapsed);
-//				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead) {
-//					World.UpdateAbsoluteCamera(TimeElapsed);
-//				}
 				if (Quit) break;
 				// update in pieces
 				{
@@ -114,31 +111,20 @@ namespace OpenBve {
 						double v = u < w ? u : w;
 						u -= v;
 						Game.SecondsSinceMidnight += v;
-						//double a = World.CameraTrackFollower.TrackPosition;
 						TrainManager.UpdateTrains(v);
-						//double b = World.CameraTrackFollower.TrackPosition;
-//						if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
-//							World.CameraTrackFollower.TrackPosition = a;
-//							TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, b, false, false);
-//						}
 						if (u <= 0.00000001) break;
 					}
 				}
 				// update in one piece
-				
 				ObjectManager.UpdateAnimatedWorldObjects(TimeElapsed, false);
-
 				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
 					TrainManager.UpdateCamera(TrainManager.PlayerTrain);
 				}
-
 				if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
 					World.UpdateDriverBody(TimeElapsed);
 				}
 				World.UpdateAbsoluteCamera(TimeElapsed);
-
 				TrainManager.UpdateTrainObjects(TimeElapsed, false);
-				
 				if (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead | World.CameraMode == World.CameraViewMode.Exterior) {
 					ObjectManager.UpdateVisibility(World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z);
 					int d = TrainManager.PlayerTrain.DriverCar;
@@ -146,8 +132,6 @@ namespace OpenBve {
 				} else {
 					World.CameraSpeed = 0.0;
 				}
-				
-				
 				if (UpdateViewportAndViewingDistancesInNextFrame) {
 					UpdateViewportAndViewingDistancesInNextFrame = false;
 					World.CameraAlignmentDirection = new World.CameraAlignment();
@@ -516,7 +500,6 @@ namespace OpenBve {
 																for (int h = 0; h < TrainManager.PlayerTrain.Cars.Length; h++) {
 																	TrainManager.PlayerTrain.Cars[h].Specs.CurrentSpeed = 0.0;
 																}
-																TrainManager.UnDerailTrain(TrainManager.PlayerTrain);
 																double d = Game.Stations[k].Stops[t].TrackPosition - TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition + TrainManager.PlayerTrain.Cars[0].FrontAxlePosition - 0.5 * TrainManager.PlayerTrain.Cars[0].Length;
 																TrackManager.SuppressSoundEvents = true;
 																while (d != 0.0) {
@@ -535,6 +518,7 @@ namespace OpenBve {
 																		break;
 																	}
 																}
+																TrainManager.UnDerailTrain(TrainManager.PlayerTrain);
 																TrackManager.SuppressSoundEvents = false;
 																if (TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Driver) {
 																	TrainManager.ApplyNotch(TrainManager.PlayerTrain, 0, false, 0, true);

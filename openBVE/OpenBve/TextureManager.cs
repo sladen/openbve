@@ -79,10 +79,15 @@ namespace OpenBve {
 					}
 				} else {
 					if (Mode == UseMode.QueryDimensions & Textures[TextureIndex].FileName != null) {
-						Bitmap b = (Bitmap)Image.FromFile(Textures[TextureIndex].FileName);
-						Textures[TextureIndex].ClipWidth = b.Width;
-						Textures[TextureIndex].ClipHeight = b.Height;
-						b.Dispose();
+						try {
+							Bitmap b = (Bitmap)Image.FromFile(Textures[TextureIndex].FileName);
+							Textures[TextureIndex].ClipWidth = b.Width;
+							Textures[TextureIndex].ClipHeight = b.Height;
+							b.Dispose();
+						} catch (Exception ex) {
+							Interface.AddMessage(Interface.MessageType.Error, false, "Internal error in TextureManager.cs::UseTexture: " + ex.Message);
+							throw;
+						}
 					}
 					Textures[TextureIndex].Queried = true;
 					return 0;
@@ -257,10 +262,15 @@ namespace OpenBve {
 
 		// get image dimensions
 		internal static void GetImageDimensions(string File, out int Width, out int Height) {
-			Bitmap b = (Bitmap)Image.FromFile(File);
-			Width = b.Width;
-			Height = b.Height;
-			b.Dispose();
+			try {
+				Bitmap b = (Bitmap)Image.FromFile(File);
+				Width = b.Width;
+				Height = b.Height;
+				b.Dispose();
+			} catch (Exception ex) {
+				Interface.AddMessage(Interface.MessageType.Error, false, "Internal error in TextureManager.cs::GetImageDimensions: " + ex.Message);
+				throw;
+			}
 		}
 
 		// find texture
@@ -303,29 +313,34 @@ namespace OpenBve {
 
 		// load texture rgb
 		private static void LoadTextureRGBforData(Bitmap Bitmap, int TextureIndex) {
-			// load bytes
-			int Width, Height, Stride; byte[] Data;
-			{
-				// extract clip into power-of-two bitmap
-				if (Textures[TextureIndex].ClipWidth == 0) Textures[TextureIndex].ClipWidth = Bitmap.Width;
-				if (Textures[TextureIndex].ClipHeight == 0) Textures[TextureIndex].ClipHeight = Bitmap.Height;
-				Width = Interface.RoundToPowerOfTwo(Textures[TextureIndex].ClipWidth);
-				Height = Interface.RoundToPowerOfTwo(Textures[TextureIndex].ClipHeight);
-				Bitmap c = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
-				Graphics g = Graphics.FromImage(c);
-				Point[] p = new Point[] { new Point(0, 0), new Point(Width, 0), new Point(0, Height) };
-				g.DrawImage(Bitmap, p, new Rectangle(Textures[TextureIndex].ClipLeft, Textures[TextureIndex].ClipTop, Textures[TextureIndex].ClipWidth, Textures[TextureIndex].ClipHeight), GraphicsUnit.Pixel);
-				g.Dispose();
-				BitmapData d = c.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, c.PixelFormat);
-				Stride = d.Stride;
-				Data = new byte[Stride * Height];
-				System.Runtime.InteropServices.Marshal.Copy(d.Scan0, Data, 0, Stride * Height);
-				c.UnlockBits(d);
-				c.Dispose();
+			try {
+				// load bytes
+				int Width, Height, Stride; byte[] Data;
+				{
+					// extract clip into power-of-two bitmap
+					if (Textures[TextureIndex].ClipWidth == 0) Textures[TextureIndex].ClipWidth = Bitmap.Width;
+					if (Textures[TextureIndex].ClipHeight == 0) Textures[TextureIndex].ClipHeight = Bitmap.Height;
+					Width = Interface.RoundToPowerOfTwo(Textures[TextureIndex].ClipWidth);
+					Height = Interface.RoundToPowerOfTwo(Textures[TextureIndex].ClipHeight);
+					Bitmap c = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
+					Graphics g = Graphics.FromImage(c);
+					Point[] p = new Point[] { new Point(0, 0), new Point(Width, 0), new Point(0, Height) };
+					g.DrawImage(Bitmap, p, new Rectangle(Textures[TextureIndex].ClipLeft, Textures[TextureIndex].ClipTop, Textures[TextureIndex].ClipWidth, Textures[TextureIndex].ClipHeight), GraphicsUnit.Pixel);
+					g.Dispose();
+					BitmapData d = c.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, c.PixelFormat);
+					Stride = d.Stride;
+					Data = new byte[Stride * Height];
+					System.Runtime.InteropServices.Marshal.Copy(d.Scan0, Data, 0, Stride * Height);
+					c.UnlockBits(d);
+					c.Dispose();
+				}
+				Textures[TextureIndex].Width = Width;
+				Textures[TextureIndex].Height = Height;
+				Textures[TextureIndex].Data = Data;
+			} catch (Exception ex) {
+				Interface.AddMessage(Interface.MessageType.Error, false, "Internal error in TextureManager.cs::LoadTextureRGBForData: " + ex.Message);
+				throw;
 			}
-			Textures[TextureIndex].Width = Width;
-			Textures[TextureIndex].Height = Height;
-			Textures[TextureIndex].Data = Data;
 		}
 		private static void LoadTextureRGBforOpenGl(int TextureIndex) {
 			// apply to opengl
@@ -388,202 +403,208 @@ namespace OpenBve {
 
 		// load texture rgba
 		private static void LoadTextureRGBAforData(Bitmap Bitmap, World.ColorRGB TransparentColor, byte TransparentColorUsed, int TextureIndex) {
-			// load bytes
-			int Width, Height, Stride; byte[] Data;
-			{
-				if (Textures[TextureIndex].ClipWidth == 0) Textures[TextureIndex].ClipWidth = Bitmap.Width;
-				if (Textures[TextureIndex].ClipHeight == 0) Textures[TextureIndex].ClipHeight = Bitmap.Height;
-				Width = Textures[TextureIndex].ClipWidth;
-				Height = Textures[TextureIndex].ClipHeight;
-				Bitmap c = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
-				Graphics g = Graphics.FromImage(c);
-				Rectangle dst = new Rectangle(0, 0, Width, Height);
-				Rectangle src = new Rectangle(Textures[TextureIndex].ClipLeft, Textures[TextureIndex].ClipTop, Textures[TextureIndex].ClipWidth, Textures[TextureIndex].ClipHeight);
-				g.DrawImage(Bitmap, dst, src, GraphicsUnit.Pixel);
-				g.Dispose();
-				BitmapData d = c.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, c.PixelFormat);
-				Stride = d.Stride;
-				Data = new byte[Stride * Height];
-				System.Runtime.InteropServices.Marshal.Copy(d.Scan0, Data, 0, Stride * Height);
-				c.UnlockBits(d);
-				c.Dispose();
-			}
-			// load mode
-			if (Textures[TextureIndex].LoadMode == TextureLoadMode.Bve4SignalGlow) {
-				// bve 4 signal glow
-				int p = 0, pn = Stride - 4 * Width;
-				byte tr, tg, tb;
-				if (TransparentColorUsed != 0) {
-					tr = TransparentColor.R;
-					tg = TransparentColor.G;
-					tb = TransparentColor.B;
-				} else {
-					tr = 0; tg = 0; tb = 0;
+			try {
+				// load bytes
+				int Width, Height, Stride; byte[] Data;
+				{
+					if (Textures[TextureIndex].ClipWidth == 0) Textures[TextureIndex].ClipWidth = Bitmap.Width;
+					if (Textures[TextureIndex].ClipHeight == 0) Textures[TextureIndex].ClipHeight = Bitmap.Height;
+					Width = Textures[TextureIndex].ClipWidth;
+					Height = Textures[TextureIndex].ClipHeight;
+					Bitmap c = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
+					Graphics g = Graphics.FromImage(c);
+					Rectangle dst = new Rectangle(0, 0, Width, Height);
+					Rectangle src = new Rectangle(Textures[TextureIndex].ClipLeft, Textures[TextureIndex].ClipTop, Textures[TextureIndex].ClipWidth, Textures[TextureIndex].ClipHeight);
+					g.DrawImage(Bitmap, dst, src, GraphicsUnit.Pixel);
+					g.Dispose();
+					BitmapData d = c.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, c.PixelFormat);
+					Stride = d.Stride;
+					Data = new byte[Stride * Height];
+					System.Runtime.InteropServices.Marshal.Copy(d.Scan0, Data, 0, Stride * Height);
+					c.UnlockBits(d);
+					c.Dispose();
 				}
-				// invert lightness
-				byte[] Temp = new byte[Stride * Height];
-				for (int y = 0; y < Height; y++) {
-					for (int x = 0; x < Width; x++) {
-						if (Data[p] == tb & Data[p + 1] == tg & Data[p + 2] == tr) {
-							Temp[p] = 0;
-							Temp[p + 1] = 0;
-							Temp[p + 2] = 0;
-						} else if (Data[p] != 255 | Data[p + 1] != 255 | Data[p + 2] != 255) {
-							int b = Data[p], g = Data[p + 1], r = Data[p + 2];
-							InvertLightness(ref r, ref g, ref b);
-							int l = r >= g & r >= b ? r : g >= b ? g : b;
-							Temp[p] = (byte)(l * b / 255);
-							Temp[p + 1] = (byte)(l * g / 255);
-							Temp[p + 2] = (byte)(l * r / 255);
-						} else {
-							Temp[p] = Data[p];
-							Temp[p + 1] = Data[p + 1];
-							Temp[p + 2] = Data[p + 2];
-						}
-						p += 4;
-					} p += pn;
-				} p = 0;
-				// blur the image and multiply by lightness
-				int s = 4;
-				int n = Stride - (2 * s + 1 << 2);
-				for (int y = 0; y < Height; y++) {
-					for (int x = 0; x < Width; x++) {
-						int q = p - s * (Stride + 4);
-						int r = 0, g = 0, b = 0, c = 0;
-						for (int yr = y - s; yr <= y + s; yr++) {
-							if (yr >= 0 & yr < Height) {
-								for (int xr = x - s; xr <= x + s; xr++) {
-									if (xr >= 0 & xr < Width) {
-										b += (int)Temp[q];
-										g += (int)Temp[q + 1];
-										r += (int)Temp[q + 2];
-										c++;
-									} q += 4;
-								} q += n;
-							} else q += Stride;
-						} if (c == 0) {
-							Data[p] = 0;
-							Data[p + 1] = 0;
-							Data[p + 2] = 0;
-							Data[p + 3] = 255;
-						} else {
-							r /= c; g /= c; b /= c;
-							int l = r >= g & r >= b ? r : g >= b ? g : b;
-							Data[p] = (byte)(l * b / 255);
-							Data[p + 1] = (byte)(l * g / 255);
-							Data[p + 2] = (byte)(l * r / 255);
-							Data[p + 3] = 255;
-						}
-						p += 4;
-					} p += pn;
-				}
-				Textures[TextureIndex].Transparency = TextureTransparencyMode.None;
-				Textures[TextureIndex].DontAllowUnload = true;
-			} else if (TransparentColorUsed != 0) {
-				// transparent color
-				int p = 0, pn = Stride - 4 * Width;
-				byte tr = TransparentColor.R;
-				byte tg = TransparentColor.G;
-				byte tb = TransparentColor.B;
-				bool used = false;
-				// check if alpha is actually used
-				int y;
-				for (y = 0; y < Height; y++) {
-					int x; for (x = 0; x < Width; x++) {
-						if (Data[p + 3] != 255) {
-							break;
-						} p += 4;
-					} if (x < Width) break;
-					p += pn;
-				}
-				if (y == Height) {
-					Textures[TextureIndex].Transparency = TextureTransparencyMode.TransparentColor;
-				}
-				// duplicate color data from adjacent pixels
-				p = 0; pn = Stride - 4 * Width;
-				for (y = 0; y < Height; y++) {
-					for (int x = 0; x < Width; x++) {
-						if (Data[p] == tb & Data[p + 1] == tg & Data[p + 2] == tr) {
-							used = true;
-							if (x == 0) {
-								int q = p;
-								int v; for (v = y; v < Height; v++) {
-									int u; for (u = v == y ? x + 1 : 0; u < Width; u++) {
-										if (Data[q] != tb | Data[q + 1] != tg | Data[q + 2] != tr) {
-											Data[p] = Data[q];
-											Data[p + 1] = Data[q + 1];
-											Data[p + 2] = Data[q + 2];
-											Data[p + 3] = 0;
-											break;
-										} q += 4;
-									} if (u < Width) {
-										break;
-									} else q += pn;
-								} if (v == Height) {
-									if (y == 0) {
-										Data[p] = 128;
-										Data[p + 1] = 128;
-										Data[p + 2] = 128;
-										Data[p + 3] = 0;
-									} else {
-										Data[p] = Data[p - Stride];
-										Data[p + 1] = Data[p - Stride + 1];
-										Data[p + 2] = Data[p - Stride + 2];
-										Data[p + 3] = 0;
-									}
-								}
+				// load mode
+				if (Textures[TextureIndex].LoadMode == TextureLoadMode.Bve4SignalGlow) {
+					// bve 4 signal glow
+					int p = 0, pn = Stride - 4 * Width;
+					byte tr, tg, tb;
+					if (TransparentColorUsed != 0) {
+						tr = TransparentColor.R;
+						tg = TransparentColor.G;
+						tb = TransparentColor.B;
+					} else {
+						tr = 0; tg = 0; tb = 0;
+					}
+					// invert lightness
+					byte[] Temp = new byte[Stride * Height];
+					for (int y = 0; y < Height; y++) {
+						for (int x = 0; x < Width; x++) {
+							if (Data[p] == tb & Data[p + 1] == tg & Data[p + 2] == tr) {
+								Temp[p] = 0;
+								Temp[p + 1] = 0;
+								Temp[p + 2] = 0;
+							} else if (Data[p] != 255 | Data[p + 1] != 255 | Data[p + 2] != 255) {
+								int b = Data[p], g = Data[p + 1], r = Data[p + 2];
+								InvertLightness(ref r, ref g, ref b);
+								int l = r >= g & r >= b ? r : g >= b ? g : b;
+								Temp[p] = (byte)(l * b / 255);
+								Temp[p + 1] = (byte)(l * g / 255);
+								Temp[p + 2] = (byte)(l * r / 255);
 							} else {
-								Data[p] = Data[p - 4];
-								Data[p + 1] = Data[p - 3];
-								Data[p + 2] = Data[p - 2];
-								Data[p + 3] = 0;
+								Temp[p] = Data[p];
+								Temp[p + 1] = Data[p + 1];
+								Temp[p + 2] = Data[p + 2];
 							}
-						} p += 4;
-					} p += pn;
-				}
-				// transparent color is not actually used
-				if (!used & Textures[TextureIndex].Transparency == TextureTransparencyMode.TransparentColor) {
+							p += 4;
+						} p += pn;
+					} p = 0;
+					// blur the image and multiply by lightness
+					int s = 4;
+					int n = Stride - (2 * s + 1 << 2);
+					for (int y = 0; y < Height; y++) {
+						for (int x = 0; x < Width; x++) {
+							int q = p - s * (Stride + 4);
+							int r = 0, g = 0, b = 0, c = 0;
+							for (int yr = y - s; yr <= y + s; yr++) {
+								if (yr >= 0 & yr < Height) {
+									for (int xr = x - s; xr <= x + s; xr++) {
+										if (xr >= 0 & xr < Width) {
+											b += (int)Temp[q];
+											g += (int)Temp[q + 1];
+											r += (int)Temp[q + 2];
+											c++;
+										} q += 4;
+									} q += n;
+								} else q += Stride;
+							} if (c == 0) {
+								Data[p] = 0;
+								Data[p + 1] = 0;
+								Data[p + 2] = 0;
+								Data[p + 3] = 255;
+							} else {
+								r /= c; g /= c; b /= c;
+								int l = r >= g & r >= b ? r : g >= b ? g : b;
+								Data[p] = (byte)(l * b / 255);
+								Data[p + 1] = (byte)(l * g / 255);
+								Data[p + 2] = (byte)(l * r / 255);
+								Data[p + 3] = 255;
+							}
+							p += 4;
+						} p += pn;
+					}
 					Textures[TextureIndex].Transparency = TextureTransparencyMode.None;
+					Textures[TextureIndex].DontAllowUnload = true;
+				} else if (TransparentColorUsed != 0) {
+					// transparent color
+					int p = 0, pn = Stride - 4 * Width;
+					byte tr = TransparentColor.R;
+					byte tg = TransparentColor.G;
+					byte tb = TransparentColor.B;
+					bool used = false;
+					// check if alpha is actually used
+					int y;
+					for (y = 0; y < Height; y++) {
+						int x; for (x = 0; x < Width; x++) {
+							if (Data[p + 3] != 255) {
+								break;
+							} p += 4;
+						} if (x < Width) break;
+						p += pn;
+					}
+					if (y == Height) {
+						Textures[TextureIndex].Transparency = TextureTransparencyMode.TransparentColor;
+					}
+					// duplicate color data from adjacent pixels
+					p = 0; pn = Stride - 4 * Width;
+					for (y = 0; y < Height; y++) {
+						for (int x = 0; x < Width; x++) {
+							if (Data[p] == tb & Data[p + 1] == tg & Data[p + 2] == tr) {
+								used = true;
+								if (x == 0) {
+									int q = p;
+									int v; for (v = y; v < Height; v++) {
+										int u; for (u = v == y ? x + 1 : 0; u < Width; u++) {
+											if (Data[q] != tb | Data[q + 1] != tg | Data[q + 2] != tr) {
+												Data[p] = Data[q];
+												Data[p + 1] = Data[q + 1];
+												Data[p + 2] = Data[q + 2];
+												Data[p + 3] = 0;
+												break;
+											} q += 4;
+										} if (u < Width) {
+											break;
+										} else q += pn;
+									} if (v == Height) {
+										if (y == 0) {
+											Data[p] = 128;
+											Data[p + 1] = 128;
+											Data[p + 2] = 128;
+											Data[p + 3] = 0;
+										} else {
+											Data[p] = Data[p - Stride];
+											Data[p + 1] = Data[p - Stride + 1];
+											Data[p + 2] = Data[p - Stride + 2];
+											Data[p + 3] = 0;
+										}
+									}
+								} else {
+									Data[p] = Data[p - 4];
+									Data[p + 1] = Data[p - 3];
+									Data[p + 2] = Data[p - 2];
+									Data[p + 3] = 0;
+								}
+							} p += 4;
+						} p += pn;
+					}
+					// transparent color is not actually used
+					if (!used & Textures[TextureIndex].Transparency == TextureTransparencyMode.TransparentColor) {
+						Textures[TextureIndex].Transparency = TextureTransparencyMode.None;
+					}
+				} else if (Textures[TextureIndex].Transparency == TextureTransparencyMode.Alpha) {
+					// check if alpha is actually used
+					int p = 0, pn = Stride - 4 * Width;
+					int y; for (y = 0; y < Height; y++) {
+						int x; for (x = 0; x < Width; x++) {
+							if (Data[p + 3] != 255) {
+								break;
+							} p += 4;
+						} if (x < Width) break;
+						p += pn;
+					}
+					if (y == Height) {
+						Textures[TextureIndex].Transparency = TextureTransparencyMode.None;
+					}
 				}
-			} else if (Textures[TextureIndex].Transparency == TextureTransparencyMode.Alpha) {
-				// check if alpha is actually used
-				int p = 0, pn = Stride - 4 * Width;
-				int y; for (y = 0; y < Height; y++) {
-					int x; for (x = 0; x < Width; x++) {
-						if (Data[p + 3] != 255) {
-							break;
-						} p += 4;
-					} if (x < Width) break;
-					p += pn;
+				// non-power of two
+				int TargetWidth = Interface.RoundToPowerOfTwo(Width);
+				int TargetHeight = Interface.RoundToPowerOfTwo(Height);
+				if (TargetWidth != Width | TargetHeight != Height) {
+					Bitmap b = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
+					BitmapData d = b.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, b.PixelFormat);
+					System.Runtime.InteropServices.Marshal.Copy(Data, 0, d.Scan0, d.Stride * d.Height);
+					b.UnlockBits(d);
+					Bitmap c = new Bitmap(TargetWidth, TargetHeight, PixelFormat.Format32bppArgb);
+					Graphics g = Graphics.FromImage(c);
+					g.DrawImage(b, 0, 0, TargetWidth, TargetHeight);
+					g.Dispose();
+					b.Dispose();
+					d = c.LockBits(new Rectangle(0, 0, TargetWidth, TargetHeight), ImageLockMode.ReadOnly, c.PixelFormat);
+					Stride = d.Stride;
+					Data = new byte[Stride * TargetHeight];
+					System.Runtime.InteropServices.Marshal.Copy(d.Scan0, Data, 0, Stride * TargetHeight);
+					c.UnlockBits(d);
+					c.Dispose();
 				}
-				if (y == Height) {
-					Textures[TextureIndex].Transparency = TextureTransparencyMode.None;
-				}
+				Textures[TextureIndex].Width = TargetWidth;
+				Textures[TextureIndex].Height = TargetHeight;
+				Textures[TextureIndex].Data = Data;
+			} catch (Exception ex) {
+				Interface.AddMessage(Interface.MessageType.Error, false, "Internal error in TextureManager.cs::LoadTextureRGBAForData: " + ex.Message);
+				throw;
 			}
-			// non-power of two
-			int TargetWidth = Interface.RoundToPowerOfTwo(Width);
-			int TargetHeight = Interface.RoundToPowerOfTwo(Height);
-			if (TargetWidth != Width | TargetHeight != Height) {
-				Bitmap b = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
-				BitmapData d = b.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, b.PixelFormat);
-				System.Runtime.InteropServices.Marshal.Copy(Data, 0, d.Scan0, d.Stride * d.Height);
-				b.UnlockBits(d);
-				Bitmap c = new Bitmap(TargetWidth, TargetHeight, PixelFormat.Format32bppArgb);
-				Graphics g = Graphics.FromImage(c);
-				g.DrawImage(b, 0, 0, TargetWidth, TargetHeight);
-				g.Dispose();
-				b.Dispose();
-				d = c.LockBits(new Rectangle(0, 0, TargetWidth, TargetHeight), ImageLockMode.ReadOnly, c.PixelFormat);
-				Stride = d.Stride;
-				Data = new byte[Stride * TargetHeight];
-				System.Runtime.InteropServices.Marshal.Copy(d.Scan0, Data, 0, Stride * TargetHeight);
-				c.UnlockBits(d);
-				c.Dispose();
-			}
-			Textures[TextureIndex].Width = TargetWidth;
-			Textures[TextureIndex].Height = TargetHeight;
-			Textures[TextureIndex].Data = Data;
 		}
+		
 		private static void LoadTextureRGBAforOpenGl(int TextureIndex) {
 			int[] a = new int[1];
 			Gl.glGenTextures(1, a);
@@ -657,7 +678,10 @@ namespace OpenBve {
 				nr = 255 - G;
 				ng = 255 - R;
 				nb = 255 + B - R - G;
-			} R = nr; G = ng; B = nb;
+			}
+			R = nr;
+			G = ng;
+			B = nb;
 		}
 
 	}

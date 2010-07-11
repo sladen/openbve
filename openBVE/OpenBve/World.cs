@@ -646,7 +646,7 @@ namespace OpenBve {
 				double tr = World.CameraCurrentAlignment.TrackPosition;
 				AdjustAlignment(ref World.CameraCurrentAlignment.TrackPosition, World.CameraAlignmentDirection.TrackPosition, ref World.CameraAlignmentSpeed.TrackPosition, TimeElapsed);
 				if (tr != World.CameraCurrentAlignment.TrackPosition) {
-					TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, World.CameraCurrentAlignment.TrackPosition, true, false);//###
+					TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, World.CameraCurrentAlignment.TrackPosition, true, false);
 					UpdateViewingDistances();
 				}
 				// camera
@@ -794,7 +794,7 @@ namespace OpenBve {
 					double tr = World.CameraCurrentAlignment.TrackPosition;
 					AdjustAlignment(ref World.CameraCurrentAlignment.TrackPosition, World.CameraAlignmentDirection.TrackPosition, ref World.CameraAlignmentSpeed.TrackPosition, TimeElapsed);
 					if (tr != World.CameraCurrentAlignment.TrackPosition) {
-						TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, World.CameraCurrentAlignment.TrackPosition, true, false);//###
+						TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, World.CameraCurrentAlignment.TrackPosition, true, false);
 						q = true;
 					}
 					if (q) {

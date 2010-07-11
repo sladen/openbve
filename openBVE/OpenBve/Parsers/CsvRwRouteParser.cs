@@ -1478,7 +1478,8 @@ namespace OpenBve {
 										if (Arguments.Length < 1) {
 											Interface.AddMessage(Interface.MessageType.Error, false, Command + " is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 										} else {
-											double a; if (!Interface.TryParseDoubleVb6(Arguments[0], out a)) {
+											double a; 
+											if (!Interface.TryParseDoubleVb6(Arguments[0], out a)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "Speed is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 											} else {
 												if (CommandIndex1 < 0) {
@@ -1636,8 +1637,6 @@ namespace OpenBve {
 										double dz = Math.Cos(theta) * Math.Cos(phi);
 										Renderer.OptionLightPosition = new World.Vector3Df((float)-dx, (float)-dy, (float)-dz);
 									} break;
-								case "route.developerid":
-									break;
 									// train
 								case "train.folder":
 								case "train.file":
@@ -2626,6 +2625,9 @@ namespace OpenBve {
 								case "train.flange":
 								case "train.timetable.day":
 								case "train.timetable.night":
+								case "train.velocity":
+								case "train.acceleration":
+								case "train.station":
 								case "structure.rail":
 								case "structure.beacon":
 								case "structure.pole":
