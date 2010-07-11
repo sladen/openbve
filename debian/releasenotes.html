@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="SHORTCUT ICON" href="common/favicon.png" />
 <meta name="keywords" content="openBVE,homepage" />
-<title>Changelog</title>
+<title>Release notes</title>
 </head>
 <body style="font-family:sans-serif;font-size:small">
 <table width="100%" cellspacing="0" style="min-width:1090px">
@@ -35,12 +35,12 @@
 </td></tr>
 </table><br />
 <table><tr style="height: 4px;"><td /></tr></table>
-Here you can find a summary of changes since the previous 1.2.6 series.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
+Here you can find a summary of changes since the previous 1.2.6 series. If you want to comment on this version of openBVE and the changes that came along with it, please head over to <a href="http&#58;&#47;&#47;openbve.freeforums.org/openbve-version-1-2-7-is-out-t1586.html">this thread</a> on the forum.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF"><b>&nbsp;Superelevation (cant)&nbsp;</b></font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
-In previous versions of openBVE, superelevation on curves, also known as cant, was simulated in a rather cheap way by making the car body simply roll around its axis. While this provided for the most noticable effect, namely that the train was slanted on curves, it was not quite realistic due to the way most real curves are laid out.<br /><br />From now on, openBVE assumes that the outer rail on a curve is slightly elevated, hence the term superelevation. This means that the car body does not simply roll around its axis anymore; rather, the outer wheel now actually rises above level. If you observe very closely, you are certainly going to notice this difference.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
+In previous versions of openBVE, superelevation on curves, also known as cant, was simulated in a rather cheap way by making the car body simply roll around its axis. While this provided for the most noticable effect, namely that the train was slanted on curves, it was not quite realistic due to the way most real curves are laid out.<br /><br />From now on, openBVE assumes that the outer rail on a curve is slightly elevated, hence the term <em>superelevation</em>. This means that the car body does not simply roll around its axis anymore; rather, the outer wheel now actually rises above level. If you observe very closely, you are certainly going to notice this difference.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF"><b>&nbsp;Track accuracy&nbsp;</b></font>
 </td></tr></table>
@@ -52,10 +52,20 @@ In previous versions of openBVE, poor accuracy of the track would make the car b
 <table><tr style="height: 4px;"><td /></tr></table>
 You can now hold down a key or a joystick button, and the event will fire multiple times until the key or button is released again. This makes operating the power and brake levers more comfortably from now on.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF"><b>&nbsp;The fly-by camera&nbsp;</b></font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+The fly-by camera now always focuses on the front car of a train. In previous versions, the focus would shift from the front car to the rear car on approach of the train. Moreover, the fly-by camera now focuses on the nearest train, not just the player's train. This means that on certain routes, you could stay in a spot and watch multiple trains pass by.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF"><b>&nbsp;Translations and Internationalization&nbsp;</b></font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+Translations for the Catalan and Romanian languages have been added.<br /><br /><table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF"><b>&nbsp;For add-on developers&nbsp;</b></font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
-Route developers can now specify outward cant on curves, meaning track that does not slant toward the curve center but away from it. They can now specify cant on straight track, as well. See the documentation for CSV/RW routes for more information, in particular the new <em>Options.CantBehavior</em> and the updated <em>Track.Curve</em> commands.<br /><br />Train developers can now use the custom timetable bitmaps as set up by CSV/RW routes in animated objects, intended to be used in 3D cabs. See the documentation for animated objects for more information, in particular the new <em>SpecialTexture</em> parameter in the <em>[Object]</em> section.
+Route developers can now specify outward cant on curves, meaning track that does not slant toward the curve center but away from it. They can now specify cant on straight track, as well. See the documentation for CSV/RW routes for more information, in particular the new <em>Options.CantBehavior</em> and the updated <em>Track.Curve</em> commands.<br /><br />Train developers can now use the custom timetable bitmaps as set up by CSV/RW routes in animated objects, intended to be used in 3D cabs. See the documentation for animated objects for more information, in particular the new <em>SpecialTexture</em> parameter in the <em>[Object]</em> section.<br /><br />For those who followed the discussion of a potential change of timetable behavior <a href="http&#58;&#47;&#47;openbve.freeforums.org/bve-4-style-timetables-for-all-trains-t1556.html">over here</a>, it should be noted that while those changes have been incorporated, they are considered experimental, meaning that there is no guarantee that the changes will stay in future versions unless the remaining issues are addressed. This also means that while you can play around with them, you should not make your add-ons depend on those changes quite yet.
 </td></tr></table>
 </td></tr>
 </table>

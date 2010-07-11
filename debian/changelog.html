@@ -35,21 +35,19 @@
 </td></tr>
 </table><br />
 <table><tr style="height: 4px;"><td /></tr></table>
-This changelog is intended for advanced users and developers. It does not summarize important changes for regular users.<br /><br />↷ <a href="#dev">Current development release</a><br />
-↷ <a href="#history12">1.2 series (stable)</a><br />
+This changelog is intended for advanced users and developers. It does not summarize important changes for regular users.<br /><br />↷ <a href="#history12">1.2 series (stable)</a><br />
 ↷ <a href="#history11">1.1 series (development)</a><br />
 ↷ <a href="#history10">1.0 series (stable)</a><br />
 ↷ <a href="#history09">0.9 series (development)</a><br />
-<br /><a name="development" />
-<br /><a name="dev" />
+<br /><a name="history12" />
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF"><b>&nbsp;1.2.6.100 series (development)&nbsp;</b></font>
+<font color="#FFFFFF"><b>&nbsp;1.2 series (stable)&nbsp;</b></font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.6.105 (2010-07-02)&nbsp;</font>
+<font color="#FFFFFF">&nbsp;v1.2.7.0 (2010-07-11)&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
 <table cellspacing="0"><tr>
@@ -75,7 +73,7 @@ This changelog is intended for advanced users and developers. It does not summar
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />Custom timetables that can be set up by route developers are now available in all trains. Previously, only trains where custom timetables were explicitly enabled could show them. For trains which explicitly support custom timetables, the timetables are shown as part of the 3D scenery (just as before), while for non-supported trains, they are shown as part of the UI overlay (and then can be scrolled using Shift+Up and Shift+Down just as with the default timetables). <b>Note: This feature may be partly removed again for v1.2.7!</b></td>
+<td><font color="red"><b>Simulation</b></font><br />When using the <em>Jump to Station</em> command, a previously derailed train will now be on the tracks again.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
@@ -86,11 +84,6 @@ This changelog is intended for advanced users and developers. It does not summar
 <td valign="top">●</td>
 <td>&nbsp;</td>
 <td><font color="red"><b>Developing routes</b></font><br />The new Options.CantBehavior command allows to change the way cant works in the Track.Curve command. The default behavior is that cant is unsigned, i.e. the sign is ignored and the superelevation is always towards the curve center, and that cant cannot be applied on straight track. The new behavior is that cant is signed, i.e. inward banking or outward banking can explicitly be set up, and that cant can also be applied on straight track.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />The Train.Timetable command now accepts files that are relative to the Object folder in addition to the previous model of interpreting files relative to the current train's folder. <b>Note: This feature may be removed again for v1.2.7!</b></td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
@@ -117,13 +110,26 @@ This changelog is intended for advanced users and developers. It does not summar
 <td>&nbsp;</td>
 <td><font color="red"><b>Bugfix</b></font><br />Some animated objects would stop being updated if jumping backward in time, for example when using the <em>Jump to Station</em> command.</td>
 </tr></table>
-<br /><a name="stable" />
-<br /><a name="history12" />
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF"><b>&nbsp;1.2 series (stable)&nbsp;</b></font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Animated objects were not updated at the beginning of the simulation until <em>RefreshRate</em> seconds had passed. Similarily, Route Viewer and Object Viewer were also affected whenever they reloaded content.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Translations</b></font><br />Added translations for the Catalan (ca-ES) and Romanian (ro-RO) languages.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b><em>Experimental (Simulation)</em></b></font><br /><em>Custom timetables that can be set up by route developers are now available in all trains. Previously, only trains where custom timetables were explicitly enabled could show them. For trains which explicitly support custom timetables, the timetables are shown as part of the 3D scenery (just as before), while for non-supported trains, they are shown as part of the UI overlay (and then can be scrolled using Shift+Up and Shift+Down just as with the default timetables). Please note that this feature might undergo changes or be removed in future versions of openBVE.</em></td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b><em>Experimental (Developing routes)</em></b></font><br /><em>The Train.Timetable command now accepts files that are relative to the Object folder in addition to the previous model of interpreting files relative to the current train's folder. Please note that this feature might undergo changes or be removed in future versions of openBVE.</em></td>
+</tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v1.2.6.3 (2010-05-02)&nbsp;</font>
