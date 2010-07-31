@@ -1004,7 +1004,11 @@ namespace OpenBve {
 				}
 				double x;
 				if (NumberCheck && Interface.TryParseDouble(Expressions[i].Text, UnitFactors, out x)) {
-					a = x;
+					if (x >= 0.0) {
+						a = x;
+					} else {
+						Interface.AddMessage(Interface.MessageType.Error, false, "Negative track position encountered at line " + Expressions[i].Line.ToString(Culture) + ", column " + Expressions[i].Column.ToString(Culture) + " in file " + Expressions[i].File);
+					}
 				} else {
 					p[n].TrackPosition = a;
 					p[n].Expression = Expressions[i];
@@ -1015,7 +1019,9 @@ namespace OpenBve {
 							p[j] = p[j - 1];
 							p[j - 1] = t;
 							j--;
-						} else break;
+						} else {
+							break;
+						}
 					}
 				}
 			}
@@ -1478,7 +1484,7 @@ namespace OpenBve {
 										if (Arguments.Length < 1) {
 											Interface.AddMessage(Interface.MessageType.Error, false, Command + " is expected to have one argument at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 										} else {
-											double a; 
+											double a;
 											if (!Interface.TryParseDoubleVb6(Arguments[0], out a)) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "Speed is invalid in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 											} else {
@@ -2476,13 +2482,15 @@ namespace OpenBve {
 					bool NumberCheck = !IsRW || string.Compare(Section, "track", StringComparison.OrdinalIgnoreCase) == 0;
 					if (NumberCheck && Interface.TryParseDouble(Command, UnitOfLength, out Number)) {
 						// track position
-						if (ArgumentSequence.Length == 0) {
+						if (ArgumentSequence.Length != 0) {
+							Interface.AddMessage(Interface.MessageType.Error, false, "A track position must not contain any arguments at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+						} else if (Number < 0.0) {
+							Interface.AddMessage(Interface.MessageType.Error, false, "Negative track position encountered at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+						} else {
 							Data.TrackPosition = Number;
 							BlockIndex = (int)Math.Floor(Number / Data.BlockInterval + 0.001);
 							if (Data.FirstUsedBlock == -1) Data.FirstUsedBlock = BlockIndex;
 							CreateMissingBlocks(ref Data, ref BlocksUsed, BlockIndex, PreviewOnly);
-						} else {
-							Interface.AddMessage(Interface.MessageType.Error, false, "A track position must not contain any arguments at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 						}
 					} else {
 						// split arguments

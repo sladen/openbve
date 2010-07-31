@@ -3884,7 +3884,12 @@ namespace OpenBve {
 		}
 		
 		// un-derail train
-		internal static void UnDerailTrain(Train Train) {
+		internal static void UnderailTrains() {
+			for (int i = 0; i < Trains.Length; i++) {
+				UnderailTrain(Trains[i]);
+			}
+		}
+		internal static void UnderailTrain(Train Train) {
 			for (int i = 0; i < Train.Cars.Length; i++) {
 				Train.Cars[i].Specs.CurrentRollDueToTopplingAngle = 0.0;
 				Train.Cars[i].Derailed = false;
