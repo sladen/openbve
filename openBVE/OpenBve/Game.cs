@@ -1079,6 +1079,7 @@ namespace OpenBve {
 							} else {
 								time = double.MinValue;
 							}
+							time -= Train.TimetableDelta;
 							if (time != double.MinValue) {
 								const double timeThreshold = 30.0;
 								const double adjustmentFactor = 0.03;
@@ -1370,16 +1371,9 @@ namespace OpenBve {
 						}
 						bool forceBrakeMode = false;
 						if (spd > 0.0 & spd > brakestart) {
-							double r = (spd - powerend) / spd;
-							if (r > 0.0) {
-								if (r > 1.0) {
-									dec = BrakeDeceleration;
-								} else {
-									dec = r * BrakeDeceleration;
-								}
-								forceBrakeMode = true;
-							}
+							dec = decelerationStep + 0.1 * (spd - brakestart);
 						}
+						bool reduceDecelerationCruiseAndStart = false;
 						// look ahead
 						double lookahead = (Train.Station >= 0 ? 150.0 : 50.0) + (spd * spd) / (2.0 * decelerationCruise);
 						double tp = Train.Cars[0].FrontAxle.Follower.TrackPosition - Train.Cars[0].FrontAxlePosition + 0.5 * Train.Cars[0].Length;
@@ -1421,13 +1415,18 @@ namespace OpenBve {
 																redstopdist = 35.0;
 															} else if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn) {
 																redstopdist = 25.0;
+															} else if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
+																redstopdist = 35.0;
 															} else {
-																redstopdist = 15.0;
+																redstopdist = 10.0;
 															}
 															if (dist > redstopdist) {
 																edec = (spd * spd) / (2.0 * (dist - redstopdist));
 															} else {
 																edec = BrakeDeceleration;
+															}
+															if (dist < 100.0) {
+																reduceDecelerationCruiseAndStart = true;
 															}
 														} else {
 															if (dist >= 1.0) {
@@ -1451,10 +1450,9 @@ namespace OpenBve {
 													double dist = Stations[e.StationIndex].Stops[s].TrackPosition - tp;
 													if (dist > -Stations[e.StationIndex].Stops[s].ForwardTolerance) {
 														if (dist < 25.0) {
-															decelerationCruise *= 0.1;
-															decelerationStart *= 0.3;
+															reduceDecelerationCruiseAndStart = true;
 														} else {
-															dist -= 10.0;
+															dist -= 5.0;
 														}
 														double edec;
 														edec = spd * spd / (2.0 * dist);
@@ -1473,10 +1471,9 @@ namespace OpenBve {
 													double dist = Stations[e.StationIndex].Stops[s].TrackPosition - tp;
 													if (dist > -Stations[e.StationIndex].Stops[s].ForwardTolerance) {
 														if (dist < 25.0) {
-															decelerationCruise *= 0.1;
-															decelerationStart *= 0.3;
+															reduceDecelerationCruiseAndStart = true;
 														} else {
-															dist -= 10.0;
+															dist -= 5.0;
 														}
 														double edec;
 														edec = spd * spd / (2.0 * dist);
@@ -1541,10 +1538,9 @@ namespace OpenBve {
 									double dist = Stations[Train.Station].Stops[s].TrackPosition - tp;
 									if (dist > 0.0) {
 										if (dist < 25.0) {
-											decelerationCruise *= 0.1;
-											decelerationStart *= 0.3;
+											reduceDecelerationCruiseAndStart = true;
 										} else {
-											dist -= 10.0;
+											dist -= 5.0;
 										}
 										double edec;
 										edec = spd * spd / (2.0 * dist);
@@ -1574,6 +1570,10 @@ namespace OpenBve {
 							}
 						}
 						// power / brake
+						if (reduceDecelerationCruiseAndStart) {
+							decelerationCruise *= 0.3;
+							decelerationStart *= 0.3;
+						}
 						double brakeModeBrakeThreshold = 0.75 * decelerationStart + 0.25 * decelerationCruise;
 						if (!BrakeMode & dec > decelerationStart | BrakeMode & dec > brakeModeBrakeThreshold | forceBrakeMode) {
 							// brake
