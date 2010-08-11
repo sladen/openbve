@@ -11,30 +11,30 @@ Homepage: http://openbve.trainsimcentral.co.uk/
 
 Package: openbve
 Architecture: all
-Depends: ${cli:Depends}, libmono-i18n2.0-cil, openbve-data (>= 1.2.1.3+dfsg)
+Depends: ${cli:Depends}, libmono-i18n2.0-cil, openbve-data (>= 1.2.7.0+dfsg)
 Recommends: bve-route, bve-train
 Provides: bve-engine
 Description: realistic 3D train/railway simulator (main program)
  OpenBVE is a railway train-driving simulator with an emphasis on
  in-cab driving, realistic physics, braking system and train safety
  system modelling.
-
+ .
  Technically, the simulator handles detailed per-car simulation of the
  brake systems, friction, air resistance, toppling and more. In train
  supplied with 3D cabs, the driving experience is augmented with
  forces that shake the driver's simulated body upon acceleration and
  braking, as well as through curves.
-
+ .
  Compared to other rail-baed simulators, OpenBVE has its main focus on
  realism---not necessarily on user-friendliness. There may be a need
  to study operational manuals for the routes and trains chosen, rather
  than merely memorising a few keystrokes.
-
+ .
  The simulator is designed to be backwards-compatible with existing
  'BVE Trainsim' routes and cab interiors, allowing a wide range of
  existing scenarios to be loaded by a single-program (BVE1, BVE2,
  BVE4 and extended OpenBVE route formats).
-
+ .
  OpenBVE uses OpenGL for 3D graphics rendering, OpenAL for positional
  surround sound, and is written in the C# language.  Note that binary
  train extension plugins are not currently supported on Linux/Unix,
