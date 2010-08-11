@@ -969,7 +969,7 @@ namespace OpenBve {
 			CurrentLampCollection.Width = 0.0f;
 			CurrentLampCollection.Lamps = new Lamp[17];
 			int Count;
-			if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin | World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
+			if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
 				Count = 0;
 			} else if (TrainManager.PlayerTrain.Specs.Safety.Ats.AtsPAvailable & TrainManager.PlayerTrain.Specs.Safety.Atc.Available) {
 				CurrentLampCollection.Lamps[0] = new Lamp(LampType.Ats);
@@ -2722,7 +2722,6 @@ namespace OpenBve {
 				}
 				ObjectList[ObjectListCount].ObjectIndex = ObjectIndex;
 				ObjectList[ObjectListCount].Overlay = Overlay;
-
 				int f = ObjectManager.Objects[ObjectIndex].Mesh.Faces.Length;
 				ObjectList[ObjectListCount].FaceListIndices = new int[f];
 				for (int i = 0; i < f; i++) {

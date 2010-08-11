@@ -744,8 +744,8 @@ namespace OpenBve {
 				bool visible = pb >= ta & pa <= tb;
 				if (visible | ForceUpdate) {
 					if (AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate >= AnimatedWorldObjects[i].Object.RefreshRate | ForceUpdate) {
-						double timeDelta = AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate;
-						AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate = TimeElapsed;
+						double timeDelta = AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate + TimeElapsed;
+						AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate = 0.0;
 						TrainManager.Train train = null;
 						double trainDistance = double.MaxValue;
 						for (int j = 0; j < TrainManager.Trains.Length; j++) {

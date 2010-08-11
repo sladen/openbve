@@ -518,7 +518,7 @@ namespace OpenBve {
 																		break;
 																	}
 																}
-																TrainManager.UnDerailTrain(TrainManager.PlayerTrain);
+																TrainManager.UnderailTrains();
 																TrackManager.SuppressSoundEvents = false;
 																if (TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Driver) {
 																	TrainManager.ApplyNotch(TrainManager.PlayerTrain, 0, false, 0, true);
