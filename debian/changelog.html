@@ -47,6 +47,51 @@ This changelog is intended for advanced users and developers. It does not summar
 <table><tr style="height: 4px;"><td /></tr></table>
 <br /><table><tr style="height: 4px;"><td /></tr></table>
 <table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.2.7.3 (2010-08-07)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />The AI should adapt its preferred driving speed depending on earliness or lateness at stations since v1.2.7.2, but did not incorporate its timetable offset (for non-player trains). This would lead to the preceding train to drive slower after every station stop until it matched the player's train's timetable.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />The AI would not usually decelerate if overspeeding, but just cruise at its current (over)speed.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
+<font color="#FFFFFF">&nbsp;v1.2.7.2 (2010-07-31)&nbsp;</font>
+</td></tr></table>
+<table><tr style="height: 4px;"><td /></tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />The AI has been fine-tuned. It should stop gentler at stations now, being less prone to overrun than before. Also, it dynamically adapts its preferred driving speed depending on whether it is early or late at stations. Finally, the AI now stops in front of the preceding train, useful for tram scenarios or other scenarios where multiple trains are allowed to be within the same block.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Simulation</b></font><br />When using the <em>Jump to Station</em> command, any previously derailed train will now be on the tracks again, not just the player's train.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Interface</b></font><br />In the main menu, the train selection box now shows the <em>Browse</em> tab on startup, not the <em>Route default</em> tab.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Interface</b></font><br />The lamps for the built-in ATS and ATC were previously not shown for <em>panel.animated</em> cabs. This was intentional in order to move cab developers to show the lamps as part of the cab itself. However, for consistency reasons, the lamps are now shown for all cabs, regardless of the underlying file format.</td>
+</tr></table>
+<table cellspacing="0"><tr>
+<td valign="top">●</td>
+<td>&nbsp;</td>
+<td><font color="red"><b>Bugfix</b></font><br />Negative track positions in CSV/RW routes could crash the game (and RouteViewer, too). They are now reported as errors.</td>
+</tr></table>
+<br /><table><tr style="height: 4px;"><td /></tr></table>
+<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
 <font color="#FFFFFF">&nbsp;v1.2.7.0 (2010-07-11)&nbsp;</font>
 </td></tr></table>
 <table><tr style="height: 4px;"><td /></tr></table>
@@ -73,7 +118,7 @@ This changelog is intended for advanced users and developers. It does not summar
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />When using the <em>Jump to Station</em> command, a previously derailed train will now be on the tracks again.</td>
+<td><font color="red"><b>Simulation</b></font><br />When using the <em>Jump to Station</em> command, a previously derailed player's train will now be on the tracks again.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
@@ -83,12 +128,12 @@ This changelog is intended for advanced users and developers. It does not summar
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />The new Options.CantBehavior command allows to change the way cant works in the Track.Curve command. The default behavior is that cant is unsigned, i.e. the sign is ignored and the superelevation is always towards the curve center, and that cant cannot be applied on straight track. The new behavior is that cant is signed, i.e. inward banking or outward banking can explicitly be set up, and that cant can also be applied on straight track.</td>
+<td><font color="red"><b>Developing objects</b></font><br />Animated objects can now show the timetable as set up by CSV/RW routes. See the <em>TextureOverride</em> parameter in the documentation for the <em>[Object]</em> section. This allows to integrate the custom timetable as part of the 3D cab geometry.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><font color="red"><b>Developing objects</b></font><br />Animated objects can now show the timetable as set up by CSV/RW routes. See the <em>SpecialTexture</em> parameter in the documentation for the <em>[Object]</em> section. This allows to integrate the custom timetable as part of the 3D cab geometry.</td>
+<td><font color="red"><b>Developing routes</b></font><br />The new Options.CantBehavior command allows to change the way cant works in the Track.Curve command. The default behavior is that cant is unsigned, i.e. the sign is ignored and the superelevation is always towards the curve center, and that cant cannot be applied on straight track. The new behavior is that cant is signed, i.e. inward banking or outward banking can explicitly be set up, and that cant can also be applied on straight track.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
@@ -113,7 +158,7 @@ This changelog is intended for advanced users and developers. It does not summar
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
 <td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Animated objects were not updated at the beginning of the simulation until <em>RefreshRate</em> seconds had passed. Similarily, Route Viewer and Object Viewer were also affected whenever they reloaded content.</td>
+<td><font color="red"><b>Bugfix</b></font><br />Animated objects were not updated at the beginning of the simulation until <em>RefreshRate</em> seconds had passed.</td>
 </tr></table>
 <table cellspacing="0"><tr>
 <td valign="top">●</td>
