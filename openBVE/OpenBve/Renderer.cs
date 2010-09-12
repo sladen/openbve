@@ -2614,7 +2614,10 @@ namespace OpenBve {
 			double tw = 0.0;
 			for (int i = 0; i < Text.Length; i++) {
 				int a = char.ConvertToUtf32(Text, i);
-				Fonts.GetTextureIndex(FontType, Text[i]);
+				if (a >= 0x10000) {
+					i++;
+				}
+				Fonts.GetTextureIndex(FontType, a);
 				tw += Fonts.Characters[Font][a].Width;
 			}
 			if (Orientation == 0) {
@@ -2624,7 +2627,10 @@ namespace OpenBve {
 			}
 			for (int i = 0; i < Text.Length; i++) {
 				int b = char.ConvertToUtf32(Text, i);
-				int t = Fonts.GetTextureIndex(FontType, Text[i]);
+				if (b >= 0x10000) {
+					i++;
+				}
+				int t = Fonts.GetTextureIndex(FontType, b);
 				double w = (double)TextureManager.Textures[t].ClipWidth;
 				double h = (double)TextureManager.Textures[t].ClipHeight;
 				Gl.glBlendFunc(Gl.GL_ZERO, Gl.GL_ONE_MINUS_SRC_COLOR);
@@ -2643,11 +2649,16 @@ namespace OpenBve {
 		private static void MeasureString(string Text, Fonts.FontType FontType, out float Width, out float Height) {
 			Width = 0.0f;
 			Height = 0.0f;
-			if (Text == null) return;
+			if (Text == null) {
+				return;
+			}
 			int Font = (int)FontType;
 			for (int i = 0; i < Text.Length; i++) {
 				int Codepoint = char.ConvertToUtf32(Text, i);
-				int Texture = Fonts.GetTextureIndex(FontType, Text[i]);
+				if (Codepoint >= 0x10000) {
+					i++;
+				}
+				int Texture = Fonts.GetTextureIndex(FontType, Codepoint);
 				Width += Fonts.Characters[Font][Codepoint].Width;
 				if (Fonts.Characters[Font][Codepoint].Height > Height) {
 					Height = Fonts.Characters[Font][Codepoint].Height;

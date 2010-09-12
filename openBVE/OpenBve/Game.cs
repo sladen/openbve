@@ -1055,7 +1055,11 @@ namespace OpenBve {
 				this.PowerNotchAtWhichWheelSlipIsObserved = Train.Specs.MaximumPowerNotch + 1;
 				this.AtsChimeCancelPosition = Train.Cars[0].FrontAxle.Follower.TrackPosition + 600.0;
 				this.AtsChimeCancelSection = -1;
-				this.LastStation = -1;
+				if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Boarding) {
+					this.LastStation = Train.Station;
+				} else {
+					this.LastStation = -1;
+				}
 			}
 			internal override void Trigger(TrainManager.Train Train, double TimeElapsed) {
 				if (TimeLastProcessed > SecondsSinceMidnight) {
@@ -1073,35 +1077,39 @@ namespace OpenBve {
 							this.LastStation = Train.Station;
 							double time;
 							if (Stations[Train.Station].ArrivalTime >= 0.0) {
-								time = Stations[Train.Station].ArrivalTime;
+								time = Stations[Train.Station].ArrivalTime - Train.TimetableDelta;
 							} else if (Stations[Train.Station].DepartureTime >= 0.0) {
-								time = Stations[Train.Station].DepartureTime - Stations[Train.Station].StopTime;
+								time = Stations[Train.Station].DepartureTime - Stations[Train.Station].StopTime - Train.TimetableDelta;
 							} else {
 								time = double.MinValue;
 							}
-							time -= Train.TimetableDelta;
 							if (time != double.MinValue) {
-								const double timeThreshold = 30.0;
-								const double adjustmentFactor = 0.03;
+								const double largeThreshold = 30.0;
+								const double largeChangeFactor = 0.0025;
+								const double smallThreshold = 15.0;
+								const double smallChange = 0.05;
 								double diff = SecondsSinceMidnight - time;
-								if (diff < -timeThreshold) {
-									this.CurrentSpeedFactor -= adjustmentFactor * (-diff - timeThreshold);
-									if (this.CurrentSpeedFactor < 0.5) {
-										this.CurrentSpeedFactor = 0.5;
+								if (diff < -largeThreshold) {
+									/* The AI is too fast. Decrease the preferred speed. */
+									this.CurrentSpeedFactor -= largeChangeFactor * (-diff - largeThreshold);
+									if (this.CurrentSpeedFactor < 0.6) {
+										this.CurrentSpeedFactor = 0.6;
 									}
-								} else if (diff > timeThreshold) {
-									this.CurrentSpeedFactor += adjustmentFactor * (diff - timeThreshold);
+								} else if (diff > largeThreshold) {
+									/* The AI is too slow. Increase the preferred speed. */
+									this.CurrentSpeedFactor += largeChangeFactor * (diff - largeThreshold);
 									if (this.CurrentSpeedFactor > 1.2) {
 										this.CurrentSpeedFactor = 1.2;
 									}
-								} else if (Math.Abs(diff) < 0.5 * timeThreshold) {
+								} else if (Math.Abs(diff) < smallThreshold) {
+									/* The AI is at about the right speed. Change the preferred speed toward the personality default. */
 									if (this.CurrentSpeedFactor < this.PersonalitySpeedFactor) {
-										this.CurrentSpeedFactor += 0.05;
+										this.CurrentSpeedFactor += smallChange;
 										if (this.CurrentSpeedFactor > this.PersonalitySpeedFactor) {
 											this.CurrentSpeedFactor = this.PersonalitySpeedFactor;
 										}
 									} else if (this.CurrentSpeedFactor > this.PersonalitySpeedFactor) {
-										this.CurrentSpeedFactor -= 0.05;
+										this.CurrentSpeedFactor -= smallChange;
 										if (this.CurrentSpeedFactor < this.PersonalitySpeedFactor) {
 											this.CurrentSpeedFactor = this.PersonalitySpeedFactor;
 										}

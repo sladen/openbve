@@ -155,7 +155,6 @@ namespace OpenBve {
 				Item.Tag = Interface.CurrentOptions.RecentlyUsedTrains[i];
 			}
 			listviewTrainRecently.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-			//tabcontrolTrainSelection.SelectedTab = tabpageTrainDefault;
 			// text boxes
 			if (Interface.CurrentOptions.RouteFolder.Length != 0 && System.IO.Directory.Exists(Interface.CurrentOptions.RouteFolder)) {
 				textboxRouteFolder.Text = Interface.CurrentOptions.RouteFolder;
