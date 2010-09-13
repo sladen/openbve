@@ -382,17 +382,18 @@ namespace OpenBve {
 			}
 		}
 		// transponder
+		/// <summary>Represents the type of transponder. Numerical values less than zero are reserved for built-in functionality. Plugins may only be fed with non-negative types.</summary>
 		internal enum TransponderType {
 			None = -1,
-			S = 0,
-			Sn = 1,
+			SLong = 0,
+			SN = 1,
 			AccidentalDeparture = 2,
 			AtsPPatternOrigin = 3,
 			AtsPImmediateStop = 4,
 			AtsPTemporarySpeedRestriction = -2,
 			AtsPPermanentSpeedRestriction = -3
 		}
-		internal enum TransponderSpecialSection : int {
+		internal enum TransponderSpecialSection {
 			NextRedSection = -2,
 		}
 		internal class TransponderEvent : GeneralEvent {
@@ -445,7 +446,9 @@ namespace OpenBve {
 					Data.OptionalFloat = this.OptionalFloat;
 					Data.OptionalInteger = this.OptionalInteger;
 					if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-						PluginManager.UpdateBeacon(Train, Data);
+						if ((int)Data.Type >= 0) {
+							PluginManager.UpdateBeacon(Train, Data);
+						}
 					} else {
 						Train.Specs.Safety.AddPendingTransponder(Data);
 					}

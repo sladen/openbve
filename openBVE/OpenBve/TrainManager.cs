@@ -434,7 +434,8 @@ namespace OpenBve {
 				if (n != 0) {
 					for (int i = 0; i < n - 1; i++) {
 						this.PendingTransponders[i] = this.PendingTransponders[i + 1];
-					} Array.Resize<TrainPendingTransponder>(ref this.PendingTransponders, n - 1);
+					}
+					Array.Resize<TrainPendingTransponder>(ref this.PendingTransponders, n - 1);
 				}
 			}
 		}
@@ -1150,7 +1151,11 @@ namespace OpenBve {
 				InitializeCarSection(Train, CarIndex, SectionIndex);
 				for (int j = 0; j < Train.Cars[CarIndex].Sections[SectionIndex].Elements.Length; j++) {
 					int o = Train.Cars[CarIndex].Sections[SectionIndex].Elements[j].ObjectIndex;
-					Renderer.ShowObject(o, Train.Cars[CarIndex].Sections[SectionIndex].Overlay);
+					if (Train.Cars[CarIndex].Sections[SectionIndex].Overlay) {
+						Renderer.ShowObject(o, Renderer.ObjectType.Overlay);
+					} else {
+						Renderer.ShowObject(o, Renderer.ObjectType.Dynamic);
+					}
 				}
 			}
 			Train.Cars[CarIndex].CurrentSection = SectionIndex;
@@ -2108,7 +2113,7 @@ namespace OpenBve {
 						Train.Specs.Safety.State = SafetyState.Normal;
 					}
 					int s = Transponder.SectionIndex;
-					if (Transponder.Type == TrackManager.TransponderType.S) {
+					if (Transponder.Type == TrackManager.TransponderType.SLong) {
 						if (s >= 0) {
 							if (Game.Sections[s].Aspects[Game.Sections[s].CurrentAspect].Speed == 0.0) {
 								Train.Specs.Safety.State = SafetyState.Ringing;
@@ -2116,7 +2121,7 @@ namespace OpenBve {
 						} else {
 							Train.Specs.Safety.State = SafetyState.Ringing;
 						}
-					} else if (Transponder.Type == TrackManager.TransponderType.Sn | Transponder.Type == TrackManager.TransponderType.AccidentalDeparture) {
+					} else if (Transponder.Type == TrackManager.TransponderType.SN | Transponder.Type == TrackManager.TransponderType.AccidentalDeparture) {
 						if (s >= 0) {
 							if (Game.Sections[s].Aspects[Game.Sections[s].CurrentAspect].Speed == 0.0) {
 								Train.Specs.Safety.State = SafetyState.Emergency;
@@ -2149,7 +2154,7 @@ namespace OpenBve {
 					}
 					SafetyState state = Train.Specs.Safety.State;
 					int s = Transponder.SectionIndex;
-					if (Transponder.Type == TrackManager.TransponderType.S | Transponder.Type == TrackManager.TransponderType.Sn) {
+					if (Transponder.Type == TrackManager.TransponderType.SLong | Transponder.Type == TrackManager.TransponderType.SN) {
 						if (Train.Specs.Safety.Ats.AtsAvailable & Transponder.SwitchSubsystem) {
 							Train.Specs.Safety.ModeChange = SafetySystem.AtsSn;
 							int snd = Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundBufferIndex;

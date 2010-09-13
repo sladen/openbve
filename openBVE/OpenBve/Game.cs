@@ -121,6 +121,7 @@ namespace OpenBve {
 		internal static int InfoTotalQuadStrip = 0;
 		internal static int InfoTotalQuads = 0;
 		internal static int InfoTotalPolygon = 0;
+		internal static int InfoStaticOpaqueFaceCount = 0;
 
 		// ================================
 
@@ -263,6 +264,7 @@ namespace OpenBve {
 			InfoTotalQuads = 0;
 			InfoTotalQuadStrip = 0;
 			InfoTotalPolygon = 0;
+			InfoStaticOpaqueFaceCount = 0;
 			if (ResetLogs) {
 				LogRouteName = "";
 				LogTrainName = "";
@@ -1050,7 +1052,7 @@ namespace OpenBve {
 				this.TimeLastProcessed = 0.0;
 				this.CurrentInterval = 1.0;
 				this.BrakeMode = false;
-				this.PersonalitySpeedFactor = 0.8 + 0.2 * Generator.NextDouble();
+				this.PersonalitySpeedFactor = 0.85 + 0.15 * Generator.NextDouble();
 				this.CurrentSpeedFactor = this.PersonalitySpeedFactor;
 				this.PowerNotchAtWhichWheelSlipIsObserved = Train.Specs.MaximumPowerNotch + 1;
 				this.AtsChimeCancelPosition = Train.Cars[0].FrontAxle.Follower.TrackPosition + 600.0;
@@ -1079,7 +1081,13 @@ namespace OpenBve {
 							if (Stations[Train.Station].ArrivalTime >= 0.0) {
 								time = Stations[Train.Station].ArrivalTime - Train.TimetableDelta;
 							} else if (Stations[Train.Station].DepartureTime >= 0.0) {
-								time = Stations[Train.Station].DepartureTime - Stations[Train.Station].StopTime - Train.TimetableDelta;
+								time = Stations[Train.Station].DepartureTime - Train.TimetableDelta;
+								if (time > SecondsSinceMidnight) {
+									time -= Stations[Train.Station].StopTime;
+									if (time > SecondsSinceMidnight) {
+										time = double.MinValue;
+									}
+								}
 							} else {
 								time = double.MinValue;
 							}
@@ -1092,8 +1100,8 @@ namespace OpenBve {
 								if (diff < -largeThreshold) {
 									/* The AI is too fast. Decrease the preferred speed. */
 									this.CurrentSpeedFactor -= largeChangeFactor * (-diff - largeThreshold);
-									if (this.CurrentSpeedFactor < 0.6) {
-										this.CurrentSpeedFactor = 0.6;
+									if (this.CurrentSpeedFactor < 0.7) {
+										this.CurrentSpeedFactor = 0.7;
 									}
 								} else if (diff > largeThreshold) {
 									/* The AI is too slow. Increase the preferred speed. */
@@ -1377,6 +1385,11 @@ namespace OpenBve {
 							decelerationStart = 0.5 * BrakeDeceleration;
 							decelerationStep = BrakeDeceleration / (double)Train.Specs.MaximumBrakeNotch;
 						}
+						if (this.CurrentSpeedFactor >= 1.0) {
+							decelerationCruise *= 1.25;
+							decelerationStart *= 1.25;
+							decelerationStep *= 1.25;
+						}
 						bool forceBrakeMode = false;
 						if (spd > 0.0 & spd > brakestart) {
 							dec = decelerationStep + 0.1 * (spd - brakestart);
@@ -1459,7 +1472,7 @@ namespace OpenBve {
 													if (dist > -Stations[e.StationIndex].Stops[s].ForwardTolerance) {
 														if (dist < 25.0) {
 															reduceDecelerationCruiseAndStart = true;
-														} else {
+														} else if (this.CurrentSpeedFactor < 1.0) {
 															dist -= 5.0;
 														}
 														double edec;
@@ -1480,7 +1493,7 @@ namespace OpenBve {
 													if (dist > -Stations[e.StationIndex].Stops[s].ForwardTolerance) {
 														if (dist < 25.0) {
 															reduceDecelerationCruiseAndStart = true;
-														} else {
+														} else if (this.CurrentSpeedFactor < 1.0) {
 															dist -= 5.0;
 														}
 														double edec;
@@ -1547,7 +1560,7 @@ namespace OpenBve {
 									if (dist > 0.0) {
 										if (dist < 25.0) {
 											reduceDecelerationCruiseAndStart = true;
-										} else {
+										} else if (this.CurrentSpeedFactor < 1.0) {
 											dist -= 5.0;
 										}
 										double edec;

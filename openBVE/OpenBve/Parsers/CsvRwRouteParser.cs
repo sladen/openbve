@@ -300,81 +300,81 @@ namespace OpenBve {
 				string SignalFolder = Interface.GetCombinedFolderName(CompatibilityFolder, "Signals");
 				Data.SignalData = new SignalData[7];
 				Data.SignalData[3] = new CompatibilitySignalData(new int[] { 0, 2, 4 }, new ObjectManager.StaticObject[] {
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_3_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_3_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_3_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_3_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_3_2.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_3_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                 });
 				Data.SignalData[4] = new CompatibilitySignalData(new int[] { 0, 1, 2, 4 }, new ObjectManager.StaticObject[] {
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4a_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4a_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4a_2.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName (SignalFolder, "signal_4a_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                 });
 				Data.SignalData[5] = new CompatibilitySignalData(new int[] { 0, 1, 2, 3, 4 }, new ObjectManager.StaticObject[] {
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_2.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_3.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                 });
 				Data.SignalData[6] = new CompatibilitySignalData(new int[] { 0, 3, 4 }, new ObjectManager.StaticObject[] {
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_3.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                 	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                 });
 				// compatibility signals
 				Data.CompatibilitySignalData = new CompatibilitySignalData[9];
 				Data.CompatibilitySignalData[0] = new CompatibilitySignalData(new int[] { 0, 2 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2a_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2a_2.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[1] = new CompatibilitySignalData(new int[] { 0, 4 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2b_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_2b_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[2] = new CompatibilitySignalData(new int[] { 0, 2, 4 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_3_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_3_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_3_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_3_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_3_2.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_3_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[3] = new CompatibilitySignalData(new int[] { 0, 1, 2, 4 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4a_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4a_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4a_2.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4a_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[4] = new CompatibilitySignalData(new int[] { 0, 2, 3, 4 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4b_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4b_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4b_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4b_2.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4b_3.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_4b_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[5] = new CompatibilitySignalData(new int[] { 0, 1, 2, 3, 4 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5a_1.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_2.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_3.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[6] = new CompatibilitySignalData(new int[] { 0, 2, 3, 4, 5 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5b_5.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_2.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_3.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_5b_5.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[7] = new CompatibilitySignalData(new int[] { 0, 1, 2, 3, 4, 5 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_1.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_2.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_5.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_1.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_2.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_3.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "signal_6_5.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                              });
 				Data.CompatibilitySignalData[8] = new CompatibilitySignalData(new int[] { 0, 3, 4 }, new ObjectManager.StaticObject[] {
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_0.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_3.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false),
-				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_4.csv"), Encoding, ObjectManager.ObjectLoadMode.PreloadTextures, false, false, false)
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_0.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_3.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false),
+				                                                              	ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalFolder, "repeatingsignal_4.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false)
 				                                                              });
 				// game data
 				Game.Sections = new Game.Section[1];
@@ -3292,7 +3292,7 @@ namespace OpenBve {
 											int n = Data.Blocks[BlockIndex].Transponder.Length;
 											Array.Resize<Transponder>(ref Data.Blocks[BlockIndex].Transponder, n + 1);
 											Data.Blocks[BlockIndex].Transponder[n].TrackPosition = Data.TrackPosition;
-											Data.Blocks[BlockIndex].Transponder[n].Type = TrackManager.TransponderType.S;
+											Data.Blocks[BlockIndex].Transponder[n].Type = TrackManager.TransponderType.SLong;
 											Data.Blocks[BlockIndex].Transponder[n].ShowDefaultObject = true;
 											Data.Blocks[BlockIndex].Transponder[n].SwitchSubsystem = true;
 											Data.Blocks[BlockIndex].Transponder[n].BeaconStructureIndex = -1;
@@ -5432,8 +5432,8 @@ namespace OpenBve {
 								ObjectManager.UnifiedObject obj = null;
 								if (Data.Blocks[i].Transponder[k].ShowDefaultObject) {
 									switch (Data.Blocks[i].Transponder[k].Type) {
-											case TrackManager.TransponderType.S: obj = TransponderS; break;
-											case TrackManager.TransponderType.Sn: obj = TransponderSN; break;
+											case TrackManager.TransponderType.SLong: obj = TransponderS; break;
+											case TrackManager.TransponderType.SN: obj = TransponderSN; break;
 											case TrackManager.TransponderType.AccidentalDeparture: obj = TransponderFalseStart; break;
 											case TrackManager.TransponderType.AtsPPatternOrigin: obj = TransponderPOrigin; break;
 											case TrackManager.TransponderType.AtsPImmediateStop: obj = TransponderPStop; break;

@@ -410,7 +410,8 @@ namespace OpenBve {
 							if (Game.Sections[s].Aspects[a].Number == 0) {
 								break;
 							}
-						} s = Game.Sections[s].NextSection;
+						} 
+						s = Game.Sections[s].NextSection;
 					}
 				}
 			}
@@ -426,7 +427,8 @@ namespace OpenBve {
 							if (Game.Sections[s].Aspects[i].Number > Game.Sections[n].Aspects[a].Number) {
 								c = i;
 							}
-						} if (c == -1) {
+						} 
+						if (c == -1) {
 							c = Game.Sections[s].Aspects.Length - 1;
 						}
 						data.Signal = Game.Sections[s].Aspects[c].Number;

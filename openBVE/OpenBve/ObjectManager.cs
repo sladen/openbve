@@ -9,6 +9,7 @@ namespace OpenBve {
 		// static objects
 		internal class StaticObject : UnifiedObject {
 			internal World.Mesh Mesh;
+			/// <summary>The index to the Renderer.Object array, plus 1. The value of zero represents that the object is not currently shown by the renderer.</summary>
 			internal int RendererIndex;
 			internal float StartingDistance;
 			internal float EndingDistance;
@@ -190,7 +191,11 @@ namespace OpenBve {
 			}
 			Object.CurrentState = StateIndex;
 			if (Show) {
-				Renderer.ShowObject(i, Overlay);
+				if (Overlay) {
+					Renderer.ShowObject(i, Renderer.ObjectType.Overlay);
+				} else {
+					Renderer.ShowObject(i, Renderer.ObjectType.Dynamic);
+				}
 			}
 		}
 
@@ -580,7 +585,11 @@ namespace OpenBve {
 				}
 				// visibility changed
 				if (Show) {
-					Renderer.ShowObject(i, Overlay);
+					if (Overlay) {
+						Renderer.ShowObject(i, Renderer.ObjectType.Overlay);
+					} else {
+						Renderer.ShowObject(i, Renderer.ObjectType.Dynamic);
+					}
 				} else {
 					Renderer.HideObject(i);
 				}
@@ -767,7 +776,7 @@ namespace OpenBve {
 						AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate += TimeElapsed;
 					}
 					if (!AnimatedWorldObjects[i].Visible) {
-						Renderer.ShowObject(AnimatedWorldObjects[i].Object.ObjectIndex, false);
+						Renderer.ShowObject(AnimatedWorldObjects[i].Object.ObjectIndex, Renderer.ObjectType.Dynamic);
 						AnimatedWorldObjects[i].Visible = true;
 					}
 				} else {
@@ -781,7 +790,7 @@ namespace OpenBve {
 		}
 
 		// load object
-		internal enum ObjectLoadMode { Normal, DontAllowUnloadOfTextures, PreloadTextures }
+		internal enum ObjectLoadMode { Normal, DontAllowUnloadOfTextures }
 		internal static UnifiedObject LoadObject(string FileName, System.Text.Encoding Encoding, ObjectLoadMode LoadMode, bool PreserveVertices, bool ForceTextureRepeatX, bool ForceTextureRepeatY) {
 			#if !DEBUG
 			try {
@@ -1460,6 +1469,10 @@ namespace OpenBve {
 			if (AccurateObjectDisposal) {
 				Object.StartingDistance += (float)TrackPosition;
 				Object.EndingDistance += (float)TrackPosition;
+				const double syncMultiple = 25.0;
+				const double extraDistance = 12.5;
+				Object.StartingDistance = (float)(syncMultiple * Math.Floor(((double)Object.StartingDistance - extraDistance) / syncMultiple));
+				Object.EndingDistance = (float)(syncMultiple * Math.Ceiling(((double)Object.EndingDistance + extraDistance) / syncMultiple));
 			} else {
 				Object.StartingDistance = (float)StartingDistance;
 				Object.EndingDistance = (float)EndingDistance;
@@ -1556,7 +1569,7 @@ namespace OpenBve {
 			for (int i = 0; i < ObjectsUsed; i++) {
 				if (Objects[i].Dynamic == 0) {
 					if (Objects[i].StartingDistance <= p + World.ForwardViewingDistance & Objects[i].EndingDistance >= p - World.BackwardViewingDistance) {
-						Renderer.ShowObject(i, false);
+						Renderer.ShowObject(i, Renderer.ObjectType.Static);
 					}
 				}
 			}
@@ -1576,20 +1589,11 @@ namespace OpenBve {
 		internal static void UpdateVisibility(double TrackPosition) {
 			double d = TrackPosition - LastUpdatedTrackPosition;
 			int n = ObjectsSortedByStart.Length;
+			int m = ObjectsSortedByEnd.Length;
 			double p = World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z;
 			if (d < 0.0) {
 				if (ObjectsSortedByStartPointer >= n) ObjectsSortedByStartPointer = n - 1;
 				if (ObjectsSortedByEndPointer >= n) ObjectsSortedByEndPointer = n - 1;
-				// introduce
-				while (ObjectsSortedByEndPointer >= 0) {
-					int o = ObjectsSortedByEnd[ObjectsSortedByEndPointer];
-					if (Objects[o].EndingDistance >= p - World.BackwardViewingDistance) {
-						Renderer.ShowObject(o, false);
-						ObjectsSortedByEndPointer--;
-					} else {
-						break;
-					}
-				}
 				// dispose
 				while (ObjectsSortedByStartPointer >= 0) {
 					int o = ObjectsSortedByStart[ObjectsSortedByStartPointer];
@@ -1600,25 +1604,39 @@ namespace OpenBve {
 						break;
 					}
 				}
-			} else if (d > 0.0) {
-				if (ObjectsSortedByStartPointer < 0) ObjectsSortedByStartPointer = 0;
-				if (ObjectsSortedByEndPointer < 0) ObjectsSortedByEndPointer = 0;
 				// introduce
-				while (ObjectsSortedByStartPointer < n) {
-					int o = ObjectsSortedByStart[ObjectsSortedByStartPointer];
-					if (Objects[o].StartingDistance <= p + World.ForwardViewingDistance) {
-						Renderer.ShowObject(o, false);
-						ObjectsSortedByStartPointer++;
+				while (ObjectsSortedByEndPointer >= 0) {
+					int o = ObjectsSortedByEnd[ObjectsSortedByEndPointer];
+					if (Objects[o].EndingDistance >= p - World.BackwardViewingDistance) {
+						if (Objects[o].StartingDistance <= p + World.ForwardViewingDistance) {
+							Renderer.ShowObject(o, Renderer.ObjectType.Static);
+						}
+						ObjectsSortedByEndPointer--;
 					} else {
 						break;
 					}
 				}
+			} else if (d > 0.0) {
+				if (ObjectsSortedByStartPointer < 0) ObjectsSortedByStartPointer = 0;
+				if (ObjectsSortedByEndPointer < 0) ObjectsSortedByEndPointer = 0;
 				// dispose
 				while (ObjectsSortedByEndPointer < n) {
 					int o = ObjectsSortedByEnd[ObjectsSortedByEndPointer];
 					if (Objects[o].EndingDistance < p - World.BackwardViewingDistance) {
 						Renderer.HideObject(o);
 						ObjectsSortedByEndPointer++;
+					} else {
+						break;
+					}
+				}
+				// introduce
+				while (ObjectsSortedByStartPointer < n) {
+					int o = ObjectsSortedByStart[ObjectsSortedByStartPointer];
+					if (Objects[o].StartingDistance <= p + World.ForwardViewingDistance) {
+						if (Objects[o].EndingDistance >= p - World.BackwardViewingDistance) {
+							Renderer.ShowObject(o, Renderer.ObjectType.Static);
+						}
+						ObjectsSortedByStartPointer++;
 					} else {
 						break;
 					}
