@@ -156,7 +156,7 @@ namespace OpenBve {
 				this.FullscreenBits = 32;
 				this.UserInterfaceFolder = "Default";
 				this.Interpolation = TextureManager.InterpolationMode.BilinearMipmapped;
-				this.TransparencyMode = Renderer.TransparencyMode.Sharp;
+				this.TransparencyMode = Renderer.TransparencyMode.Quality;
 				this.AnisotropicFilteringLevel = 0;
 				this.AnisotropicFilteringMaximum = 0;
 				this.ViewingDistance = 600;
@@ -235,37 +235,54 @@ namespace OpenBve {
 											break;
 										case "windowwidth":
 											{
-												int a = 960; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												if (!int.TryParse(Value, NumberStyles.Integer, Culture, out a)) {
+													a = 960;
+												}
 												Interface.CurrentOptions.WindowWidth = a;
 											} break;
 										case "windowheight":
 											{
-												int a = 600; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												if (!int.TryParse(Value, NumberStyles.Integer, Culture, out a)) {
+													a = 600;
+												}
 												Interface.CurrentOptions.WindowHeight = a;
 											} break;
 										case "fullscreenwidth":
 											{
-												int a = 1024; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												if (!int.TryParse(Value, NumberStyles.Integer, Culture, out a)) {
+													a = 1024;
+												}
 												Interface.CurrentOptions.FullscreenWidth = a;
 											} break;
 										case "fullscreenheight":
 											{
-												int a = 768; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												if (!int.TryParse(Value, NumberStyles.Integer, Culture, out a)) {
+													a = 768;
+												}
 												Interface.CurrentOptions.FullscreenHeight = a;
 											} break;
 										case "fullscreenbits":
 											{
-												int a = 32; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												if (!int.TryParse(Value, NumberStyles.Integer, Culture, out a)) {
+													a = 32;
+												}
 												Interface.CurrentOptions.FullscreenBits = a;
 											} break;
 										case "mainmenuwidth":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.MainMenuWidth = a;
 											} break;
 										case "mainmenuheight":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.MainMenuHeight = a;
 											} break;
 									} break;
@@ -283,22 +300,34 @@ namespace OpenBve {
 											} break;
 										case "anisotropicfilteringlevel":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.AnisotropicFilteringLevel = a;
 											} break;
 										case "anisotropicfilteringmaximum":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.AnisotropicFilteringMaximum = a;
 											} break;
 										case "transparencymode":
 											switch (Value.ToLowerInvariant()) {
-													case "smooth": Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Smooth; break;
-													default: Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Sharp; break;
+													case "sharp": Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Performance; break;
+													case "smooth": Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Quality; break;
+													default: {
+														int a;
+														if (int.TryParse(Value, NumberStyles.Integer, Culture, out a)) {
+															Interface.CurrentOptions.TransparencyMode = (Renderer.TransparencyMode)a;
+														} else {
+															Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Quality;
+														}
+														break;
+													}
 											} break;
 										case "viewingdistance":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.ViewingDistance = a;
 											} break;
 										case "motionblur":
@@ -313,12 +342,14 @@ namespace OpenBve {
 									switch (Key) {
 										case "basicthreshold":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.ObjectOptimizationBasicThreshold = a;
 											} break;
 										case "fullthreshold":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.ObjectOptimizationFullThreshold = a;
 											} break;
 									} break;
@@ -351,18 +382,21 @@ namespace OpenBve {
 											break;
 										case "joystickaxisthreshold":
 											{
-												double a = 0.0; double.TryParse(Value, NumberStyles.Float, Culture, out a);
+												double a;
+												double.TryParse(Value, NumberStyles.Float, Culture, out a);
 												Interface.CurrentOptions.JoystickAxisThreshold = a;
 											} break;
 										case "keyrepeatdelay":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												if (a <= 0) a = 500;
 												Interface.CurrentOptions.KeyRepeatDelay = 0.001 * (double)a;
 											} break;
 										case "keyrepeatinterval":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												if (a <= 0) a = 100;
 												Interface.CurrentOptions.KeyRepeatInterval = 0.001 * (double)a;
 											} break;
@@ -382,7 +416,8 @@ namespace OpenBve {
 											break;
 										case "number":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.SoundNumber = a < 16 ? 16 : a;
 											} break;
 									} break;
@@ -500,13 +535,17 @@ namespace OpenBve {
 			}
 			Builder.AppendLine("anisotropicfilteringlevel = " + CurrentOptions.AnisotropicFilteringLevel.ToString(Culture));
 			Builder.AppendLine("anisotropicfilteringmaximum = " + CurrentOptions.AnisotropicFilteringMaximum.ToString(Culture));
+			
+			//Builder.AppendLine("transparencymode = " + ((int)CurrentOptions.TransparencyMode).ToString(Culture));
 			{
 				string t; switch (CurrentOptions.TransparencyMode) {
-						case Renderer.TransparencyMode.Smooth: t = "smooth"; break;
-						default: t = "sharp"; break;
+						case Renderer.TransparencyMode.Performance: t = "sharp"; break;
+						case Renderer.TransparencyMode.Quality: t = "smooth"; break;
+						default: t = ((int)CurrentOptions.TransparencyMode).ToString(Culture); break;
 				}
 				Builder.AppendLine("transparencymode = " + t);
 			}
+			
 			Builder.AppendLine("viewingdistance = " + CurrentOptions.ViewingDistance.ToString(Culture));
 			{
 				string t; switch (CurrentOptions.MotionBlur) {

@@ -4117,7 +4117,7 @@ namespace OpenBve {
 												idx = 0;
 											}
 											if (Arguments.Length >= 2 && Arguments[1].Length > 0 && !Interface.TryParseIntVb6(Arguments[1], out sttype)) {
-												Interface.AddMessage(Interface.MessageType.Error, false, "IdxStType is invalid in Track.FreeObj at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+												Interface.AddMessage(Interface.MessageType.Error, false, "FreeObjStructureIndex is invalid in Track.FreeObj at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 												sttype = 0;
 											}
 											if (idx < -1) {
@@ -4498,8 +4498,11 @@ namespace OpenBve {
 					x6 = Result.Mesh.Vertices[i].Coordinates.X;
 				} else if (n == 7) {
 					x7 = Result.Mesh.Vertices[i].Coordinates.X;
-				} n++;
-				if (n == 8) break;
+				} 
+				n++;
+				if (n == 8) {
+					break;
+				}
 			}
 			if (n >= 4) {
 				int m = 0;
@@ -4518,8 +4521,11 @@ namespace OpenBve {
 						Result.Mesh.Vertices[i].Coordinates.X = NearDistance - x6;
 						m = 8;
 						break;
-					} m++;
-					if (m == 8) break;
+					} 
+					m++;
+					if (m == 8) {
+						break;
+					}
 				}
 			}
 			return Result;

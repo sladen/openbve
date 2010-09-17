@@ -285,13 +285,7 @@ namespace OpenBve {
 			comboboxMotionBlur.Items.Clear();
 			comboboxMotionBlur.Items.AddRange(new string[] { "", "", "", "" });
 			comboboxMotionBlur.SelectedIndex = (int)Interface.CurrentOptions.MotionBlur;
-			comboboxTransparency.Items.Clear();
-			comboboxTransparency.Items.AddRange(new string[] { "", "" });
-			if ((int)Interface.CurrentOptions.TransparencyMode >= 0 & (int)Interface.CurrentOptions.TransparencyMode < comboboxTransparency.Items.Count) {
-				comboboxTransparency.SelectedIndex = (int)Interface.CurrentOptions.TransparencyMode;
-			} else {
-				comboboxTransparency.SelectedIndex = 0;
-			}
+			trackbarTransparency.Value = (int)Interface.CurrentOptions.TransparencyMode;
 			checkboxToppling.Checked = Interface.CurrentOptions.Toppling;
 			checkboxCollisions.Checked = Interface.CurrentOptions.Collisions;
 			checkboxDerailments.Checked = Interface.CurrentOptions.Derailments;
@@ -387,8 +381,8 @@ namespace OpenBve {
 			comboboxInterpolation.Items[5] = Interface.GetInterfaceString("options_quality_interpolation_mode_anisotropic");
 			labelAnisotropic.Text = Interface.GetInterfaceString("options_quality_interpolation_anisotropic_level");
 			labelTransparency.Text = Interface.GetInterfaceString("options_quality_interpolation_transparency");
-			comboboxTransparency.Items[0] = Interface.GetInterfaceString("options_quality_interpolation_transparency_sharp");
-			comboboxTransparency.Items[1] = Interface.GetInterfaceString("options_quality_interpolation_transparency_smooth");
+			labelTransparencyPerformance.Text = Interface.GetInterfaceString("options_quality_interpolation_transparency_sharp");
+			labelTransparencyQuality.Text = Interface.GetInterfaceString("options_quality_interpolation_transparency_smooth");
 			groupboxDistance.Text = Interface.GetInterfaceString("options_quality_distance");
 			labelDistance.Text = Interface.GetInterfaceString("options_quality_distance_viewingdistance");
 			labelDistanceUnit.Text = Interface.GetInterfaceString("options_quality_distance_viewingdistance_meters");
@@ -554,7 +548,7 @@ namespace OpenBve {
 			Interface.CurrentOptions.FullscreenBits = comboboxFullscreenBits.SelectedIndex == 0 ? 16 : 32;
 			Interface.CurrentOptions.Interpolation = (TextureManager.InterpolationMode)comboboxInterpolation.SelectedIndex;
 			Interface.CurrentOptions.AnisotropicFilteringLevel = (int)Math.Round(updownAnisotropic.Value);
-			Interface.CurrentOptions.TransparencyMode = (Renderer.TransparencyMode)comboboxTransparency.SelectedIndex;
+			Interface.CurrentOptions.TransparencyMode = (Renderer.TransparencyMode)trackbarTransparency.Value;
 			Interface.CurrentOptions.ViewingDistance = (int)Math.Round(updownDistance.Value);
 			Interface.CurrentOptions.MotionBlur = (Interface.MotionBlurMode)comboboxMotionBlur.SelectedIndex;
 			Interface.CurrentOptions.Toppling = checkboxToppling.Checked;
@@ -711,7 +705,7 @@ namespace OpenBve {
 				tabcontrolTrainDetails.Height = groupboxTrainDetails.Height - 3 * tabcontrolTrainDetails.Top / 2;
 			} catch { }
 			try {
-				int width = Math.Min((panelOptions.Width - 24) / 2, 360);
+				int width = Math.Min((panelOptions.Width - 24) / 2, 420);
 				panelOptionsLeft.Width = width;
 				panelOptionsRight.Left = panelOptionsLeft.Left + width + 8;
 				panelOptionsRight.Width = width;
@@ -1440,8 +1434,6 @@ namespace OpenBve {
 			labelAnisotropic.Enabled = q;
 			updownAnisotropic.Enabled = q;
 			q = i != (int)TextureManager.InterpolationMode.NearestNeighbor & i != (int)TextureManager.InterpolationMode.Bilinear;
-			labelTransparency.Enabled = q;
-			comboboxTransparency.Enabled = q;
 		}
 
 		// =====

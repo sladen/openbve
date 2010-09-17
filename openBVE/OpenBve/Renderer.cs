@@ -14,10 +14,12 @@ namespace OpenBve {
 
 		// transparency
 		internal enum TransparencyMode {
-			/// <summary>Produces a crisp result for color-key textures and takes no special provisions for alpha textures.</summary>
-			Sharp = 0,
-			/// <summary>Produces a smooth result for color-key textures and tries to eliminate fringes occuring as a result of bad depth sorting.</summary>
-			Smooth = 1
+			/// <summary>Textures using color-key transparency are considered opaque, producing good performance but crisp outlines. Partially transparent faces are rendered in a single pass with z-buffer writes disabled, producing good performance but more depth-sorting issues.</summary>
+			Performance = 0,
+			/// <summary>Textures using color-key transparency are considered opaque, producing good performance but crisp outlines. Partially transparent faces are rendered in two passes, the first rendering only opaque pixels with z-buffer writes enabled, and the second rendering only partially transparent pixels with z-buffer writes disabled, producing best quality but worse performance.</summary>
+			Intermediate = 1,
+			/// <summary>Textures using color-key transparency are considered partially transparent. All partially transparent faces are rendered in two passes, the first rendering only opaque pixels with z-buffer writes enabled, and the second rendering only partially transparent pixels with z-buffer writes disabled, producing best quality but worse performance.</summary>
+			Quality = 2
 		}
 		
 		// output mode
@@ -123,14 +125,13 @@ namespace OpenBve {
 		// current opengl data
 		private static int AlphaFuncComparison = 0;
 		private static float AlphaFuncValue = 0.0f;
-		private static bool BlendEnabled = false;
 		private static bool AlphaTestEnabled = false;
+		private static bool BlendEnabled = false;
 		private static bool CullEnabled = true;
 		internal static bool LightingEnabled = false;
 		internal static bool FogEnabled = false;
 		private static bool TexturingEnabled = false;
 		private static bool EmissiveEnabled = false;
-		private static bool TransparentColorDepthSorting = false;
 
 		// options
 		internal static bool OptionLighting = true;
@@ -217,7 +218,6 @@ namespace OpenBve {
 			Gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 			Glu.gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0);
 			Gl.glPopMatrix();
-			TransparentColorDepthSorting = Interface.CurrentOptions.TransparencyMode == Renderer.TransparencyMode.Smooth & Interface.CurrentOptions.Interpolation != TextureManager.InterpolationMode.NearestNeighbor & Interface.CurrentOptions.Interpolation != TextureManager.InterpolationMode.Bilinear;
 			// prepare rendering logo
 			Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
 			Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
@@ -297,12 +297,11 @@ namespace OpenBve {
 			Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
 			Gl.glDisable(Gl.GL_TEXTURE_2D); TexturingEnabled = false;
 			Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
-			Gl.glDisable(Gl.GL_ALPHA_TEST); AlphaTestEnabled = false;
 			Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
 			Gl.glEnable(Gl.GL_DEPTH_TEST);
 			Gl.glDepthMask(Gl.GL_TRUE);
 			Gl.glMaterialfv(Gl.GL_FRONT_AND_BACK, Gl.GL_EMISSION, new float[] { 0.0f, 0.0f, 0.0f, 1.0f }); EmissiveEnabled = false;
-			SetAlphaFunc(Gl.GL_GREATER, 0.0f);
+			SetAlphaFunc(Gl.GL_GREATER, 0.9f);
 		}
 		
 		// render scene
@@ -409,10 +408,6 @@ namespace OpenBve {
 			} else if (LightingEnabled) {
 				Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
 			}
-			SetAlphaFunc(Gl.GL_GREATER, 0.9f);
-			if (BlendEnabled) {
-				Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
-			}
 			// static opaque
 			if (TimeElapsed > 0.0) {
 				StaticOpaqueTimer += TimeElapsed;
@@ -444,16 +439,13 @@ namespace OpenBve {
 					StaticOpaqueBlocks[i].OpenGlDisplayListAvailable = true;
 					ResetOpenGlState();
 					Gl.glNewList(StaticOpaqueBlocks[i].OpenGlDisplayList, Gl.GL_COMPILE);
-//					int COUNT = 0;
 					for (int j = start; j < end; j++) {
 						if (StaticOpaque.Faces[j] != null) {
 							RenderFace(ref StaticOpaque.Faces[j], cx, cy, cz);
-//							COUNT++;
 						}
 					}
 					Gl.glEndList();
 					StaticOpaqueBlocks[i].WorldPosition = World.AbsoluteCameraPosition;
-//					Game.AddMessage(i.ToString() + "/" + StaticOpaqueBlocksUsed.ToString() + " - " + COUNT.ToString(), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 1.0);
 				}
 			}
 			if (updated) {
@@ -476,24 +468,35 @@ namespace OpenBve {
 			}
 			// dynamic alpha
 			SortPolygons(DynamicAlpha);
-			if (Interface.CurrentOptions.TransparencyMode == TransparencyMode.Smooth) {
+			ResetOpenGlState();
+			if (Interface.CurrentOptions.TransparencyMode == TransparencyMode.Performance) {
 				Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
-				Gl.glDepthMask(Gl.GL_TRUE);
+				Gl.glDepthMask(Gl.GL_FALSE);
+				SetAlphaFunc(Gl.GL_GREATER, 0.0f);
+				for (int i = 0; i < DynamicAlpha.FaceCount; i++) {
+					RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
+				}
+			} else {
+				Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
 				SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
+				Gl.glDepthMask(Gl.GL_TRUE);
 				for (int i = 0; i < DynamicAlpha.FaceCount; i++) {
 					int r = (int)ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Faces[DynamicAlpha.Faces[i].FaceIndex].Material;
-					if (ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Normal) {
-						RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
+					if (ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Normal & ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].GlowAttenuationData == 0) {
+						if (ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].Color.A == 255) {
+							RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
+						}
 					}
 				}
-				Gl.glDepthMask(Gl.GL_FALSE);
+				Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 				SetAlphaFunc(Gl.GL_LESS, 1.0f);
+				Gl.glDepthMask(Gl.GL_FALSE);
 				bool additive = false;
 				for (int i = 0; i < DynamicAlpha.FaceCount; i++) {
 					int r = (int)ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Faces[DynamicAlpha.Faces[i].FaceIndex].Material;
 					if (ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Additive) {
 						if (!additive) {
-							SetAlphaFunc(Gl.GL_GREATER, 0.0f);
+							UnsetAlphaFunc();
 							additive = true;
 						}
 						RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
@@ -504,15 +507,6 @@ namespace OpenBve {
 						}
 						RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
 					}
-				}
-			} else {
-				if (!BlendEnabled) {
-					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
-				}
-				Gl.glDepthMask(Gl.GL_FALSE);
-				SetAlphaFunc(Gl.GL_GREATER, 0.0f);
-				for (int i = 0; i < DynamicAlpha.FaceCount; i++) {
-					RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
 				}
 			}
 			// motion blur
@@ -551,24 +545,35 @@ namespace OpenBve {
 				}
 				// overlay alpha
 				SortPolygons(OverlayAlpha);
-				if (Interface.CurrentOptions.TransparencyMode == TransparencyMode.Smooth) {
-					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
-					Gl.glDepthMask(Gl.GL_TRUE);
-					SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
-					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
-						int r = (int)ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Faces[OverlayAlpha.Faces[i].FaceIndex].Material;
-						if (ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Normal) {
-							RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
-						}
+				if (Interface.CurrentOptions.TransparencyMode == TransparencyMode.Performance) {
+					if (!BlendEnabled) {
+						Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 					}
 					Gl.glDepthMask(Gl.GL_FALSE);
+					SetAlphaFunc(Gl.GL_GREATER, 0.0f);
+					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
+						RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
+					}
+				} else {
+					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
+					SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
+					Gl.glDepthMask(Gl.GL_TRUE);
+					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
+						int r = (int)ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Faces[OverlayAlpha.Faces[i].FaceIndex].Material;
+						if (ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Normal & ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].GlowAttenuationData == 0) {
+							if (ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].Color.A == 255) {
+								RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
+							}
+						}
+					}
 					SetAlphaFunc(Gl.GL_LESS, 1.0f);
+					Gl.glDepthMask(Gl.GL_FALSE);
 					bool additive = false;
 					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
 						int r = (int)ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Faces[OverlayAlpha.Faces[i].FaceIndex].Material;
 						if (ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Additive) {
 							if (!additive) {
-								SetAlphaFunc(Gl.GL_GREATER, 0.0f);
+								UnsetAlphaFunc();
 								additive = true;
 							}
 							RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
@@ -579,15 +584,6 @@ namespace OpenBve {
 							}
 							RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
 						}
-					}
-				} else {
-					if (!BlendEnabled) {
-						Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
-					}
-					Gl.glDepthMask(Gl.GL_FALSE);
-					SetAlphaFunc(Gl.GL_GREATER, 0.0f);
-					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
-						RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
 					}
 				}
 			} else {
@@ -601,7 +597,7 @@ namespace OpenBve {
 				}
 				Gl.glDepthMask(Gl.GL_FALSE);
 				Gl.glDisable(Gl.GL_DEPTH_TEST);
-				SetAlphaFunc(Gl.GL_GREATER, 0.0f);
+				UnsetAlphaFunc();
 				SortPolygons(OverlayAlpha);
 				for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
 					RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
@@ -618,10 +614,7 @@ namespace OpenBve {
 			if (BlendEnabled) {
 				Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
 			}
-			if (AlphaTestEnabled) {
-				Gl.glDisable(Gl.GL_ALPHA_TEST); AlphaTestEnabled = false;
-			}
-			SetAlphaFunc(Gl.GL_GREATER, 0.9f);
+			UnsetAlphaFunc();
 			Gl.glDisable(Gl.GL_DEPTH_TEST);
 			RenderOverlays(TimeElapsed);
 			// finalize rendering
@@ -631,9 +624,23 @@ namespace OpenBve {
 		
 		// set alpha func
 		private static void SetAlphaFunc(int Comparison, float Value) {
+			AlphaTestEnabled = true;
 			AlphaFuncComparison = Comparison;
 			AlphaFuncValue = Value;
 			Gl.glAlphaFunc(Comparison, Value);
+			Gl.glEnable(Gl.GL_ALPHA_TEST);
+		}
+		private static void UnsetAlphaFunc() {
+			AlphaTestEnabled = false;
+			Gl.glDisable(Gl.GL_ALPHA_TEST);
+		}
+		private static void RestoreAlphaFunc() {
+			if (AlphaTestEnabled) {
+				Gl.glAlphaFunc(AlphaFuncComparison, AlphaFuncValue);
+				Gl.glEnable(Gl.GL_ALPHA_TEST);
+			} else {
+				Gl.glDisable(Gl.GL_ALPHA_TEST);
+			}
 		}
 
 		// render face
@@ -655,8 +662,8 @@ namespace OpenBve {
 		}
 		private static void RenderFace(ref World.MeshMaterial Material, World.Vertex[] Vertices, ref World.MeshFace Face, double CameraX, double CameraY, double CameraZ) {
 			// texture
-			int OpenGlNighttimeTextureIndex = Material.NighttimeTextureIndex >= 0 ? TextureManager.UseTexture(Material.NighttimeTextureIndex, TextureManager.UseMode.Normal) : 0;
 			int OpenGlDaytimeTextureIndex = Material.DaytimeTextureIndex >= 0 ? TextureManager.UseTexture(Material.DaytimeTextureIndex, TextureManager.UseMode.Normal) : 0;
+			int OpenGlNighttimeTextureIndex = Material.NighttimeTextureIndex >= 0 ? TextureManager.UseTexture(Material.NighttimeTextureIndex, TextureManager.UseMode.Normal) : 0;
 			if (OpenGlDaytimeTextureIndex != 0) {
 				if (!TexturingEnabled) {
 					Gl.glEnable(Gl.GL_TEXTURE_2D);
@@ -666,25 +673,25 @@ namespace OpenBve {
 					Gl.glBindTexture(Gl.GL_TEXTURE_2D, OpenGlDaytimeTextureIndex);
 					LastBoundTexture = OpenGlDaytimeTextureIndex;
 				}
-				if (TextureManager.Textures[Material.DaytimeTextureIndex].Transparency != TextureManager.TextureTransparencyMode.None) {
-					if (!AlphaTestEnabled) {
-						Gl.glEnable(Gl.GL_ALPHA_TEST);
-						AlphaTestEnabled = true;
-					}
-				} else if (AlphaTestEnabled) {
-					Gl.glDisable(Gl.GL_ALPHA_TEST);
-					AlphaTestEnabled = false;
-				}
+//				if (TextureManager.Textures[Material.DaytimeTextureIndex].Transparency != TextureManager.TextureTransparencyMode.None) {
+//					if (!AlphaTestEnabled) {
+//						Gl.glEnable(Gl.GL_ALPHA_TEST);
+//						AlphaTestEnabled = true;
+//					}
+//				} else if (AlphaTestEnabled) {
+//					Gl.glDisable(Gl.GL_ALPHA_TEST);
+//					AlphaTestEnabled = false;
+//				}
 			} else {
 				if (TexturingEnabled) {
 					Gl.glDisable(Gl.GL_TEXTURE_2D);
 					TexturingEnabled = false;
 					LastBoundTexture = 0;
 				}
-				if (AlphaTestEnabled) {
-					Gl.glDisable(Gl.GL_ALPHA_TEST);
-					AlphaTestEnabled = false;
-				}
+//				if (AlphaTestEnabled) {
+//					Gl.glDisable(Gl.GL_ALPHA_TEST);
+//					AlphaTestEnabled = false;
+//				}
 			}
 			// blend mode
 			float factor;
@@ -783,6 +790,7 @@ namespace OpenBve {
 				Gl.glBindTexture(Gl.GL_TEXTURE_2D, OpenGlNighttimeTextureIndex);
 				LastBoundTexture = 0;
 				Gl.glAlphaFunc(Gl.GL_GREATER, 0.0f);
+				Gl.glEnable(Gl.GL_ALPHA_TEST);
 				switch (FaceType) {
 					case World.MeshFace.FaceTypeTriangles:
 						Gl.glBegin(Gl.GL_TRIANGLES);
@@ -823,9 +831,7 @@ namespace OpenBve {
 					Gl.glVertex3f((float)(Vertices[Face.Vertices[j].Index].Coordinates.X - CameraX), (float)(Vertices[Face.Vertices[j].Index].Coordinates.Y - CameraY), (float)(Vertices[Face.Vertices[j].Index].Coordinates.Z - CameraZ));
 				}
 				Gl.glEnd();
-				if (AlphaFuncValue != 0.0) {
-					Gl.glAlphaFunc(AlphaFuncComparison, AlphaFuncValue);
-				}
+				RestoreAlphaFunc();
 				if (!BlendEnabled) {
 					Gl.glDisable(Gl.GL_BLEND);
 				}
@@ -836,10 +842,10 @@ namespace OpenBve {
 					Gl.glDisable(Gl.GL_TEXTURE_2D);
 					TexturingEnabled = false;
 				}
-				if (AlphaTestEnabled) {
-					Gl.glDisable(Gl.GL_ALPHA_TEST);
-					AlphaTestEnabled = false;
-				}
+//				if (AlphaTestEnabled) {
+//					Gl.glDisable(Gl.GL_ALPHA_TEST);
+//					AlphaTestEnabled = false;
+//				}
 				for (int j = 0; j < Face.Vertices.Length; j++) {
 					Gl.glBegin(Gl.GL_LINES);
 					Gl.glColor4f(inv255 * (float)Material.Color.R, inv255 * (float)Material.Color.G, inv255 * (float)Material.Color.B, 1.0f);
@@ -889,7 +895,7 @@ namespace OpenBve {
 					RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f);
 				} else {
 					RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f);
-					AlphaFuncValue = 0.0f; Gl.glAlphaFunc(AlphaFuncComparison, AlphaFuncValue);
+					SetAlphaFunc(Gl.GL_GREATER, 0.0f); // ###
 					float Alpha = (float)(1.0 - World.TargetBackgroundCountdown / World.TargetBackgroundDefaultCountdown);
 					RenderBackground(World.TargetBackground, dx, dy, dz, Alpha);
 				}
@@ -2920,27 +2926,21 @@ namespace OpenBve {
 						} else if (ObjectManager.Objects[ObjectIndex].Mesh.Materials[k].GlowAttenuationData != 0) {
 							alpha = true;
 						} else {
-							TextureManager.UseMode textureUseMode;
-							if (Type == ObjectType.Static) {
-								textureUseMode = TextureManager.UseMode.LoadImmediately;
-							} else {
-								textureUseMode = TextureManager.UseMode.Normal;
-							}
 							int tday = ObjectManager.Objects[ObjectIndex].Mesh.Materials[k].DaytimeTextureIndex;
 							if (tday >= 0) {
-								TextureManager.UseTexture(tday, textureUseMode);
+								TextureManager.UseTexture(tday, TextureManager.UseMode.LoadImmediately);
 								if (TextureManager.Textures[tday].Transparency == TextureManager.TextureTransparencyMode.Alpha) {
 									alpha = true;
-								} else if (TextureManager.Textures[tday].Transparency == TextureManager.TextureTransparencyMode.TransparentColor & Interface.CurrentOptions.TransparencyMode == TransparencyMode.Smooth) {
+								} else if (TextureManager.Textures[tday].Transparency == TextureManager.TextureTransparencyMode.TransparentColor & Interface.CurrentOptions.TransparencyMode == TransparencyMode.Quality) {
 									alpha = true;
 								}
 							}
 							int tnight = ObjectManager.Objects[ObjectIndex].Mesh.Materials[k].NighttimeTextureIndex;
 							if (tnight >= 0) {
-								TextureManager.UseTexture(tnight, textureUseMode);
+								TextureManager.UseTexture(tnight, TextureManager.UseMode.LoadImmediately);
 								if (TextureManager.Textures[tnight].Transparency == TextureManager.TextureTransparencyMode.Alpha) {
 									alpha = true;
-								} else if (TextureManager.Textures[tnight].Transparency == TextureManager.TextureTransparencyMode.TransparentColor & Interface.CurrentOptions.TransparencyMode == TransparencyMode.Smooth) {
+								} else if (TextureManager.Textures[tnight].Transparency == TextureManager.TextureTransparencyMode.TransparentColor & Interface.CurrentOptions.TransparencyMode == TransparencyMode.Quality) {
 									alpha = true;
 								}
 							}

@@ -131,12 +131,14 @@
         	this.updownFullscreenWidth = new System.Windows.Forms.NumericUpDown();
         	this.labelFullscreenWidth = new System.Windows.Forms.Label();
         	this.groupboxInterpolation = new System.Windows.Forms.GroupBox();
-        	this.comboboxTransparency = new System.Windows.Forms.ComboBox();
+        	this.labelTransparencyQuality = new System.Windows.Forms.Label();
+        	this.labelTransparencyPerformance = new System.Windows.Forms.Label();
         	this.labelTransparency = new System.Windows.Forms.Label();
         	this.updownAnisotropic = new System.Windows.Forms.NumericUpDown();
         	this.labelAnisotropic = new System.Windows.Forms.Label();
         	this.comboboxInterpolation = new System.Windows.Forms.ComboBox();
         	this.labelInterpolation = new System.Windows.Forms.Label();
+        	this.trackbarTransparency = new System.Windows.Forms.TrackBar();
         	this.pictureboxLanguage = new System.Windows.Forms.PictureBox();
         	this.comboboxLanguages = new System.Windows.Forms.ComboBox();
         	this.labelOptionsTitleSeparator = new System.Windows.Forms.Label();
@@ -279,6 +281,7 @@
         	((System.ComponentModel.ISupportInitialize)(this.updownFullscreenWidth)).BeginInit();
         	this.groupboxInterpolation.SuspendLayout();
         	((System.ComponentModel.ISupportInitialize)(this.updownAnisotropic)).BeginInit();
+        	((System.ComponentModel.ISupportInitialize)(this.trackbarTransparency)).BeginInit();
         	((System.ComponentModel.ISupportInitialize)(this.pictureboxLanguage)).BeginInit();
         	this.panelPanels.SuspendLayout();
         	this.panelReview.SuspendLayout();
@@ -1125,7 +1128,7 @@
         	this.panelOptions.Location = new System.Drawing.Point(144, 0);
         	this.panelOptions.Name = "panelOptions";
         	this.panelOptions.Size = new System.Drawing.Size(656, 584);
-        	this.panelOptions.TabIndex = 6;
+        	this.panelOptions.TabIndex = 0;
         	// 
         	// panelOptionsRight
         	// 
@@ -1242,14 +1245,14 @@
         	// 
         	this.trackbarJoystickAxisThreshold.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
-        	this.trackbarJoystickAxisThreshold.AutoSize = false;
         	this.trackbarJoystickAxisThreshold.LargeChange = 10;
-        	this.trackbarJoystickAxisThreshold.Location = new System.Drawing.Point(200, 40);
+        	this.trackbarJoystickAxisThreshold.Location = new System.Drawing.Point(200, 32);
         	this.trackbarJoystickAxisThreshold.Maximum = 100;
         	this.trackbarJoystickAxisThreshold.Name = "trackbarJoystickAxisThreshold";
-        	this.trackbarJoystickAxisThreshold.Size = new System.Drawing.Size(108, 32);
+        	this.trackbarJoystickAxisThreshold.Size = new System.Drawing.Size(108, 42);
         	this.trackbarJoystickAxisThreshold.TabIndex = 2;
         	this.trackbarJoystickAxisThreshold.TickFrequency = 10;
+        	this.trackbarJoystickAxisThreshold.TickStyle = System.Windows.Forms.TickStyle.Both;
         	// 
         	// checkboxJoysticksUsed
         	// 
@@ -1447,7 +1450,7 @@
         	this.panelOptionsLeft.Controls.Add(this.groupboxInterpolation);
         	this.panelOptionsLeft.Location = new System.Drawing.Point(8, 72);
         	this.panelOptionsLeft.Name = "panelOptionsLeft";
-        	this.panelOptionsLeft.Size = new System.Drawing.Size(316, 416);
+        	this.panelOptionsLeft.Size = new System.Drawing.Size(316, 448);
         	this.panelOptionsLeft.TabIndex = 16;
         	// 
         	// groupboxDisplayMode
@@ -1711,36 +1714,49 @@
         	// 
         	this.groupboxInterpolation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
-        	this.groupboxInterpolation.Controls.Add(this.comboboxTransparency);
+        	this.groupboxInterpolation.Controls.Add(this.labelTransparencyQuality);
+        	this.groupboxInterpolation.Controls.Add(this.labelTransparencyPerformance);
         	this.groupboxInterpolation.Controls.Add(this.labelTransparency);
         	this.groupboxInterpolation.Controls.Add(this.updownAnisotropic);
         	this.groupboxInterpolation.Controls.Add(this.labelAnisotropic);
         	this.groupboxInterpolation.Controls.Add(this.comboboxInterpolation);
         	this.groupboxInterpolation.Controls.Add(this.labelInterpolation);
+        	this.groupboxInterpolation.Controls.Add(this.trackbarTransparency);
         	this.groupboxInterpolation.ForeColor = System.Drawing.Color.Black;
         	this.groupboxInterpolation.Location = new System.Drawing.Point(0, 312);
         	this.groupboxInterpolation.Name = "groupboxInterpolation";
-        	this.groupboxInterpolation.Size = new System.Drawing.Size(316, 104);
+        	this.groupboxInterpolation.Size = new System.Drawing.Size(316, 136);
         	this.groupboxInterpolation.TabIndex = 7;
         	this.groupboxInterpolation.TabStop = false;
         	this.groupboxInterpolation.Text = "Interpolation";
         	// 
-        	// comboboxTransparency
+        	// labelTransparencyQuality
         	// 
-        	this.comboboxTransparency.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-        	this.comboboxTransparency.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-        	this.comboboxTransparency.FormattingEnabled = true;
-        	this.comboboxTransparency.Location = new System.Drawing.Point(156, 72);
-        	this.comboboxTransparency.Name = "comboboxTransparency";
-        	this.comboboxTransparency.Size = new System.Drawing.Size(152, 21);
-        	this.comboboxTransparency.TabIndex = 5;
+        	this.labelTransparencyQuality.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+        	this.labelTransparencyQuality.AutoEllipsis = true;
+        	this.labelTransparencyQuality.Location = new System.Drawing.Point(230, 112);
+        	this.labelTransparencyQuality.Name = "labelTransparencyQuality";
+        	this.labelTransparencyQuality.Size = new System.Drawing.Size(76, 16);
+        	this.labelTransparencyQuality.TabIndex = 7;
+        	this.labelTransparencyQuality.Text = "Quality";
+        	this.labelTransparencyQuality.TextAlign = System.Drawing.ContentAlignment.TopRight;
+        	// 
+        	// labelTransparencyPerformance
+        	// 
+        	this.labelTransparencyPerformance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+        	this.labelTransparencyPerformance.AutoEllipsis = true;
+        	this.labelTransparencyPerformance.Location = new System.Drawing.Point(156, 112);
+        	this.labelTransparencyPerformance.Name = "labelTransparencyPerformance";
+        	this.labelTransparencyPerformance.Size = new System.Drawing.Size(76, 16);
+        	this.labelTransparencyPerformance.TabIndex = 6;
+        	this.labelTransparencyPerformance.Text = "Performance";
         	// 
         	// labelTransparency
         	// 
         	this.labelTransparency.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
         	this.labelTransparency.AutoEllipsis = true;
-        	this.labelTransparency.Location = new System.Drawing.Point(8, 72);
+        	this.labelTransparency.Location = new System.Drawing.Point(8, 64);
         	this.labelTransparency.Name = "labelTransparency";
         	this.labelTransparency.Size = new System.Drawing.Size(148, 16);
         	this.labelTransparency.TabIndex = 4;
@@ -1751,7 +1767,7 @@
         	// 
         	this.updownAnisotropic.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
         	this.updownAnisotropic.Enabled = false;
-        	this.updownAnisotropic.Location = new System.Drawing.Point(156, 48);
+        	this.updownAnisotropic.Location = new System.Drawing.Point(156, 40);
         	this.updownAnisotropic.Maximum = new decimal(new int[] {
         	        	        	16,
         	        	        	0,
@@ -1767,7 +1783,7 @@
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
         	this.labelAnisotropic.AutoEllipsis = true;
         	this.labelAnisotropic.Enabled = false;
-        	this.labelAnisotropic.Location = new System.Drawing.Point(8, 48);
+        	this.labelAnisotropic.Location = new System.Drawing.Point(8, 40);
         	this.labelAnisotropic.Name = "labelAnisotropic";
         	this.labelAnisotropic.Size = new System.Drawing.Size(148, 16);
         	this.labelAnisotropic.TabIndex = 2;
@@ -1779,7 +1795,7 @@
         	this.comboboxInterpolation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
         	this.comboboxInterpolation.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
         	this.comboboxInterpolation.FormattingEnabled = true;
-        	this.comboboxInterpolation.Location = new System.Drawing.Point(156, 24);
+        	this.comboboxInterpolation.Location = new System.Drawing.Point(156, 16);
         	this.comboboxInterpolation.Name = "comboboxInterpolation";
         	this.comboboxInterpolation.Size = new System.Drawing.Size(152, 21);
         	this.comboboxInterpolation.TabIndex = 1;
@@ -1790,12 +1806,22 @@
         	this.labelInterpolation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
         	        	        	| System.Windows.Forms.AnchorStyles.Right)));
         	this.labelInterpolation.AutoEllipsis = true;
-        	this.labelInterpolation.Location = new System.Drawing.Point(8, 24);
+        	this.labelInterpolation.Location = new System.Drawing.Point(8, 16);
         	this.labelInterpolation.Name = "labelInterpolation";
         	this.labelInterpolation.Size = new System.Drawing.Size(148, 16);
         	this.labelInterpolation.TabIndex = 0;
         	this.labelInterpolation.Text = "Mode:";
         	this.labelInterpolation.TextAlign = System.Drawing.ContentAlignment.TopRight;
+        	// 
+        	// trackbarTransparency
+        	// 
+        	this.trackbarTransparency.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+        	this.trackbarTransparency.Location = new System.Drawing.Point(156, 64);
+        	this.trackbarTransparency.Maximum = 2;
+        	this.trackbarTransparency.Name = "trackbarTransparency";
+        	this.trackbarTransparency.Size = new System.Drawing.Size(152, 42);
+        	this.trackbarTransparency.TabIndex = 5;
+        	this.trackbarTransparency.TickStyle = System.Windows.Forms.TickStyle.Both;
         	// 
         	// pictureboxLanguage
         	// 
@@ -2899,10 +2925,10 @@
         	this.Controls.Add(this.labelFillerOne);
         	this.Controls.Add(this.labelFillerTwo);
         	this.Controls.Add(this.labelFillerThree);
-        	this.Controls.Add(this.panelStart);
         	this.Controls.Add(this.panelOptions);
         	this.Controls.Add(this.panelControls);
         	this.Controls.Add(this.panelReview);
+        	this.Controls.Add(this.panelStart);
         	this.KeyPreview = true;
         	this.Name = "formMain";
         	this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -2968,7 +2994,9 @@
         	((System.ComponentModel.ISupportInitialize)(this.updownFullscreenHeight)).EndInit();
         	((System.ComponentModel.ISupportInitialize)(this.updownFullscreenWidth)).EndInit();
         	this.groupboxInterpolation.ResumeLayout(false);
+        	this.groupboxInterpolation.PerformLayout();
         	((System.ComponentModel.ISupportInitialize)(this.updownAnisotropic)).EndInit();
+        	((System.ComponentModel.ISupportInitialize)(this.trackbarTransparency)).EndInit();
         	((System.ComponentModel.ISupportInitialize)(this.pictureboxLanguage)).EndInit();
         	this.panelPanels.ResumeLayout(false);
         	this.panelPanels.PerformLayout();
@@ -2993,6 +3021,9 @@
         	this.panelInfo.ResumeLayout(false);
         	this.ResumeLayout(false);
         }
+        private System.Windows.Forms.Label labelTransparencyPerformance;
+        private System.Windows.Forms.Label labelTransparencyQuality;
+        private System.Windows.Forms.TrackBar trackbarTransparency;
         private System.Windows.Forms.Panel panelOptionsLeft;
         private System.Windows.Forms.Panel panelOptionsRight;
         private System.Windows.Forms.ComboBox comboboxVSync;
@@ -3188,7 +3219,6 @@
         private System.Windows.Forms.CheckBox checkboxBlackBox;
         private System.Windows.Forms.Button buttonControlsExport;
         private System.Windows.Forms.Button buttonControlsImport;
-        private System.Windows.Forms.ComboBox comboboxTransparency;
         private System.Windows.Forms.Label labelTransparency;
         private System.Windows.Forms.LinkLabel linkUpdates;
         private System.Windows.Forms.RadioButton radiobuttonStart;
