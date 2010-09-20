@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-# SharpDevelop 3.1.0.4977
+# SharpDevelop 3.2.0.5777
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenBve", "OpenBve\OpenBve.csproj", "{34743421-2EB8-4F68-9600-AEAE79AECFA5}"
 EndProject
 Global

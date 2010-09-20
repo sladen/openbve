@@ -1529,22 +1529,26 @@ namespace OpenBve {
 									0.5 * TrainManager.Trains[i].Cars[TrainManager.Trains[i].Cars.Length - 1].Length;
 								double dist = pos - tp;
 								if (dist > -10.0 & dist < lookahead) {
-									const double minDistance = 8.0;
-									const double fastReactionDistance = 35.0;
+									const double minDistance = 10.0;
+									const double maxDistance = 100.0;
 									double edec;
 									if (dist > minDistance) {
 										double shift = 0.75 * minDistance + 1.0 * spd;
 										edec = spd * spd / (2.0 * (dist - shift));
 									} else if (dist > 0.5 * minDistance) {
-										edec = BrakeDeceleration;
-									} else {
-										TrainManager.ApplyEmergencyBrake(Train);
 										TrainManager.ApplyNotch(Train, -1, true, 1, true);
+										TrainManager.ApplyAirBrakeHandle(Train, TrainManager.AirBrakeHandleState.Service);
 										this.CurrentInterval = 0.1;
 										return;
+									} else {
+										TrainManager.ApplyNotch(Train, -1, true, 1, true);
+										TrainManager.ApplyAirBrakeHandle(Train, TrainManager.AirBrakeHandleState.Service);
+										TrainManager.ApplyEmergencyBrake(Train);
+										this.CurrentInterval = 1.0;
+										return;
 									}
-									if (dist < fastReactionDistance) {
-										this.CurrentInterval = 0.1;
+									if (dist < maxDistance) {
+										reduceDecelerationCruiseAndStart = true;
 									}
 									if (edec > dec) dec = edec;
 								}

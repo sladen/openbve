@@ -745,11 +745,12 @@ namespace OpenBve {
 		}
 		internal static void UpdateAnimatedWorldObjects(double TimeElapsed, bool ForceUpdate) {
 			for (int i = 0; i < AnimatedWorldObjectsUsed; i++) {
+				const double extraRadius = 10.0;
 				double z = AnimatedWorldObjects[i].Object.TranslateZFunction == null ? 0.0 : AnimatedWorldObjects[i].Object.TranslateZFunction.LastResult;
-				double pa = AnimatedWorldObjects[i].TrackPosition + z - AnimatedWorldObjects[i].Radius;
-				double pb = AnimatedWorldObjects[i].TrackPosition + z + AnimatedWorldObjects[i].Radius;
-				double ta = World.CameraTrackFollower.TrackPosition - World.BackgroundImageDistance - 4.0 * World.ExtraViewingDistance;
-				double tb = World.CameraTrackFollower.TrackPosition + World.BackgroundImageDistance + 4.0 * World.ExtraViewingDistance;
+				double pa = AnimatedWorldObjects[i].TrackPosition + z - AnimatedWorldObjects[i].Radius - extraRadius;
+				double pb = AnimatedWorldObjects[i].TrackPosition + z + AnimatedWorldObjects[i].Radius + extraRadius;
+				double ta = World.CameraTrackFollower.TrackPosition - World.BackgroundImageDistance - World.ExtraViewingDistance;
+				double tb = World.CameraTrackFollower.TrackPosition + World.BackgroundImageDistance + World.ExtraViewingDistance;
 				bool visible = pb >= ta & pa <= tb;
 				if (visible | ForceUpdate) {
 					if (AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate >= AnimatedWorldObjects[i].Object.RefreshRate | ForceUpdate) {

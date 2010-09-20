@@ -330,12 +330,9 @@ namespace OpenBve {
 				Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
 			}
 			Gl.glPushMatrix();
-			if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
-				MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.ChangeToScenery);
-			}
+			MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.ChangeToScenery);
 			if (LoadTexturesImmediately == LoadTextureImmediatelyMode.NotYet) {
 				LoadTexturesImmediately = LoadTextureImmediatelyMode.Yes;
-				//ReAddObjects();
 			}
 			// setup camera
 			double cx = World.AbsoluteCameraPosition.X;
@@ -461,14 +458,14 @@ namespace OpenBve {
 					Gl.glPopMatrix();
 				}
 			}
-			ResetOpenGlState();
 			// dynamic opaque
+			ResetOpenGlState();
 			for (int i = 0; i < DynamicOpaque.FaceCount; i++) {
 				RenderFace(ref DynamicOpaque.Faces[i], cx, cy, cz);
 			}
 			// dynamic alpha
-			SortPolygons(DynamicAlpha);
 			ResetOpenGlState();
+			SortPolygons(DynamicAlpha);
 			if (Interface.CurrentOptions.TransparencyMode == TransparencyMode.Performance) {
 				Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 				Gl.glDepthMask(Gl.GL_FALSE);
@@ -524,11 +521,11 @@ namespace OpenBve {
 			if (FogEnabled) {
 				Gl.glDisable(Gl.GL_FOG); FogEnabled = false;
 			}
+			Gl.glLoadIdentity();
+			MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.ChangeToCab);
+			Glu.gluLookAt(0.0, 0.0, 0.0, dx, dy, dz, ux, uy, uz);
 			if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
 				// 3d cab
-				Gl.glLoadIdentity();
-				MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.ChangeToCab);
-				Glu.gluLookAt(0.0, 0.0, 0.0, dx, dy, dz, ux, uy, uz);
 				Gl.glDepthMask(Gl.GL_TRUE);
 				Gl.glEnable(Gl.GL_DEPTH_TEST);
 				Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
@@ -539,23 +536,21 @@ namespace OpenBve {
 				Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
 				Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
 				// overlay opaque
-				SetAlphaFunc(Gl.GL_GREATER, 0.0f);
+				SetAlphaFunc(Gl.GL_GREATER, 0.9f);
 				for (int i = 0; i < OverlayOpaque.FaceCount; i++) {
 					RenderFace(ref OverlayOpaque.Faces[i], cx, cy, cz);
 				}
 				// overlay alpha
 				SortPolygons(OverlayAlpha);
 				if (Interface.CurrentOptions.TransparencyMode == TransparencyMode.Performance) {
-					if (!BlendEnabled) {
-						Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
-					}
+					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 					Gl.glDepthMask(Gl.GL_FALSE);
 					SetAlphaFunc(Gl.GL_GREATER, 0.0f);
 					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
 						RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
 					}
 				} else {
-					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
+					Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
 					SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
 					Gl.glDepthMask(Gl.GL_TRUE);
 					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
@@ -566,6 +561,7 @@ namespace OpenBve {
 							}
 						}
 					}
+					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 					SetAlphaFunc(Gl.GL_LESS, 1.0f);
 					Gl.glDepthMask(Gl.GL_FALSE);
 					bool additive = false;
@@ -943,11 +939,17 @@ namespace OpenBve {
 					World.Vector3Df[] top = new World.Vector3Df[n];
 					double angleValue = 2.61799387799149 - 3.14159265358979 / (double)n;
 					double angleIncrement = 6.28318530717958 / (double)n;
+					/*
+					 * To ensure that the whole background cylinder is rendered inside the viewing frustum,
+					 * the background is rendered before the scene with z-buffer writes disabled. Then,
+					 * the actual distance from the camera is irrelevant as long as it is inside the frustum.
+					 * */
+					const float scale = 0.5f;
 					for (int i = 0; i < n; i++) {
 						float x = (float)(World.BackgroundImageDistance * Math.Cos(angleValue));
 						float z = (float)(World.BackgroundImageDistance * Math.Sin(angleValue));
-						bottom[i] = new World.Vector3Df(x, y0, z);
-						top[i] = new World.Vector3Df(x, y1, z);
+						bottom[i] = new World.Vector3Df(scale * x, scale * y0, scale * z);
+						top[i] = new World.Vector3Df(scale * x, scale * y1, scale * z);
 						angleValue += angleIncrement;
 					}
 					float textureStart = 0.5f * (float)Data.Repetition / (float)n;

@@ -242,7 +242,7 @@ namespace OpenBve {
 			World.HorizontalViewingAngle = 2.0 * Math.Atan(Math.Tan(0.5 * World.VerticalViewingAngle) * World.AspectRatio);
 			World.OriginalVerticalViewingAngle = World.VerticalViewingAngle;
 			World.ExtraViewingDistance = 50.0;
-			World.ForwardViewingDistance = (double)Interface.CurrentOptions.ViewingDistance + World.ExtraViewingDistance;
+			World.ForwardViewingDistance = (double)Interface.CurrentOptions.ViewingDistance;
 			World.BackwardViewingDistance = 0.0;
 			World.BackgroundImageDistance = (double)Interface.CurrentOptions.ViewingDistance;
 			// load route and train

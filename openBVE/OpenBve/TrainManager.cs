@@ -1107,7 +1107,7 @@ namespace OpenBve {
 			double cdy = py - World.AbsoluteCameraPosition.Y;
 			double cdz = pz - World.AbsoluteCameraPosition.Z;
 			double dist = cdx * cdx + cdy * cdy + cdz * cdz;
-			double bid = World.BackgroundImageDistance + Train.Cars[c].Length;
+			double bid = World.BackgroundImageDistance + World.ExtraViewingDistance + Train.Cars[c].Length;
 			Train.Cars[c].CurrentlyVisible = dist < bid * bid;
 			// brightness
 			byte dnb;

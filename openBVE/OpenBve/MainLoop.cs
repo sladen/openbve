@@ -1819,7 +1819,7 @@ namespace OpenBve {
 			if (CurrentViewPortMode == ViewPortMode.Cab) {
 				Glu.gluPerspective(World.VerticalViewingAngle * invdeg, -World.AspectRatio, 0.025, 50.0);
 			} else {
-				Glu.gluPerspective(World.VerticalViewingAngle * invdeg, -World.AspectRatio, 0.4, World.BackgroundImageDistance + 4.0 * World.ExtraViewingDistance);
+				Glu.gluPerspective(World.VerticalViewingAngle * invdeg, -World.AspectRatio, 0.5, World.BackgroundImageDistance);
 			}
 			Gl.glMatrixMode(Gl.GL_MODELVIEW);
 			Gl.glLoadIdentity();

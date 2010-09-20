@@ -329,9 +329,13 @@ namespace OpenBve {
 		internal static double VerticalViewingAngle;
 		internal static double OriginalVerticalViewingAngle;
 		internal static double AspectRatio;
+		/// <summary>The current viewing distance in the forward direction.</summary>
 		internal static double ForwardViewingDistance;
+		/// <summary>The current viewing distance in the backward direction.</summary>
 		internal static double BackwardViewingDistance;
+		/// <summary>The extra viewing distance used for determining visibility of animated objects.</summary>
 		internal static double ExtraViewingDistance;
+		/// <summary>The user-selected viewing distance.</summary>
 		internal static double BackgroundImageDistance;
 		internal struct Background {
 			internal int Texture;
