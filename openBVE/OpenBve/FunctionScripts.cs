@@ -811,8 +811,8 @@ namespace OpenBve {
 						} else {
 							int n = (int)Math.Round(Function.Stack[s - 1]);
 							if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-								if (n >= 0 & n < PluginManager.PluginPanel.Length) {
-									Function.Stack[s - 1] = (double)PluginManager.PluginPanel[n];
+								if (n >= 0 & n < PluginManager.CurrentPlugin.Panel.Length) {
+									Function.Stack[s - 1] = (double)PluginManager.CurrentPlugin.Panel[n];
 								} else {
 									Function.Stack[s - 1] = 0.0;
 								}

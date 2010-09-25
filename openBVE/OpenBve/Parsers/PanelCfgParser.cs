@@ -1077,7 +1077,7 @@ namespace OpenBve {
 			Object.Mesh.Materials[0].TransparentColor = new World.ColorRGB(0, 0, 255);
 			Object.Mesh.Materials[0].DaytimeTextureIndex = TextureIndex;
 			Object.Mesh.Materials[0].NighttimeTextureIndex = -1;
-			Object.Dynamic = 1;
+			Object.Dynamic = true;
 			// calculate offset
 			World.Vector3D o;
 			o.X = WorldLeft + sx + WorldWidth * Left / FullWidth;

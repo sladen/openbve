@@ -1015,7 +1015,7 @@ namespace OpenBve {
 						c = Sections[p].Aspects.Length - 1;
 					}
 					int b = Sections[p].Aspects[c].Number;
-					PluginManager.UpdateSignal(b);
+					PluginManager.CurrentPlugin.UpdateSignal(b);
 				}
 			}
 			Sections[SectionIndex].CurrentAspect = newaspect;

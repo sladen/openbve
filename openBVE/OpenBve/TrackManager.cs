@@ -309,7 +309,7 @@ namespace OpenBve {
 							if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
 								int a = Game.Sections[this.NextSectionIndex].CurrentAspect;
 								if (a >= 0) {
-									PluginManager.UpdateSignal(Game.Sections[this.NextSectionIndex].Aspects[a].Number);
+									PluginManager.CurrentPlugin.UpdateSignal(Game.Sections[this.NextSectionIndex].Aspects[a].Number);
 								}
 							}
 						}
@@ -358,9 +358,9 @@ namespace OpenBve {
 						if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
 							int a = Game.Sections[this.PreviousSectionIndex].CurrentAspect;
 							if (a >= 0) {
-								PluginManager.UpdateSignal(Game.Sections[this.PreviousSectionIndex].Aspects[a].Number);
+								PluginManager.CurrentPlugin.UpdateSignal(Game.Sections[this.PreviousSectionIndex].Aspects[a].Number);
 							} else {
-								PluginManager.UpdateSignal(255);
+								PluginManager.CurrentPlugin.UpdateSignal(255);
 							}
 						}
 					} else {
@@ -447,7 +447,7 @@ namespace OpenBve {
 					Data.OptionalInteger = this.OptionalInteger;
 					if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
 						if ((int)Data.Type >= 0) {
-							PluginManager.UpdateBeacon(Train, Data);
+							PluginManager.CurrentPlugin.UpdateBeacon(Train, (int)Data.Type, Data.SectionIndex, Data.OptionalInteger);
 						}
 					} else {
 						Train.Specs.Safety.AddPendingTransponder(Data);

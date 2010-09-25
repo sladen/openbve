@@ -80,8 +80,8 @@ namespace OpenBve {
 			try {
 				LoadEverythingThreaded();
 			} catch (Exception ex) {
-				if (PluginManager.PluginError) {
-					Interface.AddMessage(Interface.MessageType.Critical, false, "The plugin " + PluginManager.PluginName + " caused a critical error in the route and train loader: " + ex.Message);
+				if (PluginManager.CurrentPlugin != null && PluginManager.CurrentPlugin.LastException != null) {
+					Interface.AddMessage(Interface.MessageType.Critical, false, "The train plugin " + PluginManager.CurrentPlugin.PluginTitle + " caused a critical error in the route and train loader: " + PluginManager.CurrentPlugin.LastException.Message);
 				} else {
 					Interface.AddMessage(Interface.MessageType.Critical, false, "The route and train loader encountered the following critical error: " + ex.Message);
 				}
@@ -302,7 +302,7 @@ namespace OpenBve {
 			}
 			// load plugin
 			if (TrainManager.PlayerTrain != null) {
-				PluginManager.LoadAtsConfig(CurrentTrainFolder, CurrentTrainEncoding, TrainManager.PlayerTrain);
+				PluginManager.LoadPlugin(CurrentTrainFolder, CurrentTrainEncoding, TrainManager.PlayerTrain);
 			}
 			// continue after opengl is initialized
 			/*

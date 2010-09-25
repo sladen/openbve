@@ -84,12 +84,14 @@ namespace OpenBve {
 				this.FaceCount = 0;
 			}
 		}
-		private class ObjectListBlock {
+		private class ObjectGroup {
+			internal ObjectList List;
 			internal int OpenGlDisplayList;
 			internal bool OpenGlDisplayListAvailable;
 			internal World.Vector3D WorldPosition;
 			internal bool Update;
-			internal ObjectListBlock() {
+			internal ObjectGroup() {
+				this.List = new ObjectList();
 				this.OpenGlDisplayList = 0;
 				this.OpenGlDisplayListAvailable = false;
 				this.WorldPosition = new World.Vector3D(0.0, 0.0, 0.0);
@@ -97,20 +99,12 @@ namespace OpenBve {
 			}
 		}
 		
-		// the static opaque list
-		/// <summary>The list of static opaque faces to be rendered.</summary>
-		private static ObjectList StaticOpaque = new ObjectList();
-		/// <summary>The index of the first free entry in the StaticOpaque list.</summary>
-		private static int StaticOpaqueFreeIndex = 0;
-		/// <summary>The number of consecutive items in the StaticOpaque list to be assigned an OpenGL display list.</summary>
-		private const int StaticOpaqueBlockSize = 256;
-		/// <summary>The blocks the StaticOpaque list is divided in.</summary>
-		private static ObjectListBlock[] StaticOpaqueBlocks;
-		private static int StaticOpaqueBlocksUsed = 0;
-		private const double StaticOpaqueTimerMaximum = 1.0;
-		private static double StaticOpaqueTimer = StaticOpaqueTimerMaximum;
+		// the static opaque lists
+		/// <summary>The list of static opaque face groups. Each group contains only objects that are associated the respective group index.</summary>
+		private static ObjectGroup[] StaticOpaque = new ObjectGroup[] { };
 		/// <summary>Whether to enforce updating all display lists.</summary>
 		internal static bool StaticOpaqueForceUpdate = true;
+		
 		
 		// all other lists
 		/// <summary>The list of dynamic opaque faces to be rendered.</summary>
@@ -163,16 +157,7 @@ namespace OpenBve {
 			LoadTexturesImmediately = LoadTextureImmediatelyMode.NotYet;
 			Objects = new Object[256];
 			ObjectCount = 0;
-			StaticOpaque = new ObjectList();
-			StaticOpaqueFreeIndex = 0;
-			for (int i = 0; i < StaticOpaqueBlocksUsed; i++) {
-				if (StaticOpaqueBlocks[i].OpenGlDisplayListAvailable) {
-					Gl.glDeleteLists(StaticOpaqueBlocks[i].OpenGlDisplayList, 1);
-				}
-			}
-			StaticOpaqueBlocks = new Renderer.ObjectListBlock[256];
-			StaticOpaqueBlocksUsed = 0;
-			StaticOpaqueTimer = 0;
+			StaticOpaque = new ObjectGroup[] { };
 			StaticOpaqueForceUpdate = true;
 			DynamicOpaque = new ObjectList();
 			DynamicAlpha = new ObjectList();
@@ -248,10 +233,12 @@ namespace OpenBve {
 		
 		// clear display lists
 		internal static void ClearDisplayLists() {
-			for (int i = 0; i < StaticOpaqueBlocksUsed; i++) {
-				if (StaticOpaqueBlocks[i].OpenGlDisplayListAvailable) {
-					Gl.glDeleteLists(StaticOpaqueBlocks[i].OpenGlDisplayList, 1);
-					StaticOpaqueBlocks[i].OpenGlDisplayListAvailable = false;
+			for (int i = 0; i < StaticOpaque.Length; i++) {
+				if (StaticOpaque[i] != null) {
+					if (StaticOpaque[i].OpenGlDisplayListAvailable) {
+						Gl.glDeleteLists(StaticOpaque[i].OpenGlDisplayList, 1);
+						StaticOpaque[i].OpenGlDisplayListAvailable = false;
+					}
 				}
 			}
 			StaticOpaqueForceUpdate = true;
@@ -406,56 +393,41 @@ namespace OpenBve {
 				Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
 			}
 			// static opaque
-			if (TimeElapsed > 0.0) {
-				StaticOpaqueTimer += TimeElapsed;
-			}
-			bool updated = false;
-			for (int i = 0; i < StaticOpaqueBlocksUsed; i++) {
-				bool update;
-				if (StaticOpaqueBlocks[i].Update & StaticOpaqueTimer >= StaticOpaqueTimerMaximum | !StaticOpaqueBlocks[i].OpenGlDisplayListAvailable | StaticOpaqueForceUpdate) {
-					update = true;
-				} else if (StaticOpaqueBlocks[i].Update) {
-					const double distance = 50.0;
-					double x = StaticOpaqueBlocks[i].WorldPosition.X - World.AbsoluteCameraPosition.X;
-					double y = StaticOpaqueBlocks[i].WorldPosition.Y - World.AbsoluteCameraPosition.Y;
-					double z = StaticOpaqueBlocks[i].WorldPosition.Z - World.AbsoluteCameraPosition.Z;
-					double r = Math.Sqrt(x * x + y * y + z * z);
-					update = r >= distance;
-				} else {
-					update = false;
-				}
-				if (update) {
-					updated = true;
-					int start = i * StaticOpaqueBlockSize;
-					int end = Math.Min(start + StaticOpaqueBlockSize, StaticOpaque.FaceCount);
-					StaticOpaqueBlocks[i].Update = false;
-					if (StaticOpaqueBlocks[i].OpenGlDisplayListAvailable) {
-						Gl.glDeleteLists(StaticOpaqueBlocks[i].OpenGlDisplayList, 1);
-					}
-					StaticOpaqueBlocks[i].OpenGlDisplayList = Gl.glGenLists(1);
-					StaticOpaqueBlocks[i].OpenGlDisplayListAvailable = true;
-					ResetOpenGlState();
-					Gl.glNewList(StaticOpaqueBlocks[i].OpenGlDisplayList, Gl.GL_COMPILE);
-					for (int j = start; j < end; j++) {
-						if (StaticOpaque.Faces[j] != null) {
-							RenderFace(ref StaticOpaque.Faces[j], cx, cy, cz);
+			for (int i = 0; i < StaticOpaque.Length; i++) {
+				if (StaticOpaque[i] != null) {
+					if (StaticOpaque[i].Update | StaticOpaqueForceUpdate) {
+						StaticOpaque[i].Update = false;
+						if (StaticOpaque[i].OpenGlDisplayListAvailable) {
+							Gl.glDeleteLists(StaticOpaque[i].OpenGlDisplayList, 1);
+							StaticOpaque[i].OpenGlDisplayListAvailable = false;
 						}
+						if (StaticOpaque[i].List.FaceCount != 0) {
+							StaticOpaque[i].OpenGlDisplayList = Gl.glGenLists(1);
+							StaticOpaque[i].OpenGlDisplayListAvailable = true;
+							ResetOpenGlState();
+							Gl.glNewList(StaticOpaque[i].OpenGlDisplayList, Gl.GL_COMPILE);
+							for (int j = 0; j < StaticOpaque[i].List.FaceCount; j++) {
+								if (StaticOpaque[i].List.Faces[j] != null) {
+									RenderFace(ref StaticOpaque[i].List.Faces[j], cx, cy, cz);
+								}
+							}
+							Gl.glEndList();
+							//Game.AddMessage(i.ToString(), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 1.0);
+						}
+						StaticOpaque[i].WorldPosition = World.AbsoluteCameraPosition;
 					}
-					Gl.glEndList();
-					StaticOpaqueBlocks[i].WorldPosition = World.AbsoluteCameraPosition;
 				}
 			}
-			if (updated) {
-				StaticOpaqueTimer = 0.0;
-				StaticOpaqueForceUpdate = false;
-			}
-			for (int i = 0; i < StaticOpaqueBlocksUsed; i++) {
-				if (StaticOpaqueBlocks[i].OpenGlDisplayListAvailable) {
-					ResetOpenGlState();
-					Gl.glPushMatrix();
-					Gl.glTranslated(StaticOpaqueBlocks[i].WorldPosition.X - World.AbsoluteCameraPosition.X, StaticOpaqueBlocks[i].WorldPosition.Y - World.AbsoluteCameraPosition.Y, StaticOpaqueBlocks[i].WorldPosition.Z - World.AbsoluteCameraPosition.Z);
-					Gl.glCallList(StaticOpaqueBlocks[i].OpenGlDisplayList);
-					Gl.glPopMatrix();
+			StaticOpaqueForceUpdate = false;
+			for (int i = 0; i < StaticOpaque.Length; i++) {
+				if (StaticOpaque[i] != null) {
+					if (StaticOpaque[i].OpenGlDisplayListAvailable) {
+						ResetOpenGlState();
+						Gl.glPushMatrix();
+						Gl.glTranslated(StaticOpaque[i].WorldPosition.X - World.AbsoluteCameraPosition.X, StaticOpaque[i].WorldPosition.Y - World.AbsoluteCameraPosition.Y, StaticOpaque[i].WorldPosition.Z - World.AbsoluteCameraPosition.Z);
+						Gl.glCallList(StaticOpaque[i].OpenGlDisplayList);
+						Gl.glPopMatrix();
+					}
 				}
 			}
 			// dynamic opaque
@@ -669,25 +641,12 @@ namespace OpenBve {
 					Gl.glBindTexture(Gl.GL_TEXTURE_2D, OpenGlDaytimeTextureIndex);
 					LastBoundTexture = OpenGlDaytimeTextureIndex;
 				}
-//				if (TextureManager.Textures[Material.DaytimeTextureIndex].Transparency != TextureManager.TextureTransparencyMode.None) {
-//					if (!AlphaTestEnabled) {
-//						Gl.glEnable(Gl.GL_ALPHA_TEST);
-//						AlphaTestEnabled = true;
-//					}
-//				} else if (AlphaTestEnabled) {
-//					Gl.glDisable(Gl.GL_ALPHA_TEST);
-//					AlphaTestEnabled = false;
-//				}
 			} else {
 				if (TexturingEnabled) {
 					Gl.glDisable(Gl.GL_TEXTURE_2D);
 					TexturingEnabled = false;
 					LastBoundTexture = 0;
 				}
-//				if (AlphaTestEnabled) {
-//					Gl.glDisable(Gl.GL_ALPHA_TEST);
-//					AlphaTestEnabled = false;
-//				}
 			}
 			// blend mode
 			float factor;
@@ -838,10 +797,6 @@ namespace OpenBve {
 					Gl.glDisable(Gl.GL_TEXTURE_2D);
 					TexturingEnabled = false;
 				}
-//				if (AlphaTestEnabled) {
-//					Gl.glDisable(Gl.GL_ALPHA_TEST);
-//					AlphaTestEnabled = false;
-//				}
 				for (int j = 0; j < Face.Vertices.Length; j++) {
 					Gl.glBegin(Gl.GL_LINES);
 					Gl.glColor4f(inv255 * (float)Material.Color.R, inv255 * (float)Material.Color.G, inv255 * (float)Material.Color.B, 1.0f);
@@ -2447,7 +2402,7 @@ namespace OpenBve {
 					"speed of sound: " + (Game.GetSpeedOfSound(TrainManager.PlayerTrain.Specs.CurrentAirDensity) * 3.6).ToString("0.00", Culture) + " km/h",
 					"passenger ratio: " + TrainManager.PlayerTrain.Passengers.PassengerRatio.ToString("0.00"),
 					"total mass: " + mass.ToString("0.00", Culture) + " kg",
-					"plugin: " + (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin ? (PluginManager.PluginValid ? "ok" : "error") : "n/a"),
+					"plugin: " + (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin ? ((PluginManager.CurrentPlugin.PluginValid ? "ok" : "error") + ", message: " + (PluginManager.CurrentPlugin.PluginMessage != null ? PluginManager.CurrentPlugin.PluginMessage : "n/a")) : "n/a"),
 					"",
 					"=route",
 					"track limit: " + (TrainManager.PlayerTrain.CurrentRouteLimit == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.CurrentRouteLimit * 3.6).ToString("0.0", Culture) + " km/h")),
@@ -2973,66 +2928,65 @@ namespace OpenBve {
 							TextureManager.Textures[tnight].DontAllowUnload = true;
 						}
 					}
-					ObjectList list;
-					switch (listType) {
-						case ObjectListType.StaticOpaque:
-							list = StaticOpaque;
-							break;
-						case ObjectListType.DynamicOpaque:
-							list = DynamicOpaque;
-							break;
-						case ObjectListType.DynamicAlpha:
-							list = DynamicAlpha;
-							break;
-						case ObjectListType.OverlayOpaque:
-							list = OverlayOpaque;
-							break;
-						case ObjectListType.OverlayAlpha:
-							list = OverlayAlpha;
-							break;
-						default:
-							throw new InvalidOperationException();
-					}
 					if (listType == ObjectListType.StaticOpaque) {
 						/*
 						 * For the static opaque list, insert the face into
-						 * the first vacant position in the list.
+						 * the first vacant position in the matching group's list.
 						 * */
+						int groupIndex = (int)ObjectManager.Objects[ObjectIndex].GroupIndex;
+						if (groupIndex >= StaticOpaque.Length) {
+							if (StaticOpaque.Length == 0) {
+								StaticOpaque = new ObjectGroup[16];
+							}
+							while (groupIndex >= StaticOpaque.Length) {
+								Array.Resize<ObjectGroup>(ref StaticOpaque, StaticOpaque.Length << 1);
+							}
+						}
+						if (StaticOpaque[groupIndex] == null) {
+							StaticOpaque[groupIndex] = new ObjectGroup();
+						}
+						ObjectList list = StaticOpaque[groupIndex].List;
 						int newIndex = list.FaceCount;
-						for (int j = StaticOpaqueFreeIndex; j < list.FaceCount; j++) {
-							if (StaticOpaque.Faces[j] == null) {
+						for (int j = 0; j < list.FaceCount; j++) {
+							if (list.Faces[j] == null) {
 								newIndex = j;
 								break;
 							}
 						}
-						StaticOpaqueFreeIndex = newIndex + 1;
 						if (newIndex == list.FaceCount) {
 							if (list.FaceCount == list.Faces.Length) {
 								Array.Resize<ObjectFace>(ref list.Faces, list.Faces.Length << 1);
 							}
 							list.FaceCount++;
-							int block = newIndex / StaticOpaqueBlockSize;
-							if (block == StaticOpaqueBlocks.Length) {
-								Array.Resize<ObjectListBlock>(ref StaticOpaqueBlocks, StaticOpaqueBlocks.Length << 1);
-							}
-							if (block == StaticOpaqueBlocksUsed) {
-								StaticOpaqueBlocks[StaticOpaqueBlocksUsed] = new ObjectListBlock();
-								StaticOpaqueBlocksUsed++;
-							}
-							StaticOpaqueBlocks[block].Update = true;
-						} else {
-							StaticOpaqueBlocks[newIndex / StaticOpaqueBlockSize].Update = true;
 						}
 						list.Faces[newIndex] = new ObjectFace();
 						list.Faces[newIndex].ObjectListIndex = ObjectCount;
 						list.Faces[newIndex].ObjectIndex = ObjectIndex;
 						list.Faces[newIndex].FaceIndex = i;
+						StaticOpaque[groupIndex].Update = true;
 						Objects[ObjectCount].FaceListReferences[i] = new ObjectListReference(listType, newIndex);
 						Game.InfoStaticOpaqueFaceCount++;
 					} else {
 						/*
 						 * For all other lists, insert the face at the end of the list.
 						 * */
+						ObjectList list;
+						switch (listType) {
+							case ObjectListType.DynamicOpaque:
+								list = DynamicOpaque;
+								break;
+							case ObjectListType.DynamicAlpha:
+								list = DynamicAlpha;
+								break;
+							case ObjectListType.OverlayOpaque:
+								list = OverlayOpaque;
+								break;
+							case ObjectListType.OverlayAlpha:
+								list = OverlayAlpha;
+								break;
+							default:
+								throw new InvalidOperationException();
+						}
 						if (list.FaceCount == list.Faces.Length) {
 							Array.Resize<ObjectFace>(ref list.Faces, list.Faces.Length << 1);
 						}
@@ -3060,39 +3014,17 @@ namespace OpenBve {
 				// remove faces
 				for (int i = 0; i < Objects[k].FaceListReferences.Length; i++) {
 					ObjectListType listType = Objects[k].FaceListReferences[i].Type;
-					ObjectList list;
-					switch (listType) {
-						case ObjectListType.StaticOpaque:
-							list = StaticOpaque;
-							break;
-						case ObjectListType.DynamicOpaque:
-							list = DynamicOpaque;
-							break;
-						case ObjectListType.DynamicAlpha:
-							list = DynamicAlpha;
-							break;
-						case ObjectListType.OverlayOpaque:
-							list = OverlayOpaque;
-							break;
-						case ObjectListType.OverlayAlpha:
-							list = OverlayAlpha;
-							break;
-						default:
-							throw new InvalidOperationException();
-					}
 					if (listType == ObjectListType.StaticOpaque) {
 						/*
 						 * For static opaque faces, set the face to be removed
-						 * to a null reference. The pointer to the first free
-						 * face needs to be updated accordingly, and there are
-						 * potentially blocks to be removed from the end that
-						 * need to be taken care of.
+						 * to a null reference. If there are null entries at
+						 * the end of the list, update the number of faces used
+						 * accordingly.
 						 * */
+						int groupIndex = (int)ObjectManager.Objects[Objects[k].ObjectIndex].GroupIndex;
+						ObjectList list = StaticOpaque[groupIndex].List;
 						int listIndex = Objects[k].FaceListReferences[i].Index;
 						list.Faces[listIndex] = null;
-						if (listIndex < StaticOpaqueFreeIndex) {
-							StaticOpaqueFreeIndex = listIndex;
-						}
 						if (listIndex == list.FaceCount - 1) {
 							int count = 0;
 							for (int j = list.FaceCount - 2; j >= 0; j--) {
@@ -3101,28 +3033,32 @@ namespace OpenBve {
 									break;
 								}
 							}
-							int blocks = 1 + (count - 1) / StaticOpaqueBlockSize;
-							if (blocks != StaticOpaqueBlocksUsed) {
-								for (int j = blocks; j < StaticOpaqueBlocksUsed; j++) {
-									if (StaticOpaqueBlocks[j].OpenGlDisplayListAvailable) {
-										Gl.glDeleteLists(StaticOpaqueBlocks[j].OpenGlDisplayList, 1);
-									}
-									StaticOpaqueBlocks[j] = null;
-								}
-								StaticOpaqueBlocksUsed = blocks;
-							} else {
-								StaticOpaqueBlocks[listIndex / StaticOpaqueBlockSize].Update = true;
-							}
 							list.FaceCount = count;
-						} else {
-							StaticOpaqueBlocks[listIndex / StaticOpaqueBlockSize].Update = true;
 						}
+						StaticOpaque[groupIndex].Update = true;
 						Game.InfoStaticOpaqueFaceCount--;
 					} else {
 						/*
 						 * For all other kinds of faces, move the last face into place
 						 * of the face to be removed and decrement the face counter.
 						 * */
+						ObjectList list;
+						switch (listType) {
+							case ObjectListType.DynamicOpaque:
+								list = DynamicOpaque;
+								break;
+							case ObjectListType.DynamicAlpha:
+								list = DynamicAlpha;
+								break;
+							case ObjectListType.OverlayOpaque:
+								list = OverlayOpaque;
+								break;
+							case ObjectListType.OverlayAlpha:
+								list = OverlayAlpha;
+								break;
+							default:
+								throw new InvalidOperationException();
+						}
 						int listIndex = Objects[k].FaceListReferences[i].Index;
 						list.Faces[listIndex] = list.Faces[list.FaceCount - 1];
 						Objects[list.Faces[listIndex].ObjectListIndex].FaceListReferences[list.Faces[listIndex].FaceIndex].Index = listIndex;
@@ -3140,7 +3076,10 @@ namespace OpenBve {
 						ObjectList list;
 						switch (listType) {
 							case ObjectListType.StaticOpaque:
-								list = StaticOpaque;
+								{
+									int groupIndex = (int)ObjectManager.Objects[Objects[k].ObjectIndex].GroupIndex;
+									list = StaticOpaque[groupIndex].List;
+								}
 								break;
 							case ObjectListType.DynamicOpaque:
 								list = DynamicOpaque;

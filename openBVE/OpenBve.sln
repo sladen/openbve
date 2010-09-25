@@ -1,8 +1,10 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 # SharpDevelop 3.2.0.5777
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenBve", "OpenBve\OpenBve.csproj", "{34743421-2EB8-4F68-9600-AEAE79AECFA5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenBveApi", "OpenBveApi\OpenBveApi.csproj", "{27134980-4415-4375-A564-40A9014DFA5F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,6 +16,10 @@ Global
 		{34743421-2EB8-4F68-9600-AEAE79AECFA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34743421-2EB8-4F68-9600-AEAE79AECFA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34743421-2EB8-4F68-9600-AEAE79AECFA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27134980-4415-4375-A564-40A9014DFA5F}.Debug|Any CPU.Build.0 = Debug|x86
+		{27134980-4415-4375-A564-40A9014DFA5F}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{27134980-4415-4375-A564-40A9014DFA5F}.Release|Any CPU.Build.0 = Release|x86
+		{27134980-4415-4375-A564-40A9014DFA5F}.Release|Any CPU.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

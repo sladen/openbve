@@ -93,6 +93,12 @@
     <Compile Include="ObjectManager.cs" />
     <Compile Include="Parsers\PanelCfgParser.cs" />
     <Compile Include="PluginManager.cs" />
+    <Compile Include="LegacyPlugin.cs">
+      <DependentUpon>PluginManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NetPlugin.cs">
+      <DependentUpon>PluginManager.cs</DependentUpon>
+    </Compile>
     <Compile Include="Renderer.cs">
     </Compile>
     <Compile Include="FunctionScripts.cs" />
@@ -141,6 +147,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenBveApi\OpenBveApi.csproj">
+      <Project>{27134980-4415-4375-A564-40A9014DFA5F}</Project>
+      <Name>OpenBveApi</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

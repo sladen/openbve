@@ -56,11 +56,12 @@ namespace OpenBve {
 			try {
 				Start(Args);
 			} catch (Exception ex) {
-				string t = GetExceptionText(ex, 5);
-				if (PluginManager.PluginError & PluginManager.PluginName != null) {
-					MessageBox.Show("The " + PluginManager.PluginName + " plugin raised the following exception:\n\n" + t, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				if (PluginManager.CurrentPlugin != null && PluginManager.CurrentPlugin.LastException != null) {
+					string text = GetExceptionText(PluginManager.CurrentPlugin.LastException, 5);
+					MessageBox.Show("The train plugin " + PluginManager.CurrentPlugin.PluginTitle + " caused the following exception:\n\n" + text, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				} else {
-					MessageBox.Show(t, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					string text = GetExceptionText(ex, 5);
+					MessageBox.Show(text, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
 			#endif

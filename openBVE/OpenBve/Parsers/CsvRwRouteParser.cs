@@ -5010,7 +5010,7 @@ namespace OpenBve {
 					int gi = Data.Blocks[i].Cycle[ci];
 					if (gi >= 0 & gi < Data.Structure.Ground.Length) {
 						if (Data.Structure.Ground[gi] != null) {
-							ObjectManager.CreateObject(Data.Structure.Ground[Data.Blocks[i].Cycle[ci]], World.Vector3D.Add(Position, new World.Vector3D(0.0, -Data.Blocks[i].Height, 0.0)), GroundTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+							ObjectManager.CreateObject(Data.Structure.Ground[Data.Blocks[i].Cycle[ci]], World.Vector3D.Add(Position, new World.Vector3D(0.0, -Data.Blocks[i].Height, 0.0)), GroundTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 						}
 					}
 				}
@@ -5023,7 +5023,7 @@ namespace OpenBve {
 						double dy = Data.Blocks[i].GroundFreeObj[j].Y;
 						World.Vector3D wpos = World.Vector3D.Add(Position, new World.Vector3D(Direction.X * d + Direction.Y * dx, dy - Data.Blocks[i].Height, Direction.Y * d - Direction.X * dx));
 						double tpos = Data.Blocks[i].GroundFreeObj[j].TrackPosition;
-						ObjectManager.CreateObject(Data.Structure.FreeObj[sttype], wpos, GroundTransformation, new World.Transformation(Data.Blocks[i].GroundFreeObj[j].Yaw, Data.Blocks[i].GroundFreeObj[j].Pitch, Data.Blocks[i].GroundFreeObj[j].Roll), Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos);
+						ObjectManager.CreateObject(Data.Structure.FreeObj[sttype], wpos, GroundTransformation, new World.Transformation(Data.Blocks[i].GroundFreeObj[j].Yaw, Data.Blocks[i].GroundFreeObj[j].Pitch, Data.Blocks[i].GroundFreeObj[j].Roll), Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, tpos);
 					}
 				}
 				// rail-aligned objects
@@ -5120,7 +5120,7 @@ namespace OpenBve {
 						}
 						if (Data.Blocks[i].RailType[j] < Data.Structure.Rail.Length) {
 							if (Data.Structure.Rail[Data.Blocks[i].RailType[j]] != null) {
-								ObjectManager.CreateObject(Data.Structure.Rail[Data.Blocks[i].RailType[j]], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+								ObjectManager.CreateObject(Data.Structure.Rail[Data.Blocks[i].RailType[j]], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 							}
 						}
 						// points of interest
@@ -5156,10 +5156,10 @@ namespace OpenBve {
 							if (dz >= -0.01 & dz <= 0.01) {
 								if (Data.Blocks[i].RailPole[j].Mode == 0) {
 									if (Data.Blocks[i].RailPole[j].Location <= 0.0) {
-										ObjectManager.CreateObject(Data.Structure.Poles[0][Data.Blocks[i].RailPole[j].Type], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+										ObjectManager.CreateObject(Data.Structure.Poles[0][Data.Blocks[i].RailPole[j].Type], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 									} else {
 										ObjectManager.UnifiedObject Pole = GetMirroredObject(Data.Structure.Poles[0][Data.Blocks[i].RailPole[j].Type]);
-										ObjectManager.CreateObject(Pole, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+										ObjectManager.CreateObject(Pole, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 									}
 								} else {
 									int m = Data.Blocks[i].RailPole[j].Mode;
@@ -5174,26 +5174,26 @@ namespace OpenBve {
 									double sz = -Direction.X;
 									World.Vector3D wpos = World.Vector3D.Add(pos, new World.Vector3D(sx * dx + wx * dz, sy * dx + wy * dz, sz * dx + wz * dz));
 									int type = Data.Blocks[i].RailPole[j].Type;
-									ObjectManager.CreateObject(Data.Structure.Poles[m][type], wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+									ObjectManager.CreateObject(Data.Structure.Poles[m][type], wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 								}
 							}
 						}
 						// walls
 						if (Data.Blocks[i].RailWall.Length > j && Data.Blocks[i].RailWall[j].Exists) {
 							if (Data.Blocks[i].RailWall[j].Direction <= 0) {
-								ObjectManager.CreateObject(Data.Structure.WallL[Data.Blocks[i].RailWall[j].Type], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+								ObjectManager.CreateObject(Data.Structure.WallL[Data.Blocks[i].RailWall[j].Type], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 							}
 							if (Data.Blocks[i].RailWall[j].Direction >= 0) {
-								ObjectManager.CreateObject(Data.Structure.WallR[Data.Blocks[i].RailWall[j].Type], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+								ObjectManager.CreateObject(Data.Structure.WallR[Data.Blocks[i].RailWall[j].Type], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 							}
 						}
 						// dikes
 						if (Data.Blocks[i].RailDike.Length > j && Data.Blocks[i].RailDike[j].Exists) {
 							if (Data.Blocks[i].RailDike[j].Direction <= 0) {
-								ObjectManager.CreateObject(Data.Structure.DikeL[Data.Blocks[i].RailDike[j].Type], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+								ObjectManager.CreateObject(Data.Structure.DikeL[Data.Blocks[i].RailDike[j].Type], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 							}
 							if (Data.Blocks[i].RailDike[j].Direction >= 0) {
-								ObjectManager.CreateObject(Data.Structure.DikeR[Data.Blocks[i].RailDike[j].Type], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+								ObjectManager.CreateObject(Data.Structure.DikeR[Data.Blocks[i].RailDike[j].Type], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 							}
 						}
 						// sounds
@@ -5228,12 +5228,12 @@ namespace OpenBve {
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormL.Length || Data.Structure.FormL[Data.Blocks[i].Form[k].FormType] == null) {
 										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
-										ObjectManager.CreateObject(Data.Structure.FormL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+										ObjectManager.CreateObject(Data.Structure.FormL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 										if (Data.Blocks[i].Form[k].RoofType > 0) {
 											if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofL.Length || Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType] == null) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 											} else {
-												ObjectManager.CreateObject(Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+												ObjectManager.CreateObject(Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 											}
 										}
 									}
@@ -5241,46 +5241,46 @@ namespace OpenBve {
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormL.Length || Data.Structure.FormL[Data.Blocks[i].Form[k].FormType] == null) {
 										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
-										ObjectManager.CreateObject(Data.Structure.FormL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+										ObjectManager.CreateObject(Data.Structure.FormL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 									}
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormCL.Length || Data.Structure.FormCL[Data.Blocks[i].Form[k].FormType] == null) {
 										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormCL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
-										ObjectManager.CreateStaticObject(Data.Structure.FormCL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+										ObjectManager.CreateStaticObject(Data.Structure.FormCL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 									}
 									if (Data.Blocks[i].Form[k].RoofType > 0) {
 										if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofL.Length || Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType] == null) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
-											ObjectManager.CreateObject(Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+											ObjectManager.CreateObject(Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 										}
 										if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofCL.Length || Data.Structure.RoofCL[Data.Blocks[i].Form[k].RoofType] == null) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofCL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
-											ObjectManager.CreateStaticObject(Data.Structure.RoofCL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+											ObjectManager.CreateStaticObject(Data.Structure.RoofCL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 										}
 									}
 								} else if (Data.Blocks[i].Form[k].SecondaryRail == Form.SecondaryRailR) {
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormR.Length || Data.Structure.FormR[Data.Blocks[i].Form[k].FormType] == null) {
 										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
-										ObjectManager.CreateObject(Data.Structure.FormR[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+										ObjectManager.CreateObject(Data.Structure.FormR[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 									}
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormCR.Length || Data.Structure.FormCR[Data.Blocks[i].Form[k].FormType] == null) {
 										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormCR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
-										ObjectManager.CreateStaticObject(Data.Structure.FormCR[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+										ObjectManager.CreateStaticObject(Data.Structure.FormCR[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 									}
 									if (Data.Blocks[i].Form[k].RoofType > 0) {
 										if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofR.Length || Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType] == null) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
-											ObjectManager.CreateObject(Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+											ObjectManager.CreateObject(Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 										}
 										if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofCR.Length || Data.Structure.RoofCR[Data.Blocks[i].Form[k].RoofType] == null) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofCR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
-											ObjectManager.CreateStaticObject(Data.Structure.RoofCR[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+											ObjectManager.CreateStaticObject(Data.Structure.RoofCR[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 										}
 									}
 								} else if (Data.Blocks[i].Form[k].SecondaryRail > 0) {
@@ -5299,50 +5299,50 @@ namespace OpenBve {
 											if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormL.Length || Data.Structure.FormL[Data.Blocks[i].Form[k].FormType] == null) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 											} else {
-												ObjectManager.CreateObject(Data.Structure.FormL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+												ObjectManager.CreateObject(Data.Structure.FormL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 											}
 											if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormCL.Length || Data.Structure.FormCL[Data.Blocks[i].Form[k].FormType] == null) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormCL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 											} else {
 												ObjectManager.StaticObject FormC = GetTransformedStaticObject(Data.Structure.FormCL[Data.Blocks[i].Form[k].FormType], d0, d1);
-												ObjectManager.CreateStaticObject(FormC, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+												ObjectManager.CreateStaticObject(FormC, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 											}
 											if (Data.Blocks[i].Form[k].RoofType > 0) {
 												if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofL.Length || Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType] == null) {
 													Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 												} else {
-													ObjectManager.CreateObject(Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+													ObjectManager.CreateObject(Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 												}
 												if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofCL.Length || Data.Structure.RoofCL[Data.Blocks[i].Form[k].RoofType] == null) {
 													Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofCL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 												} else {
 													ObjectManager.StaticObject RoofC = GetTransformedStaticObject(Data.Structure.RoofCL[Data.Blocks[i].Form[k].RoofType], d0, d1);
-													ObjectManager.CreateStaticObject(RoofC, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+													ObjectManager.CreateStaticObject(RoofC, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 												}
 											}
 										} else if (d0 > 0.0) {
 											if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormR.Length || Data.Structure.FormR[Data.Blocks[i].Form[k].FormType] == null) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 											} else {
-												ObjectManager.CreateObject(Data.Structure.FormR[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+												ObjectManager.CreateObject(Data.Structure.FormR[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 											}
 											if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormCR.Length || Data.Structure.FormCR[Data.Blocks[i].Form[k].FormType] == null) {
 												Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormCR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 											} else {
 												ObjectManager.StaticObject FormC = GetTransformedStaticObject(Data.Structure.FormCR[Data.Blocks[i].Form[k].FormType], d0, d1);
-												ObjectManager.CreateStaticObject(FormC, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+												ObjectManager.CreateStaticObject(FormC, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 											}
 											if (Data.Blocks[i].Form[k].RoofType > 0) {
 												if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofR.Length || Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType] == null) {
 													Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 												} else {
-													ObjectManager.CreateObject(Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+													ObjectManager.CreateObject(Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 												}
 												if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofCR.Length || Data.Structure.RoofCR[Data.Blocks[i].Form[k].RoofType] == null) {
 													Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofCR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 												} else {
 													ObjectManager.StaticObject RoofC = GetTransformedStaticObject(Data.Structure.RoofCR[Data.Blocks[i].Form[k].RoofType], d0, d1);
-													ObjectManager.CreateStaticObject(RoofC, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+													ObjectManager.CreateStaticObject(RoofC, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 												}
 											}
 										}
@@ -5360,26 +5360,26 @@ namespace OpenBve {
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormL.Length || Data.Structure.FormL[Data.Blocks[i].Form[k].FormType] == null) {
 										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
-										ObjectManager.CreateObject(Data.Structure.FormL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+										ObjectManager.CreateObject(Data.Structure.FormL[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 									}
 									if (Data.Blocks[i].Form[k].RoofType > 0) {
 										if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofL.Length || Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType] == null) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofL not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
-											ObjectManager.CreateObject(Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+											ObjectManager.CreateObject(Data.Structure.RoofL[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 										}
 									}
 								} else {
 									if (Data.Blocks[i].Form[k].FormType >= Data.Structure.FormR.Length || Data.Structure.FormR[Data.Blocks[i].Form[k].FormType] == null) {
 										Interface.AddMessage(Interface.MessageType.Error, false, "FormStructureIndex references a FormR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 									} else {
-										ObjectManager.CreateObject(Data.Structure.FormR[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+										ObjectManager.CreateObject(Data.Structure.FormR[Data.Blocks[i].Form[k].FormType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 									}
 									if (Data.Blocks[i].Form[k].RoofType > 0) {
 										if (Data.Blocks[i].Form[k].RoofType >= Data.Structure.RoofR.Length || Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType] == null) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "RoofStructureIndex references a RoofR not loaded in Track.Form at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
-											ObjectManager.CreateObject(Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+											ObjectManager.CreateObject(Data.Structure.RoofR[Data.Blocks[i].Form[k].RoofType], pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 										}
 									}
 								}
@@ -5404,14 +5404,14 @@ namespace OpenBve {
 											Interface.AddMessage(Interface.MessageType.Error, false, "CrackStructureIndex references a CrackL not loaded in Track.Crack at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
 											ObjectManager.StaticObject Crack = GetTransformedStaticObject(Data.Structure.CrackL[Data.Blocks[i].Crack[k].Type], d0, d1);
-											ObjectManager.CreateStaticObject(Crack, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+											ObjectManager.CreateStaticObject(Crack, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 										}
 									} else if (d0 > 0.0) {
 										if (Data.Blocks[i].Crack[k].Type >= Data.Structure.CrackR.Length || Data.Structure.CrackR[Data.Blocks[i].Crack[k].Type] == null) {
 											Interface.AddMessage(Interface.MessageType.Error, false, "CrackStructureIndex references a CrackR not loaded in Track.Crack at track position " + StartingDistance.ToString(Culture) + " in file " + FileName + ".");
 										} else {
 											ObjectManager.StaticObject Crack = GetTransformedStaticObject(Data.Structure.CrackR[Data.Blocks[i].Crack[k].Type], d0, d1);
-											ObjectManager.CreateStaticObject(Crack, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, StartingDistance);
+											ObjectManager.CreateStaticObject(Crack, pos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, StartingDistance);
 										}
 									}
 								}
@@ -5429,7 +5429,7 @@ namespace OpenBve {
 								wpos.Y += dx * RailTransformation.X.Y + dy * RailTransformation.Y.Y + dz * RailTransformation.Z.Y;
 								wpos.Z += dx * RailTransformation.X.Z + dy * RailTransformation.Y.Z + dz * RailTransformation.Z.Z;
 								double tpos = Data.Blocks[i].RailFreeObj[j][k].TrackPosition;
-								ObjectManager.CreateObject(Data.Structure.FreeObj[sttype], wpos, RailTransformation, new World.Transformation(Data.Blocks[i].RailFreeObj[j][k].Yaw, Data.Blocks[i].RailFreeObj[j][k].Pitch, Data.Blocks[i].RailFreeObj[j][k].Roll), -1, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos, 1.0, false);
+								ObjectManager.CreateObject(Data.Structure.FreeObj[sttype], wpos, RailTransformation, new World.Transformation(Data.Blocks[i].RailFreeObj[j][k].Yaw, Data.Blocks[i].RailFreeObj[j][k].Pitch, Data.Blocks[i].RailFreeObj[j][k].Roll), -1, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, tpos, 1.0, false);
 							}
 						}
 						// transponder objects
@@ -5461,9 +5461,9 @@ namespace OpenBve {
 									double tpos = Data.Blocks[i].Transponder[k].TrackPosition;
 									if (Data.Blocks[i].Transponder[k].ShowDefaultObject) {
 										double b = 0.25 + 0.75 * GetBrightness(ref Data, tpos);
-										ObjectManager.CreateObject(obj, wpos, RailTransformation, new World.Transformation(Data.Blocks[i].Transponder[k].Yaw, Data.Blocks[i].Transponder[k].Pitch, Data.Blocks[i].Transponder[k].Roll), -1, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos, b, false);
+										ObjectManager.CreateObject(obj, wpos, RailTransformation, new World.Transformation(Data.Blocks[i].Transponder[k].Yaw, Data.Blocks[i].Transponder[k].Pitch, Data.Blocks[i].Transponder[k].Roll), -1, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, tpos, b, false);
 									} else {
-										ObjectManager.CreateObject(obj, wpos, RailTransformation, new World.Transformation(Data.Blocks[i].Transponder[k].Yaw, Data.Blocks[i].Transponder[k].Pitch, Data.Blocks[i].Transponder[k].Roll), Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos);
+										ObjectManager.CreateObject(obj, wpos, RailTransformation, new World.Transformation(Data.Blocks[i].Transponder[k].Yaw, Data.Blocks[i].Transponder[k].Pitch, Data.Blocks[i].Transponder[k].Roll), Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, tpos);
 									}
 								}
 							}
@@ -5489,7 +5489,7 @@ namespace OpenBve {
 									wpos.Z += dx * RailTransformation.X.Z + dz * RailTransformation.Z.Z;
 									double tpos = Data.Blocks[i].Signal[k].TrackPosition;
 									double b = 0.25 + 0.75 * GetBrightness(ref Data, tpos);
-									ObjectManager.CreateStaticObject(SignalPost, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, tpos, b, false);
+									ObjectManager.CreateStaticObject(SignalPost, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, Data.BlockInterval, tpos, b, false);
 								}
 								if (Data.Blocks[i].Signal[k].ShowObject) {
 									// signal object
@@ -5502,7 +5502,7 @@ namespace OpenBve {
 									double tpos = Data.Blocks[i].Signal[k].TrackPosition;
 									if (sd is AnimatedObjectSignalData) {
 										AnimatedObjectSignalData aosd = (AnimatedObjectSignalData)sd;
-										ObjectManager.CreateObject(aosd.Objects, wpos, RailTransformation, new World.Transformation(Data.Blocks[i].Signal[k].Yaw, Data.Blocks[i].Signal[k].Pitch, Data.Blocks[i].Signal[k].Roll), Data.Blocks[i].Signal[k].Section, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos, 1.0, false);
+										ObjectManager.CreateObject(aosd.Objects, wpos, RailTransformation, new World.Transformation(Data.Blocks[i].Signal[k].Yaw, Data.Blocks[i].Signal[k].Pitch, Data.Blocks[i].Signal[k].Roll), Data.Blocks[i].Signal[k].Section, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, tpos, 1.0, false);
 									} else if (sd is CompatibilitySignalData) {
 										CompatibilitySignalData csd = (CompatibilitySignalData)sd;
 										if (csd.Numbers.Length != 0) {
@@ -5524,7 +5524,7 @@ namespace OpenBve {
 											}
 											aoc.Objects[0].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(expr);
 											aoc.Objects[0].RefreshRate = 1.0 + 0.01 * Game.Generator.NextDouble();
-											ObjectManager.CreateObject(aoc, wpos, RailTransformation, new World.Transformation(Data.Blocks[i].Signal[k].Yaw, Data.Blocks[i].Signal[k].Pitch, Data.Blocks[i].Signal[k].Roll), Data.Blocks[i].Signal[k].Section, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos, brightness, false);
+											ObjectManager.CreateObject(aoc, wpos, RailTransformation, new World.Transformation(Data.Blocks[i].Signal[k].Yaw, Data.Blocks[i].Signal[k].Pitch, Data.Blocks[i].Signal[k].Roll), Data.Blocks[i].Signal[k].Section, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, tpos, brightness, false);
 										}
 									} else if (sd is Bve4SignalData) {
 										Bve4SignalData b4sd = (Bve4SignalData)sd;
@@ -5571,7 +5571,7 @@ namespace OpenBve {
 											}
 											aoc.Objects[0].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(expr);
 											aoc.Objects[0].RefreshRate = 1.0 + 0.01 * Game.Generator.NextDouble();
-											ObjectManager.CreateObject(aoc, wpos, RailTransformation, new World.Transformation(Data.Blocks[i].Signal[k].Yaw, Data.Blocks[i].Signal[k].Pitch, Data.Blocks[i].Signal[k].Roll), Data.Blocks[i].Signal[k].Section, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, tpos, 1.0, false);
+											ObjectManager.CreateObject(aoc, wpos, RailTransformation, new World.Transformation(Data.Blocks[i].Signal[k].Yaw, Data.Blocks[i].Signal[k].Pitch, Data.Blocks[i].Signal[k].Roll), Data.Blocks[i].Signal[k].Section, Data.AccurateObjectDisposal, StartingDistance, EndingDistance, Data.BlockInterval, tpos, 1.0, false);
 										}
 									}
 								}
@@ -5649,19 +5649,19 @@ namespace OpenBve {
 									double tpos = Data.Blocks[i].Limit[k].TrackPosition;
 									double b = 0.25 + 0.75 * GetBrightness(ref Data, tpos);
 									if (Data.Blocks[i].Limit[k].Speed <= 0.0 | Data.Blocks[i].Limit[k].Speed >= 1000.0) {
-										ObjectManager.CreateStaticObject(LimitPostInfinite, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, tpos, b, false);
+										ObjectManager.CreateStaticObject(LimitPostInfinite, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, Data.BlockInterval, tpos, b, false);
 									} else {
 										if (Data.Blocks[i].Limit[k].Cource < 0) {
-											ObjectManager.CreateStaticObject(LimitPostLeft, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, tpos, b, false);
+											ObjectManager.CreateStaticObject(LimitPostLeft, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, Data.BlockInterval, tpos, b, false);
 										} else if (Data.Blocks[i].Limit[k].Cource > 0) {
-											ObjectManager.CreateStaticObject(LimitPostRight, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, tpos, b, false);
+											ObjectManager.CreateStaticObject(LimitPostRight, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, Data.BlockInterval, tpos, b, false);
 										} else {
-											ObjectManager.CreateStaticObject(LimitPostStraight, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, tpos, b, false);
+											ObjectManager.CreateStaticObject(LimitPostStraight, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, Data.BlockInterval, tpos, b, false);
 										}
 										double lim = Data.Blocks[i].Limit[k].Speed / Data.UnitOfSpeed;
 										if (lim < 10.0) {
 											int d0 = (int)Math.Round(lim);
-											int o = ObjectManager.CreateStaticObject(LimitOneDigit, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, tpos, b, true);
+											int o = ObjectManager.CreateStaticObject(LimitOneDigit, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, Data.BlockInterval, tpos, b, true);
 											if (ObjectManager.Objects[o].Mesh.Materials.Length >= 1) {
 												ObjectManager.Objects[o].Mesh.Materials[0].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d0 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 											}
@@ -5669,7 +5669,7 @@ namespace OpenBve {
 											int d1 = (int)Math.Round(lim);
 											int d0 = d1 % 10;
 											d1 /= 10;
-											int o = ObjectManager.CreateStaticObject(LimitTwoDigits, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, tpos, b, true);
+											int o = ObjectManager.CreateStaticObject(LimitTwoDigits, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, Data.BlockInterval, tpos, b, true);
 											if (ObjectManager.Objects[o].Mesh.Materials.Length >= 1) {
 												ObjectManager.Objects[o].Mesh.Materials[0].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d1 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 											}
@@ -5681,7 +5681,7 @@ namespace OpenBve {
 											int d0 = d2 % 10;
 											int d1 = (d2 / 10) % 10;
 											d2 /= 100;
-											int o = ObjectManager.CreateStaticObject(LimitThreeDigits, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, tpos, b, true);
+											int o = ObjectManager.CreateStaticObject(LimitThreeDigits, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, Data.BlockInterval, tpos, b, true);
 											if (ObjectManager.Objects[o].Mesh.Materials.Length >= 1) {
 												ObjectManager.Objects[o].Mesh.Materials[0].DaytimeTextureIndex = TextureManager.RegisterTexture(Interface.GetCombinedFileName(LimitGraphicsPath, "limit_" + d2 + ".png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 											}
@@ -5708,7 +5708,7 @@ namespace OpenBve {
 									wpos.Z += dx * RailTransformation.X.Z + dz * RailTransformation.Z.Z;
 									double tpos = Data.Blocks[i].Stop[k].TrackPosition;
 									double b = 0.25 + 0.75 * GetBrightness(ref Data, tpos);
-									ObjectManager.CreateStaticObject(StopPost, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, tpos, b, false);
+									ObjectManager.CreateStaticObject(StopPost, wpos, RailTransformation, NullTransformation, Data.AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, Data.BlockInterval, tpos, b, false);
 								}
 							}
 						}
