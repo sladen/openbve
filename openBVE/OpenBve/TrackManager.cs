@@ -309,7 +309,9 @@ namespace OpenBve {
 							if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
 								int a = Game.Sections[this.NextSectionIndex].CurrentAspect;
 								if (a >= 0) {
-									PluginManager.CurrentPlugin.UpdateSignal(Game.Sections[this.NextSectionIndex].Aspects[a].Number);
+									double z = Train.Cars[0].FrontAxle.Follower.TrackPosition - Train.Cars[0].FrontAxlePosition + 0.5 * Train.Cars[0].Length;
+									double distance = Game.Sections[this.NextSectionIndex].TrackPosition - z;
+									PluginManager.CurrentPlugin.UpdateSignal(Game.Sections[this.NextSectionIndex].Aspects[a].Number, distance);
 								}
 							}
 						}
@@ -358,9 +360,11 @@ namespace OpenBve {
 						if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
 							int a = Game.Sections[this.PreviousSectionIndex].CurrentAspect;
 							if (a >= 0) {
-								PluginManager.CurrentPlugin.UpdateSignal(Game.Sections[this.PreviousSectionIndex].Aspects[a].Number);
+								double z = Train.Cars[0].FrontAxle.Follower.TrackPosition - Train.Cars[0].FrontAxlePosition + 0.5 * Train.Cars[0].Length;
+								double distance = Game.Sections[this.NextSectionIndex].TrackPosition - z;
+								PluginManager.CurrentPlugin.UpdateSignal(Game.Sections[this.PreviousSectionIndex].Aspects[a].Number, distance);
 							} else {
-								PluginManager.CurrentPlugin.UpdateSignal(255);
+								PluginManager.CurrentPlugin.UpdateSignal(255, double.MaxValue);
 							}
 						}
 					} else {

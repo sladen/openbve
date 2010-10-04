@@ -1,23 +1,36 @@
 ﻿using System;
 using System.Reflection;
-using OpenBveApi;
+using OpenBveApi.Runtime;
 
 namespace OpenBve {
 	internal static partial class PluginManager {
 		
+		/// <summary>Represents an abstract plugin.</summary>
 		internal abstract class Plugin {
 			// members
+			/// <summary>The file title of the plugin, including the file extension.</summary>
 			internal string PluginTitle;
+			/// <summary>Whether the plugin returned valid information in the last Elapse call.</summary>
 			internal bool PluginValid;
+			/// <summary>The debug message the plugin returned in the last Elapse call.</summary>
 			internal string PluginMessage;
+			/// <summary>The array of panel variables.</summary>
 			internal int[] Panel;
+			/// <summary>The array of sound instructions.</summary>
 			internal int[] Sound;
+			/// <summary>The last in-game time reported to the plugin.</summary>
 			internal double LastTime;
+			/// <summary>The last sound instructions reported by the plugin.</summary>
 			internal int[] LastSound;
+			/// <summary>The last reverser reported to the plugin.</summary>
 			internal int LastReverser;
+			/// <summary>The last power notch reported to the plugin.</summary>
 			internal int LastPowerNotch;
+			/// <summary>The last brake notch reported to the plugin.</summary>
 			internal int LastBrakeNotch;
+			/// <summary>The last aspect reported to the plugin.</summary>
 			internal int LastAspect;
+			/// <summary>The last exception the plugin raised.</summary>
 			internal Exception LastException;
 			// functions
 			/// <summary>Called to load and initialize the plugin.</summary>
@@ -41,14 +54,14 @@ namespace OpenBve {
 				 * */
 				double location = train.Cars[0].FrontAxle.Follower.TrackPosition - train.Cars[0].FrontAxlePosition + 0.5 * train.Cars[0].Length;
 				double speed = train.Cars[train.DriverCar].Specs.CurrentPerceivedSpeed;
-				double time = Game.SecondsSinceMidnight;
+				double totalTime = Game.SecondsSinceMidnight;
 				double elapsedTime = Game.SecondsSinceMidnight - LastTime;
 				double bcPressure = train.Cars[train.DriverCar].Specs.AirBrake.BrakeCylinderCurrentPressure;
 				double mrPressure = train.Cars[train.DriverCar].Specs.AirBrake.MainReservoirCurrentPressure;
 				double erPressure = train.Cars[train.DriverCar].Specs.AirBrake.EqualizingReservoirCurrentPressure;
 				double bpPressure = train.Cars[train.DriverCar].Specs.AirBrake.BrakePipeCurrentPressure;
 				double sapPressure = train.Cars[train.DriverCar].Specs.AirBrake.StraightAirPipeCurrentPressure;
-				VehicleState state = new VehicleState(location, speed, time, elapsedTime, bcPressure, mrPressure, erPressure, bpPressure, sapPressure);
+				VehicleState state = new VehicleState(location, new Speed(speed), new Time(totalTime), new Time(elapsedTime), bcPressure, mrPressure, erPressure, bpPressure, sapPressure);
 				LastTime = Game.SecondsSinceMidnight;
 				/*
 				 * Prepare the handles.
@@ -269,23 +282,25 @@ namespace OpenBve {
 			/// <summary>Called when the state of the doors changes.</summary>
 			internal abstract void DoorChange(DoorStates oldState, DoorStates newState);
 			/// <summary>Called to update the aspect of the current section. This invokes a call to SetSignal only if a change actually occured.</summary>
-			/// <param name="aspect"></param>
-			internal void UpdateSignal(int aspect) {
+			/// <param name="aspect">The aspect of the section.</param>
+			/// <param name="distance">The distance to the section.</param>
+			internal void UpdateSignal(int aspect, double distance) {
 				if (aspect != this.LastAspect) {
 					this.LastAspect = aspect;
-					SetSignal(aspect);
+					SetSignal(new SignalData(aspect, distance));
+					Game.AddMessage(distance.ToString(), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 1.0);
 				}
 			}
 			/// <summary>Called when the aspect in the current section changes.</summary>
-			/// <param name="aspect">The aspect.</param>
+			/// <param name="signal">The signal data.</param>
 			/// <remarks>This function should not be called directly. Call UpdateSignal instead.</remarks>
-			internal abstract void SetSignal(int aspect);
+			internal abstract void SetSignal(SignalData signal);
 			/// <summary>Called when the train passes a beacon.</summary>
 			/// <param name="train">The train.</param>
 			/// <param name="type">The beacon type.</param>
 			/// <param name="sectionIndex">The section the beacon is attached to, or -1 if none, or TrackManager.TransponderSpecialSection.NextRedSection.</param>
-			/// <param name="data">The additional data attached to the beacon.</param>
-			internal void UpdateBeacon(TrainManager.Train train, int type, int sectionIndex, int data) {
+			/// <param name="optional">Optional data attached to the beacon.</param>
+			internal void UpdateBeacon(TrainManager.Train train, int type, int sectionIndex, int optional) {
 				int aspect = 255;
 				double distance = double.MaxValue;
 				if (sectionIndex == (int)TrackManager.TransponderSpecialSection.NextRedSection) {
@@ -330,15 +345,12 @@ namespace OpenBve {
 					double position = train.Cars[0].FrontAxle.Follower.TrackPosition - train.Cars[0].FrontAxlePosition + 0.5 * train.Cars[0].Length;
 					distance = Game.Sections[sectionIndex].TrackPosition - position;
 				}
-				SetBeacon(type, aspect, distance, data);
+				SetBeacon(new BeaconData(type, optional, new SignalData(aspect, distance)));
 			}
 			/// <summary>Called when the train passes a beacon.</summary>
-			/// <param name="type">The beacon type.</param>
-			/// <param name="aspect">The aspect shown in the attached section.</param>
-			/// <param name="distance">The distance to the attached section.</param>
-			/// <param name="data">The additional data attached to the beacon.</param>
+			/// <param name="data">The beacon data.</param>
 			/// <remarks>This function should not be called directly. Call UpdateBeacon instead.</remarks>
-			internal abstract void SetBeacon(int type, int aspect, double distance, int data);
+			internal abstract void SetBeacon(BeaconData beacon);
 		}
 		
 		/// <summary>The currently loaded plugin, or a null reference.</summary>
@@ -380,60 +392,59 @@ namespace OpenBve {
 			BrakeTypes brakeType = (BrakeTypes)train.Cars[train.DriverCar].Specs.BrakeType;
 			int brakeNotches;
 			int powerNotches;
-			int atsNotch;
-			int b67Notch;
+			bool hasHoldBrake;
 			if (brakeType == BrakeTypes.AutomaticAirBrake) {
 				brakeNotches = 2;
 				powerNotches = train.Specs.MaximumPowerNotch;
-				atsNotch = 1;
-				b67Notch = 1;
+				hasHoldBrake = false;
 			} else {
 				brakeNotches = train.Specs.MaximumBrakeNotch + (train.Specs.HasHoldBrake ? 1 : 0);
 				powerNotches = train.Specs.MaximumPowerNotch;
-				atsNotch = train.Specs.HasHoldBrake ? 2 : 1;
-				b67Notch = Math.Max(1, (int)Math.Round(0.7 * brakeNotches));
+				hasHoldBrake = train.Specs.HasHoldBrake;
 			}
 			int cars = train.Cars.Length;
-			VehicleSpecs specs = new VehicleSpecs(powerNotches, brakeType, brakeNotches, atsNotch, b67Notch, cars);
+			VehicleSpecs specs = new VehicleSpecs(powerNotches, brakeType, brakeNotches, hasHoldBrake, cars);
 			InitializationModes mode = (InitializationModes)Game.TrainStart;
 			/*
 			 * Check if the plugin is a .NET plugin.
 			 * */
-//			Assembly assembly;
-//			try {
-//				assembly = Assembly.LoadFile(pluginFile);
-//			} catch {
-//				assembly = null;
-//			}
-//			if (assembly != null) {
-//				Type[] types;
-//				try {
-//					types = assembly.GetTypes();
-//				} catch (ReflectionTypeLoadException ex) {
-//					foreach (Exception e in ex.LoaderExceptions) {
-//						Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + pluginTitle + " raised an exception on loading: " + e.Message);
-//					}
-//					return false;
-//				}
-//				foreach (Type type in types) {
-//					if (type.IsPublic && (type.Attributes & TypeAttributes.Abstract) == 0) {
-//						object instance = assembly.CreateInstance(type.FullName);
-//						OpenBveApi.IPlugin api = instance as OpenBveApi.IPlugin;
-//						if (api != null) {
-//							CurrentPlugin = new NetPlugin(pluginFile, trainFolder, api);
-//							if (CurrentPlugin.Load(train, specs, mode)) {
-//								train.Specs.Safety.Mode = TrainManager.SafetySystem.Plugin;
-//								return true;
-//							} else {
-//								CurrentPlugin = null;
-//								return false;
-//							}
-//						}
-//					}
-//				}
-//				Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + pluginTitle + " does not export a public type that inherits from OpenBveApi.IPlugin and cannot be used with openBVE.");
-//				return false;
-//			}
+			#if false
+			Assembly assembly;
+			try {
+				assembly = Assembly.LoadFile(pluginFile);
+			} catch {
+				assembly = null;
+			}
+			if (assembly != null) {
+				Type[] types;
+				try {
+					types = assembly.GetTypes();
+				} catch (ReflectionTypeLoadException ex) {
+					foreach (Exception e in ex.LoaderExceptions) {
+						Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " raised an exception on loading: " + e.Message);
+					}
+					return false;
+				}
+				foreach (Type type in types) {
+					if (type.IsPublic && (type.Attributes & TypeAttributes.Abstract) == 0) {
+						object instance = assembly.CreateInstance(type.FullName);
+						IRuntime api = instance as IRuntime;
+						if (api != null) {
+							CurrentPlugin = new NetPlugin(pluginFile, trainFolder, api);
+							if (CurrentPlugin.Load(train, specs, mode)) {
+								train.Specs.Safety.Mode = TrainManager.SafetySystem.Plugin;
+								return true;
+							} else {
+								CurrentPlugin = null;
+								return false;
+							}
+						}
+					}
+				}
+				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " does not export a public type that inherits from OpenBveApi.IPlugin and cannot be used with openBVE.");
+				return false;
+			}
+			#endif
 			/*
 			 * Check if the plugin is a Win32 plugin.
 			 * */

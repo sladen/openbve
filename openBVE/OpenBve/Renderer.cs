@@ -393,40 +393,54 @@ namespace OpenBve {
 				Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
 			}
 			// static opaque
-			for (int i = 0; i < StaticOpaque.Length; i++) {
-				if (StaticOpaque[i] != null) {
-					if (StaticOpaque[i].Update | StaticOpaqueForceUpdate) {
-						StaticOpaque[i].Update = false;
-						if (StaticOpaque[i].OpenGlDisplayListAvailable) {
-							Gl.glDeleteLists(StaticOpaque[i].OpenGlDisplayList, 1);
-							StaticOpaque[i].OpenGlDisplayListAvailable = false;
-						}
-						if (StaticOpaque[i].List.FaceCount != 0) {
-							StaticOpaque[i].OpenGlDisplayList = Gl.glGenLists(1);
-							StaticOpaque[i].OpenGlDisplayListAvailable = true;
-							ResetOpenGlState();
-							Gl.glNewList(StaticOpaque[i].OpenGlDisplayList, Gl.GL_COMPILE);
+			if (Interface.CurrentOptions.DisableDisplayLists) {
+				ResetOpenGlState();
+				for (int i = 0; i < StaticOpaque.Length; i++) {
+					if (StaticOpaque[i] != null) {
+						if (StaticOpaque[i].List != null) {
 							for (int j = 0; j < StaticOpaque[i].List.FaceCount; j++) {
 								if (StaticOpaque[i].List.Faces[j] != null) {
 									RenderFace(ref StaticOpaque[i].List.Faces[j], cx, cy, cz);
 								}
 							}
-							Gl.glEndList();
-							//Game.AddMessage(i.ToString(), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 1.0);
 						}
-						StaticOpaque[i].WorldPosition = World.AbsoluteCameraPosition;
 					}
 				}
-			}
-			StaticOpaqueForceUpdate = false;
-			for (int i = 0; i < StaticOpaque.Length; i++) {
-				if (StaticOpaque[i] != null) {
-					if (StaticOpaque[i].OpenGlDisplayListAvailable) {
-						ResetOpenGlState();
-						Gl.glPushMatrix();
-						Gl.glTranslated(StaticOpaque[i].WorldPosition.X - World.AbsoluteCameraPosition.X, StaticOpaque[i].WorldPosition.Y - World.AbsoluteCameraPosition.Y, StaticOpaque[i].WorldPosition.Z - World.AbsoluteCameraPosition.Z);
-						Gl.glCallList(StaticOpaque[i].OpenGlDisplayList);
-						Gl.glPopMatrix();
+			} else {
+				for (int i = 0; i < StaticOpaque.Length; i++) {
+					if (StaticOpaque[i] != null) {
+						if (StaticOpaque[i].Update | StaticOpaqueForceUpdate) {
+							StaticOpaque[i].Update = false;
+							if (StaticOpaque[i].OpenGlDisplayListAvailable) {
+								Gl.glDeleteLists(StaticOpaque[i].OpenGlDisplayList, 1);
+								StaticOpaque[i].OpenGlDisplayListAvailable = false;
+							}
+							if (StaticOpaque[i].List.FaceCount != 0) {
+								StaticOpaque[i].OpenGlDisplayList = Gl.glGenLists(1);
+								StaticOpaque[i].OpenGlDisplayListAvailable = true;
+								ResetOpenGlState();
+								Gl.glNewList(StaticOpaque[i].OpenGlDisplayList, Gl.GL_COMPILE);
+								for (int j = 0; j < StaticOpaque[i].List.FaceCount; j++) {
+									if (StaticOpaque[i].List.Faces[j] != null) {
+										RenderFace(ref StaticOpaque[i].List.Faces[j], cx, cy, cz);
+									}
+								}
+								Gl.glEndList();
+							}
+							StaticOpaque[i].WorldPosition = World.AbsoluteCameraPosition;
+						}
+					}
+				}
+				StaticOpaqueForceUpdate = false;
+				for (int i = 0; i < StaticOpaque.Length; i++) {
+					if (StaticOpaque[i] != null) {
+						if (StaticOpaque[i].OpenGlDisplayListAvailable) {
+							ResetOpenGlState();
+							Gl.glPushMatrix();
+							Gl.glTranslated(StaticOpaque[i].WorldPosition.X - World.AbsoluteCameraPosition.X, StaticOpaque[i].WorldPosition.Y - World.AbsoluteCameraPosition.Y, StaticOpaque[i].WorldPosition.Z - World.AbsoluteCameraPosition.Z);
+							Gl.glCallList(StaticOpaque[i].OpenGlDisplayList);
+							Gl.glPopMatrix();
+						}
 					}
 				}
 			}
@@ -817,6 +831,7 @@ namespace OpenBve {
 
 		// render background
 		private static void RenderBackground(double dx, double dy, double dz, double TimeElapsed) {
+			const float scale = 0.5f;
 			// fog
 			const float fogdistance = 600.0f;
 			if (Game.CurrentFog.Start < Game.CurrentFog.End & Game.CurrentFog.Start < fogdistance) {
@@ -827,8 +842,8 @@ namespace OpenBve {
 					Gl.glFogi(Gl.GL_FOG_MODE, Gl.GL_LINEAR);
 				}
 				float ratio = (float)World.BackgroundImageDistance / fogdistance;
-				Gl.glFogf(Gl.GL_FOG_START, Game.CurrentFog.Start * ratio);
-				Gl.glFogf(Gl.GL_FOG_END, Game.CurrentFog.End * ratio);
+				Gl.glFogf(Gl.GL_FOG_START, Game.CurrentFog.Start * ratio * scale);
+				Gl.glFogf(Gl.GL_FOG_END, Game.CurrentFog.End * ratio * scale);
 				Gl.glFogfv(Gl.GL_FOG_COLOR, new float[] { cr, cg, cb, 1.0f });
 				if (!FogEnabled) {
 					Gl.glEnable(Gl.GL_FOG); FogEnabled = true;
@@ -843,19 +858,19 @@ namespace OpenBve {
 				if (World.TargetBackgroundCountdown < 0.0) {
 					World.CurrentBackground = World.TargetBackground;
 					World.TargetBackgroundCountdown = -1.0;
-					RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f);
+					RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f, scale);
 				} else {
-					RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f);
+					RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f, scale);
 					SetAlphaFunc(Gl.GL_GREATER, 0.0f); // ###
 					float Alpha = (float)(1.0 - World.TargetBackgroundCountdown / World.TargetBackgroundDefaultCountdown);
-					RenderBackground(World.TargetBackground, dx, dy, dz, Alpha);
+					RenderBackground(World.TargetBackground, dx, dy, dz, Alpha, scale);
 				}
 			} else {
 				// single
-				RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f);
+				RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f, scale);
 			}
 		}
-		private static void RenderBackground(World.Background Data, double dx, double dy, double dz, float Alpha) {
+		private static void RenderBackground(World.Background Data, double dx, double dy, double dz, float Alpha, float scale) {
 			if (Data.Texture >= 0) {
 				int OpenGlTextureIndex = TextureManager.UseTexture(Data.Texture, TextureManager.UseMode.LoadImmediately);
 				if (OpenGlTextureIndex > 0) {
@@ -899,7 +914,6 @@ namespace OpenBve {
 					 * the background is rendered before the scene with z-buffer writes disabled. Then,
 					 * the actual distance from the camera is irrelevant as long as it is inside the frustum.
 					 * */
-					const float scale = 0.5f;
 					for (int i = 0; i < n; i++) {
 						float x = (float)(World.BackgroundImageDistance * Math.Cos(angleValue));
 						float z = (float)(World.BackgroundImageDistance * Math.Sin(angleValue));

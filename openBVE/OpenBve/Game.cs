@@ -1009,13 +1009,15 @@ namespace OpenBve {
 					} else {
 						f = -1;
 					}
-					int c; if (f >= 0 & f < Sections[p].Aspects.Length) {
+					int c;
+					if (f >= 0 & f < Sections[p].Aspects.Length) {
 						c = f;
 					} else {
 						c = Sections[p].Aspects.Length - 1;
 					}
 					int b = Sections[p].Aspects[c].Number;
-					PluginManager.CurrentPlugin.UpdateSignal(b);
+					double z = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition - TrainManager.PlayerTrain.Cars[0].FrontAxlePosition + 0.5 * TrainManager.PlayerTrain.Cars[0].Length;
+					PluginManager.CurrentPlugin.UpdateSignal(b, Sections[p].TrackPosition - z);
 				}
 			}
 			Sections[SectionIndex].CurrentAspect = newaspect;

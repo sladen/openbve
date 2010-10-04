@@ -1524,6 +1524,7 @@ namespace OpenBve {
 			StaticObject Result = new StaticObject();
 			Result.StartingDistance = Prototype.StartingDistance;
 			Result.EndingDistance = Prototype.EndingDistance;
+			Result.Dynamic = Prototype.Dynamic;
 			// vertices
 			Result.Mesh.Vertices = new World.Vertex[Prototype.Mesh.Vertices.Length];
 			for (int j = 0; j < Prototype.Mesh.Vertices.Length; j++) {

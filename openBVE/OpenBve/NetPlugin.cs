@@ -1,16 +1,17 @@
 ﻿using System;
-using OpenBveApi;
+using OpenBveApi.Runtime;
 
 namespace OpenBve {
+	/// <summary>Represents a .NET aseembly plugin.</summary>
 	internal class NetPlugin : PluginManager.Plugin {
 		
 		// --- members ---
 		private string PluginFile;
 		private string TrainFolder;
-		private IPlugin Api;
+		private IRuntime Api;
 		
 		// --- constructors ---
-		internal NetPlugin(string pluginFile, string trainFolder, IPlugin api) {
+		internal NetPlugin(string pluginFile, string trainFolder, IRuntime api) {
 			base.PluginTitle = System.IO.Path.GetFileName(pluginFile);
 			base.PluginValid = true;
 			base.PluginMessage = null;
@@ -57,10 +58,10 @@ namespace OpenBve {
 				UpdateReverser(train);
 				return true;
 			} else if (properties.Reason != null) {
-				Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + base.PluginTitle + " failed to load for the following reason: " + properties.Reason);
+				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + base.PluginTitle + " failed to load for the following reason: " + properties.Reason);
 				return false;
 			} else {
-				Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + base.PluginTitle + " failed to load for an unspecified reason.");
+				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + base.PluginTitle + " failed to load for an unspecified reason.");
 				return false;
 			}
 		}
@@ -83,7 +84,12 @@ namespace OpenBve {
 		internal override void EndJump() {
 		}
 		internal override void Elapse(VehicleState state, Handles handles, out string message) {
-			this.Api.Elapse(state, handles, out message);
+			try {
+				this.Api.Elapse(state, handles, this.Panel, this.Sound, out message);
+			} catch (Exception ex) {
+				base.LastException = ex;
+				throw;
+			}
 		}
 		internal override void SetReverser(int reverser) {
 			try {
@@ -141,17 +147,17 @@ namespace OpenBve {
 				throw;
 			}
 		}
-		internal override void SetSignal(int aspect) {
+		internal override void SetSignal(SignalData signal) {
 			try {
-				this.Api.SetSignal(new SignalData(aspect));
+				this.Api.SetSignal(signal);
 			} catch (Exception ex) {
 				base.LastException = ex;
 				throw;
 			}
 		}
-		internal override void SetBeacon(int type, int aspect, double distance, int data) {
+		internal override void SetBeacon(BeaconData beacon) {
 			try {
-				this.Api.SetBeacon(new BeaconData(type, aspect, distance, data));
+				this.Api.SetBeacon(beacon);
 			} catch (Exception ex) {
 				base.LastException = ex;
 				throw;

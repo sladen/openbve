@@ -1790,8 +1790,8 @@ namespace OpenBve {
 
 		// update train doors
 		private static void UpdateTrainDoors(Train Train, double TimeElapsed) {
-			OpenBveApi.DoorStates oldState = OpenBveApi.DoorStates.None;
-			OpenBveApi.DoorStates newState = OpenBveApi.DoorStates.None;
+			OpenBveApi.Runtime.DoorStates oldState = OpenBveApi.Runtime.DoorStates.None;
+			OpenBveApi.Runtime.DoorStates newState = OpenBveApi.Runtime.DoorStates.None;
 			for (int i = 0; i < Train.Cars.Length; i++) {
 				bool ld = Train.Cars[i].Specs.AnticipatedLeftDoorsOpened;
 				bool rd = Train.Cars[i].Specs.AnticipatedRightDoorsOpened;
@@ -1802,9 +1802,9 @@ namespace OpenBve {
 						bool shouldBeOpen = Train.Cars[i].Specs.Doors[j].Direction == -1 ? ld : rd;
 						if (Train.Cars[i].Specs.Doors[j].State > 0.0) {
 							if (Train.Cars[i].Specs.Doors[j].Direction == -1) {
-								oldState |= OpenBveApi.DoorStates.Left;
+								oldState |= OpenBveApi.Runtime.DoorStates.Left;
 							} else {
-								oldState |= OpenBveApi.DoorStates.Right;
+								oldState |= OpenBveApi.Runtime.DoorStates.Right;
 							}
 						}
 						if (shouldBeOpen) {
@@ -1835,22 +1835,22 @@ namespace OpenBve {
 						}
 						if (Train.Cars[i].Specs.Doors[j].State > 0.0) {
 							if (Train.Cars[i].Specs.Doors[j].Direction == -1) {
-								newState |= OpenBveApi.DoorStates.Left;
+								newState |= OpenBveApi.Runtime.DoorStates.Left;
 							} else {
-								newState |= OpenBveApi.DoorStates.Right;
+								newState |= OpenBveApi.Runtime.DoorStates.Right;
 							}
 						}
 					}
 				}
 			}
 			// door changed
-			if (oldState != OpenBveApi.DoorStates.None & newState == OpenBveApi.DoorStates.None) {
+			if (oldState != OpenBveApi.Runtime.DoorStates.None & newState == OpenBveApi.Runtime.DoorStates.None) {
 				int snd = Train.Cars[Train.DriverCar].Sounds.PilotLampOn.SoundBufferIndex;
 				if (snd >= 0) {
 					World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.PilotLampOn.Position;
 					SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
 				}
-			} else if (oldState == OpenBveApi.DoorStates.None & newState != OpenBveApi.DoorStates.None) {
+			} else if (oldState == OpenBveApi.Runtime.DoorStates.None & newState != OpenBveApi.Runtime.DoorStates.None) {
 				int snd = Train.Cars[Train.DriverCar].Sounds.PilotLampOff.SoundBufferIndex;
 				if (snd >= 0) {
 					World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.PilotLampOff.Position;

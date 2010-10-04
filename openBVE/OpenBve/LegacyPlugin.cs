@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using OpenBveApi;
+using OpenBveApi.Runtime;
 
 namespace OpenBve {
+	/// <summary>Represents a legacy Win32 plugin.</summary>
 	internal class LegacyPlugin : PluginManager.Plugin {
 		
 		// --- win32 proxy calls ---
@@ -100,9 +101,9 @@ namespace OpenBve {
 		}
 		
 		// --- members ---
-		internal string PluginFile;
-		internal GCHandle PanelHandle;
-		internal GCHandle SoundHandle;
+		private string PluginFile;
+		private GCHandle PanelHandle;
+		private GCHandle SoundHandle;
 		
 		// --- constructors ---
 		internal LegacyPlugin(string pluginFile) {
@@ -215,10 +216,10 @@ namespace OpenBve {
 		internal override void EndJump() { }
 		internal override void Elapse(VehicleState state, Handles handles, out string message) {
 			try {
-				double time = state.TotalMilliseconds;
+				double time = state.TotalTime.Milliseconds;
 				Win32VehicleState win32State;
 				win32State.Location = state.Location;
-				win32State.Speed = (float)state.KilometersPerHour;
+				win32State.Speed = (float)state.Speed.KilometersPerHour;
 				win32State.Time = (int)Math.Floor(time - 2073600000.0 * Math.Floor(time / 2073600000.0));
 				win32State.BcPressure = (float)state.BcPressure;
 				win32State.MrPressure = (float)state.MrPressure;
@@ -307,22 +308,22 @@ namespace OpenBve {
 				}
 			}
 		}
-		internal override void SetSignal(int aspect) {
+		internal override void SetSignal(SignalData signal) {
 			try {
-				Win32SetSignal(aspect);
+				Win32SetSignal(signal.Aspect);
 			} catch (Exception ex) {
 				base.LastException = ex;
 				throw;
 			}
 		}
-		internal override void SetBeacon(int type, int aspect, double distance, int data) {
+		internal override void SetBeacon(BeaconData beacon) {
 			try {
-				Win32BeaconData beacon;
-				beacon.Type = type;
-				beacon.Signal = aspect;
-				beacon.Distance = (float)distance;
-				beacon.Optional = data;
-				Win32SetBeaconData(ref beacon.Type);
+				Win32BeaconData win32Beacon;
+				win32Beacon.Type = beacon.Type;
+				win32Beacon.Signal = beacon.Signal.Aspect;
+				win32Beacon.Distance = (float)beacon.Signal.Distance;
+				win32Beacon.Optional = beacon.Optional;
+				Win32SetBeaconData(ref win32Beacon.Type);
 			} catch (Exception ex) {
 				base.LastException = ex;
 				throw;

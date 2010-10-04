@@ -632,7 +632,7 @@ namespace OpenBve {
 															int t = Game.GetStopIndex(k, TrainManager.PlayerTrain.Cars.Length);
 															if (t >= 0) {
 																if (PluginManager.CurrentPlugin != null) {
-																	PluginManager.CurrentPlugin.BeginJump((OpenBveApi.InitializationModes)Game.TrainStart);
+																	PluginManager.CurrentPlugin.BeginJump((OpenBveApi.Runtime.InitializationModes)Game.TrainStart);
 																}
 																for (int h = 0; h < TrainManager.PlayerTrain.Cars.Length; h++) {
 																	TrainManager.PlayerTrain.Cars[h].Specs.CurrentSpeed = 0.0;
@@ -1391,7 +1391,7 @@ namespace OpenBve {
 														SoundManager.PlaySound(snd, TrainManager.PlayerTrain, TrainManager.PlayerTrain.DriverCar, pos, SoundManager.Importance.DontCare, false);
 													}
 													if (PluginManager.CurrentPlugin != null) {
-														PluginManager.CurrentPlugin.HornBlow(OpenBveApi.HornTypes.Primary);
+														PluginManager.CurrentPlugin.HornBlow(OpenBveApi.Runtime.HornTypes.Primary);
 													}
 												}
 											}
@@ -1416,7 +1416,7 @@ namespace OpenBve {
 														SoundManager.PlaySound(snd, TrainManager.PlayerTrain, TrainManager.PlayerTrain.DriverCar, pos, SoundManager.Importance.DontCare, false);
 													}
 													if (PluginManager.CurrentPlugin != null) {
-														PluginManager.CurrentPlugin.HornBlow(OpenBveApi.HornTypes.Secondary);
+														PluginManager.CurrentPlugin.HornBlow(OpenBveApi.Runtime.HornTypes.Secondary);
 													}
 												}
 											}
@@ -1441,7 +1441,7 @@ namespace OpenBve {
 														SoundManager.PlaySound(snd, TrainManager.PlayerTrain, TrainManager.PlayerTrain.DriverCar, pos, SoundManager.Importance.DontCare, false);
 													}
 													if (PluginManager.CurrentPlugin != null) {
-														PluginManager.CurrentPlugin.HornBlow(OpenBveApi.HornTypes.Music);
+														PluginManager.CurrentPlugin.HornBlow(OpenBveApi.Runtime.HornTypes.Music);
 													}
 												}
 											}
@@ -1481,42 +1481,42 @@ namespace OpenBve {
 										} break;
 									case Interface.Command.SecurityS:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.S);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.S);
 										} else {
 											TrainManager.AcknowledgeSafetySystem(TrainManager.PlayerTrain, TrainManager.AcknowledgementType.Alarm);
 										}
 										break;
 									case Interface.Command.SecurityA1:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.A1);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.A1);
 										} else {
 											TrainManager.AcknowledgeSafetySystem(TrainManager.PlayerTrain, TrainManager.AcknowledgementType.Chime);
 										}
 										break;
 									case Interface.Command.SecurityA2:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.A2);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.A2);
 										} else {
 											TrainManager.AcknowledgeSafetySystem(TrainManager.PlayerTrain, TrainManager.AcknowledgementType.Eb);
 										}
 										break;
 									case Interface.Command.SecurityB1:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.B1);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.B1);
 										} else {
 											TrainManager.AcknowledgeSafetySystem(TrainManager.PlayerTrain, TrainManager.AcknowledgementType.Reset);
 										}
 										break;
 									case Interface.Command.SecurityB2:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.B2);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.B2);
 										} else {
 											TrainManager.AcknowledgeSafetySystem(TrainManager.PlayerTrain, TrainManager.AcknowledgementType.Override);
 										}
 										break;
 									case Interface.Command.SecurityC1:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.C1);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.C1);
 										} else {
 											if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Atc & TrainManager.PlayerTrain.Specs.Safety.Ats.AtsAvailable) {
 												TrainManager.PlayerTrain.Specs.Safety.ModeChange = TrainManager.SafetySystem.AtsSn;
@@ -1525,7 +1525,7 @@ namespace OpenBve {
 										break;
 									case Interface.Command.SecurityC2:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.C2);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.C2);
 										} else {
 											if (TrainManager.PlayerTrain.Specs.Safety.Atc.Available & (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn | TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP)) {
 												TrainManager.PlayerTrain.Specs.Safety.ModeChange = TrainManager.SafetySystem.Atc;
@@ -1534,47 +1534,47 @@ namespace OpenBve {
 										break;
 									case Interface.Command.SecurityD:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.D);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.D);
 										}
 										break;
 									case Interface.Command.SecurityE:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.E);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.E);
 										}
 										break;
 									case Interface.Command.SecurityF:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.F);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.F);
 										}
 										break;
 									case Interface.Command.SecurityG:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.G);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.G);
 										}
 										break;
 									case Interface.Command.SecurityH:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.H);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.H);
 										}
 										break;
 									case Interface.Command.SecurityI:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.I);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.I);
 										}
 										break;
 									case Interface.Command.SecurityJ:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.J);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.J);
 										}
 										break;
 									case Interface.Command.SecurityK:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.K);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.K);
 										}
 										break;
 									case Interface.Command.SecurityL:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.VirtualKeys.L);
+											PluginManager.CurrentPlugin.KeyDown(OpenBveApi.Runtime.VirtualKeys.L);
 										}
 										break;
 									case Interface.Command.TimetableToggle:
@@ -1710,82 +1710,82 @@ namespace OpenBve {
 								switch (Interface.CurrentControls[i].Command) {
 									case Interface.Command.SecurityS:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.S);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.S);
 										}
 										break;
 									case Interface.Command.SecurityA1:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.A1);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.A1);
 										}
 										break;
 									case Interface.Command.SecurityA2:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.A2);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.A2);
 										}
 										break;
 									case Interface.Command.SecurityB1:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.B1);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.B1);
 										}
 										break;
 									case Interface.Command.SecurityB2:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.B2);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.B2);
 										}
 										break;
 									case Interface.Command.SecurityC1:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.C1);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.C1);
 										}
 										break;
 									case Interface.Command.SecurityC2:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.C2);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.C2);
 										}
 										break;
 									case Interface.Command.SecurityD:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.D);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.D);
 										}
 										break;
 									case Interface.Command.SecurityE:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.E);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.E);
 										}
 										break;
 									case Interface.Command.SecurityF:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.F);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.F);
 										}
 										break;
 									case Interface.Command.SecurityG:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.G);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.G);
 										}
 										break;
 									case Interface.Command.SecurityH:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.H);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.H);
 										}
 										break;
 									case Interface.Command.SecurityI:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.I);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.I);
 										}
 										break;
 									case Interface.Command.SecurityJ:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.J);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.J);
 										}
 										break;
 									case Interface.Command.SecurityK:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.K);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.K);
 										}
 										break;
 									case Interface.Command.SecurityL:
 										if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.VirtualKeys.L);
+											PluginManager.CurrentPlugin.KeyUp(OpenBveApi.Runtime.VirtualKeys.L);
 										}
 										break;
 								}

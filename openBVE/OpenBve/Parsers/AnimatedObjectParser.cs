@@ -181,7 +181,10 @@ namespace OpenBve {
 															StateFiles = new string[s.Length];
 															for (int k = 0; k < s.Length; k++) {
 																s[k] = s[k].Trim();
-																if (Interface.ContainsInvalidPathChars(s[k])) {
+																if (s[k].Length == 0) {
+																	Interface.AddMessage(Interface.MessageType.Error, false, "File" + k.ToString(Culture) + " is an empty string - did you mean something else? - in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+																	StateFiles[k] = null;
+																} else if (Interface.ContainsInvalidPathChars(s[k])) {
 																	Interface.AddMessage(Interface.MessageType.Error, false, "File" + k.ToString(Culture) + " contains illegal characters in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 																	StateFiles[k] = null;
 																} else {
