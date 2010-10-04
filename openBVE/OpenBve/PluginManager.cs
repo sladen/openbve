@@ -288,7 +288,6 @@ namespace OpenBve {
 				if (aspect != this.LastAspect) {
 					this.LastAspect = aspect;
 					SetSignal(new SignalData(aspect, distance));
-					Game.AddMessage(distance.ToString(), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 1.0);
 				}
 			}
 			/// <summary>Called when the aspect in the current section changes.</summary>

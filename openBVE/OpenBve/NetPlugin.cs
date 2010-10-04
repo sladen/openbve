@@ -2,7 +2,7 @@
 using OpenBveApi.Runtime;
 
 namespace OpenBve {
-	/// <summary>Represents a .NET aseembly plugin.</summary>
+	/// <summary>Represents a .NET assembly plugin.</summary>
 	internal class NetPlugin : PluginManager.Plugin {
 		
 		// --- members ---
@@ -15,10 +15,10 @@ namespace OpenBve {
 			base.PluginTitle = System.IO.Path.GetFileName(pluginFile);
 			base.PluginValid = true;
 			base.PluginMessage = null;
-			base.Panel = new int[] { };
-			base.Sound = new int[] { };
+			base.Panel = null;
+			base.Sound = null;
 			base.LastTime = 0.0;
-			base.LastSound = new int[] { };
+			base.LastSound = null;
 			base.LastReverser = -2;
 			base.LastPowerNotch = -1;
 			base.LastBrakeNotch = -1;
@@ -42,9 +42,13 @@ namespace OpenBve {
 			if (success) {
 				base.Panel = properties.Panel;
 				base.Sound = properties.Sound;
-				base.LastSound = new int[base.Sound.Length];
-				for (int i = 0; i < base.Sound.Length; i++) {
-					base.LastSound[i] = base.Sound[i];
+				if (base.Sound != null) {
+					base.LastSound = new int[base.Sound.Length];
+					for (int i = 0; i < base.Sound.Length; i++) {
+						base.LastSound[i] = base.Sound[i];
+					}
+				} else {
+					base.LastSound = null;
 				}
 				try {
 					Api.SetVehicleSpecs(specs);
