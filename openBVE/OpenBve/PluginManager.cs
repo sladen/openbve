@@ -408,7 +408,6 @@ namespace OpenBve {
 			/*
 			 * Check if the plugin is a .NET plugin.
 			 * */
-			#if false
 			Assembly assembly;
 			try {
 				assembly = Assembly.LoadFile(pluginFile);
@@ -444,7 +443,6 @@ namespace OpenBve {
 				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " does not export a public type that inherits from OpenBveApi.IPlugin and cannot be used with openBVE.");
 				return false;
 			}
-			#endif
 			/*
 			 * Check if the plugin is a Win32 plugin.
 			 * */
