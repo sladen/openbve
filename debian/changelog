@@ -1,8 +1,8 @@
-openbve (1.2.7.3-0ubuntu2) UNRELEASED; urgency=low
+openbve (1.2.7.3-0ubuntu2) maverick; urgency=low
 
   * debian/control: fix minor spelling mistakes (LP: #628758)
 
- -- Paul Sladen <ubuntu@paul.sladen.org>  Sat,  9 Oct 2010 02:25:00 +0100
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Sat,  9 Oct 2010 02:29:00 +0100
 
 openbve (1.2.7.3-0ubuntu1) maverick; urgency=low
 
