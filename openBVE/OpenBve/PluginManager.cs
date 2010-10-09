@@ -407,43 +407,43 @@ namespace OpenBve {
 			/*
 			 * Check if the plugin is a .NET plugin.
 			 * */
-			#if false
-			Assembly assembly;
-			try {
-				assembly = Assembly.LoadFile(pluginFile);
-			} catch {
-				assembly = null;
-			}
-			if (assembly != null) {
-				Type[] types;
+			if (Program.IsDevelopmentVersion) {
+				Assembly assembly;
 				try {
-					types = assembly.GetTypes();
-				} catch (ReflectionTypeLoadException ex) {
-					foreach (Exception e in ex.LoaderExceptions) {
-						Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " raised an exception on loading: " + e.Message);
-					}
-					return false;
+					assembly = Assembly.LoadFile(pluginFile);
+				} catch {
+					assembly = null;
 				}
-				foreach (Type type in types) {
-					if (type.IsPublic && (type.Attributes & TypeAttributes.Abstract) == 0) {
-						object instance = assembly.CreateInstance(type.FullName);
-						IRuntime api = instance as IRuntime;
-						if (api != null) {
-							CurrentPlugin = new NetPlugin(pluginFile, trainFolder, api);
-							if (CurrentPlugin.Load(train, specs, mode)) {
-								train.Specs.Safety.Mode = TrainManager.SafetySystem.Plugin;
-								return true;
-							} else {
-								CurrentPlugin = null;
-								return false;
+				if (assembly != null) {
+					Type[] types;
+					try {
+						types = assembly.GetTypes();
+					} catch (ReflectionTypeLoadException ex) {
+						foreach (Exception e in ex.LoaderExceptions) {
+							Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " raised an exception on loading: " + e.Message);
+						}
+						return false;
+					}
+					foreach (Type type in types) {
+						if (type.IsPublic && (type.Attributes & TypeAttributes.Abstract) == 0) {
+							object instance = assembly.CreateInstance(type.FullName);
+							IRuntime api = instance as IRuntime;
+							if (api != null) {
+								CurrentPlugin = new NetPlugin(pluginFile, trainFolder, api);
+								if (CurrentPlugin.Load(train, specs, mode)) {
+									train.Specs.Safety.Mode = TrainManager.SafetySystem.Plugin;
+									return true;
+								} else {
+									CurrentPlugin = null;
+									return false;
+								}
 							}
 						}
 					}
+					Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " does not export a public type that inherits from OpenBveApi.IPlugin and cannot be used with openBVE.");
+					return false;
 				}
-				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " does not export a public type that inherits from OpenBveApi.IPlugin and cannot be used with openBVE.");
-				return false;
 			}
-			#endif
 			/*
 			 * Check if the plugin is a Win32 plugin.
 			 * */
