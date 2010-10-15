@@ -1,616 +1,504 @@
 ﻿using System;
-using System.Runtime.InteropServices;
+using System.Reflection;
+using OpenBveApi.Runtime;
 
 namespace OpenBve {
-	internal static class PluginManager {
+	internal static partial class PluginManager {
 		
-		// enumerations
-		internal enum PluginLoadState { Successful, CouldNotLoadDll, InvalidPluginVersion }
-		
-		// members
-		internal static string PluginName = null;
-		internal static bool PluginValid = false;
-		internal static bool PluginError = false;
-		
-		// constants
-		private const int ATS_VERSION = 131072;
-		internal const int ATS_KEY_S = 0;
-		internal const int ATS_KEY_A1 = 1;
-		internal const int ATS_KEY_A2 = 2;
-		internal const int ATS_KEY_B1 = 3;
-		internal const int ATS_KEY_B2 = 4;
-		internal const int ATS_KEY_C1 = 5;
-		internal const int ATS_KEY_C2 = 6;
-		internal const int ATS_KEY_D = 7;
-		internal const int ATS_KEY_E = 8;
-		internal const int ATS_KEY_F = 9;
-		internal const int ATS_KEY_G = 10;
-		internal const int ATS_KEY_H = 11;
-		internal const int ATS_KEY_I = 12;
-		internal const int ATS_KEY_J = 13;
-		internal const int ATS_KEY_K = 14;
-		internal const int ATS_KEY_L = 15;
-		
-		// structures and constants
-		internal static int[] PluginPanel = new int[256];
-		private static int[] PluginSound = new int[256];
-		private static int[] PluginSoundCache = new int[256];
-		private static bool[] AtsKeyPressed = new bool[16];
-		private static GCHandle PanelHandle;
-		private static GCHandle SoundHandle;
-		[StructLayout(LayoutKind.Sequential, Size = 20)]
-		private struct ATS_VEHICLESPEC {
-			internal int BrakeNotches;
-			internal int PowerNotches;
-			internal int AtsNotch;
-			internal int B67Notch;
-			internal int Cars;
-		}
-		[StructLayout(LayoutKind.Sequential, Size = 40)]
-		private struct ATS_VEHICLESTATE {
-			internal double Location;
-			internal float Speed;
-			internal int Time;
-			internal float BcPressure;
-			internal float MrPressure;
-			internal float ErPressure;
-			internal float BpPressure;
-			internal float SapPressure;
-			internal float Current;
-		}
-		[StructLayout(LayoutKind.Sequential, Size = 16)]
-		private struct ATS_BEACONDATA {
-			internal int Type;
-			internal int Signal;
-			internal float Distance;
-			internal int Optional;
-		}
-		[StructLayout(LayoutKind.Sequential, Size = 16)]
-		private struct ATS_HANDLES {
-			internal int Brake;
-			internal int Power;
-			internal int Reverser;
-			internal int ConstantSpeed;
-		}
-		private const int ATS_SOUND_STOP = -10000;
-		private const int ATS_SOUND_PLAYLOOPING = 0;
-		private const int ATS_SOUND_PLAY = 1;
-		private const int ATS_SOUND_CONTINUE = 2;
-		private const int ATS_HORN_PRIMARY = 0;
-		private const int ATS_HORN_SECONDARY = 1;
-		private const int ATS_HORN_MUSIC = 2;
-		private const int ATS_CONSTANTSPEED_CONTINUE = 0;
-		private const int ATS_CONSTANTSPEED_ENABLE = 1;
-		private const int ATS_CONSTANTSPEED_DISABLE = 2;
-		
-		// proxy functions
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static int LoadDLL([MarshalAs(UnmanagedType.LPWStr)]string UnicodeFileName, [MarshalAs(UnmanagedType.LPStr)]string AnsiFileName);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static int UnloadDLL();
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void Load();
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void Dispose();
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static int GetPluginVersion();
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void SetVehicleSpec(ref int spec);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void Initialize(int brake);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void Elapse(ref int handles, ref double state, ref int panel, ref int sound);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void SetPower(int notch);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void SetBrake(int notch);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void SetReverser(int pos);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void KeyDown(int atsKeyCode);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void KeyUp(int atsKeyCode);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void HornBlow(int hornType);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void DoorOpen();
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void DoorClose();
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void SetSignal(int signal);
-		[DllImport("AtsPluginProxy.dll", ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private extern static void SetBeaconData(ref int beacon);
-		
-		// cached data
-		private static bool PluginLoaded = false;
-		private static int LastSignalAspect = -1;
-		private static int LastReverserPosition = -2;
-		private static int LastPowerNotch = -1;
-		private static int LastBrakeNotch = -1;
-		
-		// load plugin
-		private static PluginLoadState LoadPlugin(string FileName, TrainManager.Train Train) {
-			// unload previous plugin
-			UnloadPlugin();
-			// pin arrays
-			if (PanelHandle.IsAllocated) PanelHandle.Free();
-			if (SoundHandle.IsAllocated) SoundHandle.Free();
-			PanelHandle = GCHandle.Alloc(PluginPanel, GCHandleType.Pinned);
-			SoundHandle = GCHandle.Alloc(PluginSound, GCHandleType.Pinned);
-			// initialize arrays
-			for (int i = 0; i < PluginPanel.Length; i++) {
-				PluginPanel[i] = 0;
-			}
-			for (int i = 0; i < PluginSound.Length; i++) {
-				PluginSound[i] = ATS_SOUND_PLAYLOOPING;
-				PluginSoundCache[i] = ATS_SOUND_PLAYLOOPING;
-			}
-			// initialize proxy
-			PluginName = System.IO.Path.GetFileName(FileName);
-			int a = LoadDLL(FileName, FileName);
-			if (a == 0) {
-				UnloadPlugin();
-				return PluginLoadState.CouldNotLoadDll;
-			}
-			// load and check version
-			{
-				PluginError = true;
-				Load();
-				PluginError = false;
-			}
-			PluginLoaded = true;
-			int ver;
-			{
-				PluginError = true;
-				ver = GetPluginVersion();
-				PluginError = false;
-			}
-			if (ver != ATS_VERSION) {
-				UnloadPlugin();
-				return PluginLoadState.InvalidPluginVersion;
-			}
-			// set vehicle spec
-			ATS_VEHICLESPEC Spec = new ATS_VEHICLESPEC();
-			if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
-				Spec.BrakeNotches = 2;
-				Spec.PowerNotches = Train.Specs.MaximumPowerNotch;
-				Spec.AtsNotch = 1;
-				Spec.B67Notch = 1;
-			} else {
-				Spec.BrakeNotches = Train.Specs.MaximumBrakeNotch + (Train.Specs.HasHoldBrake ? 1 : 0);
-				Spec.PowerNotches = Train.Specs.MaximumPowerNotch;
-				Spec.AtsNotch = Train.Specs.HasHoldBrake ? 2 : 1;
-				Spec.B67Notch = (int)Math.Round(0.7 * Spec.BrakeNotches);
-				if (Spec.B67Notch < 1) {
-					Spec.B67Notch = 1;
-				}
-			}
-			Spec.Cars = Train.Cars.Length;
-			{
-				PluginError = true;
-				SetVehicleSpec(ref Spec.BrakeNotches);
-				PluginError = false;
-			}
-			// initialize
-			InitializePlugin(Train);
-			// handles
-			UpdatePower(Train);
-			UpdateBrake(Train);
-			UpdateReverser(Train);
-			// finalize
-			Train.Specs.Safety.Mode = TrainManager.SafetySystem.Plugin;
-			return PluginLoadState.Successful;
-		}
-		
-		// initialize plugin
-		internal static void InitializePlugin(TrainManager.Train Train) {
-			if (!PluginLoaded) return;
-			PluginError = true;
-			Initialize((int)Game.TrainStart);
-			PluginError = false;
-		}
-		
-		// unload plugin
-		internal static void UnloadPlugin() {
-			if (!PluginLoaded) return;
-			{
-				PluginError = true;
-				Dispose();
-				PluginError = false;
-			}
-			UnloadDLL();
-			if (PanelHandle.IsAllocated) PanelHandle.Free();
-			if (SoundHandle.IsAllocated) SoundHandle.Free();
-			PluginLoaded = false;
-			PluginName = null;
-		}
-		
-		// update plugin
-		internal static void UpdatePlugin(TrainManager.Train Train) {
-			if (!PluginLoaded) return;
-			// prepare vehicle state
-			ATS_VEHICLESTATE State = new ATS_VEHICLESTATE();
-			State.Location = Train.Cars[0].FrontAxle.Follower.TrackPosition - Train.Cars[0].FrontAxlePosition + 0.5 * Train.Cars[0].Length;
-			State.Speed = (float)(3.6 * Train.Cars[0].Specs.CurrentPerceivedSpeed);
-			double t = 1000.0 * Game.SecondsSinceMidnight;
-			State.Time = (int)Math.Floor(t - 2073600000.0 * Math.Floor(t / 2073600000.0));
-			State.BcPressure = (float)Train.Cars[Train.DriverCar].Specs.AirBrake.BrakeCylinderCurrentPressure;
-			State.MrPressure = (float)Train.Cars[Train.DriverCar].Specs.AirBrake.MainReservoirCurrentPressure;
-			State.ErPressure = (float)Train.Cars[Train.DriverCar].Specs.AirBrake.EqualizingReservoirCurrentPressure;
-			State.BpPressure = (float)Train.Cars[Train.DriverCar].Specs.AirBrake.BrakePipeCurrentPressure;
-			State.SapPressure = (float)Train.Cars[Train.DriverCar].Specs.AirBrake.StraightAirPipeCurrentPressure;
-			State.Current = 0.0f;
-			// elapse
-			ATS_HANDLES Handles = new ATS_HANDLES();
-			if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
-				Handles.Brake = Train.Specs.CurrentEmergencyBrake.Driver ? 3 : Train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Service ? 2 : Train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Lap ? 1 : 0;
-			} else {
-				if (Train.Specs.HasHoldBrake) {
-					Handles.Brake = Train.Specs.CurrentEmergencyBrake.Driver ? Train.Specs.MaximumBrakeNotch + 2 : Train.Specs.CurrentBrakeNotch.Driver > 0 ? Train.Specs.CurrentBrakeNotch.Driver + 1 : Train.Specs.CurrentHoldBrake.Driver ? 1 : 0;
+		/// <summary>Represents an abstract plugin.</summary>
+		internal abstract class Plugin {
+			// members
+			/// <summary>The file title of the plugin, including the file extension.</summary>
+			internal string PluginTitle;
+			/// <summary>Whether the plugin returned valid information in the last Elapse call.</summary>
+			internal bool PluginValid;
+			/// <summary>The debug message the plugin returned in the last Elapse call.</summary>
+			internal string PluginMessage;
+			/// <summary>The array of panel variables.</summary>
+			internal int[] Panel;
+			/// <summary>The array of sound instructions.</summary>
+			internal int[] Sound;
+			/// <summary>The last in-game time reported to the plugin.</summary>
+			internal double LastTime;
+			/// <summary>The last sound instructions reported by the plugin.</summary>
+			internal int[] LastSound;
+			/// <summary>The last reverser reported to the plugin.</summary>
+			internal int LastReverser;
+			/// <summary>The last power notch reported to the plugin.</summary>
+			internal int LastPowerNotch;
+			/// <summary>The last brake notch reported to the plugin.</summary>
+			internal int LastBrakeNotch;
+			/// <summary>The last aspect reported to the plugin.</summary>
+			internal int LastAspect;
+			/// <summary>The last exception the plugin raised.</summary>
+			internal Exception LastException;
+			// functions
+			/// <summary>Called to load and initialize the plugin.</summary>
+			/// <param name="train">The train.</param>
+			/// <param name="specs">The train specifications.</param>
+			/// <param name="mode">The initialization mode of the train.</param>
+			/// <returns>Whether loading the plugin was successful.</returns>
+			internal abstract bool Load(TrainManager.Train train, VehicleSpecs specs, InitializationModes mode);
+			/// <summary>Called to unload the plugin.</summary>
+			internal abstract void Unload();
+			/// <summary>Called before the train jumps to a different location.</summary>
+			/// <param name="mode">The initialization mode of the train.</param>
+			internal abstract void BeginJump(InitializationModes mode);
+			/// <summary>Called when the train has finished jumping to a different location.</summary>
+			internal abstract void EndJump();
+			/// <summary>Called every frame to update the plugin.</summary>
+			/// <param name="train">The train.</param>
+			internal void UpdatePlugin(TrainManager.Train train) {
+				/*
+				 * Prepare the vehicle state.
+				 * */
+				double location = train.Cars[0].FrontAxle.Follower.TrackPosition - train.Cars[0].FrontAxlePosition + 0.5 * train.Cars[0].Length;
+				double speed = train.Cars[train.DriverCar].Specs.CurrentPerceivedSpeed;
+				double totalTime = Game.SecondsSinceMidnight;
+				double elapsedTime = Game.SecondsSinceMidnight - LastTime;
+				double bcPressure = train.Cars[train.DriverCar].Specs.AirBrake.BrakeCylinderCurrentPressure;
+				double mrPressure = train.Cars[train.DriverCar].Specs.AirBrake.MainReservoirCurrentPressure;
+				double erPressure = train.Cars[train.DriverCar].Specs.AirBrake.EqualizingReservoirCurrentPressure;
+				double bpPressure = train.Cars[train.DriverCar].Specs.AirBrake.BrakePipeCurrentPressure;
+				double sapPressure = train.Cars[train.DriverCar].Specs.AirBrake.StraightAirPipeCurrentPressure;
+				VehicleState state = new VehicleState(location, new Speed(speed), new Time(totalTime), new Time(elapsedTime), bcPressure, mrPressure, erPressure, bpPressure, sapPressure);
+				LastTime = Game.SecondsSinceMidnight;
+				/*
+				 * Prepare the handles.
+				 * */
+				int reverser = train.Specs.CurrentReverser.Driver;
+				int powerNotch = train.Specs.CurrentPowerNotch.Driver;
+				int brakeNotch;
+				if (train.Cars[train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
+					brakeNotch = train.Specs.CurrentEmergencyBrake.Driver ? 3 : train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Service ? 2 : train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Lap ? 1 : 0;
 				} else {
-					Handles.Brake = Train.Specs.CurrentEmergencyBrake.Driver ? Train.Specs.MaximumBrakeNotch + 1 : Train.Specs.CurrentBrakeNotch.Driver;
-				}
-			}
-			Handles.Power = Train.Specs.CurrentPowerNotch.Driver;
-			Handles.Reverser = Train.Specs.CurrentReverser.Driver;
-			Handles.ConstantSpeed = ATS_CONSTANTSPEED_CONTINUE;
-			{
-				PluginError = true;
-				Elapse(ref Handles.Brake, ref State.Location, ref PluginPanel[0], ref PluginSound[0]);
-				PluginError = false;
-			}
-			if (Train.Specs.SingleHandle & Handles.Brake != 0) Handles.Power = 0;
-			PluginValid = true;
-			// process reverser
-			if (Handles.Reverser >= -1 & Handles.Reverser <= 1) {
-				Train.Specs.CurrentReverser.Actual = Handles.Reverser;
-			} else {
-				Train.Specs.CurrentReverser.Actual = Train.Specs.CurrentReverser.Driver;
-				PluginValid = false;
-			}
-			// process power
-			if (Handles.Power >= 0 & Handles.Power <= Train.Specs.MaximumPowerNotch) {
-				Train.Specs.CurrentPowerNotch.Safety = Handles.Power;
-			} else {
-				Train.Specs.CurrentPowerNotch.Safety = Train.Specs.CurrentPowerNotch.Driver;
-				PluginValid = false;
-			}
-			if (Handles.Brake != 0) Train.Specs.CurrentPowerNotch.Safety = 0;
-			// process brake
-			Train.Specs.CurrentEmergencyBrake.Safety = false;
-			Train.Specs.CurrentHoldBrake.Actual = false;
-			if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
-				if (Handles.Brake == 0) {
-					Train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Release;
-				} else if (Handles.Brake == 1) {
-					Train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Lap;
-				} else if (Handles.Brake == 2) {
-					Train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Service;
-				} else if (Handles.Brake == 3) {
-					Train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Service;
-					Train.Specs.CurrentEmergencyBrake.Safety = true;
-				} else {
-					PluginValid = false;
-				}
-			} else {
-				// notched brake
-				if (Train.Specs.HasHoldBrake) {
-					// with hold brake
-					if (Handles.Brake == Train.Specs.MaximumBrakeNotch + 2) {
-						Train.Specs.CurrentEmergencyBrake.Safety = true;
-						Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.MaximumBrakeNotch;
-					} else if (Handles.Brake >= 2 & Handles.Brake <= Train.Specs.MaximumBrakeNotch + 1) {
-						Train.Specs.CurrentBrakeNotch.Safety = Handles.Brake - 1;
-					} else if (Handles.Brake == 1) {
-						Train.Specs.CurrentBrakeNotch.Safety = 0;
-						Train.Specs.CurrentHoldBrake.Actual = true;
-					} else if (Handles.Brake == 0) {
-						Train.Specs.CurrentBrakeNotch.Safety = 0;
+					if (train.Specs.HasHoldBrake) {
+						brakeNotch = train.Specs.CurrentEmergencyBrake.Driver ? train.Specs.MaximumBrakeNotch + 2 : train.Specs.CurrentBrakeNotch.Driver > 0 ? train.Specs.CurrentBrakeNotch.Driver + 1 : train.Specs.CurrentHoldBrake.Driver ? 1 : 0;
 					} else {
-						Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.CurrentBrakeNotch.Driver;
-						PluginValid = false;
-					}
-				} else {
-					// without hold brake
-					if (Handles.Brake == Train.Specs.MaximumBrakeNotch + 1) {
-						Train.Specs.CurrentEmergencyBrake.Safety = true;
-						Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.MaximumBrakeNotch;
-					} else if (Handles.Brake >= 0 & Handles.Brake <= Train.Specs.MaximumBrakeNotch | Train.Specs.CurrentBrakeNotch.DelayedChanges.Length == 0) {
-						Train.Specs.CurrentBrakeNotch.Safety = Handles.Brake;
-					} else {
-						Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.CurrentBrakeNotch.Driver;
-						PluginValid = false;
+						brakeNotch = train.Specs.CurrentEmergencyBrake.Driver ? train.Specs.MaximumBrakeNotch + 1 : train.Specs.CurrentBrakeNotch.Driver;
 					}
 				}
-			}
-			// process const speed
-			if (Handles.ConstantSpeed == ATS_CONSTANTSPEED_ENABLE) {
-				Train.Specs.CurrentConstSpeed = Train.Specs.HasConstSpeed;
-			} else if (Handles.ConstantSpeed == ATS_CONSTANTSPEED_DISABLE) {
-				Train.Specs.CurrentConstSpeed = false;
-			} else if (Handles.ConstantSpeed != ATS_CONSTANTSPEED_CONTINUE) {
-				PluginValid = false;
-			}
-			// process sound
-			for (int i = 0; i < PluginSound.Length; i++) {
-				if (PluginSound[i] != PluginSoundCache[i]) {
-					if (PluginSound[i] == ATS_SOUND_STOP) {
-						if (i < Train.Cars[Train.DriverCar].Sounds.Plugin.Length) {
-							SoundManager.StopSound(ref Train.Cars[Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex);
+				ConstSpeedInstructions constSpeed = ConstSpeedInstructions.Continue;
+				Handles handles = new Handles(reverser, powerNotch, brakeNotch, constSpeed);
+				/*
+				 * Update the plugin.
+				 * */
+				Elapse(state, handles, out this.PluginMessage);
+				this.PluginValid = true;
+				/*
+				 * Process the handles.
+				 */
+				if (train.Specs.SingleHandle & handles.BrakeNotch != 0) {
+					handles.PowerNotch = 0;
+				}
+				/*
+				 * Process the reverser.
+				 */
+				if (handles.Reverser >= -1 & handles.Reverser <= 1) {
+					train.Specs.CurrentReverser.Actual = handles.Reverser;
+				} else {
+					train.Specs.CurrentReverser.Actual = train.Specs.CurrentReverser.Driver;
+					this.PluginValid = false;
+				}
+				/*
+				 * Process the power.
+				 * */
+				if (handles.PowerNotch >= 0 & handles.PowerNotch <= train.Specs.MaximumPowerNotch) {
+					train.Specs.CurrentPowerNotch.Safety = handles.PowerNotch;
+				} else {
+					train.Specs.CurrentPowerNotch.Safety = train.Specs.CurrentPowerNotch.Driver;
+					this.PluginValid = false;
+				}
+				if (handles.BrakeNotch != 0) {
+					train.Specs.CurrentPowerNotch.Safety = 0;
+				}
+				/*
+				 * Process the brakes.
+				 * */
+				train.Specs.CurrentEmergencyBrake.Safety = false;
+				train.Specs.CurrentHoldBrake.Actual = false;
+				if (train.Cars[train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
+					if (handles.BrakeNotch == 0) {
+						train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Release;
+					} else if (handles.BrakeNotch == 1) {
+						train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Lap;
+					} else if (handles.BrakeNotch == 2) {
+						train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Service;
+					} else if (handles.BrakeNotch == 3) {
+						train.Specs.AirBrake.Handle.Safety = TrainManager.AirBrakeHandleState.Service;
+						train.Specs.CurrentEmergencyBrake.Safety = true;
+					} else {
+						this.PluginValid = false;
+					}
+				} else {
+					if (train.Specs.HasHoldBrake) {
+						if (handles.BrakeNotch == train.Specs.MaximumBrakeNotch + 2) {
+							train.Specs.CurrentEmergencyBrake.Safety = true;
+							train.Specs.CurrentBrakeNotch.Safety = train.Specs.MaximumBrakeNotch;
+						} else if (handles.BrakeNotch >= 2 & handles.BrakeNotch <= train.Specs.MaximumBrakeNotch + 1) {
+							train.Specs.CurrentBrakeNotch.Safety = handles.BrakeNotch - 1;
+						} else if (handles.BrakeNotch == 1) {
+							train.Specs.CurrentBrakeNotch.Safety = 0;
+							train.Specs.CurrentHoldBrake.Actual = true;
+						} else if (handles.BrakeNotch == 0) {
+							train.Specs.CurrentBrakeNotch.Safety = 0;
+						} else {
+							train.Specs.CurrentBrakeNotch.Safety = train.Specs.CurrentBrakeNotch.Driver;
+							this.PluginValid = false;
 						}
-					} else if (PluginSound[i] > ATS_SOUND_STOP & PluginSound[i] <= ATS_SOUND_PLAYLOOPING) {
-						if (i < Train.Cars[Train.DriverCar].Sounds.Plugin.Length) {
-							int snd = Train.Cars[Train.DriverCar].Sounds.Plugin[i].SoundBufferIndex;
-							if (snd >= 0) {
-								double gain = (double)(PluginSound[i] - ATS_SOUND_STOP) / (double)(ATS_SOUND_PLAYLOOPING - ATS_SOUND_STOP);
-								if (SoundManager.IsPlaying(Train.Cars[Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex)) {
-									SoundManager.ModulateSound(Train.Cars[Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex, 1.0, gain);
-								} else {
-									SoundManager.PlaySound(ref Train.Cars[Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex, snd, Train, Train.DriverCar, Train.Cars[Train.DriverCar].Sounds.Plugin[i].Position, SoundManager.Importance.AlwaysPlay, true, 1.0, gain);
+					} else {
+						if (handles.BrakeNotch == train.Specs.MaximumBrakeNotch + 1) {
+							train.Specs.CurrentEmergencyBrake.Safety = true;
+							train.Specs.CurrentBrakeNotch.Safety = train.Specs.MaximumBrakeNotch;
+						} else if (handles.BrakeNotch >= 0 & handles.BrakeNotch <= train.Specs.MaximumBrakeNotch | train.Specs.CurrentBrakeNotch.DelayedChanges.Length == 0) {
+							train.Specs.CurrentBrakeNotch.Safety = handles.BrakeNotch;
+						} else {
+							train.Specs.CurrentBrakeNotch.Safety = train.Specs.CurrentBrakeNotch.Driver;
+							this.PluginValid = false;
+						}
+					}
+				}
+				/*
+				 * Process the const speed system.
+				 * */
+				if (handles.ConstSpeed == ConstSpeedInstructions.Enable) {
+					train.Specs.CurrentConstSpeed = train.Specs.HasConstSpeed;
+				} else if (handles.ConstSpeed == ConstSpeedInstructions.Disable) {
+					train.Specs.CurrentConstSpeed = false;
+				} else if (handles.ConstSpeed != ConstSpeedInstructions.Continue) {
+					this.PluginValid = false;
+				}
+				/*
+				 * Process sound instructions.
+				 * */
+				for (int i = 0; i < this.Sound.Length; i++) {
+					if (this.Sound[i] != this.LastSound[i]) {
+						if (this.Sound[i] == SoundInstructions.Stop) {
+							if (i < train.Cars[train.DriverCar].Sounds.Plugin.Length) {
+								SoundManager.StopSound(ref train.Cars[train.DriverCar].Sounds.Plugin[i].SoundSourceIndex);
+							}
+						} else if (this.Sound[i] > SoundInstructions.Stop & this.Sound[i] <= SoundInstructions.PlayLooping) {
+							if (i < train.Cars[train.DriverCar].Sounds.Plugin.Length) {
+								int snd = train.Cars[train.DriverCar].Sounds.Plugin[i].SoundBufferIndex;
+								if (snd >= 0) {
+									double gain = (double)(this.Sound[i] - SoundInstructions.Stop) / (double)(SoundInstructions.PlayLooping - SoundInstructions.Stop);
+									if (SoundManager.IsPlaying(train.Cars[train.DriverCar].Sounds.Plugin[i].SoundSourceIndex)) {
+										SoundManager.ModulateSound(train.Cars[train.DriverCar].Sounds.Plugin[i].SoundSourceIndex, 1.0, gain);
+									} else {
+										SoundManager.PlaySound(ref train.Cars[train.DriverCar].Sounds.Plugin[i].SoundSourceIndex, snd, train, train.DriverCar, train.Cars[train.DriverCar].Sounds.Plugin[i].Position, SoundManager.Importance.AlwaysPlay, true, 1.0, gain);
+									}
+								}
+							}
+						} else if (this.Sound[i] == SoundInstructions.PlayOnce) {
+							if (i < train.Cars[train.DriverCar].Sounds.Plugin.Length) {
+								int snd = train.Cars[train.DriverCar].Sounds.Plugin[i].SoundBufferIndex;
+								if (snd >= 0) {
+									SoundManager.PlaySound(ref train.Cars[train.DriverCar].Sounds.Plugin[i].SoundSourceIndex, snd, train, train.DriverCar, train.Cars[train.DriverCar].Sounds.Plugin[i].Position, SoundManager.Importance.AlwaysPlay, false);
+								}
+							}
+							this.Sound[i] = SoundInstructions.Continue;
+						} else if (this.Sound[i] != SoundInstructions.Continue) {
+							PluginValid = false;
+						}
+						this.LastSound[i] = this.Sound[i];
+					} else {
+						if (i < train.Cars[train.DriverCar].Sounds.Plugin.Length) {
+							if (train.Cars[train.DriverCar].Sounds.Plugin[i].SoundSourceIndex >= 0) {
+								if (SoundManager.HasFinishedPlaying(train.Cars[train.DriverCar].Sounds.Plugin[i].SoundSourceIndex)) {
+									SoundManager.StopSound(ref train.Cars[train.DriverCar].Sounds.Plugin[i].SoundSourceIndex);
 								}
 							}
 						}
-					} else if (PluginSound[i] == ATS_SOUND_PLAY) {
-						if (i < Train.Cars[Train.DriverCar].Sounds.Plugin.Length) {
-							int snd = Train.Cars[Train.DriverCar].Sounds.Plugin[i].SoundBufferIndex;
-							if (snd >= 0) {
-								SoundManager.PlaySound(ref Train.Cars[Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex, snd, Train, Train.DriverCar, Train.Cars[Train.DriverCar].Sounds.Plugin[i].Position, SoundManager.Importance.AlwaysPlay, false);
-							}
+						if ((this.Sound[i] < SoundInstructions.Stop | this.Sound[i] > SoundInstructions.PlayLooping) && this.Sound[i] != SoundInstructions.PlayOnce & this.Sound[i] != SoundInstructions.Continue) {
+							PluginValid = false;
 						}
-						PluginSound[i] = ATS_SOUND_CONTINUE;
-					} else if (PluginSound[i] != ATS_SOUND_CONTINUE) {
-						PluginValid = false;
-					}
-					PluginSoundCache[i] = PluginSound[i];
-				} else {
-					if (i < Train.Cars[Train.DriverCar].Sounds.Plugin.Length) {
-						if (Train.Cars[Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex >= 0) {
-							if (SoundManager.HasFinishedPlaying(Train.Cars[Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex)) {
-								SoundManager.StopSound(ref Train.Cars[Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex);
-							}
-						}
-					}
-					if ((PluginSound[i] < ATS_SOUND_STOP | PluginSound[i] > ATS_SOUND_PLAYLOOPING) && PluginSound[i] != ATS_SOUND_PLAY & PluginSound[i] != ATS_SOUND_CONTINUE) {
-						PluginValid = false;
 					}
 				}
 			}
-		}
-		
-		// update signal
-		internal static void UpdateSignal(int Aspect) {
-			if (!PluginLoaded) return;
-			if (Aspect != LastSignalAspect) {
-				{
-					PluginError = true;
-					SetSignal(Aspect);
-					PluginError = false;
-				}
-				LastSignalAspect = Aspect;
-			}
-		}
-		
-		// update beacon
-		internal static void UpdateBeacon(TrainManager.Train Train, TrainManager.TrainPendingTransponder Data) {
-			if (!PluginLoaded) return;
-			ATS_BEACONDATA data = new ATS_BEACONDATA();
-			data.Type = (int)Data.Type;
-			data.Optional = Data.OptionalInteger;
-			data.Signal = 255;
-			data.Distance = float.MaxValue;
-			int s = Data.SectionIndex;
-			if (s == (int)TrackManager.TransponderSpecialSection.NextRedSection) {
-				// next red section
-				s = Train.CurrentSectionIndex;
-				if (s >= 0) {
-					s = Game.Sections[s].NextSection;
-					while (s >= 0) {
-						int a = Game.Sections[s].CurrentAspect;
-						if (a >= 0) {
-							if (Game.Sections[s].Aspects[a].Number == 0) {
-								break;
-							}
-						} s = Game.Sections[s].NextSection;
-					}
+			/// <summary>Called every frame to update the plugin.</summary>
+			/// <param name="state">The current state of the train.</param>
+			/// <param name="handles">The handles of the cab.</param>
+			/// <param name="message">The message the plugin passes to the host application for debugging purposes, or a null reference.</param>
+			/// <remarks>This function should not be called directly. Call UpdatePlugin instead.</remarks>
+			internal abstract void Elapse(VehicleState state, Handles handles, out string message);
+			/// <summary>Called to update the reverser. This invokes a call to SetReverser only if a change actually occured.</summary>
+			/// <param name="train">The train.</param>
+			internal void UpdateReverser(TrainManager.Train train) {
+				int reverser = train.Specs.CurrentReverser.Driver;
+				if (reverser != this.LastReverser) {
+					this.LastReverser = reverser;
+					SetReverser(reverser);
 				}
 			}
-			// explicit section
-			if (s >= 0) {
-				if (Game.Sections[s].Exists(TrainManager.PlayerTrain)) {
-					// referencing the section of the player's train
-					int n = Game.Sections[s].NextSection;
-					if (n >= 0) {
-						int c = -1;
-						int a = Game.Sections[n].CurrentAspect;
-						for (int i = Game.Sections[s].Aspects.Length - 1; i >= 0; i--) {
-							if (Game.Sections[s].Aspects[i].Number > Game.Sections[n].Aspects[a].Number) {
-								c = i;
-							}
-						} if (c == -1) {
-							c = Game.Sections[s].Aspects.Length - 1;
-						}
-						data.Signal = Game.Sections[s].Aspects[c].Number;
+			/// <summary>Called to indicate a change of the reverser.</summary>
+			/// <param name="reverser">The reverser.</param>
+			/// <remarks>This function should not be called directly. Call UpdateReverser instead.</remarks>
+			internal abstract void SetReverser(int reverser);
+			/// <summary>Called to update the power notch. This invokes a call to SetPower only if a change actually occured.</summary>
+			/// <param name="train">The train.</param>
+			internal void UpdatePower(TrainManager.Train train) {
+				int powerNotch = train.Specs.CurrentPowerNotch.Driver;
+				if (powerNotch != this.LastPowerNotch) {
+					this.LastPowerNotch = powerNotch;
+					SetPower(powerNotch);
+				}
+			}
+			/// <summary>Called to indicate a change of the power notch.</summary>
+			/// <param name="powerNotch">The power notch.</param>
+			/// <remarks>This function should not be called directly. Call UpdatePower instead.</remarks>
+			internal abstract void SetPower(int powerNotch);
+			/// <summary>Called to update the brake notch. This invokes a call to SetBrake only if a change actually occured.</summary>
+			/// <param name="train">The train.</param>
+			internal void UpdateBrake(TrainManager.Train train) {
+				int brakeNotch;
+				if (train.Cars[train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
+					if (train.Specs.HasHoldBrake) {
+						brakeNotch = train.Specs.CurrentEmergencyBrake.Driver ? 4 : train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Service ? 3 : train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Lap ? 2 : train.Specs.CurrentHoldBrake.Driver ? 1 : 0;
 					} else {
-						data.Signal = Game.Sections[s].Aspects[Game.Sections[s].Aspects.Length - 1].Number;
+						brakeNotch = train.Specs.CurrentEmergencyBrake.Driver ? 3 : train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Service ? 2 : train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Lap ? 1 : 0;
 					}
 				} else {
-					// normal behavior
-					int a = Game.Sections[s].CurrentAspect;
-					if (a >= 0) {
-						data.Signal = Game.Sections[s].Aspects[a].Number;
+					if (train.Specs.HasHoldBrake) {
+						brakeNotch = train.Specs.CurrentEmergencyBrake.Driver ? train.Specs.MaximumBrakeNotch + 2 : train.Specs.CurrentBrakeNotch.Driver > 0 ? train.Specs.CurrentBrakeNotch.Driver + 1 : train.Specs.CurrentHoldBrake.Driver ? 1 : 0;
+					} else {
+						brakeNotch = train.Specs.CurrentEmergencyBrake.Driver ? train.Specs.MaximumBrakeNotch + 1 : train.Specs.CurrentBrakeNotch.Driver;
 					}
 				}
-				double p = Train.Cars[0].FrontAxle.Follower.TrackPosition - Train.Cars[0].FrontAxlePosition + 0.5 * Train.Cars[0].Length;
-				data.Distance = (float)(Game.Sections[s].TrackPosition - p);
-			}
-			{
-				PluginError = true;
-				SetBeaconData(ref data.Type);
-				PluginError = false;
-			}
-		}
-		
-		// update power
-		internal static void UpdatePower(TrainManager.Train Train) {
-			if (!PluginLoaded) return;
-			int p = Train.Specs.CurrentPowerNotch.Driver;
-			if (p != LastPowerNotch) {
-				{
-					PluginError = true;
-					SetPower(Train.Specs.CurrentPowerNotch.Driver);
-					PluginError = false;
-				}
-				LastPowerNotch = p;
-			}
-		}
-		
-		// update brake
-		internal static void UpdateBrake(TrainManager.Train Train) {
-			if (!PluginLoaded) return;
-			int b;
-			if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
-				if (Train.Specs.HasHoldBrake) {
-					b = Train.Specs.CurrentEmergencyBrake.Driver ? 4 : Train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Service ? 3 : Train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Lap ? 2 : Train.Specs.CurrentHoldBrake.Driver ? 1 : 0;
-				} else {
-					b = Train.Specs.CurrentEmergencyBrake.Driver ? 3 : Train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Service ? 2 : Train.Specs.AirBrake.Handle.Driver == TrainManager.AirBrakeHandleState.Lap ? 1 : 0;
-				}
-			} else {
-				if (Train.Specs.HasHoldBrake) {
-					b = Train.Specs.CurrentEmergencyBrake.Driver ? Train.Specs.MaximumBrakeNotch + 2 : Train.Specs.CurrentBrakeNotch.Driver > 0 ? Train.Specs.CurrentBrakeNotch.Driver + 1 : Train.Specs.CurrentHoldBrake.Driver ? 1 : 0;
-				} else {
-					b = Train.Specs.CurrentEmergencyBrake.Driver ? Train.Specs.MaximumBrakeNotch + 1 : Train.Specs.CurrentBrakeNotch.Driver;
+				if (brakeNotch != this.LastBrakeNotch) {
+					this.LastBrakeNotch = brakeNotch;
+					SetBrake(brakeNotch);
 				}
 			}
-			if (b != LastBrakeNotch) {
-				{
-					PluginError = true;
-					SetBrake(b);
-					PluginError = false;
+			/// <summary>Called to indicate a change of the brake notch.</summary>
+			/// <param name="brakeNotch">The brake notch.</param>
+			/// <remarks>This function should not be called directly. Call UpdateBrake instead.</remarks>
+			internal abstract void SetBrake(int brakeNotch);
+			/// <summary>Called when a virtual key is pressed.</summary>
+			internal abstract void KeyDown(VirtualKeys key);
+			/// <summary>Called when a virtual key is released.</summary>
+			internal abstract void KeyUp(VirtualKeys key);
+			/// <summary>Called when a horn is played or stopped.</summary>
+			internal abstract void HornBlow(HornTypes type);
+			/// <summary>Called when the state of the doors changes.</summary>
+			internal abstract void DoorChange(DoorStates oldState, DoorStates newState);
+			/// <summary>Called to update the aspect of the current section. This invokes a call to SetSignal only if a change actually occured.</summary>
+			/// <param name="aspect">The aspect of the section.</param>
+			/// <param name="distance">The distance to the section.</param>
+			internal void UpdateSignal(int aspect, double distance) {
+				if (aspect != this.LastAspect) {
+					this.LastAspect = aspect;
+					SetSignal(new SignalData(aspect, distance));
 				}
-				LastBrakeNotch = b;
 			}
-		}
-		
-		// update reverser
-		internal static void UpdateReverser(TrainManager.Train Train) {
-			if (!PluginLoaded) return;
-			int r = Train.Specs.CurrentReverser.Driver;
-			if (r != LastReverserPosition) {
-				{
-					PluginError = true;
-					SetReverser(r);
-					PluginError = false;
-				}
-				LastReverserPosition = r;
-			}
-		}
-		
-		// update doors
-		internal static void UpdateDoors(bool Closed) {
-			if (!PluginLoaded) return;
-			if (Closed) {
-				PluginError = true;
-				DoorClose();
-				PluginError = false;
-			} else {
-				PluginError = true;
-				DoorOpen();
-				PluginError = false;
-			}
-		}
-		
-		// update key
-		internal static void UpdateKey(int AtsKeyCode, bool Down) {
-			if (!PluginLoaded) return;
-			if (Down) {
-				if (!AtsKeyPressed[AtsKeyCode]) {
-					AtsKeyPressed[AtsKeyCode] = true;
-					{
-						PluginError = true;
-						KeyDown(AtsKeyCode);
-						PluginError = false;
+			/// <summary>Called when the aspect in the current section changes.</summary>
+			/// <param name="signal">The signal data.</param>
+			/// <remarks>This function should not be called directly. Call UpdateSignal instead.</remarks>
+			internal abstract void SetSignal(SignalData signal);
+			/// <summary>Called when the train passes a beacon.</summary>
+			/// <param name="train">The train.</param>
+			/// <param name="type">The beacon type.</param>
+			/// <param name="sectionIndex">The section the beacon is attached to, or -1 if none, or TrackManager.TransponderSpecialSection.NextRedSection.</param>
+			/// <param name="optional">Optional data attached to the beacon.</param>
+			internal void UpdateBeacon(TrainManager.Train train, int type, int sectionIndex, int optional) {
+				int aspect = 255;
+				double distance = double.MaxValue;
+				if (sectionIndex == (int)TrackManager.TransponderSpecialSection.NextRedSection) {
+					sectionIndex = train.CurrentSectionIndex;
+					if (sectionIndex >= 0) {
+						sectionIndex = Game.Sections[sectionIndex].NextSection;
+						while (sectionIndex >= 0) {
+							int a = Game.Sections[sectionIndex].CurrentAspect;
+							if (a >= 0) {
+								if (Game.Sections[sectionIndex].Aspects[a].Number == 0) {
+									break;
+								}
+							}
+							sectionIndex = Game.Sections[sectionIndex].NextSection;
+						}
 					}
 				}
-			} else {
-				if (AtsKeyPressed[AtsKeyCode]) {
-					AtsKeyPressed[AtsKeyCode] = false;
-					{
-						PluginError = true;
-						KeyUp(AtsKeyCode);
-						PluginError = false;
+				if (sectionIndex >= 0) {
+					if (Game.Sections[sectionIndex].Exists(TrainManager.PlayerTrain)) {
+						int n = Game.Sections[sectionIndex].NextSection;
+						if (n >= 0) {
+							int c = -1;
+							int a = Game.Sections[n].CurrentAspect;
+							for (int i = Game.Sections[sectionIndex].Aspects.Length - 1; i >= 0; i--) {
+								if (Game.Sections[sectionIndex].Aspects[i].Number > Game.Sections[n].Aspects[a].Number) {
+									c = i;
+								}
+							}
+							if (c == -1) {
+								c = Game.Sections[sectionIndex].Aspects.Length - 1;
+							}
+							aspect = Game.Sections[sectionIndex].Aspects[c].Number;
+						} else {
+							aspect = Game.Sections[sectionIndex].Aspects[Game.Sections[sectionIndex].Aspects.Length - 1].Number;
+						}
+					} else {
+						int a = Game.Sections[sectionIndex].CurrentAspect;
+						if (a >= 0) {
+							aspect = Game.Sections[sectionIndex].Aspects[a].Number;
+						}
 					}
+					double position = train.Cars[0].FrontAxle.Follower.TrackPosition - train.Cars[0].FrontAxlePosition + 0.5 * train.Cars[0].Length;
+					distance = Game.Sections[sectionIndex].TrackPosition - position;
+				}
+				SetBeacon(new BeaconData(type, optional, new SignalData(aspect, distance)));
+			}
+			/// <summary>Called when the train passes a beacon.</summary>
+			/// <param name="data">The beacon data.</param>
+			/// <remarks>This function should not be called directly. Call UpdateBeacon instead.</remarks>
+			internal abstract void SetBeacon(BeaconData beacon);
+		}
+		
+		/// <summary>The currently loaded plugin, or a null reference.</summary>
+		internal static Plugin CurrentPlugin = null;
+		
+		/// <summary>Loads the train plugin from the ats.cfg for the specified train.</summary>
+		/// <param name="trainFolder">The absolute path to the train folder.</param>
+		/// <param name="encoding">The encoding to be used.</param>
+		/// <param name="train">The train to attach the plugin to.</param>
+		/// <returns>Whether a plugin was loaded successfully.</returns>
+		internal static bool LoadPlugin(string trainFolder, System.Text.Encoding encoding, TrainManager.Train train) {
+			/*
+			 * Unload plugin if already loaded.
+			 * */
+			if (CurrentPlugin != null) {
+				UnloadPlugin();
+			}
+			/*
+			 * Check if the ats.cfg file exists, and if
+			 * it points to an existing plugin file.
+			 * */
+			string config = Interface.GetCombinedFileName(trainFolder, "ats.cfg");
+			if (!System.IO.File.Exists(config)) {
+				return false;
+			}
+			string[] lines = System.IO.File.ReadAllLines(config, encoding);
+			if (lines.Length == 0) {
+				return false;
+			}
+			string pluginFile = Interface.GetCombinedFileName(trainFolder, lines[0]);
+			string pluginTitle = System.IO.Path.GetFileName(pluginFile);
+			if (!System.IO.File.Exists(pluginFile)) {
+				Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + pluginTitle + " could not be found in " + config);
+				return false;
+			}
+			/*
+			 * Prepare initialization data for the plugin.
+			 * */
+			BrakeTypes brakeType = (BrakeTypes)train.Cars[train.DriverCar].Specs.BrakeType;
+			int brakeNotches;
+			int powerNotches;
+			bool hasHoldBrake;
+			if (brakeType == BrakeTypes.AutomaticAirBrake) {
+				brakeNotches = 2;
+				powerNotches = train.Specs.MaximumPowerNotch;
+				hasHoldBrake = false;
+			} else {
+				brakeNotches = train.Specs.MaximumBrakeNotch + (train.Specs.HasHoldBrake ? 1 : 0);
+				powerNotches = train.Specs.MaximumPowerNotch;
+				hasHoldBrake = train.Specs.HasHoldBrake;
+			}
+			int cars = train.Cars.Length;
+			VehicleSpecs specs = new VehicleSpecs(powerNotches, brakeType, brakeNotches, hasHoldBrake, cars);
+			InitializationModes mode = (InitializationModes)Game.TrainStart;
+			/*
+			 * Check if the plugin is a .NET plugin.
+			 * */
+			if (Program.IsDevelopmentVersion) {
+				Assembly assembly;
+				try {
+					assembly = Assembly.LoadFile(pluginFile);
+				} catch {
+					assembly = null;
+				}
+				if (assembly != null) {
+					Type[] types;
+					try {
+						types = assembly.GetTypes();
+					} catch (ReflectionTypeLoadException ex) {
+						foreach (Exception e in ex.LoaderExceptions) {
+							Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " raised an exception on loading: " + e.Message);
+						}
+						return false;
+					}
+					foreach (Type type in types) {
+						if (type.IsPublic && (type.Attributes & TypeAttributes.Abstract) == 0) {
+							object instance = assembly.CreateInstance(type.FullName);
+							IRuntime api = instance as IRuntime;
+							if (api != null) {
+								CurrentPlugin = new NetPlugin(pluginFile, trainFolder, api);
+								if (CurrentPlugin.Load(train, specs, mode)) {
+									train.Specs.Safety.Mode = TrainManager.SafetySystem.Plugin;
+									return true;
+								} else {
+									CurrentPlugin = null;
+									return false;
+								}
+							}
+						}
+					}
+					Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " does not export a public type that inherits from OpenBveApi.IPlugin and cannot be used with openBVE.");
+					return false;
 				}
 			}
-		}
-		
-		// update horn
-		internal static void UpdateHorn(int Horn) {
-			if (!PluginLoaded) return;
-			{
-				PluginError = true;
-				HornBlow(Horn);
-				PluginError = false;
-			}
-		}
-		
-		// load ats config
-		internal static bool LoadAtsConfig(string TrainPath, System.Text.Encoding Encoding, TrainManager.Train Train) {
-			string atsConfigFile = Interface.GetCombinedFileName(TrainPath, "ats.cfg");
-			if (!System.IO.File.Exists(atsConfigFile)) {
+			/*
+			 * Check if the plugin is a Win32 plugin.
+			 * */
+			if (!CheckWin32Header(pluginFile)) {
+				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " is of an unsupported binary format and cannot be used with openBVE.");
 				return false;
 			}
-			if (Program.CurrentPlatform != Program.Platform.Windows) {
-				Interface.AddMessage(Interface.MessageType.Information, false, "Train plugins are not supported on operating systems other than Windows. The built-in safety systems will be used for this train, which might not be compatible with the route.");
+			if (Program.CurrentPlatform != Program.Platform.Windows | IntPtr.Size != 4) {
+				Interface.AddMessage(Interface.MessageType.Warning, false, "The train plugin " + pluginTitle + " can only be used on 32-bit Microsoft Windows.");
 				return false;
 			}
-			if (IntPtr.Size != 4) {
-				Interface.AddMessage(Interface.MessageType.Information, false, "Train plugins are not supported in 64-bit environments. The built-in safety systems will be used for this train, which might not be compatible with the route.");
+			CurrentPlugin = new LegacyPlugin(pluginFile);
+			if (CurrentPlugin.Load(train, specs, mode)) {
+				train.Specs.Safety.Mode = TrainManager.SafetySystem.Plugin;
+				return true;
+			} else {
+				CurrentPlugin = null;
 				return false;
-			}
-			string dllTitle = System.IO.File.ReadAllText(atsConfigFile, Encoding).Trim();
-			if (!dllTitle.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) {
-				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " must have the extension .dll in " + atsConfigFile);
-				return false;
-			}
-			string dllFile = Interface.GetCombinedFileName(TrainPath, dllTitle);
-			if (!System.IO.File.Exists(dllFile)) {
-				Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + dllTitle + " could not be found in " + atsConfigFile);
-				return false;
-			}
-			if (!CheckDllHeader(dllFile)) {
-				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " is of an unsupported binary format or could not be read in " + atsConfigFile);
-				return false;
-			}
-			PluginLoadState state = LoadPlugin(dllFile, Train);
-			switch (state) {
-				case PluginLoadState.CouldNotLoadDll:
-					Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " could not be loaded in " + atsConfigFile);
-					return false;
-				case PluginLoadState.InvalidPluginVersion:
-					Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + dllTitle + " is of an unsupported version in " + atsConfigFile);
-					return false;
-				case PluginLoadState.Successful:
-					return true;
-				default:
-					return false;
 			}
 		}
 		
-		// check dll header
-		internal static bool CheckDllHeader(string FileName) {
+		/// <summary>Checks whether a specified file is a valid Win32 plugin.</summary>
+		/// <param name="file">The file to check.</param>
+		/// <returns>Whether the file is a valid Win32 plugin.</returns>
+		private static bool CheckWin32Header(string file) {
 			try {
-				bool result;
-				using (System.IO.FileStream stream = new System.IO.FileStream(FileName, System.IO.FileMode.Open, System.IO.FileAccess.Read)) {
+				using (System.IO.FileStream stream = new System.IO.FileStream(file, System.IO.FileMode.Open, System.IO.FileAccess.Read)) {
 					using (System.IO.BinaryReader reader = new System.IO.BinaryReader(stream)) {
-						byte firstByte = reader.ReadByte();
-						byte secondByte = reader.ReadByte();
-						result = firstByte == 0x4d & secondByte == 0x5a;
-						reader.Close();
+						if (reader.ReadUInt16() != 0x5A4D) {
+							/* Not MZ signature */
+							return false;
+						}
+						stream.Position = 0x3C;
+						stream.Position = reader.ReadInt32();
+						if (reader.ReadUInt32() != 0x00004550) {
+							/* Not PE signature */
+							return false;
+						}
+						if (reader.ReadUInt16() != 0x014C) {
+							/* Not IMAGE_FILE_MACHINE_I386 */
+							return false;
+						}
 					}
 				}
-				return result;
+				return true;
 			} catch {
 				return false;
+			}
+		}
+		
+		/// <summary>Unloads the currently loaded plugin, if any.</summary>
+		internal static void UnloadPlugin() {
+			if (CurrentPlugin != null) {
+				CurrentPlugin.Unload();
+				CurrentPlugin = null;
 			}
 		}
 		

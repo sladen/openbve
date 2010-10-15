@@ -130,7 +130,6 @@ namespace OpenBve {
 			internal double JoystickAxisThreshold;
 			internal double KeyRepeatDelay;
 			internal double KeyRepeatInterval;
-			internal bool UseSound;
 			internal SoundRange SoundRange;
 			internal int SoundNumber;
 			internal bool ShowWarningMessages;
@@ -145,6 +144,7 @@ namespace OpenBve {
 			internal GameMode GameMode;
 			internal int MainMenuWidth;
 			internal int MainMenuHeight;
+			internal bool DisableDisplayLists;
 			internal Options() {
 				this.LanguageCode = "en-US";
 				this.FullscreenMode = false;
@@ -156,7 +156,7 @@ namespace OpenBve {
 				this.FullscreenBits = 32;
 				this.UserInterfaceFolder = "Default";
 				this.Interpolation = TextureManager.InterpolationMode.BilinearMipmapped;
-				this.TransparencyMode = Renderer.TransparencyMode.Sharp;
+				this.TransparencyMode = Renderer.TransparencyMode.Quality;
 				this.AnisotropicFilteringLevel = 0;
 				this.AnisotropicFilteringMaximum = 0;
 				this.ViewingDistance = 600;
@@ -170,7 +170,6 @@ namespace OpenBve {
 				this.JoystickAxisThreshold = 0.0;
 				this.KeyRepeatDelay = 0.5;
 				this.KeyRepeatInterval = 0.1;
-				this.UseSound = true;
 				this.SoundRange = SoundRange.Low;
 				this.SoundNumber = 16;
 				this.ShowWarningMessages = true;
@@ -186,6 +185,7 @@ namespace OpenBve {
 				this.TrainEncodings = new EncodingValue[] { };
 				this.MainMenuWidth = 0;
 				this.MainMenuHeight = 0;
+				this.DisableDisplayLists = false;
 			}
 		}
 		internal static Options CurrentOptions;
@@ -235,39 +235,59 @@ namespace OpenBve {
 											break;
 										case "windowwidth":
 											{
-												int a = 960; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												if (!int.TryParse(Value, NumberStyles.Integer, Culture, out a)) {
+													a = 960;
+												}
 												Interface.CurrentOptions.WindowWidth = a;
 											} break;
 										case "windowheight":
 											{
-												int a = 600; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												if (!int.TryParse(Value, NumberStyles.Integer, Culture, out a)) {
+													a = 600;
+												}
 												Interface.CurrentOptions.WindowHeight = a;
 											} break;
 										case "fullscreenwidth":
 											{
-												int a = 1024; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												if (!int.TryParse(Value, NumberStyles.Integer, Culture, out a)) {
+													a = 1024;
+												}
 												Interface.CurrentOptions.FullscreenWidth = a;
 											} break;
 										case "fullscreenheight":
 											{
-												int a = 768; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												if (!int.TryParse(Value, NumberStyles.Integer, Culture, out a)) {
+													a = 768;
+												}
 												Interface.CurrentOptions.FullscreenHeight = a;
 											} break;
 										case "fullscreenbits":
 											{
-												int a = 32; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												if (!int.TryParse(Value, NumberStyles.Integer, Culture, out a)) {
+													a = 32;
+												}
 												Interface.CurrentOptions.FullscreenBits = a;
 											} break;
 										case "mainmenuwidth":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.MainMenuWidth = a;
 											} break;
 										case "mainmenuheight":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.MainMenuHeight = a;
 											} break;
+										case "disabledisplaylists":
+											Interface.CurrentOptions.DisableDisplayLists = string.Compare(Value, "false", StringComparison.OrdinalIgnoreCase) != 0;
+											break;
 									} break;
 								case "quality":
 									switch (Key) {
@@ -283,22 +303,34 @@ namespace OpenBve {
 											} break;
 										case "anisotropicfilteringlevel":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.AnisotropicFilteringLevel = a;
 											} break;
 										case "anisotropicfilteringmaximum":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.AnisotropicFilteringMaximum = a;
 											} break;
 										case "transparencymode":
 											switch (Value.ToLowerInvariant()) {
-													case "smooth": Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Smooth; break;
-													default: Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Sharp; break;
+													case "sharp": Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Performance; break;
+													case "smooth": Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Quality; break;
+													default: {
+														int a;
+														if (int.TryParse(Value, NumberStyles.Integer, Culture, out a)) {
+															Interface.CurrentOptions.TransparencyMode = (Renderer.TransparencyMode)a;
+														} else {
+															Interface.CurrentOptions.TransparencyMode = Renderer.TransparencyMode.Quality;
+														}
+														break;
+													}
 											} break;
 										case "viewingdistance":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.ViewingDistance = a;
 											} break;
 										case "motionblur":
@@ -313,12 +345,14 @@ namespace OpenBve {
 									switch (Key) {
 										case "basicthreshold":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.ObjectOptimizationBasicThreshold = a;
 											} break;
 										case "fullthreshold":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.ObjectOptimizationFullThreshold = a;
 											} break;
 									} break;
@@ -351,27 +385,27 @@ namespace OpenBve {
 											break;
 										case "joystickaxisthreshold":
 											{
-												double a = 0.0; double.TryParse(Value, NumberStyles.Float, Culture, out a);
+												double a;
+												double.TryParse(Value, NumberStyles.Float, Culture, out a);
 												Interface.CurrentOptions.JoystickAxisThreshold = a;
 											} break;
 										case "keyrepeatdelay":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												if (a <= 0) a = 500;
 												Interface.CurrentOptions.KeyRepeatDelay = 0.001 * (double)a;
 											} break;
 										case "keyrepeatinterval":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												if (a <= 0) a = 100;
 												Interface.CurrentOptions.KeyRepeatInterval = 0.001 * (double)a;
 											} break;
 									} break;
 								case "sound":
 									switch (Key) {
-										case "usesound":
-											Interface.CurrentOptions.UseSound = string.Compare(Value, "false", StringComparison.OrdinalIgnoreCase) != 0;
-											break;
 										case "range":
 											switch (Value.ToLowerInvariant()) {
 													case "low": Interface.CurrentOptions.SoundRange = SoundRange.Low; break;
@@ -382,7 +416,8 @@ namespace OpenBve {
 											break;
 										case "number":
 											{
-												int a = 0; int.TryParse(Value, NumberStyles.Integer, Culture, out a);
+												int a;
+												int.TryParse(Value, NumberStyles.Integer, Culture, out a);
 												Interface.CurrentOptions.SoundNumber = a < 16 ? 16 : a;
 											} break;
 									} break;
@@ -477,37 +512,32 @@ namespace OpenBve {
 			Builder.AppendLine("[display]");
 			Builder.AppendLine("mode = " + (CurrentOptions.FullscreenMode ? "fullscreen" : "window"));
 			Builder.AppendLine("vsync = " + (CurrentOptions.VerticalSynchronization ? "true" : "false"));
-			Builder.AppendLine("windowwidth = " + CurrentOptions.WindowWidth.ToString(Culture));
-			Builder.AppendLine("windowheight = " + CurrentOptions.WindowHeight.ToString(Culture));
-			Builder.AppendLine("fullscreenwidth = " + CurrentOptions.FullscreenWidth.ToString(Culture));
-			Builder.AppendLine("fullscreenheight = " + CurrentOptions.FullscreenHeight.ToString(Culture));
-			Builder.AppendLine("fullscreenbits = " + CurrentOptions.FullscreenBits.ToString(Culture));
-			Builder.AppendLine("mainmenuwidth = " + CurrentOptions.MainMenuWidth.ToString(Culture));
-			Builder.AppendLine("mainmenuheight = " + CurrentOptions.MainMenuHeight.ToString(Culture));
+			Builder.AppendLine("windowWidth = " + CurrentOptions.WindowWidth.ToString(Culture));
+			Builder.AppendLine("windowHeight = " + CurrentOptions.WindowHeight.ToString(Culture));
+			Builder.AppendLine("fullscreenWidth = " + CurrentOptions.FullscreenWidth.ToString(Culture));
+			Builder.AppendLine("fullscreenHeight = " + CurrentOptions.FullscreenHeight.ToString(Culture));
+			Builder.AppendLine("fullscreenBits = " + CurrentOptions.FullscreenBits.ToString(Culture));
+			Builder.AppendLine("mainmenuWidth = " + CurrentOptions.MainMenuWidth.ToString(Culture));
+			Builder.AppendLine("mainmenuHeight = " + CurrentOptions.MainMenuHeight.ToString(Culture));
+			Builder.AppendLine("disableDisplayLists = " + (CurrentOptions.DisableDisplayLists ? "true" : "false"));
 			Builder.AppendLine();
 			Builder.AppendLine("[quality]");
 			{
 				string t; switch (CurrentOptions.Interpolation) {
-						case TextureManager.InterpolationMode.NearestNeighbor: t = "nearestneighbor"; break;
+						case TextureManager.InterpolationMode.NearestNeighbor: t = "nearestNeighbor"; break;
 						case TextureManager.InterpolationMode.Bilinear: t = "bilinear"; break;
-						case TextureManager.InterpolationMode.NearestNeighborMipmapped: t = "nearestneighbormipmapped"; break;
-						case TextureManager.InterpolationMode.BilinearMipmapped: t = "bilinearmipmapped"; break;
-						case TextureManager.InterpolationMode.TrilinearMipmapped: t = "trilinearmipmapped"; break;
-						case TextureManager.InterpolationMode.AnisotropicFiltering: t = "anisotropicfiltering"; break;
-						default: t = "bilinearmipmapped"; break;
+						case TextureManager.InterpolationMode.NearestNeighborMipmapped: t = "nearestNeighborMipmapped"; break;
+						case TextureManager.InterpolationMode.BilinearMipmapped: t = "bilinearMipmapped"; break;
+						case TextureManager.InterpolationMode.TrilinearMipmapped: t = "trilinearMipmapped"; break;
+						case TextureManager.InterpolationMode.AnisotropicFiltering: t = "anisotropicFiltering"; break;
+						default: t = "bilinearMipmapped"; break;
 				}
 				Builder.AppendLine("interpolation = " + t);
 			}
-			Builder.AppendLine("anisotropicfilteringlevel = " + CurrentOptions.AnisotropicFilteringLevel.ToString(Culture));
-			Builder.AppendLine("anisotropicfilteringmaximum = " + CurrentOptions.AnisotropicFilteringMaximum.ToString(Culture));
-			{
-				string t; switch (CurrentOptions.TransparencyMode) {
-						case Renderer.TransparencyMode.Smooth: t = "smooth"; break;
-						default: t = "sharp"; break;
-				}
-				Builder.AppendLine("transparencymode = " + t);
-			}
-			Builder.AppendLine("viewingdistance = " + CurrentOptions.ViewingDistance.ToString(Culture));
+			Builder.AppendLine("anisotropicFilteringLevel = " + CurrentOptions.AnisotropicFilteringLevel.ToString(Culture));
+			Builder.AppendLine("anisotropicFilteringMaximum = " + CurrentOptions.AnisotropicFilteringMaximum.ToString(Culture));
+			Builder.AppendLine("transparencyMode = " + ((int)CurrentOptions.TransparencyMode).ToString(Culture));
+			Builder.AppendLine("viewingDistance = " + CurrentOptions.ViewingDistance.ToString(Culture));
 			{
 				string t; switch (CurrentOptions.MotionBlur) {
 						case MotionBlurMode.Low: t = "low"; break;
@@ -515,12 +545,12 @@ namespace OpenBve {
 						case MotionBlurMode.High: t = "high"; break;
 						default: t = "none"; break;
 				}
-				Builder.AppendLine("motionblur = " + t);
+				Builder.AppendLine("motionBlur = " + t);
 			}
 			Builder.AppendLine();
-			Builder.AppendLine("[objectoptimization]");
-			Builder.AppendLine("basicthreshold = " + CurrentOptions.ObjectOptimizationBasicThreshold.ToString(Culture));
-			Builder.AppendLine("fullthreshold = " + CurrentOptions.ObjectOptimizationFullThreshold.ToString(Culture));
+			Builder.AppendLine("[objectOptimization]");
+			Builder.AppendLine("basicThreshold = " + CurrentOptions.ObjectOptimizationBasicThreshold.ToString(Culture));
+			Builder.AppendLine("fullThreshold = " + CurrentOptions.ObjectOptimizationFullThreshold.ToString(Culture));
 			Builder.AppendLine();
 			Builder.AppendLine("[simulation]");
 			Builder.AppendLine("toppling = " + (CurrentOptions.Toppling ? "true" : "false"));
@@ -536,17 +566,16 @@ namespace OpenBve {
 			}
 			Builder.AppendLine();
 			Builder.AppendLine("[verbosity]");
-			Builder.AppendLine("showwarningmessages = " + (CurrentOptions.ShowWarningMessages ? "true" : "false"));
-			Builder.AppendLine("showerrormessages = " + (CurrentOptions.ShowErrorMessages ? "true" : "false"));
+			Builder.AppendLine("showWarningMessages = " + (CurrentOptions.ShowWarningMessages ? "true" : "false"));
+			Builder.AppendLine("showErrorMessages = " + (CurrentOptions.ShowErrorMessages ? "true" : "false"));
 			Builder.AppendLine();
 			Builder.AppendLine("[controls]");
-			Builder.AppendLine("usejoysticks = " + (CurrentOptions.UseJoysticks ? "true" : "false"));
-			Builder.AppendLine("joystickaxisthreshold = " + CurrentOptions.JoystickAxisThreshold.ToString(Culture));
-			Builder.AppendLine("keyrepeatdelay = " + (1000.0 * CurrentOptions.KeyRepeatDelay).ToString("0", Culture));
-			Builder.AppendLine("keyrepeatinterval = " + (1000.0 * CurrentOptions.KeyRepeatInterval).ToString("0", Culture));
+			Builder.AppendLine("useJoysticks = " + (CurrentOptions.UseJoysticks ? "true" : "false"));
+			Builder.AppendLine("joystickAxisthreshold = " + CurrentOptions.JoystickAxisThreshold.ToString(Culture));
+			Builder.AppendLine("keyRepeatDelay = " + (1000.0 * CurrentOptions.KeyRepeatDelay).ToString("0", Culture));
+			Builder.AppendLine("keyRepeatInterval = " + (1000.0 * CurrentOptions.KeyRepeatInterval).ToString("0", Culture));
 			Builder.AppendLine();
 			Builder.AppendLine("[sound]");
-			Builder.AppendLine("usesound = " + (CurrentOptions.UseSound ? "true" : "false"));
 			Builder.Append("range = ");
 			switch (CurrentOptions.SoundRange) {
 					case SoundRange.Low: Builder.AppendLine("low"); break;
@@ -560,22 +589,22 @@ namespace OpenBve {
 			Builder.AppendLine("route = " + CurrentOptions.RouteFolder);
 			Builder.AppendLine("train = " + CurrentOptions.TrainFolder);
 			Builder.AppendLine();
-			Builder.AppendLine("[recentlyusedroutes]");
+			Builder.AppendLine("[recentlyUsedRoutes]");
 			for (int i = 0; i < CurrentOptions.RecentlyUsedRoutes.Length; i++) {
 				Builder.AppendLine(CurrentOptions.RecentlyUsedRoutes[i]);
 			}
 			Builder.AppendLine();
-			Builder.AppendLine("[recentlyusedtrains]");
+			Builder.AppendLine("[recentlyUsedTrains]");
 			for (int i = 0; i < CurrentOptions.RecentlyUsedTrains.Length; i++) {
 				Builder.AppendLine(CurrentOptions.RecentlyUsedTrains[i]);
 			}
 			Builder.AppendLine();
-			Builder.AppendLine("[routeencodings]");
+			Builder.AppendLine("[routeEncodings]");
 			for (int i = 0; i < CurrentOptions.RouteEncodings.Length; i++) {
 				Builder.AppendLine(CurrentOptions.RouteEncodings[i].Codepage.ToString(Culture) + " = " + CurrentOptions.RouteEncodings[i].Value);
 			}
 			Builder.AppendLine();
-			Builder.AppendLine("[trainencodings]");
+			Builder.AppendLine("[trainEncodings]");
 			for (int i = 0; i < CurrentOptions.TrainEncodings.Length; i++) {
 				Builder.AppendLine(CurrentOptions.TrainEncodings[i].Codepage.ToString(Culture) + " = " + CurrentOptions.TrainEncodings[i].Value);
 			}

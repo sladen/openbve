@@ -785,10 +785,10 @@ namespace OpenBve {
 				for (int j = 0; j < n; j++) {
 					if (i == 0 & lowercap) {
 						// lower cap
-						Builder.Faces[f + n + i].Vertices[j] = new World.MeshFaceVertex(v + 2 * j + 1);
+						Builder.Faces[f + n + i].Vertices[j] = new World.MeshFaceVertex(v + 2 * (n - j - 1));
 					} else {
 						// upper cap
-						Builder.Faces[f + n + i].Vertices[j] = new World.MeshFaceVertex(v + 2 * (n - j - 1));
+						Builder.Faces[f + n + i].Vertices[j] = new World.MeshFaceVertex(v + 2 * j + 1);
 					}
 				}
 			}
@@ -1003,6 +1003,9 @@ namespace OpenBve {
 					}
 					if (Builder.Materials[i].DaytimeTexture != null) {
 						int tday = TextureManager.RegisterTexture(Builder.Materials[i].DaytimeTexture, Builder.Materials[i].TransparentColor, Builder.Materials[i].TransparentColorUsed ? (byte)1 : (byte)0, WrapX, WrapY, LoadMode != ObjectManager.ObjectLoadMode.Normal);
+						if (LoadMode == ObjectManager.ObjectLoadMode.PreloadTextures) {
+							TextureManager.UseTexture(tday, TextureManager.UseMode.Normal);
+						}
 						Object.Mesh.Materials[mm + i].DaytimeTextureIndex = tday;
 					} else {
 						Object.Mesh.Materials[mm + i].DaytimeTextureIndex = -1;
@@ -1010,6 +1013,9 @@ namespace OpenBve {
 					Object.Mesh.Materials[mm + i].EmissiveColor = Builder.Materials[i].EmissiveColor;
 					if (Builder.Materials[i].NighttimeTexture != null) {
 						int tnight = TextureManager.RegisterTexture(Builder.Materials[i].NighttimeTexture, Builder.Materials[i].TransparentColor, Builder.Materials[i].TransparentColorUsed ? (byte)1 : (byte)0, WrapX, WrapY, LoadMode != ObjectManager.ObjectLoadMode.Normal);
+						if (LoadMode == ObjectManager.ObjectLoadMode.PreloadTextures) {
+							TextureManager.UseTexture(tnight, TextureManager.UseMode.Normal);
+						}
 						Object.Mesh.Materials[mm + i].NighttimeTextureIndex = tnight;
 					} else {
 						Object.Mesh.Materials[mm + i].NighttimeTextureIndex = -1;

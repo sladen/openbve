@@ -171,29 +171,41 @@ namespace OpenBve {
 			try {
 				listviewProblems.SmallImageList.Images.Add("critical", Image.FromFile(Interface.GetCombinedFileName(Folder, "icon_critical.png")));
 			} catch { }
+			/* 
+			 * Show critical errors
+			 * */
 			for (int i = 0; i < Interface.MessageCount; i++) {
-				string t = "Unknown";
-				string g = "information";
-				switch (Interface.Messages[i].Type) {
-					case Interface.MessageType.Information:
-						t = "Information";
-						g = "information";
-						break;
-					case Interface.MessageType.Warning:
-						t = "Warning";
-						g = "warning";
-						break;
-					case Interface.MessageType.Error:
-						t = "Error";
-						g = "error";
-						break;
-					case Interface.MessageType.Critical:
-						t = "Critical";
-						g = "critical";
-						break;
+				if (Interface.Messages[i].Type == Interface.MessageType.Critical) {
+					ListViewItem a = listviewProblems.Items.Add("Critical", "critical");
+					a.SubItems.Add(Interface.Messages[i].Text);
 				}
-				ListViewItem a = listviewProblems.Items.Add(t, g);
-				a.SubItems.Add(Interface.Messages[i].Text);
+			}
+			/*
+			 * Show informational messages
+			 * */
+			for (int i = 0; i < Interface.MessageCount; i++) {
+				if (Interface.Messages[i].Type == Interface.MessageType.Information) {
+					ListViewItem a = listviewProblems.Items.Add("Information", "information");
+					a.SubItems.Add(Interface.Messages[i].Text);
+				}
+			}
+			/*
+			 * Show errors
+			 * */
+			for (int i = 0; i < Interface.MessageCount; i++) {
+				if (Interface.Messages[i].Type == Interface.MessageType.Error) {
+					ListViewItem a = listviewProblems.Items.Add("Error", "error");
+					a.SubItems.Add(Interface.Messages[i].Text);
+				}
+			}
+			/*
+			 * Show warnings
+			 * */
+			for (int i = 0; i < Interface.MessageCount; i++) {
+				if (Interface.Messages[i].Type == Interface.MessageType.Warning) {
+					ListViewItem a = listviewProblems.Items.Add("Warning", "warning");
+					a.SubItems.Add(Interface.Messages[i].Text);
+				}
 			}
 			listviewProblems.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 		}

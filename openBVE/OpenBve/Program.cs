@@ -66,11 +66,12 @@ namespace OpenBve {
 			try {
 				Start(Args);
 			} catch (Exception ex) {
-				string t = GetExceptionText(ex, 5);
-				if (PluginManager.PluginError & PluginManager.PluginName != null) {
-					MessageBox.Show("The " + PluginManager.PluginName + " plugin raised the following exception:\n\n" + t, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				if (PluginManager.CurrentPlugin != null && PluginManager.CurrentPlugin.LastException != null) {
+					string text = GetExceptionText(PluginManager.CurrentPlugin.LastException, 5);
+					MessageBox.Show("The train plugin " + PluginManager.CurrentPlugin.PluginTitle + " caused the following exception:\n\n" + text, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				} else {
-					MessageBox.Show(t, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					string text = GetExceptionText(ex, 5);
+					MessageBox.Show(text, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 			}
 			#endif
@@ -260,7 +261,7 @@ namespace OpenBve {
 			World.HorizontalViewingAngle = 2.0 * Math.Atan(Math.Tan(0.5 * World.VerticalViewingAngle) * World.AspectRatio);
 			World.OriginalVerticalViewingAngle = World.VerticalViewingAngle;
 			World.ExtraViewingDistance = 50.0;
-			World.ForwardViewingDistance = (double)Interface.CurrentOptions.ViewingDistance + World.ExtraViewingDistance;
+			World.ForwardViewingDistance = (double)Interface.CurrentOptions.ViewingDistance;
 			World.BackwardViewingDistance = 0.0;
 			World.BackgroundImageDistance = (double)Interface.CurrentOptions.ViewingDistance;
 			// load route and train

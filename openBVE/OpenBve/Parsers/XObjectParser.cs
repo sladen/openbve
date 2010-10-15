@@ -1587,9 +1587,6 @@ namespace OpenBve {
 										}
 									}
 									int tday = TextureManager.RegisterTexture(Materials[j].TextureFilename, new World.ColorRGB(0, 0, 0), 1, TextureManager.TextureLoadMode.Normal, WrapX, WrapY, LoadMode != ObjectManager.ObjectLoadMode.Normal, 0, 0, 0, 0);
-									if (LoadMode == ObjectManager.ObjectLoadMode.PreloadTextures) {
-										TextureManager.UseTexture(tday, TextureManager.UseMode.Normal);
-									}
 									Object.Mesh.Materials[mm + j].DaytimeTextureIndex = tday;
 									transparent = true;
 								} else {

@@ -94,7 +94,7 @@ namespace OpenBve {
 									if (obj[j] != null) {
 										if (obj[j] is ObjectManager.StaticObject) {
 											ObjectManager.StaticObject s = (ObjectManager.StaticObject)obj[j];
-											s.Dynamic = 1;
+											s.Dynamic = true;
 											if (ObjectCount >= Result.Objects.Length) {
 												Array.Resize<ObjectManager.AnimatedObject>(ref Result.Objects, Result.Objects.Length << 1);
 											}
@@ -181,7 +181,10 @@ namespace OpenBve {
 															StateFiles = new string[s.Length];
 															for (int k = 0; k < s.Length; k++) {
 																s[k] = s[k].Trim();
-																if (Interface.ContainsInvalidPathChars(s[k])) {
+																if (s[k].Length == 0) {
+																	Interface.AddMessage(Interface.MessageType.Error, false, "File" + k.ToString(Culture) + " is an empty string - did you mean something else? - in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+																	StateFiles[k] = null;
+																} else if (Interface.ContainsInvalidPathChars(s[k])) {
 																	Interface.AddMessage(Interface.MessageType.Error, false, "File" + k.ToString(Culture) + " contains illegal characters in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 																	StateFiles[k] = null;
 																} else {
@@ -486,7 +489,7 @@ namespace OpenBve {
 										Result.Objects[ObjectCount].States[k].Position = new World.Vector3D(0.0, 0.0, 0.0);
 										if (StateFiles[k] != null) {
 											Result.Objects[ObjectCount].States[k].Object = ObjectManager.LoadStaticObject(StateFiles[k], Encoding, LoadMode, false, ForceTextureRepeatX, ForceTextureRepeatY);
-											Result.Objects[ObjectCount].States[k].Object.Dynamic = 1;
+											Result.Objects[ObjectCount].States[k].Object.Dynamic = true;
 										} else {
 											Result.Objects[ObjectCount].States[k].Object = null;
 										}

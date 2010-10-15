@@ -14,12 +14,14 @@ namespace OpenBve {
 
 		// transparency
 		internal enum TransparencyMode {
-			/// <summary>Produces a crisp result for color-key textures and takes no special provisions for alpha textures.</summary>
-			Sharp = 0,
-			/// <summary>Produces a smooth result for color-key textures and tries to eliminate fringes occuring as a result of bad depth sorting.</summary>
-			Smooth = 1
+			/// <summary>Textures using color-key transparency are considered opaque, producing good performance but crisp outlines. Partially transparent faces are rendered in a single pass with z-buffer writes disabled, producing good performance but more depth-sorting issues.</summary>
+			Performance = 0,
+			/// <summary>Textures using color-key transparency are considered opaque, producing good performance but crisp outlines. Partially transparent faces are rendered in two passes, the first rendering only opaque pixels with z-buffer writes enabled, and the second rendering only partially transparent pixels with z-buffer writes disabled, producing best quality but worse performance.</summary>
+			Intermediate = 1,
+			/// <summary>Textures using color-key transparency are considered partially transparent. All partially transparent faces are rendered in two passes, the first rendering only opaque pixels with z-buffer writes enabled, and the second rendering only partially transparent pixels with z-buffer writes disabled, producing best quality but worse performance.</summary>
+			Quality = 2
 		}
-
+		
 		// output mode
 		internal enum OutputMode {
 			Default = 0,
@@ -31,44 +33,99 @@ namespace OpenBve {
 		// object list
 		private struct Object {
 			internal int ObjectIndex;
-			internal int[] FaceListIndices;
-			internal bool Overlay;
+			internal ObjectListReference[] FaceListReferences;
+			internal ObjectType Type;
 		}
-		private static Object[] ObjectList = new Object[256];
-		private static int ObjectListCount = 0;
+		private static Object[] Objects = new Object[256];
+		private static int ObjectCount = 0;
 
-		// face lists
-		private struct ObjectFace {
+		private enum ObjectListType : byte {
+			/// <summary>The face is fully opaque and originates from an object that is part of the static scenery.</summary>
+			StaticOpaque = 1,
+			/// <summary>The face is fully opaque and originates from an object that is part of the dynamic scenery or of a train exterior.</summary>
+			DynamicOpaque = 2,
+			/// <summary>The face is partly transparent and originates from an object that is part of the scenery or of a train exterior.</summary>
+			DynamicAlpha = 3,
+			/// <summary>The face is fully opaque and originates from an object that is part of the cab.</summary>
+			OverlayOpaque = 4,
+			/// <summary>The face is partly transparent and originates from an object that is part of the cab.</summary>
+			OverlayAlpha = 5
+		}
+		internal enum ObjectType : byte {
+			/// <summary>The object is part of the static scenery. The matching ObjectListType is StaticOpaque for fully opaque faces, and DynamicAlpha for all other faces.</summary>
+			Static = 1,
+			/// <summary>The object is part of the animated scenery or of a train exterior. The matching ObjectListType is DynamicOpaque for fully opaque faces, and DynamicAlpha for all other faces.</summary>
+			Dynamic = 2,
+			/// <summary>The object is part of the cab. The matching ObjectListType is OverlayOpaque for fully opaque faces, and OverlayAlpha for all other faces.</summary>
+			Overlay = 3
+		}
+		
+		private struct ObjectListReference {
+			/// <summary>The type of list.</summary>
+			internal ObjectListType Type;
+			/// <summary>The index in the specified list.</summary>
+			internal int Index;
+			internal ObjectListReference(ObjectListType type, int index) {
+				this.Type = type;
+				this.Index = index;
+			}
+		}
+		private class ObjectFace {
 			internal int ObjectListIndex;
 			internal int ObjectIndex;
 			internal int FaceIndex;
+			internal double Distance;
 		}
-		// layers
-		private const int WorldLayer = 0;
-		private const int OverlayLayer = 1;
-		// opaque
-		private static ObjectFace[][] OpaqueList = new ObjectFace[][] { new ObjectFace[256], new ObjectFace[256]};
-		internal static int[] OpaqueListCount = new int[] { 0, 0 };
-		// transparent color
-		private static ObjectFace[][] TransparentColorList = new ObjectFace[][] { new ObjectFace[256], new ObjectFace[256]};
-		private static double[][] TransparentColorListDistance = new double[][] { new double[256] , new double[256] };
-		internal static int[] TransparentColorListCount = new int[] { 0, 0 };
-		// alpha
-		private static ObjectFace[][] AlphaList = new ObjectFace[][] { new ObjectFace[256], new ObjectFace[256]};
-		private static double[][] AlphaListDistance = new double[][] { new double[256] , new double[256] };
-		internal static int[] AlphaListCount = new int[] { 0, 0 };
+		private class ObjectList {
+			internal ObjectFace[] Faces;
+			internal int FaceCount;
+			internal ObjectList() {
+				this.Faces = new ObjectFace[256];
+				this.FaceCount = 0;
+			}
+		}
+		private class ObjectGroup {
+			internal ObjectList List;
+			internal int OpenGlDisplayList;
+			internal bool OpenGlDisplayListAvailable;
+			internal World.Vector3D WorldPosition;
+			internal bool Update;
+			internal ObjectGroup() {
+				this.List = new ObjectList();
+				this.OpenGlDisplayList = 0;
+				this.OpenGlDisplayListAvailable = false;
+				this.WorldPosition = new World.Vector3D(0.0, 0.0, 0.0);
+				this.Update = true;
+			}
+		}
+		
+		// the static opaque lists
+		/// <summary>The list of static opaque face groups. Each group contains only objects that are associated the respective group index.</summary>
+		private static ObjectGroup[] StaticOpaque = new ObjectGroup[] { };
+		/// <summary>Whether to enforce updating all display lists.</summary>
+		internal static bool StaticOpaqueForceUpdate = true;
+		
+		
+		// all other lists
+		/// <summary>The list of dynamic opaque faces to be rendered.</summary>
+		private static ObjectList DynamicOpaque = new ObjectList();
+		/// <summary>The list of dynamic alpha faces to be rendered.</summary>
+		private static ObjectList DynamicAlpha = new ObjectList();
+		/// <summary>The list of overlay opaque faces to be rendered.</summary>
+		private static ObjectList OverlayOpaque = new ObjectList();
+		/// <summary>The list of overlay alpha faces to be rendered.</summary>
+		private static ObjectList OverlayAlpha = new ObjectList();
 
 		// current opengl data
 		private static int AlphaFuncComparison = 0;
 		private static float AlphaFuncValue = 0.0f;
-		private static bool BlendEnabled = false;
 		private static bool AlphaTestEnabled = false;
+		private static bool BlendEnabled = false;
 		private static bool CullEnabled = true;
 		internal static bool LightingEnabled = false;
 		internal static bool FogEnabled = false;
 		private static bool TexturingEnabled = false;
 		private static bool EmissiveEnabled = false;
-		private static bool TransparentColorDepthSorting = false;
 
 		// options
 		internal static bool OptionLighting = true;
@@ -98,16 +155,14 @@ namespace OpenBve {
 		// reset
 		internal static void Reset() {
 			LoadTexturesImmediately = LoadTextureImmediatelyMode.NotYet;
-			ObjectList = new Object[256];
-			ObjectListCount = 0;
-			OpaqueList = new ObjectFace[][] { new ObjectFace[256], new ObjectFace[256]};
-			OpaqueListCount = new int[] { 0, 0 };
-			TransparentColorList = new ObjectFace[][] { new ObjectFace[256], new ObjectFace[256]};
-			TransparentColorListDistance = new double[][] { new double[256], new double[256] };
-			TransparentColorListCount = new int[] { 0, 0 };
-			AlphaList = new ObjectFace[][] { new ObjectFace[256], new ObjectFace[256]};
-			AlphaListDistance = new double[][] { new double[256], new double[256] };
-			AlphaListCount = new int[] { 0, 0 };
+			Objects = new Object[256];
+			ObjectCount = 0;
+			StaticOpaque = new ObjectGroup[] { };
+			StaticOpaqueForceUpdate = true;
+			DynamicOpaque = new ObjectList();
+			DynamicAlpha = new ObjectList();
+			OverlayOpaque = new ObjectList();
+			OverlayAlpha = new ObjectList();
 			OptionLighting = true;
 			OptionAmbientColor = new World.ColorRGB(160, 160, 160);
 			OptionDiffuseColor = new World.ColorRGB(160, 160, 160);
@@ -148,7 +203,6 @@ namespace OpenBve {
 			Gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 			Glu.gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0);
 			Gl.glPopMatrix();
-			TransparentColorDepthSorting = Interface.CurrentOptions.TransparencyMode == Renderer.TransparencyMode.Smooth & Interface.CurrentOptions.Interpolation != TextureManager.InterpolationMode.NearestNeighbor & Interface.CurrentOptions.Interpolation != TextureManager.InterpolationMode.Bilinear;
 			// prepare rendering logo
 			Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
 			Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
@@ -164,7 +218,6 @@ namespace OpenBve {
 			double size = ScreenWidth < ScreenHeight ? ScreenWidth : ScreenHeight;
 			Gl.glColor3f(1.0f, 1.0f, 1.0f);
 			RenderOverlayTexture(TextureLogo, 0.5 * (ScreenWidth - size), 0.5 * (ScreenHeight - size), 0.5 * (ScreenWidth + size), 0.5 * (ScreenHeight + size));
-			//RenderString(0.5 * (double)ScreenWidth, (double)ScreenHeight - 24.0, Fonts.FontType.Small, Interface.GetInterfaceString("message_loading"), 0, 255, 255, 255, true);
 			// finalize
 			Gl.glPopMatrix();
 			Gl.glMatrixMode(Gl.GL_PROJECTION);
@@ -174,7 +227,22 @@ namespace OpenBve {
 		}
 		
 		// deinitialize
-		internal static void Deinitialize() { }
+		internal static void Deinitialize() {
+			ClearDisplayLists();
+		}
+		
+		// clear display lists
+		internal static void ClearDisplayLists() {
+			for (int i = 0; i < StaticOpaque.Length; i++) {
+				if (StaticOpaque[i] != null) {
+					if (StaticOpaque[i].OpenGlDisplayListAvailable) {
+						Gl.glDeleteLists(StaticOpaque[i].OpenGlDisplayList, 1);
+						StaticOpaque[i].OpenGlDisplayListAvailable = false;
+					}
+				}
+			}
+			StaticOpaqueForceUpdate = true;
+		}
 
 		// initialize lighting
 		internal static void InitializeLighting() {
@@ -209,13 +277,26 @@ namespace OpenBve {
 			Gl.glDepthFunc(Gl.GL_LEQUAL);
 		}
 		
+		// reset opengl state
+		private static void ResetOpenGlState() {
+			LastBoundTexture = 0;
+			Gl.glEnable(Gl.GL_CULL_FACE); CullEnabled = true;
+			Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
+			Gl.glDisable(Gl.GL_TEXTURE_2D); TexturingEnabled = false;
+			Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
+			Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
+			Gl.glEnable(Gl.GL_DEPTH_TEST);
+			Gl.glDepthMask(Gl.GL_TRUE);
+			Gl.glMaterialfv(Gl.GL_FRONT_AND_BACK, Gl.GL_EMISSION, new float[] { 0.0f, 0.0f, 0.0f, 1.0f }); EmissiveEnabled = false;
+			SetAlphaFunc(Gl.GL_GREATER, 0.9f);
+		}
+		
 		// render scene
 		internal static byte[] PixelBuffer = null;
 		internal static int PixelBufferOpenGlTextureIndex = 0;
 		internal static void RenderScene(double TimeElapsed) {
 			// initialize
-			Gl.glEnable(Gl.GL_DEPTH_TEST);
-			Gl.glDepthMask(true);
+			ResetOpenGlState();
 			int OpenGlTextureIndex = 0;
 			if (World.CurrentBackground.Texture >= 0) {
 				OpenGlTextureIndex = TextureManager.UseTexture(World.CurrentBackground.Texture, TextureManager.UseMode.Normal);
@@ -236,12 +317,9 @@ namespace OpenBve {
 				Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
 			}
 			Gl.glPushMatrix();
-			if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
-				MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.ChangeToScenery);
-			}
+			MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.ChangeToScenery);
 			if (LoadTexturesImmediately == LoadTextureImmediatelyMode.NotYet) {
 				LoadTexturesImmediately = LoadTextureImmediatelyMode.Yes;
-				ReAddObjects();
 			}
 			// setup camera
 			double cx = World.AbsoluteCameraPosition.X;
@@ -300,29 +378,59 @@ namespace OpenBve {
 			} else if (FogEnabled) {
 				Gl.glDisable(Gl.GL_FOG); FogEnabled = false;
 			}
-			// render polygons
+			// world layer
 			bool optionLighting = OptionLighting;
-			for (int k = 0; k < 2; k++) {
-				// initialize
-				LastBoundTexture = 0;
-				if (k == 0) {
-					// world
-					if (OptionLighting) {
-						if (!LightingEnabled) {
-							Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
+			LastBoundTexture = 0;
+			if (OptionLighting) {
+				if (!LightingEnabled) {
+					Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
+				}
+				if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
+					Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { inv255 * (float)OptionAmbientColor.R, inv255 * (float)OptionAmbientColor.G, inv255 * (float)OptionAmbientColor.B, 1.0f });
+					Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { inv255 * (float)OptionDiffuseColor.R, inv255 * (float)OptionDiffuseColor.G, inv255 * (float)OptionDiffuseColor.B, 1.0f });
+				}
+			} else if (LightingEnabled) {
+				Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
+			}
+			// static opaque
+			if (Interface.CurrentOptions.DisableDisplayLists) {
+				ResetOpenGlState();
+				for (int i = 0; i < StaticOpaque.Length; i++) {
+					if (StaticOpaque[i] != null) {
+						if (StaticOpaque[i].List != null) {
+							for (int j = 0; j < StaticOpaque[i].List.FaceCount; j++) {
+								if (StaticOpaque[i].List.Faces[j] != null) {
+									RenderFace(ref StaticOpaque[i].List.Faces[j], cx, cy, cz);
+								}
+							}
 						}
-						if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
-							Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { inv255 * (float)OptionAmbientColor.R, inv255 * (float)OptionAmbientColor.G, inv255 * (float)OptionAmbientColor.B, 1.0f });
-							Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { inv255 * (float)OptionDiffuseColor.R, inv255 * (float)OptionDiffuseColor.G, inv255 * (float)OptionDiffuseColor.B, 1.0f });
+					}
+				}
+			} else {
+				for (int i = 0; i < StaticOpaque.Length; i++) {
+					if (StaticOpaque[i] != null) {
+						if (StaticOpaque[i].Update | StaticOpaqueForceUpdate) {
+							StaticOpaque[i].Update = false;
+							if (StaticOpaque[i].OpenGlDisplayListAvailable) {
+								Gl.glDeleteLists(StaticOpaque[i].OpenGlDisplayList, 1);
+								StaticOpaque[i].OpenGlDisplayListAvailable = false;
+							}
+							if (StaticOpaque[i].List.FaceCount != 0) {
+								StaticOpaque[i].OpenGlDisplayList = Gl.glGenLists(1);
+								StaticOpaque[i].OpenGlDisplayListAvailable = true;
+								ResetOpenGlState();
+								Gl.glNewList(StaticOpaque[i].OpenGlDisplayList, Gl.GL_COMPILE);
+								for (int j = 0; j < StaticOpaque[i].List.FaceCount; j++) {
+									if (StaticOpaque[i].List.Faces[j] != null) {
+										RenderFace(ref StaticOpaque[i].List.Faces[j], cx, cy, cz);
+									}
+								}
+								Gl.glEndList();
+							}
+							StaticOpaque[i].WorldPosition = World.AbsoluteCameraPosition;
 						}
-					} else if (LightingEnabled) {
-						Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
 					}
-				} else {
-					// overlay
-					if (FogEnabled) {
-						Gl.glDisable(Gl.GL_FOG); FogEnabled = false;
-					}
+<<<<<<< HEAD
 					if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
 						// 3d cab
 						Gl.glLoadIdentity();
@@ -332,32 +440,88 @@ namespace OpenBve {
 						Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
 						if (!LightingEnabled) {
 							Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
+=======
+				}
+				StaticOpaqueForceUpdate = false;
+				for (int i = 0; i < StaticOpaque.Length; i++) {
+					if (StaticOpaque[i] != null) {
+						if (StaticOpaque[i].OpenGlDisplayListAvailable) {
+							ResetOpenGlState();
+							Gl.glPushMatrix();
+							Gl.glTranslated(StaticOpaque[i].WorldPosition.X - World.AbsoluteCameraPosition.X, StaticOpaque[i].WorldPosition.Y - World.AbsoluteCameraPosition.Y, StaticOpaque[i].WorldPosition.Z - World.AbsoluteCameraPosition.Z);
+							Gl.glCallList(StaticOpaque[i].OpenGlDisplayList);
+							Gl.glPopMatrix();
+>>>>>>> upstream/1.2.9.2
 						}
-						OptionLighting = true;
-						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
-						Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
-					} else {
-						// not a 3d cab
-						if (LightingEnabled) {
-							Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = true;
+					}
+				}
+			}
+			// dynamic opaque
+			ResetOpenGlState();
+			for (int i = 0; i < DynamicOpaque.FaceCount; i++) {
+				RenderFace(ref DynamicOpaque.Faces[i], cx, cy, cz);
+			}
+			// dynamic alpha
+			ResetOpenGlState();
+			SortPolygons(DynamicAlpha);
+			if (Interface.CurrentOptions.TransparencyMode == TransparencyMode.Performance) {
+				Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
+				Gl.glDepthMask(Gl.GL_FALSE);
+				SetAlphaFunc(Gl.GL_GREATER, 0.0f);
+				for (int i = 0; i < DynamicAlpha.FaceCount; i++) {
+					RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
+				}
+			} else {
+				Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
+				SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
+				Gl.glDepthMask(Gl.GL_TRUE);
+				for (int i = 0; i < DynamicAlpha.FaceCount; i++) {
+					int r = (int)ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Faces[DynamicAlpha.Faces[i].FaceIndex].Material;
+					if (ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Normal & ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].GlowAttenuationData == 0) {
+						if (ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].Color.A == 255) {
+							RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
 						}
-						OptionLighting = false;
-						if (!BlendEnabled) {
-							Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
+					}
+				}
+				Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
+				SetAlphaFunc(Gl.GL_LESS, 1.0f);
+				Gl.glDepthMask(Gl.GL_FALSE);
+				bool additive = false;
+				for (int i = 0; i < DynamicAlpha.FaceCount; i++) {
+					int r = (int)ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Faces[DynamicAlpha.Faces[i].FaceIndex].Material;
+					if (ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Additive) {
+						if (!additive) {
+							UnsetAlphaFunc();
+							additive = true;
 						}
+<<<<<<< HEAD
 						Gl.glDepthMask(false);
 						SetAlphaFunc(Gl.GL_GREATER, 0.0f);
 						SortPolygons(AlphaList[1], AlphaListCount[1], AlphaListDistance[1], 6, TimeElapsed);
 						for (int i = 0; i < AlphaListCount[1]; i++) {
 							RenderFace(ref AlphaList[1][i], cx, cy, cz);
+=======
+						RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
+					} else {
+						if (additive) {
+							SetAlphaFunc(Gl.GL_LESS, 1.0f);
+							additive = false;
+>>>>>>> upstream/1.2.9.2
 						}
-						continue;
+						RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
 					}
 				}
-				SetAlphaFunc(Gl.GL_GREATER, 0.9f);
-				if (BlendEnabled) {
-					Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
+			}
+			// motion blur
+			Gl.glDisable(Gl.GL_DEPTH_TEST);
+			Gl.glDepthMask(Gl.GL_FALSE);
+			SetAlphaFunc(Gl.GL_GREATER, 0.0f);
+			if (Interface.CurrentOptions.MotionBlur != Interface.MotionBlurMode.None) {
+				if (LightingEnabled) {
+					Gl.glDisable(Gl.GL_LIGHTING);
+					LightingEnabled = false;
 				}
+<<<<<<< HEAD
 				Gl.glEnable(Gl.GL_DEPTH_TEST);
 				Gl.glDepthMask(true);
 				// opaque list
@@ -377,18 +541,55 @@ namespace OpenBve {
 						Gl.glDepthMask(true);
 						SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
 						RenderFace(ref TransparentColorList[k][i], cx, cy, cz);
+=======
+				RenderFullscreenMotionBlur();
+			}
+			// overlay layer
+			if (FogEnabled) {
+				Gl.glDisable(Gl.GL_FOG); FogEnabled = false;
+			}
+			Gl.glLoadIdentity();
+			MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.ChangeToCab);
+			Glu.gluLookAt(0.0, 0.0, 0.0, dx, dy, dz, ux, uy, uz);
+			if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
+				// 3d cab
+				Gl.glDepthMask(Gl.GL_TRUE);
+				Gl.glEnable(Gl.GL_DEPTH_TEST);
+				Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
+				if (!LightingEnabled) {
+					Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
+				}
+				OptionLighting = true;
+				Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
+				Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { 0.6f, 0.6f, 0.6f, 1.0f });
+				// overlay opaque
+				SetAlphaFunc(Gl.GL_GREATER, 0.9f);
+				for (int i = 0; i < OverlayOpaque.FaceCount; i++) {
+					RenderFace(ref OverlayOpaque.Faces[i], cx, cy, cz);
+				}
+				// overlay alpha
+				SortPolygons(OverlayAlpha);
+				if (Interface.CurrentOptions.TransparencyMode == TransparencyMode.Performance) {
+					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
+					Gl.glDepthMask(Gl.GL_FALSE);
+					SetAlphaFunc(Gl.GL_GREATER, 0.0f);
+					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
+						RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
+>>>>>>> upstream/1.2.9.2
 					}
 				} else {
-					for (int i = 0; i < TransparentColorListCount[k]; i++) {
-						RenderFace(ref TransparentColorList[k][i], cx, cy, cz);
+					Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
+					SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
+					Gl.glDepthMask(Gl.GL_TRUE);
+					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
+						int r = (int)ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Faces[OverlayAlpha.Faces[i].FaceIndex].Material;
+						if (ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Normal & ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].GlowAttenuationData == 0) {
+							if (ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].Color.A == 255) {
+								RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
+							}
+						}
 					}
-				}
-				// alpha list
-				SortPolygons(AlphaList[k], AlphaListCount[k], AlphaListDistance[k], (k << 2) + 2, TimeElapsed);
-				if (Interface.CurrentOptions.TransparencyMode == TransparencyMode.Smooth) {
-					if (!BlendEnabled) {
-						Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
-					}
+<<<<<<< HEAD
 					bool depthMask = true;
 					for (int i = 0; i < AlphaListCount[k]; i++) {
 						int r = (int)ObjectManager.Objects[AlphaList[k][i].ObjectIndex].Mesh.Faces[AlphaList[k][i].FaceIndex].Material;
@@ -396,10 +597,22 @@ namespace OpenBve {
 							if (depthMask) {
 								Gl.glDepthMask(false);
 								depthMask = false;
+=======
+					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
+					SetAlphaFunc(Gl.GL_LESS, 1.0f);
+					Gl.glDepthMask(Gl.GL_FALSE);
+					bool additive = false;
+					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
+						int r = (int)ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Faces[OverlayAlpha.Faces[i].FaceIndex].Material;
+						if (ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Additive) {
+							if (!additive) {
+								UnsetAlphaFunc();
+								additive = true;
+>>>>>>> upstream/1.2.9.2
 							}
-							SetAlphaFunc(Gl.GL_GREATER, 0.0f);
-							RenderFace(ref AlphaList[k][i], cx, cy, cz);
+							RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
 						} else {
+<<<<<<< HEAD
 							if (depthMask) {
 								Gl.glDepthMask(false);
 								depthMask = false;
@@ -434,10 +647,35 @@ namespace OpenBve {
 						}
 						RenderFullscreenMotionBlur();
 					}
+=======
+							if (additive) {
+								SetAlphaFunc(Gl.GL_LESS, 1.0f);
+								additive = false;
+							}
+							RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
+						}
+					}
+				}
+			} else {
+				// not a 3d cab
+				if (LightingEnabled) {
+					Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = true;
+				}
+				OptionLighting = false;
+				if (!BlendEnabled) {
+					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
+				}
+				Gl.glDepthMask(Gl.GL_FALSE);
+				Gl.glDisable(Gl.GL_DEPTH_TEST);
+				UnsetAlphaFunc();
+				SortPolygons(OverlayAlpha);
+				for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
+					RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
+>>>>>>> upstream/1.2.9.2
 				}
 			}
-			OptionLighting = optionLighting;
 			// render overlays
+			OptionLighting = optionLighting;
 			if (LightingEnabled) {
 				Gl.glDisable(Gl.GL_LIGHTING); LightingEnabled = false;
 			}
@@ -447,10 +685,7 @@ namespace OpenBve {
 			if (BlendEnabled) {
 				Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
 			}
-			if (AlphaTestEnabled) {
-				Gl.glDisable(Gl.GL_ALPHA_TEST); AlphaTestEnabled = false;
-			}
-			SetAlphaFunc(Gl.GL_GREATER, 0.9f);
+			UnsetAlphaFunc();
 			Gl.glDisable(Gl.GL_DEPTH_TEST);
 			RenderOverlays(TimeElapsed);
 			// finalize rendering
@@ -460,9 +695,23 @@ namespace OpenBve {
 		
 		// set alpha func
 		private static void SetAlphaFunc(int Comparison, float Value) {
+			AlphaTestEnabled = true;
 			AlphaFuncComparison = Comparison;
 			AlphaFuncValue = Value;
 			Gl.glAlphaFunc(Comparison, Value);
+			Gl.glEnable(Gl.GL_ALPHA_TEST);
+		}
+		private static void UnsetAlphaFunc() {
+			AlphaTestEnabled = false;
+			Gl.glDisable(Gl.GL_ALPHA_TEST);
+		}
+		private static void RestoreAlphaFunc() {
+			if (AlphaTestEnabled) {
+				Gl.glAlphaFunc(AlphaFuncComparison, AlphaFuncValue);
+				Gl.glEnable(Gl.GL_ALPHA_TEST);
+			} else {
+				Gl.glDisable(Gl.GL_ALPHA_TEST);
+			}
 		}
 
 		// render face
@@ -484,8 +733,8 @@ namespace OpenBve {
 		}
 		private static void RenderFace(ref World.MeshMaterial Material, World.Vertex[] Vertices, ref World.MeshFace Face, double CameraX, double CameraY, double CameraZ) {
 			// texture
-			int OpenGlNighttimeTextureIndex = Material.NighttimeTextureIndex >= 0 ? TextureManager.UseTexture(Material.NighttimeTextureIndex, TextureManager.UseMode.Normal) : 0;
 			int OpenGlDaytimeTextureIndex = Material.DaytimeTextureIndex >= 0 ? TextureManager.UseTexture(Material.DaytimeTextureIndex, TextureManager.UseMode.Normal) : 0;
+			int OpenGlNighttimeTextureIndex = Material.NighttimeTextureIndex >= 0 ? TextureManager.UseTexture(Material.NighttimeTextureIndex, TextureManager.UseMode.Normal) : 0;
 			if (OpenGlDaytimeTextureIndex != 0) {
 				if (!TexturingEnabled) {
 					Gl.glEnable(Gl.GL_TEXTURE_2D);
@@ -495,24 +744,11 @@ namespace OpenBve {
 					Gl.glBindTexture(Gl.GL_TEXTURE_2D, OpenGlDaytimeTextureIndex);
 					LastBoundTexture = OpenGlDaytimeTextureIndex;
 				}
-				if (TextureManager.Textures[Material.DaytimeTextureIndex].Transparency != TextureManager.TextureTransparencyMode.None) {
-					if (!AlphaTestEnabled) {
-						Gl.glEnable(Gl.GL_ALPHA_TEST);
-						AlphaTestEnabled = true;
-					}
-				} else if (AlphaTestEnabled) {
-					Gl.glDisable(Gl.GL_ALPHA_TEST);
-					AlphaTestEnabled = false;
-				}
 			} else {
 				if (TexturingEnabled) {
 					Gl.glDisable(Gl.GL_TEXTURE_2D);
 					TexturingEnabled = false;
 					LastBoundTexture = 0;
-				}
-				if (AlphaTestEnabled) {
-					Gl.glDisable(Gl.GL_ALPHA_TEST);
-					AlphaTestEnabled = false;
 				}
 			}
 			// blend mode
@@ -612,6 +848,7 @@ namespace OpenBve {
 				Gl.glBindTexture(Gl.GL_TEXTURE_2D, OpenGlNighttimeTextureIndex);
 				LastBoundTexture = 0;
 				Gl.glAlphaFunc(Gl.GL_GREATER, 0.0f);
+				Gl.glEnable(Gl.GL_ALPHA_TEST);
 				switch (FaceType) {
 					case World.MeshFace.FaceTypeTriangles:
 						Gl.glBegin(Gl.GL_TRIANGLES);
@@ -652,9 +889,7 @@ namespace OpenBve {
 					Gl.glVertex3f((float)(Vertices[Face.Vertices[j].Index].Coordinates.X - CameraX), (float)(Vertices[Face.Vertices[j].Index].Coordinates.Y - CameraY), (float)(Vertices[Face.Vertices[j].Index].Coordinates.Z - CameraZ));
 				}
 				Gl.glEnd();
-				if (AlphaFuncValue != 0.0) {
-					Gl.glAlphaFunc(AlphaFuncComparison, AlphaFuncValue);
-				}
+				RestoreAlphaFunc();
 				if (!BlendEnabled) {
 					Gl.glDisable(Gl.GL_BLEND);
 				}
@@ -664,10 +899,6 @@ namespace OpenBve {
 				if (TexturingEnabled) {
 					Gl.glDisable(Gl.GL_TEXTURE_2D);
 					TexturingEnabled = false;
-				}
-				if (AlphaTestEnabled) {
-					Gl.glDisable(Gl.GL_ALPHA_TEST);
-					AlphaTestEnabled = false;
 				}
 				for (int j = 0; j < Face.Vertices.Length; j++) {
 					Gl.glBegin(Gl.GL_LINES);
@@ -689,6 +920,7 @@ namespace OpenBve {
 
 		// render background
 		private static void RenderBackground(double dx, double dy, double dz, double TimeElapsed) {
+			const float scale = 0.5f;
 			// fog
 			const float fogdistance = 600.0f;
 			if (Game.CurrentFog.Start < Game.CurrentFog.End & Game.CurrentFog.Start < fogdistance) {
@@ -699,8 +931,8 @@ namespace OpenBve {
 					Gl.glFogi(Gl.GL_FOG_MODE, Gl.GL_LINEAR);
 				}
 				float ratio = (float)World.BackgroundImageDistance / fogdistance;
-				Gl.glFogf(Gl.GL_FOG_START, Game.CurrentFog.Start * ratio);
-				Gl.glFogf(Gl.GL_FOG_END, Game.CurrentFog.End * ratio);
+				Gl.glFogf(Gl.GL_FOG_START, Game.CurrentFog.Start * ratio * scale);
+				Gl.glFogf(Gl.GL_FOG_END, Game.CurrentFog.End * ratio * scale);
 				Gl.glFogfv(Gl.GL_FOG_COLOR, new float[] { cr, cg, cb, 1.0f });
 				if (!FogEnabled) {
 					Gl.glEnable(Gl.GL_FOG); FogEnabled = true;
@@ -715,19 +947,19 @@ namespace OpenBve {
 				if (World.TargetBackgroundCountdown < 0.0) {
 					World.CurrentBackground = World.TargetBackground;
 					World.TargetBackgroundCountdown = -1.0;
-					RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f);
+					RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f, scale);
 				} else {
-					RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f);
-					AlphaFuncValue = 0.0f; Gl.glAlphaFunc(AlphaFuncComparison, AlphaFuncValue);
+					RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f, scale);
+					SetAlphaFunc(Gl.GL_GREATER, 0.0f); // ###
 					float Alpha = (float)(1.0 - World.TargetBackgroundCountdown / World.TargetBackgroundDefaultCountdown);
-					RenderBackground(World.TargetBackground, dx, dy, dz, Alpha);
+					RenderBackground(World.TargetBackground, dx, dy, dz, Alpha, scale);
 				}
 			} else {
 				// single
-				RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f);
+				RenderBackground(World.CurrentBackground, dx, dy, dz, 1.0f, scale);
 			}
 		}
-		private static void RenderBackground(World.Background Data, double dx, double dy, double dz, float Alpha) {
+		private static void RenderBackground(World.Background Data, double dx, double dy, double dz, float Alpha, float scale) {
 			if (Data.Texture >= 0) {
 				int OpenGlTextureIndex = TextureManager.UseTexture(Data.Texture, TextureManager.UseMode.LoadImmediately);
 				if (OpenGlTextureIndex > 0) {
@@ -766,11 +998,16 @@ namespace OpenBve {
 					World.Vector3Df[] top = new World.Vector3Df[n];
 					double angleValue = 2.61799387799149 - 3.14159265358979 / (double)n;
 					double angleIncrement = 6.28318530717958 / (double)n;
+					/*
+					 * To ensure that the whole background cylinder is rendered inside the viewing frustum,
+					 * the background is rendered before the scene with z-buffer writes disabled. Then,
+					 * the actual distance from the camera is irrelevant as long as it is inside the frustum.
+					 * */
 					for (int i = 0; i < n; i++) {
 						float x = (float)(World.BackgroundImageDistance * Math.Cos(angleValue));
 						float z = (float)(World.BackgroundImageDistance * Math.Sin(angleValue));
-						bottom[i] = new World.Vector3Df(x, y0, z);
-						top[i] = new World.Vector3Df(x, y1, z);
+						bottom[i] = new World.Vector3Df(scale * x, scale * y0, scale * z);
+						top[i] = new World.Vector3Df(scale * x, scale * y1, scale * z);
 						angleValue += angleIncrement;
 					}
 					float textureStart = 0.5f * (float)Data.Repetition / (float)n;
@@ -2268,7 +2505,7 @@ namespace OpenBve {
 					"speed of sound: " + (Game.GetSpeedOfSound(TrainManager.PlayerTrain.Specs.CurrentAirDensity) * 3.6).ToString("0.00", Culture) + " km/h",
 					"passenger ratio: " + TrainManager.PlayerTrain.Passengers.PassengerRatio.ToString("0.00"),
 					"total mass: " + mass.ToString("0.00", Culture) + " kg",
-					"plugin: " + (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin ? (PluginManager.PluginValid ? "ok" : "error") : "n/a"),
+					"plugin: " + (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin ? ((PluginManager.CurrentPlugin.PluginValid ? "ok" : "error") + ", message: " + (PluginManager.CurrentPlugin.PluginMessage != null ? PluginManager.CurrentPlugin.PluginMessage : "n/a")) : "n/a"),
 					"",
 					"=route",
 					"track limit: " + (TrainManager.PlayerTrain.CurrentRouteLimit == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.CurrentRouteLimit * 3.6).ToString("0.0", Culture) + " km/h")),
@@ -2283,12 +2520,11 @@ namespace OpenBve {
 					"total animated objects: " + ObjectManager.AnimatedWorldObjectsUsed.ToString(Culture),
 					"",
 					"=renderer",
-					"world opaque faces: " + OpaqueListCount[0].ToString(Culture),
-					"world transparent faces: " + TransparentColorListCount[0].ToString(Culture),
-					"world alpha faces: " + AlphaListCount[0].ToString(Culture),
-					"cab opaque faces: " + OpaqueListCount[1].ToString(Culture),
-					"cab transparent faces: " + TransparentColorListCount[1].ToString(Culture),
-					"cab alpha faces: " + AlphaListCount[1].ToString(Culture),
+					"static opaque faces: " + Game.InfoStaticOpaqueFaceCount.ToString(Culture),
+					"dynamic opaque faces: " + DynamicOpaque.FaceCount.ToString(Culture),
+					"dynamic alpha faces: " + DynamicAlpha.FaceCount.ToString(Culture),
+					"overlay opaque faces: " + OverlayOpaque.FaceCount.ToString(Culture),
+					"overlay alpha faces: " + OverlayAlpha.FaceCount.ToString(Culture),
 					"textures loaded: " + texturesLoaded.ToString(Culture),
 					"textures registered: " + texturesRegistered.ToString(Culture),
 					"",
@@ -2614,7 +2850,10 @@ namespace OpenBve {
 			double tw = 0.0;
 			for (int i = 0; i < Text.Length; i++) {
 				int a = char.ConvertToUtf32(Text, i);
-				Fonts.GetTextureIndex(FontType, Text[i]);
+				if (a >= 0x10000) {
+					i++;
+				}
+				Fonts.GetTextureIndex(FontType, a);
 				tw += Fonts.Characters[Font][a].Width;
 			}
 			if (Orientation == 0) {
@@ -2624,7 +2863,10 @@ namespace OpenBve {
 			}
 			for (int i = 0; i < Text.Length; i++) {
 				int b = char.ConvertToUtf32(Text, i);
-				int t = Fonts.GetTextureIndex(FontType, Text[i]);
+				if (b >= 0x10000) {
+					i++;
+				}
+				int t = Fonts.GetTextureIndex(FontType, b);
 				double w = (double)TextureManager.Textures[t].ClipWidth;
 				double h = (double)TextureManager.Textures[t].ClipHeight;
 				Gl.glBlendFunc(Gl.GL_ZERO, Gl.GL_ONE_MINUS_SRC_COLOR);
@@ -2643,11 +2885,16 @@ namespace OpenBve {
 		private static void MeasureString(string Text, Fonts.FontType FontType, out float Width, out float Height) {
 			Width = 0.0f;
 			Height = 0.0f;
-			if (Text == null) return;
+			if (Text == null) {
+				return;
+			}
 			int Font = (int)FontType;
 			for (int i = 0; i < Text.Length; i++) {
 				int Codepoint = char.ConvertToUtf32(Text, i);
-				int Texture = Fonts.GetTextureIndex(FontType, Text[i]);
+				if (Codepoint >= 0x10000) {
+					i++;
+				}
+				int Texture = Fonts.GetTextureIndex(FontType, Codepoint);
 				Width += Fonts.Characters[Font][Codepoint].Width;
 				if (Fonts.Characters[Font][Codepoint].Height > Height) {
 					Height = Fonts.Characters[Font][Codepoint].Height;
@@ -2700,33 +2947,35 @@ namespace OpenBve {
 		}
 
 		// re-add objects
-		private static void ReAddObjects() {
-			Object[] List = new Object[ObjectListCount];
-			for (int i = 0; i < ObjectListCount; i++) {
-				List[i] = ObjectList[i];
+		internal static void ReAddObjects() {
+			Object[] list = new Object[ObjectCount];
+			for (int i = 0; i < ObjectCount; i++) {
+				list[i] = Objects[i];
 			}
-			for (int i = 0; i < List.Length; i++) {
-				HideObject(List[i].ObjectIndex);
+			for (int i = 0; i < list.Length; i++) {
+				HideObject(list[i].ObjectIndex);
 			}
-			for (int i = 0; i < List.Length; i++) {
-				ShowObject(List[i].ObjectIndex, List[i].Overlay);
+			for (int i = 0; i < list.Length; i++) {
+				ShowObject(list[i].ObjectIndex, list[i].Type);
 			}
 		}
 
 		// show object
-		internal static void ShowObject(int ObjectIndex, bool Overlay) {
-			if (ObjectManager.Objects[ObjectIndex] == null) return;
+		internal static void ShowObject(int ObjectIndex, ObjectType Type) {
+			if (ObjectManager.Objects[ObjectIndex] == null) {
+				return;
+			}
 			if (ObjectManager.Objects[ObjectIndex].RendererIndex == 0) {
-				if (ObjectListCount >= ObjectList.Length) {
-					Array.Resize<Object>(ref ObjectList, ObjectList.Length << 1);
+				if (ObjectCount >= Objects.Length) {
+					Array.Resize<Object>(ref Objects, Objects.Length << 1);
 				}
-				ObjectList[ObjectListCount].ObjectIndex = ObjectIndex;
-				ObjectList[ObjectListCount].Overlay = Overlay;
+				Objects[ObjectCount].ObjectIndex = ObjectIndex;
+				Objects[ObjectCount].Type = Type;
 				int f = ObjectManager.Objects[ObjectIndex].Mesh.Faces.Length;
-				ObjectList[ObjectListCount].FaceListIndices = new int[f];
+				Objects[ObjectCount].FaceListReferences = new ObjectListReference[f];
 				for (int i = 0; i < f; i++) {
-					bool transparentcolor = false, alpha = false;
-					if (Overlay & World.CameraRestriction != World.CameraRestrictionMode.NotAvailable) {
+					bool alpha = false;
+					if (Type == ObjectType.Overlay & World.CameraRestriction != World.CameraRestrictionMode.NotAvailable) {
 						alpha = true;
 					} else {
 						int k = ObjectManager.Objects[ObjectIndex].Mesh.Faces[i].Material;
@@ -2739,135 +2988,235 @@ namespace OpenBve {
 						} else {
 							int tday = ObjectManager.Objects[ObjectIndex].Mesh.Materials[k].DaytimeTextureIndex;
 							if (tday >= 0) {
-								TextureManager.UseTexture(tday, TextureManager.UseMode.Normal);
+								TextureManager.UseTexture(tday, TextureManager.UseMode.LoadImmediately);
 								if (TextureManager.Textures[tday].Transparency == TextureManager.TextureTransparencyMode.Alpha) {
 									alpha = true;
-								} else if (TextureManager.Textures[tday].Transparency == TextureManager.TextureTransparencyMode.TransparentColor) {
-									transparentcolor = true;
+								} else if (TextureManager.Textures[tday].Transparency == TextureManager.TextureTransparencyMode.TransparentColor & Interface.CurrentOptions.TransparencyMode == TransparencyMode.Quality) {
+									alpha = true;
 								}
 							}
 							int tnight = ObjectManager.Objects[ObjectIndex].Mesh.Materials[k].NighttimeTextureIndex;
 							if (tnight >= 0) {
-								TextureManager.UseTexture(tnight, TextureManager.UseMode.Normal);
+								TextureManager.UseTexture(tnight, TextureManager.UseMode.LoadImmediately);
 								if (TextureManager.Textures[tnight].Transparency == TextureManager.TextureTransparencyMode.Alpha) {
 									alpha = true;
-								} else if (TextureManager.Textures[tnight].Transparency == TextureManager.TextureTransparencyMode.TransparentColor) {
-									transparentcolor = true;
+								} else if (TextureManager.Textures[tnight].Transparency == TextureManager.TextureTransparencyMode.TransparentColor & Interface.CurrentOptions.TransparencyMode == TransparencyMode.Quality) {
+									alpha = true;
 								}
 							}
 						}
 					}
-					int listLayer = Overlay ? 1 : 0;
-					int listOffset = listLayer << 2;
-					if (alpha) {
-						// alpha
-						if (AlphaListCount[listLayer] >= AlphaList[listLayer].Length) {
-							Array.Resize(ref AlphaList[listLayer], AlphaList[listLayer].Length << 1);
-							Array.Resize(ref AlphaListDistance[listLayer], AlphaList[listLayer].Length);
-						}
-						AlphaList[listLayer][AlphaListCount[listLayer]].ObjectIndex = ObjectIndex;
-						AlphaList[listLayer][AlphaListCount[listLayer]].FaceIndex = i;
-						AlphaList[listLayer][AlphaListCount[listLayer]].ObjectListIndex = ObjectListCount;
-						ObjectList[ObjectListCount].FaceListIndices[i] = (AlphaListCount[listLayer] << 3) + listOffset + 2;
-						AlphaListCount[listLayer]++;
-					} else if (transparentcolor) {
-						// transparent color
-						if (TransparentColorListCount[listLayer] >= TransparentColorList[listLayer].Length) {
-							Array.Resize(ref TransparentColorList[listLayer], TransparentColorList[listLayer].Length << 1);
-							Array.Resize(ref TransparentColorListDistance[listLayer], TransparentColorList[listLayer].Length);
-						}
-						TransparentColorList[listLayer][TransparentColorListCount[listLayer]].ObjectIndex = ObjectIndex;
-						TransparentColorList[listLayer][TransparentColorListCount[listLayer]].FaceIndex = i;
-						TransparentColorList[listLayer][TransparentColorListCount[listLayer]].ObjectListIndex = ObjectListCount;
-						ObjectList[ObjectListCount].FaceListIndices[i] = (TransparentColorListCount[listLayer] << 3) + listOffset + 1;
-						TransparentColorListCount[listLayer]++;
-					} else {
-						// opaque
-						if (OpaqueListCount[listLayer] >= OpaqueList[listLayer].Length) {
-							Array.Resize(ref OpaqueList[listLayer], OpaqueList[listLayer].Length << 1);
-						}
-						OpaqueList[listLayer][OpaqueListCount[listLayer]].ObjectIndex = ObjectIndex;
-						OpaqueList[listLayer][OpaqueListCount[listLayer]].FaceIndex = i;
-						OpaqueList[listLayer][OpaqueListCount[listLayer]].ObjectListIndex = ObjectListCount;
-						ObjectList[ObjectListCount].FaceListIndices[i] = (OpaqueListCount[listLayer] << 3) + listOffset;
-						OpaqueListCount[listLayer]++;
+					ObjectListType listType;
+					switch (Type) {
+						case ObjectType.Static:
+							listType = alpha ? ObjectListType.DynamicAlpha : ObjectListType.StaticOpaque;
+							break;
+						case ObjectType.Dynamic:
+							listType = alpha ? ObjectListType.DynamicAlpha : ObjectListType.DynamicOpaque;
+							break;
+						case ObjectType.Overlay:
+							listType = alpha ? ObjectListType.OverlayAlpha : ObjectListType.OverlayOpaque;
+							break;
+						default:
+							throw new InvalidOperationException();
 					}
+					if (listType == ObjectListType.StaticOpaque) {
+						int k = ObjectManager.Objects[ObjectIndex].Mesh.Faces[i].Material;
+						int tday = ObjectManager.Objects[ObjectIndex].Mesh.Materials[k].DaytimeTextureIndex;
+						if (tday >= 0) {
+							TextureManager.Textures[tday].DontAllowUnload = true;
+						}
+						int tnight = ObjectManager.Objects[ObjectIndex].Mesh.Materials[k].NighttimeTextureIndex;
+						if (tnight >= 0) {
+							TextureManager.Textures[tnight].DontAllowUnload = true;
+						}
+					}
+					if (listType == ObjectListType.StaticOpaque) {
+						/*
+						 * For the static opaque list, insert the face into
+						 * the first vacant position in the matching group's list.
+						 * */
+						int groupIndex = (int)ObjectManager.Objects[ObjectIndex].GroupIndex;
+						if (groupIndex >= StaticOpaque.Length) {
+							if (StaticOpaque.Length == 0) {
+								StaticOpaque = new ObjectGroup[16];
+							}
+							while (groupIndex >= StaticOpaque.Length) {
+								Array.Resize<ObjectGroup>(ref StaticOpaque, StaticOpaque.Length << 1);
+							}
+						}
+						if (StaticOpaque[groupIndex] == null) {
+							StaticOpaque[groupIndex] = new ObjectGroup();
+						}
+						ObjectList list = StaticOpaque[groupIndex].List;
+						int newIndex = list.FaceCount;
+						for (int j = 0; j < list.FaceCount; j++) {
+							if (list.Faces[j] == null) {
+								newIndex = j;
+								break;
+							}
+						}
+						if (newIndex == list.FaceCount) {
+							if (list.FaceCount == list.Faces.Length) {
+								Array.Resize<ObjectFace>(ref list.Faces, list.Faces.Length << 1);
+							}
+							list.FaceCount++;
+						}
+						list.Faces[newIndex] = new ObjectFace();
+						list.Faces[newIndex].ObjectListIndex = ObjectCount;
+						list.Faces[newIndex].ObjectIndex = ObjectIndex;
+						list.Faces[newIndex].FaceIndex = i;
+						StaticOpaque[groupIndex].Update = true;
+						Objects[ObjectCount].FaceListReferences[i] = new ObjectListReference(listType, newIndex);
+						Game.InfoStaticOpaqueFaceCount++;
+					} else {
+						/*
+						 * For all other lists, insert the face at the end of the list.
+						 * */
+						ObjectList list;
+						switch (listType) {
+							case ObjectListType.DynamicOpaque:
+								list = DynamicOpaque;
+								break;
+							case ObjectListType.DynamicAlpha:
+								list = DynamicAlpha;
+								break;
+							case ObjectListType.OverlayOpaque:
+								list = OverlayOpaque;
+								break;
+							case ObjectListType.OverlayAlpha:
+								list = OverlayAlpha;
+								break;
+							default:
+								throw new InvalidOperationException();
+						}
+						if (list.FaceCount == list.Faces.Length) {
+							Array.Resize<ObjectFace>(ref list.Faces, list.Faces.Length << 1);
+						}
+						list.Faces[list.FaceCount] = new ObjectFace();
+						list.Faces[list.FaceCount].ObjectListIndex = ObjectCount;
+						list.Faces[list.FaceCount].ObjectIndex = ObjectIndex;
+						list.Faces[list.FaceCount].FaceIndex = i;
+						Objects[ObjectCount].FaceListReferences[i] = new ObjectListReference(listType, list.FaceCount);
+						list.FaceCount++;
+					}
+					
 				}
-				ObjectManager.Objects[ObjectIndex].RendererIndex = ObjectListCount + 1;
-				ObjectListCount++;
+				ObjectManager.Objects[ObjectIndex].RendererIndex = ObjectCount + 1;
+				ObjectCount++;
 			}
 		}
 
 		// hide object
 		internal static void HideObject(int ObjectIndex) {
-			if (ObjectManager.Objects[ObjectIndex] == null) return;
+			if (ObjectManager.Objects[ObjectIndex] == null) {
+				return;
+			}
 			int k = ObjectManager.Objects[ObjectIndex].RendererIndex - 1;
 			if (k >= 0) {
 				// remove faces
-				for (int i = 0; i < ObjectList[k].FaceListIndices.Length; i++) {
-					int listReference = ObjectList[k].FaceListIndices[i];
-					int listLayer = (listReference & 7) >> 2;
-					int listType = listReference & 3;
-					int listIndex = listReference >> 3;
-					switch (listType) {
-						case 0:
-							// opaque
-							OpaqueList[listLayer][listIndex] = OpaqueList[listLayer][OpaqueListCount[listLayer] - 1];
-							OpaqueListCount[listLayer]--;
-							ObjectList[OpaqueList[listLayer][listIndex].ObjectListIndex].FaceListIndices[OpaqueList[listLayer][listIndex].FaceIndex] = listReference;
-							break;
-						case 1:
-							// transparent color
-							TransparentColorList[listLayer][listIndex] = TransparentColorList[listLayer][TransparentColorListCount[listLayer] - 1];
-							TransparentColorListCount[listLayer]--;
-							ObjectList[TransparentColorList[listLayer][listIndex].ObjectListIndex].FaceListIndices[TransparentColorList[listLayer][listIndex].FaceIndex] = listReference;
-							break;
-						case 2:
-							// alpha
-							AlphaList[listLayer][listIndex] = AlphaList[listLayer][AlphaListCount[listLayer] - 1];
-							AlphaListCount[listLayer]--;
-							ObjectList[AlphaList[listLayer][listIndex].ObjectListIndex].FaceListIndices[AlphaList[listLayer][listIndex].FaceIndex] = listReference;
-							break;
+				for (int i = 0; i < Objects[k].FaceListReferences.Length; i++) {
+					ObjectListType listType = Objects[k].FaceListReferences[i].Type;
+					if (listType == ObjectListType.StaticOpaque) {
+						/*
+						 * For static opaque faces, set the face to be removed
+						 * to a null reference. If there are null entries at
+						 * the end of the list, update the number of faces used
+						 * accordingly.
+						 * */
+						int groupIndex = (int)ObjectManager.Objects[Objects[k].ObjectIndex].GroupIndex;
+						ObjectList list = StaticOpaque[groupIndex].List;
+						int listIndex = Objects[k].FaceListReferences[i].Index;
+						list.Faces[listIndex] = null;
+						if (listIndex == list.FaceCount - 1) {
+							int count = 0;
+							for (int j = list.FaceCount - 2; j >= 0; j--) {
+								if (list.Faces[j] != null) {
+									count = j + 1;
+									break;
+								}
+							}
+							list.FaceCount = count;
+						}
+						StaticOpaque[groupIndex].Update = true;
+						Game.InfoStaticOpaqueFaceCount--;
+					} else {
+						/*
+						 * For all other kinds of faces, move the last face into place
+						 * of the face to be removed and decrement the face counter.
+						 * */
+						ObjectList list;
+						switch (listType) {
+							case ObjectListType.DynamicOpaque:
+								list = DynamicOpaque;
+								break;
+							case ObjectListType.DynamicAlpha:
+								list = DynamicAlpha;
+								break;
+							case ObjectListType.OverlayOpaque:
+								list = OverlayOpaque;
+								break;
+							case ObjectListType.OverlayAlpha:
+								list = OverlayAlpha;
+								break;
+							default:
+								throw new InvalidOperationException();
+						}
+						int listIndex = Objects[k].FaceListReferences[i].Index;
+						list.Faces[listIndex] = list.Faces[list.FaceCount - 1];
+						Objects[list.Faces[listIndex].ObjectListIndex].FaceListReferences[list.Faces[listIndex].FaceIndex].Index = listIndex;
+						list.FaceCount--;
 					}
 				}
 				// remove object
-				if (k == ObjectListCount - 1) {
-					ObjectListCount--;
+				if (k == ObjectCount - 1) {
+					ObjectCount--;
 				} else {
-					ObjectList[k] = ObjectList[ObjectListCount - 1];
-					ObjectListCount--;
-					for (int i = 0; i < ObjectList[k].FaceListIndices.Length; i++) {
-						int listReference = ObjectList[k].FaceListIndices[i];
-						int listLayer = (listReference & 7) >> 2;
-						int listType = listReference & 3;
-						int listIndex = listReference >> 3;
+					Objects[k] = Objects[ObjectCount - 1];
+					ObjectCount--;
+					for (int i = 0; i < Objects[k].FaceListReferences.Length; i++) {
+						ObjectListType listType = Objects[k].FaceListReferences[i].Type;
+						ObjectList list;
 						switch (listType) {
-							case 0:
-								OpaqueList[listLayer][listIndex].ObjectListIndex = k;
+							case ObjectListType.StaticOpaque:
+								{
+									int groupIndex = (int)ObjectManager.Objects[Objects[k].ObjectIndex].GroupIndex;
+									list = StaticOpaque[groupIndex].List;
+								}
 								break;
-							case 1:
-								TransparentColorList[listLayer][listIndex].ObjectListIndex = k;
+							case ObjectListType.DynamicOpaque:
+								list = DynamicOpaque;
 								break;
-							case 2:
-								AlphaList[listLayer][listIndex].ObjectListIndex = k;
+							case ObjectListType.DynamicAlpha:
+								list = DynamicAlpha;
 								break;
+							case ObjectListType.OverlayOpaque:
+								list = OverlayOpaque;
+								break;
+							case ObjectListType.OverlayAlpha:
+								list = OverlayAlpha;
+								break;
+							default:
+								throw new InvalidOperationException();
 						}
+						int listIndex = Objects[k].FaceListReferences[i].Index;
+						list.Faces[listIndex].ObjectListIndex = k;
 					}
-					ObjectManager.Objects[ObjectList[k].ObjectIndex].RendererIndex = k + 1;
+					ObjectManager.Objects[Objects[k].ObjectIndex].RendererIndex = k + 1;
 				}
 				ObjectManager.Objects[ObjectIndex].RendererIndex = 0;
 			}
 		}
 
 		// sort polygons
-		private static void SortPolygons(ObjectFace[] List, int ListCount, double[] ListDistance, int ListIndex, double TimeElapsed) {
+		private static void SortPolygons(ObjectList List) {
 			// calculate distance
 			double cx = World.AbsoluteCameraPosition.X;
 			double cy = World.AbsoluteCameraPosition.Y;
 			double cz = World.AbsoluteCameraPosition.Z;
-			for (int i = 0; i < ListCount; i++) {
-				int o = List[i].ObjectIndex;
-				int f = List[i].FaceIndex;
+			for (int i = 0; i < List.FaceCount; i++) {
+				int o = List.Faces[i].ObjectIndex;
+				int f = List.Faces[i].FaceIndex;
 				if (ObjectManager.Objects[o].Mesh.Faces[f].Vertices.Length >= 3) {
 					int v0 = ObjectManager.Objects[o].Mesh.Faces[f].Vertices[0].Index;
 					int v1 = ObjectManager.Objects[o].Mesh.Faces[f].Vertices[1].Index;
@@ -2892,15 +3241,19 @@ namespace OpenBve {
 						dx *= t; dy *= t; dz *= t;
 						double w0x = v0x - cx, w0y = v0y - cy, w0z = v0z - cz;
 						t = dx * w0x + dy * w0y + dz * w0z;
-						ListDistance[i] = -t * t;
+						List.Faces[i].Distance = -t * t;
 					}
 				}
 			}
 			// sort
-			Array.Sort<double, ObjectFace>(ListDistance, List, 0, ListCount);
-			// update object list
-			for (int i = 0; i < ListCount; i++) {
-				ObjectList[List[i].ObjectListIndex].FaceListIndices[List[i].FaceIndex] = (i << 3) + ListIndex;
+			double[] distances = new double[List.FaceCount];
+			for (int i = 0; i < List.FaceCount; i++) {
+				distances[i] = List.Faces[i].Distance;
+			}
+			Array.Sort<double, ObjectFace>(distances, List.Faces, 0, List.FaceCount);
+			// update objects
+			for (int i = 0; i < List.FaceCount; i++) {
+				Objects[List.Faces[i].ObjectListIndex].FaceListReferences[List.Faces[i].FaceIndex].Index = i;
 			}
 		}
 

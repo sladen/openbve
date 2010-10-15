@@ -9,10 +9,16 @@ namespace OpenBve {
 		// static objects
 		internal class StaticObject : UnifiedObject {
 			internal World.Mesh Mesh;
+			/// <summary>The index to the Renderer.Object array, plus 1. The value of zero represents that the object is not currently shown by the renderer.</summary>
 			internal int RendererIndex;
+			/// <summary>The starting track position, for static objects only.</summary>
 			internal float StartingDistance;
+			/// <summary>The ending track position, for static objects only.</summary>
 			internal float EndingDistance;
-			internal byte Dynamic;
+			/// <summary>The block mod group, for static objects only.</summary>
+			internal short GroupIndex;
+			/// <summary>Whether the object is dynamic, i.e. not static.</summary>
+			internal bool Dynamic;
 		}
 		internal static StaticObject[] Objects = new StaticObject[16];
 		internal static int ObjectsUsed;
@@ -190,7 +196,11 @@ namespace OpenBve {
 			}
 			Object.CurrentState = StateIndex;
 			if (Show) {
-				Renderer.ShowObject(i, Overlay);
+				if (Overlay) {
+					Renderer.ShowObject(i, Renderer.ObjectType.Overlay);
+				} else {
+					Renderer.ShowObject(i, Renderer.ObjectType.Dynamic);
+				}
 			}
 		}
 
@@ -580,7 +590,11 @@ namespace OpenBve {
 				}
 				// visibility changed
 				if (Show) {
-					Renderer.ShowObject(i, Overlay);
+					if (Overlay) {
+						Renderer.ShowObject(i, Renderer.ObjectType.Overlay);
+					} else {
+						Renderer.ShowObject(i, Renderer.ObjectType.Dynamic);
+					}
 				} else {
 					Renderer.HideObject(i);
 				}
@@ -655,7 +669,7 @@ namespace OpenBve {
 		}
 		internal static AnimatedWorldObject[] AnimatedWorldObjects = new AnimatedWorldObject[4];
 		internal static int AnimatedWorldObjectsUsed = 0;
-		internal static void CreateAnimatedWorldObjects(AnimatedObject[] Prototypes, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, int SectionIndex, bool AccurateObjectDisposal, double StartingDistance, double EndingDistance, double TrackPosition, double Brightness, bool DuplicateMaterials) {
+		internal static void CreateAnimatedWorldObjects(AnimatedObject[] Prototypes, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, int SectionIndex, bool AccurateObjectDisposal, double StartingDistance, double EndingDistance, double BlockLength, double TrackPosition, double Brightness, bool DuplicateMaterials) {
 			bool[] free = new bool[Prototypes.Length];
 			bool anyfree = false;
 			for (int i = 0; i < Prototypes.Length; i++) {
@@ -675,7 +689,7 @@ namespace OpenBve {
 							p.Y += Prototypes[i].States[0].Position.X * s.Y + Prototypes[i].States[0].Position.Y * u.Y + Prototypes[i].States[0].Position.Z * d.Y;
 							p.Z += Prototypes[i].States[0].Position.X * s.Z + Prototypes[i].States[0].Position.Y * u.Z + Prototypes[i].States[0].Position.Z * d.Z;
 							double zOffset = Prototypes[i].States[0].Position.Z;
-							CreateStaticObject(Prototypes[i].States[0].Object, p, BaseTransformation, AuxTransformation, AccurateObjectDisposal, zOffset, StartingDistance, EndingDistance, TrackPosition, Brightness, DuplicateMaterials);
+							CreateStaticObject(Prototypes[i].States[0].Object, p, BaseTransformation, AuxTransformation, AccurateObjectDisposal, zOffset, StartingDistance, EndingDistance, BlockLength, TrackPosition, Brightness, DuplicateMaterials);
 						} else {
 							CreateAnimatedWorldObject(Prototypes[i], Position, BaseTransformation, AuxTransformation, SectionIndex, TrackPosition, Brightness);
 						}
@@ -736,11 +750,12 @@ namespace OpenBve {
 		}
 		internal static void UpdateAnimatedWorldObjects(double TimeElapsed, bool ForceUpdate) {
 			for (int i = 0; i < AnimatedWorldObjectsUsed; i++) {
+				const double extraRadius = 10.0;
 				double z = AnimatedWorldObjects[i].Object.TranslateZFunction == null ? 0.0 : AnimatedWorldObjects[i].Object.TranslateZFunction.LastResult;
-				double pa = AnimatedWorldObjects[i].TrackPosition + z - AnimatedWorldObjects[i].Radius;
-				double pb = AnimatedWorldObjects[i].TrackPosition + z + AnimatedWorldObjects[i].Radius;
-				double ta = World.CameraTrackFollower.TrackPosition - World.BackgroundImageDistance - 4.0 * World.ExtraViewingDistance;
-				double tb = World.CameraTrackFollower.TrackPosition + World.BackgroundImageDistance + 4.0 * World.ExtraViewingDistance;
+				double pa = AnimatedWorldObjects[i].TrackPosition + z - AnimatedWorldObjects[i].Radius - extraRadius;
+				double pb = AnimatedWorldObjects[i].TrackPosition + z + AnimatedWorldObjects[i].Radius + extraRadius;
+				double ta = World.CameraTrackFollower.TrackPosition - World.BackgroundImageDistance - World.ExtraViewingDistance;
+				double tb = World.CameraTrackFollower.TrackPosition + World.BackgroundImageDistance + World.ExtraViewingDistance;
 				bool visible = pb >= ta & pa <= tb;
 				if (visible | ForceUpdate) {
 					if (AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate >= AnimatedWorldObjects[i].Object.RefreshRate | ForceUpdate) {
@@ -767,7 +782,7 @@ namespace OpenBve {
 						AnimatedWorldObjects[i].Object.SecondsSinceLastUpdate += TimeElapsed;
 					}
 					if (!AnimatedWorldObjects[i].Visible) {
-						Renderer.ShowObject(AnimatedWorldObjects[i].Object.ObjectIndex, false);
+						Renderer.ShowObject(AnimatedWorldObjects[i].Object.ObjectIndex, Renderer.ObjectType.Dynamic);
 						AnimatedWorldObjects[i].Visible = true;
 					}
 				} else {
@@ -781,7 +796,7 @@ namespace OpenBve {
 		}
 
 		// load object
-		internal enum ObjectLoadMode { Normal, DontAllowUnloadOfTextures, PreloadTextures }
+		internal enum ObjectLoadMode { Normal, DontAllowUnloadOfTextures }
 		internal static UnifiedObject LoadObject(string FileName, System.Text.Encoding Encoding, ObjectLoadMode LoadMode, bool PreserveVertices, bool ForceTextureRepeatX, bool ForceTextureRepeatY) {
 			#if !DEBUG
 			try {
@@ -1358,29 +1373,29 @@ namespace OpenBve {
 		}
 
 		// create object
-		internal static void CreateObject(UnifiedObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double StartingDistance, double EndingDistance, double TrackPosition) {
-			CreateObject(Prototype, Position, BaseTransformation, AuxTransformation, -1, AccurateObjectDisposal, StartingDistance, EndingDistance, TrackPosition, 1.0, false);
+		internal static void CreateObject(UnifiedObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double StartingDistance, double EndingDistance, double BlockLength, double TrackPosition) {
+			CreateObject(Prototype, Position, BaseTransformation, AuxTransformation, -1, AccurateObjectDisposal, StartingDistance, EndingDistance, BlockLength, TrackPosition, 1.0, false);
 		}
-		internal static void CreateObject(UnifiedObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, int SectionIndex, bool AccurateObjectDisposal, double StartingDistance, double EndingDistance, double TrackPosition, double Brightness, bool DuplicateMaterials) {
+		internal static void CreateObject(UnifiedObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, int SectionIndex, bool AccurateObjectDisposal, double StartingDistance, double EndingDistance, double BlockLength, double TrackPosition, double Brightness, bool DuplicateMaterials) {
 			if (Prototype is StaticObject) {
 				StaticObject s = (StaticObject)Prototype;
-				CreateStaticObject(s, Position, BaseTransformation, AuxTransformation, AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, TrackPosition, Brightness, DuplicateMaterials);
+				CreateStaticObject(s, Position, BaseTransformation, AuxTransformation, AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, BlockLength, TrackPosition, Brightness, DuplicateMaterials);
 			} else if (Prototype is AnimatedObjectCollection) {
 				AnimatedObjectCollection a = (AnimatedObjectCollection)Prototype;
-				CreateAnimatedWorldObjects(a.Objects, Position, BaseTransformation, AuxTransformation, SectionIndex, AccurateObjectDisposal, StartingDistance, EndingDistance, TrackPosition, Brightness, DuplicateMaterials);
+				CreateAnimatedWorldObjects(a.Objects, Position, BaseTransformation, AuxTransformation, SectionIndex, AccurateObjectDisposal, StartingDistance, EndingDistance, BlockLength, TrackPosition, Brightness, DuplicateMaterials);
 			}
 		}
 
 		// create static object
-		internal static int CreateStaticObject(StaticObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double StartingDistance, double EndingDistance, double TrackPosition) {
-			return CreateStaticObject(Prototype, Position, BaseTransformation, AuxTransformation, AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, TrackPosition, 1.0, false);
+		internal static int CreateStaticObject(StaticObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double StartingDistance, double EndingDistance, double BlockLength, double TrackPosition) {
+			return CreateStaticObject(Prototype, Position, BaseTransformation, AuxTransformation, AccurateObjectDisposal, 0.0, StartingDistance, EndingDistance, BlockLength, TrackPosition, 1.0, false);
 		}
-		internal static int CreateStaticObject(StaticObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double AccurateObjectDisposalZOffset, double StartingDistance, double EndingDistance, double TrackPosition, double Brightness, bool DuplicateMaterials) {
+		internal static int CreateStaticObject(StaticObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double AccurateObjectDisposalZOffset, double StartingDistance, double EndingDistance, double BlockLength, double TrackPosition, double Brightness, bool DuplicateMaterials) {
 			int a = ObjectsUsed;
 			if (a >= Objects.Length) {
 				Array.Resize<StaticObject>(ref Objects, Objects.Length << 1);
 			}
-			ApplyStaticObjectData(ref Objects[a], Prototype, Position, BaseTransformation, AuxTransformation, AccurateObjectDisposal, AccurateObjectDisposalZOffset, StartingDistance, EndingDistance, TrackPosition, Brightness, DuplicateMaterials);
+			ApplyStaticObjectData(ref Objects[a], Prototype, Position, BaseTransformation, AuxTransformation, AccurateObjectDisposal, AccurateObjectDisposalZOffset, StartingDistance, EndingDistance, BlockLength, TrackPosition, Brightness, DuplicateMaterials);
 			for (int i = 0; i < Prototype.Mesh.Faces.Length; i++) {
 				switch (Prototype.Mesh.Faces[i].Flags & World.MeshFace.FaceTypeMask) {
 					case World.MeshFace.FaceTypeTriangles:
@@ -1403,7 +1418,7 @@ namespace OpenBve {
 			ObjectsUsed++;
 			return a;
 		}
-		internal static void ApplyStaticObjectData(ref StaticObject Object, StaticObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double AccurateObjectDisposalZOffset, double StartingDistance, double EndingDistance, double TrackPosition, double Brightness, bool DuplicateMaterials) {
+		internal static void ApplyStaticObjectData(ref StaticObject Object, StaticObject Prototype, World.Vector3D Position, World.Transformation BaseTransformation, World.Transformation AuxTransformation, bool AccurateObjectDisposal, double AccurateObjectDisposalZOffset, double StartingDistance, double EndingDistance, double BlockLength, double TrackPosition, double Brightness, bool DuplicateMaterials) {
 			Object = new StaticObject();
 			Object.StartingDistance = float.MaxValue;
 			Object.EndingDistance = float.MinValue;
@@ -1457,13 +1472,31 @@ namespace OpenBve {
 				Object.Mesh.Materials[j].Color.G = (byte)Math.Round((double)Prototype.Mesh.Materials[j].Color.G * Brightness);
 				Object.Mesh.Materials[j].Color.B = (byte)Math.Round((double)Prototype.Mesh.Materials[j].Color.B * Brightness);
 			}
+			const double minBlockLength = 20.0;
+			if (BlockLength < minBlockLength) {
+				BlockLength = BlockLength * Math.Ceiling(minBlockLength / BlockLength);
+			}
 			if (AccurateObjectDisposal) {
 				Object.StartingDistance += (float)TrackPosition;
 				Object.EndingDistance += (float)TrackPosition;
+				double z = BlockLength * Math.Floor(TrackPosition / BlockLength);
+				StartingDistance = Math.Min(z - BlockLength, (double)Object.StartingDistance);
+				EndingDistance = Math.Max(z + 2.0 * BlockLength, (double)Object.EndingDistance);
+				Object.StartingDistance = (float)(BlockLength * Math.Floor(StartingDistance / BlockLength));
+				Object.EndingDistance = (float)(BlockLength * Math.Ceiling(EndingDistance / BlockLength));
 			} else {
 				Object.StartingDistance = (float)StartingDistance;
 				Object.EndingDistance = (float)EndingDistance;
 			}
+			if (BlockLength != 0.0) {
+				checked {
+					Object.GroupIndex = (short)Mod(Math.Floor(Object.StartingDistance / BlockLength), Math.Ceiling(World.BackgroundImageDistance / BlockLength));
+				}
+			}
+		}
+		
+		private static double Mod(double a, double b) {
+			return a - b * Math.Floor(a / b);
 		}
 
 		// create dynamic object
@@ -1476,7 +1509,7 @@ namespace OpenBve {
 			Objects[a].Mesh.Faces = new World.MeshFace[] { };
 			Objects[a].Mesh.Materials = new World.MeshMaterial[] { };
 			Objects[a].Mesh.Vertices = new World.Vertex[] { };
-			Objects[a].Dynamic = 1;
+			Objects[a].Dynamic = true;
 			ObjectsUsed++;
 			return a;
 		}
@@ -1491,6 +1524,7 @@ namespace OpenBve {
 			StaticObject Result = new StaticObject();
 			Result.StartingDistance = Prototype.StartingDistance;
 			Result.EndingDistance = Prototype.EndingDistance;
+			Result.Dynamic = Prototype.Dynamic;
 			// vertices
 			Result.Mesh.Vertices = new World.Vertex[Prototype.Mesh.Vertices.Length];
 			for (int j = 0; j < Prototype.Mesh.Vertices.Length; j++) {
@@ -1535,7 +1569,7 @@ namespace OpenBve {
 			double[] b = new double[ObjectsUsed];
 			int n = 0;
 			for (int i = 0; i < ObjectsUsed; i++) {
-				if (Objects[i].Dynamic == 0) {
+				if (!Objects[i].Dynamic) {
 					ObjectsSortedByStart[n] = i;
 					ObjectsSortedByEnd[n] = i;
 					a[n] = Objects[i].StartingDistance;
@@ -1554,9 +1588,9 @@ namespace OpenBve {
 			// initial visiblity
 			double p = World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z;
 			for (int i = 0; i < ObjectsUsed; i++) {
-				if (Objects[i].Dynamic == 0) {
+				if (!Objects[i].Dynamic) {
 					if (Objects[i].StartingDistance <= p + World.ForwardViewingDistance & Objects[i].EndingDistance >= p - World.BackwardViewingDistance) {
-						Renderer.ShowObject(i, false);
+						Renderer.ShowObject(i, Renderer.ObjectType.Static);
 					}
 				}
 			}
@@ -1576,20 +1610,11 @@ namespace OpenBve {
 		internal static void UpdateVisibility(double TrackPosition) {
 			double d = TrackPosition - LastUpdatedTrackPosition;
 			int n = ObjectsSortedByStart.Length;
+			int m = ObjectsSortedByEnd.Length;
 			double p = World.CameraTrackFollower.TrackPosition + World.CameraCurrentAlignment.Position.Z;
 			if (d < 0.0) {
 				if (ObjectsSortedByStartPointer >= n) ObjectsSortedByStartPointer = n - 1;
 				if (ObjectsSortedByEndPointer >= n) ObjectsSortedByEndPointer = n - 1;
-				// introduce
-				while (ObjectsSortedByEndPointer >= 0) {
-					int o = ObjectsSortedByEnd[ObjectsSortedByEndPointer];
-					if (Objects[o].EndingDistance >= p - World.BackwardViewingDistance) {
-						Renderer.ShowObject(o, false);
-						ObjectsSortedByEndPointer--;
-					} else {
-						break;
-					}
-				}
 				// dispose
 				while (ObjectsSortedByStartPointer >= 0) {
 					int o = ObjectsSortedByStart[ObjectsSortedByStartPointer];
@@ -1600,25 +1625,39 @@ namespace OpenBve {
 						break;
 					}
 				}
-			} else if (d > 0.0) {
-				if (ObjectsSortedByStartPointer < 0) ObjectsSortedByStartPointer = 0;
-				if (ObjectsSortedByEndPointer < 0) ObjectsSortedByEndPointer = 0;
 				// introduce
-				while (ObjectsSortedByStartPointer < n) {
-					int o = ObjectsSortedByStart[ObjectsSortedByStartPointer];
-					if (Objects[o].StartingDistance <= p + World.ForwardViewingDistance) {
-						Renderer.ShowObject(o, false);
-						ObjectsSortedByStartPointer++;
+				while (ObjectsSortedByEndPointer >= 0) {
+					int o = ObjectsSortedByEnd[ObjectsSortedByEndPointer];
+					if (Objects[o].EndingDistance >= p - World.BackwardViewingDistance) {
+						if (Objects[o].StartingDistance <= p + World.ForwardViewingDistance) {
+							Renderer.ShowObject(o, Renderer.ObjectType.Static);
+						}
+						ObjectsSortedByEndPointer--;
 					} else {
 						break;
 					}
 				}
+			} else if (d > 0.0) {
+				if (ObjectsSortedByStartPointer < 0) ObjectsSortedByStartPointer = 0;
+				if (ObjectsSortedByEndPointer < 0) ObjectsSortedByEndPointer = 0;
 				// dispose
 				while (ObjectsSortedByEndPointer < n) {
 					int o = ObjectsSortedByEnd[ObjectsSortedByEndPointer];
 					if (Objects[o].EndingDistance < p - World.BackwardViewingDistance) {
 						Renderer.HideObject(o);
 						ObjectsSortedByEndPointer++;
+					} else {
+						break;
+					}
+				}
+				// introduce
+				while (ObjectsSortedByStartPointer < n) {
+					int o = ObjectsSortedByStart[ObjectsSortedByStartPointer];
+					if (Objects[o].StartingDistance <= p + World.ForwardViewingDistance) {
+						if (Objects[o].EndingDistance >= p - World.BackwardViewingDistance) {
+							Renderer.ShowObject(o, Renderer.ObjectType.Static);
+						}
+						ObjectsSortedByStartPointer++;
 					} else {
 						break;
 					}

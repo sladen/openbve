@@ -68,7 +68,6 @@ namespace OpenBve {
 		
 		// initialize
 		internal static void Initialize() {
-			if (!Interface.CurrentOptions.UseSound) return;
 			// openal
 			OpenAlDevice = Alc.alcOpenDevice(null);
 			if (OpenAlDevice != IntPtr.Zero) {

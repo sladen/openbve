@@ -434,7 +434,8 @@ namespace OpenBve {
 				if (n != 0) {
 					for (int i = 0; i < n - 1; i++) {
 						this.PendingTransponders[i] = this.PendingTransponders[i + 1];
-					} Array.Resize<TrainPendingTransponder>(ref this.PendingTransponders, n - 1);
+					}
+					Array.Resize<TrainPendingTransponder>(ref this.PendingTransponders, n - 1);
 				}
 			}
 		}
@@ -1106,7 +1107,7 @@ namespace OpenBve {
 			double cdy = py - World.AbsoluteCameraPosition.Y;
 			double cdz = pz - World.AbsoluteCameraPosition.Z;
 			double dist = cdx * cdx + cdy * cdy + cdz * cdz;
-			double bid = World.BackgroundImageDistance + Train.Cars[c].Length;
+			double bid = World.BackgroundImageDistance + World.ExtraViewingDistance + Train.Cars[c].Length;
 			Train.Cars[c].CurrentlyVisible = dist < bid * bid;
 			// brightness
 			byte dnb;
@@ -1150,7 +1151,11 @@ namespace OpenBve {
 				InitializeCarSection(Train, CarIndex, SectionIndex);
 				for (int j = 0; j < Train.Cars[CarIndex].Sections[SectionIndex].Elements.Length; j++) {
 					int o = Train.Cars[CarIndex].Sections[SectionIndex].Elements[j].ObjectIndex;
-					Renderer.ShowObject(o, Train.Cars[CarIndex].Sections[SectionIndex].Overlay);
+					if (Train.Cars[CarIndex].Sections[SectionIndex].Overlay) {
+						Renderer.ShowObject(o, Renderer.ObjectType.Overlay);
+					} else {
+						Renderer.ShowObject(o, Renderer.ObjectType.Dynamic);
+					}
 				}
 			}
 			Train.Cars[CarIndex].CurrentSection = SectionIndex;
@@ -1785,8 +1790,8 @@ namespace OpenBve {
 
 		// update train doors
 		private static void UpdateTrainDoors(Train Train, double TimeElapsed) {
-			bool olddoorsopen = false;
-			bool newdoorsopen = false;
+			OpenBveApi.Runtime.DoorStates oldState = OpenBveApi.Runtime.DoorStates.None;
+			OpenBveApi.Runtime.DoorStates newState = OpenBveApi.Runtime.DoorStates.None;
 			for (int i = 0; i < Train.Cars.Length; i++) {
 				bool ld = Train.Cars[i].Specs.AnticipatedLeftDoorsOpened;
 				bool rd = Train.Cars[i].Specs.AnticipatedRightDoorsOpened;
@@ -1796,7 +1801,11 @@ namespace OpenBve {
 					if (Train.Cars[i].Specs.Doors[j].Direction == -1 | Train.Cars[i].Specs.Doors[j].Direction == 1) {
 						bool shouldBeOpen = Train.Cars[i].Specs.Doors[j].Direction == -1 ? ld : rd;
 						if (Train.Cars[i].Specs.Doors[j].State > 0.0) {
-							olddoorsopen = true;
+							if (Train.Cars[i].Specs.Doors[j].Direction == -1) {
+								oldState |= OpenBveApi.Runtime.DoorStates.Left;
+							} else {
+								oldState |= OpenBveApi.Runtime.DoorStates.Right;
+							}
 						}
 						if (shouldBeOpen) {
 							// open
@@ -1825,30 +1834,31 @@ namespace OpenBve {
 							}
 						}
 						if (Train.Cars[i].Specs.Doors[j].State > 0.0) {
-							newdoorsopen = true;
+							if (Train.Cars[i].Specs.Doors[j].Direction == -1) {
+								newState |= OpenBveApi.Runtime.DoorStates.Left;
+							} else {
+								newState |= OpenBveApi.Runtime.DoorStates.Right;
+							}
 						}
 					}
 				}
 			}
 			// door changed
-			if (olddoorsopen & !newdoorsopen) {
+			if (oldState != OpenBveApi.Runtime.DoorStates.None & newState == OpenBveApi.Runtime.DoorStates.None) {
 				int snd = Train.Cars[Train.DriverCar].Sounds.PilotLampOn.SoundBufferIndex;
 				if (snd >= 0) {
 					World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.PilotLampOn.Position;
 					SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
 				}
-				if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-					PluginManager.UpdateDoors(true);
-				}
-			} else if (!olddoorsopen & newdoorsopen) {
+			} else if (oldState == OpenBveApi.Runtime.DoorStates.None & newState != OpenBveApi.Runtime.DoorStates.None) {
 				int snd = Train.Cars[Train.DriverCar].Sounds.PilotLampOff.SoundBufferIndex;
 				if (snd >= 0) {
 					World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.PilotLampOff.Position;
 					SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
 				}
-				if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-					PluginManager.UpdateDoors(false);
-				}
+			}
+			if (oldState != newState & Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
+				PluginManager.CurrentPlugin.DoorChange(oldState, newState);
 			}
 		}
 
@@ -1975,7 +1985,7 @@ namespace OpenBve {
 		private static void UpdateSafetySystem(Train Train, double TimeElapsed) {
 			// plugin
 			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.UpdatePlugin(Train);
+				PluginManager.CurrentPlugin.UpdatePlugin(Train);
 				return;
 			}
 			// handles
@@ -2108,7 +2118,7 @@ namespace OpenBve {
 						Train.Specs.Safety.State = SafetyState.Normal;
 					}
 					int s = Transponder.SectionIndex;
-					if (Transponder.Type == TrackManager.TransponderType.S) {
+					if (Transponder.Type == TrackManager.TransponderType.SLong) {
 						if (s >= 0) {
 							if (Game.Sections[s].Aspects[Game.Sections[s].CurrentAspect].Speed == 0.0) {
 								Train.Specs.Safety.State = SafetyState.Ringing;
@@ -2116,7 +2126,7 @@ namespace OpenBve {
 						} else {
 							Train.Specs.Safety.State = SafetyState.Ringing;
 						}
-					} else if (Transponder.Type == TrackManager.TransponderType.Sn | Transponder.Type == TrackManager.TransponderType.AccidentalDeparture) {
+					} else if (Transponder.Type == TrackManager.TransponderType.SN | Transponder.Type == TrackManager.TransponderType.AccidentalDeparture) {
 						if (s >= 0) {
 							if (Game.Sections[s].Aspects[Game.Sections[s].CurrentAspect].Speed == 0.0) {
 								Train.Specs.Safety.State = SafetyState.Emergency;
@@ -2149,7 +2159,7 @@ namespace OpenBve {
 					}
 					SafetyState state = Train.Specs.Safety.State;
 					int s = Transponder.SectionIndex;
-					if (Transponder.Type == TrackManager.TransponderType.S | Transponder.Type == TrackManager.TransponderType.Sn) {
+					if (Transponder.Type == TrackManager.TransponderType.SLong | Transponder.Type == TrackManager.TransponderType.SN) {
 						if (Train.Specs.Safety.Ats.AtsAvailable & Transponder.SwitchSubsystem) {
 							Train.Specs.Safety.ModeChange = SafetySystem.AtsSn;
 							int snd = Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundBufferIndex;
@@ -3169,8 +3179,8 @@ namespace OpenBve {
 			Train.Specs.Safety.Eb.Reset = true;
 			// plugin
 			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.UpdatePower(Train);
-				PluginManager.UpdateBrake(Train);
+				PluginManager.CurrentPlugin.UpdatePower(Train);
+				PluginManager.CurrentPlugin.UpdateBrake(Train);
 			}
 		}
 
@@ -3194,8 +3204,8 @@ namespace OpenBve {
 				Train.Specs.Safety.Eb.Reset = true;
 				// plugin
 				if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-					PluginManager.UpdatePower(Train);
-					PluginManager.UpdateBrake(Train);
+					PluginManager.CurrentPlugin.UpdatePower(Train);
+					PluginManager.CurrentPlugin.UpdateBrake(Train);
 				}
 			}
 		}
@@ -3205,8 +3215,8 @@ namespace OpenBve {
 			Train.Specs.CurrentHoldBrake.Driver = Value;
 			// plugin
 			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.UpdatePower(Train);
-				PluginManager.UpdateBrake(Train);
+				PluginManager.CurrentPlugin.UpdatePower(Train);
+				PluginManager.CurrentPlugin.UpdateBrake(Train);
 			}
 		}
 
@@ -3219,7 +3229,7 @@ namespace OpenBve {
 			Train.Specs.CurrentReverser.Driver = r;
 			// plugin
 			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.UpdateReverser(Train);
+				PluginManager.CurrentPlugin.UpdateReverser(Train);
 			}
 			Game.AddBlackBoxEntry(Game.BlackBoxEventToken.None);
 			// sound
@@ -3333,8 +3343,8 @@ namespace OpenBve {
 			Game.AddBlackBoxEntry(Game.BlackBoxEventToken.None);
 			// plugin
 			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.UpdatePower(Train);
-				PluginManager.UpdateBrake(Train);
+				PluginManager.CurrentPlugin.UpdatePower(Train);
+				PluginManager.CurrentPlugin.UpdateBrake(Train);
 			}
 		}
 
@@ -3400,8 +3410,8 @@ namespace OpenBve {
 					Game.AddBlackBoxEntry(Game.BlackBoxEventToken.None);
 					// plugin
 					if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-						PluginManager.UpdatePower(Train);
-						PluginManager.UpdateBrake(Train);
+						PluginManager.CurrentPlugin.UpdatePower(Train);
+						PluginManager.CurrentPlugin.UpdateBrake(Train);
 					}
 				}
 			}
