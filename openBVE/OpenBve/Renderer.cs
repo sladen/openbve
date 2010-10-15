@@ -286,7 +286,7 @@ namespace OpenBve {
 			Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
 			Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
 			Gl.glEnable(Gl.GL_DEPTH_TEST);
-			Gl.glDepthMask(Gl.GL_TRUE);
+			Gl.glDepthMask(true);
 			Gl.glMaterialfv(Gl.GL_FRONT_AND_BACK, Gl.GL_EMISSION, new float[] { 0.0f, 0.0f, 0.0f, 1.0f }); EmissiveEnabled = false;
 			SetAlphaFunc(Gl.GL_GREATER, 0.9f);
 		}
@@ -454,7 +454,7 @@ namespace OpenBve {
 			SortPolygons(DynamicAlpha);
 			if (Interface.CurrentOptions.TransparencyMode == TransparencyMode.Performance) {
 				Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
-				Gl.glDepthMask(Gl.GL_FALSE);
+				Gl.glDepthMask(false);
 				SetAlphaFunc(Gl.GL_GREATER, 0.0f);
 				for (int i = 0; i < DynamicAlpha.FaceCount; i++) {
 					RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
@@ -462,7 +462,7 @@ namespace OpenBve {
 			} else {
 				Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
 				SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
-				Gl.glDepthMask(Gl.GL_TRUE);
+				Gl.glDepthMask(true);
 				for (int i = 0; i < DynamicAlpha.FaceCount; i++) {
 					int r = (int)ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Faces[DynamicAlpha.Faces[i].FaceIndex].Material;
 					if (ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Normal & ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].GlowAttenuationData == 0) {
@@ -473,7 +473,7 @@ namespace OpenBve {
 				}
 				Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 				SetAlphaFunc(Gl.GL_LESS, 1.0f);
-				Gl.glDepthMask(Gl.GL_FALSE);
+				Gl.glDepthMask(false);
 				bool additive = false;
 				for (int i = 0; i < DynamicAlpha.FaceCount; i++) {
 					int r = (int)ObjectManager.Objects[DynamicAlpha.Faces[i].ObjectIndex].Mesh.Faces[DynamicAlpha.Faces[i].FaceIndex].Material;
@@ -494,7 +494,7 @@ namespace OpenBve {
 			}
 			// motion blur
 			Gl.glDisable(Gl.GL_DEPTH_TEST);
-			Gl.glDepthMask(Gl.GL_FALSE);
+			Gl.glDepthMask(false);
 			SetAlphaFunc(Gl.GL_GREATER, 0.0f);
 			if (Interface.CurrentOptions.MotionBlur != Interface.MotionBlurMode.None) {
 				if (LightingEnabled) {
@@ -512,7 +512,7 @@ namespace OpenBve {
 			Glu.gluLookAt(0.0, 0.0, 0.0, dx, dy, dz, ux, uy, uz);
 			if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
 				// 3d cab
-				Gl.glDepthMask(Gl.GL_TRUE);
+				Gl.glDepthMask(true);
 				Gl.glEnable(Gl.GL_DEPTH_TEST);
 				Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
 				if (!LightingEnabled) {
@@ -530,7 +530,7 @@ namespace OpenBve {
 				SortPolygons(OverlayAlpha);
 				if (Interface.CurrentOptions.TransparencyMode == TransparencyMode.Performance) {
 					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
-					Gl.glDepthMask(Gl.GL_FALSE);
+					Gl.glDepthMask(false);
 					SetAlphaFunc(Gl.GL_GREATER, 0.0f);
 					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
 						RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
@@ -538,7 +538,7 @@ namespace OpenBve {
 				} else {
 					Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
 					SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
-					Gl.glDepthMask(Gl.GL_TRUE);
+					Gl.glDepthMask(true);
 					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
 						int r = (int)ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Faces[OverlayAlpha.Faces[i].FaceIndex].Material;
 						if (ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Normal & ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Materials[r].GlowAttenuationData == 0) {
@@ -549,7 +549,7 @@ namespace OpenBve {
 					}
 					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 					SetAlphaFunc(Gl.GL_LESS, 1.0f);
-					Gl.glDepthMask(Gl.GL_FALSE);
+					Gl.glDepthMask(false);
 					bool additive = false;
 					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
 						int r = (int)ObjectManager.Objects[OverlayAlpha.Faces[i].ObjectIndex].Mesh.Faces[OverlayAlpha.Faces[i].FaceIndex].Material;
@@ -577,7 +577,7 @@ namespace OpenBve {
 				if (!BlendEnabled) {
 					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 				}
-				Gl.glDepthMask(Gl.GL_FALSE);
+				Gl.glDepthMask(false);
 				Gl.glDisable(Gl.GL_DEPTH_TEST);
 				UnsetAlphaFunc();
 				SortPolygons(OverlayAlpha);
