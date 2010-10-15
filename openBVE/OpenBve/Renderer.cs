@@ -430,17 +430,6 @@ namespace OpenBve {
 							StaticOpaque[i].WorldPosition = World.AbsoluteCameraPosition;
 						}
 					}
-<<<<<<< HEAD
-					if (World.CameraRestriction == World.CameraRestrictionMode.NotAvailable) {
-						// 3d cab
-						Gl.glLoadIdentity();
-						MainLoop.UpdateViewport(MainLoop.ViewPortChangeMode.ChangeToCab);
-						Glu.gluLookAt(0.0, 0.0, 0.0, dx, dy, dz, ux, uy, uz);
-						Gl.glDepthMask(true);
-						Gl.glClear(Gl.GL_DEPTH_BUFFER_BIT);
-						if (!LightingEnabled) {
-							Gl.glEnable(Gl.GL_LIGHTING); LightingEnabled = true;
-=======
 				}
 				StaticOpaqueForceUpdate = false;
 				for (int i = 0; i < StaticOpaque.Length; i++) {
@@ -451,7 +440,6 @@ namespace OpenBve {
 							Gl.glTranslated(StaticOpaque[i].WorldPosition.X - World.AbsoluteCameraPosition.X, StaticOpaque[i].WorldPosition.Y - World.AbsoluteCameraPosition.Y, StaticOpaque[i].WorldPosition.Z - World.AbsoluteCameraPosition.Z);
 							Gl.glCallList(StaticOpaque[i].OpenGlDisplayList);
 							Gl.glPopMatrix();
->>>>>>> upstream/1.2.9.2
 						}
 					}
 				}
@@ -494,19 +482,11 @@ namespace OpenBve {
 							UnsetAlphaFunc();
 							additive = true;
 						}
-<<<<<<< HEAD
-						Gl.glDepthMask(false);
-						SetAlphaFunc(Gl.GL_GREATER, 0.0f);
-						SortPolygons(AlphaList[1], AlphaListCount[1], AlphaListDistance[1], 6, TimeElapsed);
-						for (int i = 0; i < AlphaListCount[1]; i++) {
-							RenderFace(ref AlphaList[1][i], cx, cy, cz);
-=======
 						RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
 					} else {
 						if (additive) {
 							SetAlphaFunc(Gl.GL_LESS, 1.0f);
 							additive = false;
->>>>>>> upstream/1.2.9.2
 						}
 						RenderFace(ref DynamicAlpha.Faces[i], cx, cy, cz);
 					}
@@ -521,27 +501,6 @@ namespace OpenBve {
 					Gl.glDisable(Gl.GL_LIGHTING);
 					LightingEnabled = false;
 				}
-<<<<<<< HEAD
-				Gl.glEnable(Gl.GL_DEPTH_TEST);
-				Gl.glDepthMask(true);
-				// opaque list
-				for (int i = 0; i < OpaqueListCount[k]; i++) {
-					RenderFace(ref OpaqueList[k][i], cx, cy, cz);
-				}
-				// transparent color list
-				if (TransparentColorDepthSorting) {
-					SortPolygons(TransparentColorList[k], TransparentColorListCount[k], TransparentColorListDistance[k], (k << 2) + 1, TimeElapsed);
-					if (!BlendEnabled) {
-						Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
-					}
-					for (int i = 0; i < TransparentColorListCount[k]; i++) {
-						Gl.glDepthMask(false);
-						SetAlphaFunc(Gl.GL_LESS, 1.0f);
-						RenderFace(ref TransparentColorList[k][i], cx, cy, cz);
-						Gl.glDepthMask(true);
-						SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
-						RenderFace(ref TransparentColorList[k][i], cx, cy, cz);
-=======
 				RenderFullscreenMotionBlur();
 			}
 			// overlay layer
@@ -575,7 +534,6 @@ namespace OpenBve {
 					SetAlphaFunc(Gl.GL_GREATER, 0.0f);
 					for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
 						RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
->>>>>>> upstream/1.2.9.2
 					}
 				} else {
 					Gl.glDisable(Gl.GL_BLEND); BlendEnabled = false;
@@ -589,15 +547,6 @@ namespace OpenBve {
 							}
 						}
 					}
-<<<<<<< HEAD
-					bool depthMask = true;
-					for (int i = 0; i < AlphaListCount[k]; i++) {
-						int r = (int)ObjectManager.Objects[AlphaList[k][i].ObjectIndex].Mesh.Faces[AlphaList[k][i].FaceIndex].Material;
-						if (ObjectManager.Objects[AlphaList[k][i].ObjectIndex].Mesh.Materials[r].BlendMode == World.MeshMaterialBlendMode.Additive) {
-							if (depthMask) {
-								Gl.glDepthMask(false);
-								depthMask = false;
-=======
 					Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
 					SetAlphaFunc(Gl.GL_LESS, 1.0f);
 					Gl.glDepthMask(Gl.GL_FALSE);
@@ -608,46 +557,9 @@ namespace OpenBve {
 							if (!additive) {
 								UnsetAlphaFunc();
 								additive = true;
->>>>>>> upstream/1.2.9.2
 							}
 							RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
 						} else {
-<<<<<<< HEAD
-							if (depthMask) {
-								Gl.glDepthMask(false);
-								depthMask = false;
-							}
-							SetAlphaFunc(Gl.GL_LESS, 1.0f);
-							RenderFace(ref AlphaList[k][i], cx, cy, cz);
-							Gl.glDepthMask(true);
-							depthMask = true;
-							SetAlphaFunc(Gl.GL_EQUAL, 1.0f);
-							RenderFace(ref AlphaList[k][i], cx, cy, cz);
-						}
-					}
-				} else {
-					if (!BlendEnabled) {
-						Gl.glEnable(Gl.GL_BLEND); BlendEnabled = true;
-					}
-					Gl.glDepthMask(false);
-					SetAlphaFunc(Gl.GL_GREATER, 0.0f);
-					for (int i = 0; i < AlphaListCount[k]; i++) {
-						RenderFace(ref AlphaList[k][i], cx, cy, cz);
-					}
-				}
-				// motion blur
-				if (k == 0) {
-					Gl.glDisable(Gl.GL_DEPTH_TEST);
-					Gl.glDepthMask(false);
-					SetAlphaFunc(Gl.GL_GREATER, 0.0f);
-					if (Interface.CurrentOptions.MotionBlur != Interface.MotionBlurMode.None) {
-						if (LightingEnabled) {
-							Gl.glDisable(Gl.GL_LIGHTING);
-							LightingEnabled = false;
-						}
-						RenderFullscreenMotionBlur();
-					}
-=======
 							if (additive) {
 								SetAlphaFunc(Gl.GL_LESS, 1.0f);
 								additive = false;
@@ -671,7 +583,6 @@ namespace OpenBve {
 				SortPolygons(OverlayAlpha);
 				for (int i = 0; i < OverlayAlpha.FaceCount; i++) {
 					RenderFace(ref OverlayAlpha.Faces[i], cx, cy, cz);
->>>>>>> upstream/1.2.9.2
 				}
 			}
 			// render overlays
