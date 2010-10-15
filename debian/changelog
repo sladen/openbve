@@ -1,3 +1,9 @@
+openbve (1.2.9.2-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream development version (1.2.9.2)
+
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Fri, 15 Oct 2010 21:22:00 +0100
+
 openbve (1.2.7.3-0ubuntu2) maverick; urgency=low
 
   * debian/control: fix minor spelling mistakes (LP: #628758)
