@@ -1074,8 +1074,22 @@ namespace OpenBve {
 					TimeLastProcessed = SecondsSinceMidnight;
 				} else if (SecondsSinceMidnight - TimeLastProcessed >= CurrentInterval) {
 					TimeLastProcessed = SecondsSinceMidnight;
-					double spd = Train.Specs.CurrentAverageSpeed;
+					// plugin
+					if (Train == TrainManager.PlayerTrain && PluginManager.CurrentPlugin != null) {
+						OpenBveApi.Runtime.AIResponse response = PluginManager.CurrentPlugin.UpdateAI();
+						if (response == OpenBveApi.Runtime.AIResponse.Short) {
+							CurrentInterval = 0.2 + 0.1 * Game.Generator.NextDouble();
+							return;
+						} else if (response == OpenBveApi.Runtime.AIResponse.Medium) {
+							CurrentInterval = 0.4 + 0.2 * Game.Generator.NextDouble();
+							return;
+						} else if (response == OpenBveApi.Runtime.AIResponse.Long) {
+							CurrentInterval = 0.8 + 0.4 * Game.Generator.NextDouble();
+							return;
+						}
+					}
 					// personality
+					double spd = Train.Specs.CurrentAverageSpeed;
 					if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Boarding) {
 						if (Train.Station != this.LastStation) {
 							this.LastStation = Train.Station;

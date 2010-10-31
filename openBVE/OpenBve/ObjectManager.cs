@@ -835,7 +835,7 @@ namespace OpenBve {
 						Result = AnimatedObjectParser.ReadObject(FileName, Encoding, LoadMode);
 						break;
 					default:
-						Interface.AddMessage(Interface.MessageType.Error, false, "The file extension is not supported in " + FileName);
+						Interface.AddMessage(Interface.MessageType.Error, false, "The file extension is not supported: " + FileName);
 						return null;
 				}
 				OptimizeObject(Result, PreserveVertices);
@@ -881,8 +881,11 @@ namespace OpenBve {
 					case ".x":
 						Result = XObjectParser.ReadObject(FileName, Encoding, LoadMode, ForceTextureRepeatX, ForceTextureRepeatY);
 						break;
+					case ".animated":
+						Interface.AddMessage(Interface.MessageType.Error, false, "Tried to load an animated object even though only static objects are allowed: " + FileName);
+						return null;
 					default:
-						Interface.AddMessage(Interface.MessageType.Error, false, "The file extension is not supported in " + FileName);
+						Interface.AddMessage(Interface.MessageType.Error, false, "The file extension is not supported: " + FileName);
 						return null;
 				}
 				OptimizeObject(Result, PreserveVertices);

@@ -4,24 +4,90 @@ namespace OpenBveApi.Runtime {
 
 	// --- load ---
 	
+	/// <summary>Represents the handle to a sound.</summary>
+	public class SoundHandle {
+		// members
+		/// <summary>Whether the handle to the sound is valid.</summary>
+		protected bool MyValid;
+		/// <summary>The volume. A value of 1.0 represents nominal volume.</summary>
+		protected double MyVolume;
+		/// <summary>The pitch. A value of 1.0 represents nominal pitch.</summary>
+		protected double MyPitch;
+		// properties
+		/// <summary>Gets whether the sound is still playing. Once this returns false, the sound handle is invalid.</summary>
+		public bool Playing {
+			get {
+				return this.MyValid;
+			}
+		}
+		/// <summary>Gets whether the sound has stopped. Once this returns true, the sound handle is invalid.</summary>
+		public bool Stopped {
+			get {
+				return !this.MyValid;
+			}
+		}
+		/// <summary>Gets or sets the volume. A value of 1.0 represents nominal volume.</summary>
+		public double Volume {
+			get {
+				return this.MyVolume;
+			}
+			set {
+				this.MyVolume = value;
+			}
+		}
+		/// <summary>Gets or sets the pitch. A value of 1.0 represents nominal pitch.</summary>
+		public double Pitch {
+			get {
+				return this.MyPitch;
+			}
+			set {
+				this.MyPitch = value;
+			}
+		}
+		// functions
+		/// <summary>Stops the sound and invalidates the handle.</summary>
+		public void Stop() {
+			this.MyValid = false;
+		}
+	}
+
+	/// <summary>Plays a sound.</summary>
+	/// <param name="index">The index to the sound to be played.</param>
+	/// <param name="volume">The initial volume of the sound. A value of 1.0 represents nominal volume.</param>
+	/// <param name="pitch">The initial pitch of the sound. A value of 1.0 represents nominal pitch.</param>
+	/// <param name="looped">Whether the sound should be played in an indefinate loop.</param>
+	/// <returns>The handle to the sound, or a null reference if the sound could not be played.</returns>
+	/// <remarks>Use the handle to subsequently stop the sound or to change its volume or pitch.</remarks>
+	public delegate SoundHandle PlaySoundDelegate(int index, double volume, double pitch, bool looped);
+	
+	/// <summary>Represents to which extent the plugin supports the AI.</summary>
+	public enum AISupport {
+		/// <summary>The plugin does not support the AI. Calls to PerformAI will not be made. Non-player trains will not use the plugin.</summary>
+		None = 0,
+		/// <summary>The plugin complements the built-in AI by performing only functions specific to the plugin.</summary>
+		Basic = 1
+	}
+
 	/// <summary>Represents properties supplied to the plugin on loading.</summary>
 	public class LoadProperties {
 		// members
-		/// <summary>The absolute path to the plugin file.</summary>
-		private string MyPluginFile;
+		/// <summary>The absolute path to the plugin folder.</summary>
+		private string MyPluginFolder;
 		/// <summary>The absolute path to the train folder.</summary>
 		private string MyTrainFolder;
 		/// <summary>The array of panel variables.</summary>
 		private int[] MyPanel;
-		/// <summary>The array of sound instructions.</summary>
-		private int[] MySound;
+		/// <summary>The callback function for playing sounds.</summary>
+		private PlaySoundDelegate MyPlaySound;
+		/// <summary>The extent to which the plugin supports the AI.</summary>
+		private AISupport MyAISupport;
 		/// <summary>The reason why the plugin failed loading.</summary>
-		private string MyReason;
+		private string MyFailureReason;
 		// properties
-		/// <summary>Gets the absolute path to the plugin file.</summary>
-		public string PluginFile {
+		/// <summary>Gets the absolute path to the plugin folder.</summary>
+		public string PluginFolder {
 			get {
-				return this.MyPluginFile;
+				return this.PluginFolder;
 			}
 		}
 		/// <summary>Gets the absolute path to the train folder.</summary>
@@ -39,33 +105,40 @@ namespace OpenBveApi.Runtime {
 				this.MyPanel = value;
 			}
 		}
-		/// <summary>Gets or sets the array of sound instructions.</summary>
-		public int[] Sound {
+		/// <summary>Gets the callback function for playing sounds.</summary>
+		public PlaySoundDelegate PlaySound {
 			get {
-				return this.MySound;
+				return this.MyPlaySound;
+			}
+		}
+		/// <summary>Gets or sets the extent to which the plugin supports the AI.</summary>
+		public AISupport AISupport {
+			get {
+				return this.MyAISupport;
 			}
 			set {
-				this.MySound = value;
+				this.MyAISupport = value;
 			}
 		}
 		/// <summary>Gets or sets the reason why the plugin failed loading.</summary>
-		public string Reason {
+		public string FailureReason {
 			get {
-				return this.MyReason;
+				return this.MyFailureReason;
 			}
 			set {
-				this.MyReason = value;
+				this.MyFailureReason = value;
 			}
 		}
 		// constructors
 		/// <summary>Creates a new instance of this class.</summary>
-		/// <param name="pluginFile">The absolute path to the plugin file.</param>
+		/// <param name="pluginFolder">The absolute path to the plugin folder.</param>
 		/// <param name="trainFolder">The absolute path to the train folder.</param>
-		/// <param name="reason">The reason why the plugin failed loading.</param>
-		public LoadProperties(string pluginFile, string trainFolder, string reason) {
-			this.MyPluginFile = pluginFile;
+		/// <param name="playSound">The callback function for playing sounds.</param>
+		public LoadProperties(string pluginFolder, string trainFolder, PlaySoundDelegate playSound) {
+			this.MyPluginFolder = pluginFolder;
 			this.MyTrainFolder = trainFolder;
-			this.MyReason = reason;
+			this.MyPlaySound = playSound;
+			this.MyFailureReason = null;
 		}
 	}
 	
@@ -73,7 +146,7 @@ namespace OpenBveApi.Runtime {
 	// --- set vehicle specs ---
 	
 	/// <summary>Represents the type of brake the train uses.</summary>
-	public enum BrakeTypes : int {
+	public enum BrakeTypes {
 		/// <summary>The train uses the electromagnetic straight air brake. The numerical value of this constant is 0.</summary>
 		ElectromagneticStraightAirBrake = 0,
 		/// <summary>The train uses the analog/digital electro-pneumatic air brake without a brake pipe (electric command brake). The numerical value of this constant is 1.</summary>
@@ -163,7 +236,7 @@ namespace OpenBveApi.Runtime {
 	// --- initialize ---
 	
 	/// <summary>Represents the mode in which the plugin should initialize.</summary>
-	public enum InitializationModes : int {
+	public enum InitializationModes {
 		/// <summary>The safety system should be enabled. The train has its service brakes applied. The numerical value of this constant is -1.</summary>
 		OnService = -1,
 		/// <summary>The safety system should be enabled. The train has its emergency brakes applied. The numerical value of this constant is 0.</summary>
@@ -174,7 +247,7 @@ namespace OpenBveApi.Runtime {
 
 	
 	// --- elapse ---
-	
+
 	/// <summary>Represents a speed.</summary>
 	public class Speed {
 		// members
@@ -240,10 +313,6 @@ namespace OpenBveApi.Runtime {
 		private double MyLocation;
 		/// <summary>The current speed of the train.</summary>
 		private Speed MySpeed;
-		/// <summary>The current absolute time.</summary>
-		private Time MyTotalTime;
-		/// <summary>The elapsed time since the last call to Elapse.</summary>
-		private Time MyElapsedTime;
 		/// <summary>The current pressure in the brake cylinder, in pascal.</summary>
 		private double MyBcPressure;
 		/// <summary>The current pressure in the main reservoir, in pascal.</summary>
@@ -265,18 +334,6 @@ namespace OpenBveApi.Runtime {
 		public Speed Speed {
 			get {
 				return this.MySpeed;
-			}
-		}
-		/// <summary>Gets the absolute time.</summary>
-		public Time TotalTime {
-			get {
-				return this.MyTotalTime;
-			}
-		}
-		/// <summary>Gets the time that elapsed since the last call to Elapse.</summary>
-		public Time ElapsedTime {
-			get {
-				return this.MyElapsedTime;
 			}
 		}
 		/// <summary>Gets the current pressure in the brake cylinder, in pascal.</summary>
@@ -313,18 +370,14 @@ namespace OpenBveApi.Runtime {
 		/// <summary>Creates a new instance of this class.</summary>
 		/// <param name="location">The current location of the train, in meters.</param>
 		/// <param name="speed">The current speed of the train.</param>
-		/// <param name="totalTime">The current absolute time.</param>
-		/// <param name="elapsedTime">The elapsed time since the last call to Elapse.</param>
 		/// <param name="bcPressure">The current pressure in the brake cylinder, in pascal.</param>
 		/// <param name="mrPressure">The current pressure in the main reservoir, in pascal.</param>
 		/// <param name="erPressure">The current pressure in the emergency reservoir, in pascal.</param>
 		/// <param name="bpPressure">The current pressure in the brake pipe, in pascal.</param>
 		/// <param name="sapPressure">The current pressure in the straight air pipe, in pascal.</param>
-		public VehicleState(double location, Speed speed, Time totalTime, Time elapsedTime, double bcPressure, double mrPressure, double erPressure, double bpPressure, double sapPressure) {
+		public VehicleState(double location, Speed speed, double bcPressure, double mrPressure, double erPressure, double bpPressure, double sapPressure) {
 			this.MyLocation = location;
 			this.MySpeed = speed;
-			this.MyTotalTime = totalTime;
-			this.MyElapsedTime = elapsedTime;
 			this.MyBcPressure = bcPressure;
 			this.MyMrPressure = mrPressure;
 			this.MyErPressure = erPressure;
@@ -333,8 +386,38 @@ namespace OpenBveApi.Runtime {
 		}
 	}
 	
+	/// <summary>Represents the current state of the preceding train.</summary>
+	public class PrecedingVehicleState {
+		// members
+		/// <summary>The current location of the back of the preceding train, in meters.</summary>
+		private double MyLocation;
+		/// <summary>The current speed of the preceding train.</summary>
+		private Speed MySpeed;
+		// properties
+		/// <summary>Gets the current location of the back of the preceding train, in meters.</summary>
+		public double Location {
+			get {
+				return this.MyLocation;
+			}
+		}
+		/// <summary>Gets the current speed of the preceding train.</summary>
+		public Speed Speed {
+			get {
+				return this.MySpeed;
+			}
+		}
+		// constructors
+		/// <summary>Creates a new instance of this class.</summary>
+		/// <param name="location">Gets the current location of the back of the preceding train, in meters.</param>
+		/// <param name="speed">Gets the current speed of the preceding train.</param>
+		public PrecedingVehicleState(double location, Speed speed) {
+			this.MyLocation = location;
+			this.MySpeed = speed;
+		}
+	}
+	
 	/// <summary>Represents an instruction for the const speed system.</summary>
-	public enum ConstSpeedInstructions : int {
+	public enum ConstSpeedInstructions {
 		/// <summary>The const speed system should continue operation in the user-specified way.</summary>
 		Continue = 0,
 		/// <summary>The const speed system should be forced on.</summary>
@@ -346,16 +429,16 @@ namespace OpenBveApi.Runtime {
 	/// <summary>Represents the handles of the cab.</summary>
 	public class Handles {
 		// members
-		/// <summary>The current reverser position.</summary>
+		/// <summary>The reverser position.</summary>
 		private int MyReverser;
-		/// <summary>The current power notch.</summary>
+		/// <summary>The power notch.</summary>
 		private int MyPowerNotch;
-		/// <summary>The current brake notch.</summary>
+		/// <summary>The brake notch.</summary>
 		private int MyBrakeNotch;
 		/// <summary>The instructions for the const speed system.</summary>
 		private ConstSpeedInstructions MyConstSpeed;
 		// properties
-		/// <summary>Gets or sets the current reverser position.</summary>
+		/// <summary>Gets or sets the reverser position.</summary>
 		public int Reverser {
 			get {
 				return this.MyReverser;
@@ -364,7 +447,7 @@ namespace OpenBveApi.Runtime {
 				this.MyReverser = value;
 			}
 		}
-		/// <summary>Gets or sets the current power notch.</summary>
+		/// <summary>Gets or sets the power notch.</summary>
 		public int PowerNotch {
 			get {
 				return this.MyPowerNotch;
@@ -373,7 +456,7 @@ namespace OpenBveApi.Runtime {
 				this.MyPowerNotch = value;
 			}
 		}
-		/// <summary>Gets or sets the current brake notch.</summary>
+		/// <summary>Gets or sets the brake notch.</summary>
 		public int BrakeNotch {
 			get {
 				return this.MyBrakeNotch;
@@ -382,7 +465,7 @@ namespace OpenBveApi.Runtime {
 				this.MyBrakeNotch = value;
 			}
 		}
-		/// <summary>Gets or sets the current instruction for the const speed system.</summary>
+		/// <summary>Gets or sets the instruction for the const speed system.</summary>
 		public ConstSpeedInstructions ConstSpeed {
 			get {
 				return this.MyConstSpeed;
@@ -405,37 +488,85 @@ namespace OpenBveApi.Runtime {
 		}
 	}
 	
-	/// <summary>Provides constants and functions related to sound instructions.</summary>
-	public static class SoundInstructions {
-		// constants
-		/// <summary>Instructs the sound to stop. The numerical value of this constant is -10000.</summary>
-		public const int Stop = -10000;
-		/// <summary>Instructs the sound to play in a loop. The numerical value of this constant is 0.</summary>
-		public const int PlayLooping = 0;
-		/// <summary>Instructs the sound to play once. The numerical value of this constant is 1.</summary>
-		public const int PlayOnce = 1;
-		/// <summary>Instructs the sound to continue. The numerical value of this constant is 2.</summary>
-		public const int Continue = 2;
-		// functions
-		/// <summary>Gets the sound instruction to change the volume of an already playing sound from a specified volume.</summary>
-		/// <param name="volume">The volume between 0.0 and 1.0, where 0.0 represents 0% volume, and 1.0 represents 100% volume.</param>
-		/// <returns>The sound instruction corresponding to changing the volume of a sound that is already playing.</returns>
-		/// <remarks>If no sound is already playing, a new sound will start playing in a loop with the specified volume.</remarks>
-		public static int FromVolume(double volume) {
-			if (volume < 0.0) {
-				volume = 0.0;
-			} else if (volume > 1.0) {
-				volume = 1.0;
+	/// <summary>Represents data given to the plugin in the Elapse call.</summary>
+	public class ElapseData {
+		// members
+		/// <summary>The state of the train.</summary>
+		private VehicleState MyVehicle;
+		/// <summary>The state of the preceding train, or a null reference if there is no preceding train.</summary>
+		private PrecedingVehicleState MyPrecedingVehicle;
+		/// <summary>The virtual handles.</summary>
+		private Handles MyHandles;
+		/// <summary>The current absolute time.</summary>
+		private Time MyTotalTime;
+		/// <summary>The elapsed time since the last call to Elapse.</summary>
+		private Time MyElapsedTime;
+		/// <summary>The debug message the plugin wants the host application to display.</summary>
+		private string MyDebugMessage;
+		// constructors
+		/// <summary>Creates a new instance of this class.</summary>
+		/// <param name="vehicle">The state of the train.</param>
+		/// <param name="precedingVehicle">The state of the preceding train, or a null reference if there is no preceding train.</param>
+		/// <param name="handles">The virtual handles.</param>
+		/// <param name="totalTime">The current absolute time.</param>
+		/// <param name="elapsedTime">The elapsed time since the last call to Elapse.</param>
+		public ElapseData(VehicleState vehicle, PrecedingVehicleState precedingVehicle, Handles handles, Time totalTime, Time elapsedTime) {
+			this.MyVehicle = vehicle;
+			this.MyPrecedingVehicle = precedingVehicle;
+			this.MyHandles = handles;
+			this.MyTotalTime = totalTime;
+			this.MyElapsedTime = elapsedTime;
+			this.MyDebugMessage = null;
+		}
+		// properties
+		/// <summary>Gets the state of the train.</summary>
+		public VehicleState Vehicle {
+			get {
+				return this.MyVehicle;
 			}
-			return (int)Math.Round(-9999.0 + 9998.0 * volume);
+		}
+		/// <summary>Gets the state of the preceding train, or a null reference if there is no preceding train.</summary>
+		public PrecedingVehicleState PrecedingVehicle {
+			get {
+				return this.MyPrecedingVehicle;
+			}
+		}
+		/// <summary>Gets or sets the virtual handles.</summary>
+		public Handles Handles {
+			get {
+				return this.MyHandles;
+			}
+			set {
+				this.MyHandles = value;
+			}
+		}
+		/// <summary>Gets the absolute in-game time.</summary>
+		public Time TotalTime {
+			get {
+				return this.MyTotalTime;
+			}
+		}
+		/// <summary>Gets the time that elapsed since the last call to Elapse.</summary>
+		public Time ElapsedTime {
+			get {
+				return this.MyElapsedTime;
+			}
+		}
+		/// <summary>Gets or sets the debug message the plugin wants the host application to display.</summary>
+		public string DebugMessage {
+			get {
+				return this.MyDebugMessage;
+			}
+			set {
+				this.MyDebugMessage = value;
+			}
 		}
 	}
-	
 	
 	// --- key down / key up ---
 	
 	/// <summary>Represents a virtual key.</summary>
-	public enum VirtualKeys : int {
+	public enum VirtualKeys {
 		/// <summary>The virtual S key. The default assignment is Space. The numerical value of this constant is 0.</summary>
 		S = 0,
 		/// <summary>The virtual A1 key. The default assignment is Insert. The numerical value of this constant is 1.</summary>
@@ -474,7 +605,7 @@ namespace OpenBveApi.Runtime {
 	// --- horn blow ---
 	
 	/// <summary>Represents the type of horn.</summary>
-	public enum HornTypes : int {
+	public enum HornTypes {
 		/// <summary>The primary horn. The numerical value of this constant is 0.</summary>
 		Primary = 1,
 		/// <summary>The secondary horn. The numerical value of this constant is 1.</summary>
@@ -484,10 +615,10 @@ namespace OpenBveApi.Runtime {
 	}
 	
 	
-	// --- door open / door close ---
+	// --- door change ---
 	
 	/// <summary>Represents the state of the doors.</summary>
-	public enum DoorStates : int {
+	public enum DoorStates {
 		/// <summary>No door is open.</summary>
 		None = 0,
 		/// <summary>The left doors are open.</summary>
@@ -574,6 +705,55 @@ namespace OpenBveApi.Runtime {
 		}
 	}
 	
+	// --- perform AI ---
+
+	/// <summary>Represents responses by the AI.</summary>
+	public enum AIResponse {
+		/// <summary>No action was performed by the plugin.</summary>
+		None = 0,
+		/// <summary>The action performed took a short time.</summary>
+		Short = 1,
+		/// <summary>The action performed took an average amount of time.</summary>
+		Medium = 2,
+		/// <summary>The action performed took a long time.</summary>
+		Long = 3
+	}
+	
+	/// <summary>Represents AI data.</summary>
+	public class AIData {
+		// members
+		/// <summary>The driver handles.</summary>
+		private Handles MyHandles;
+		/// <summary>The AI response.</summary>
+		private AIResponse MyResponse;
+		// constructors
+		/// <summary>Creates a new instance of this class.</summary>
+		/// <param name="handles">The driver handles.</param>
+		public AIData(Handles handles) {
+			this.MyHandles = handles;
+			this.MyResponse = AIResponse.None;
+		}
+		// properties
+		/// <summary>Gets or sets the driver handles.</summary>
+		public Handles Handles {
+			get {
+				return this.MyHandles;
+			}
+			set {
+				this.MyHandles = value;
+			}
+		}
+		/// <summary>Gets or sets the AI response.</summary>
+		public AIResponse Response {
+			get {
+				return this.MyResponse;
+			}
+			set {
+				this.MyResponse = value;
+			}
+		}
+	}
+	
 	
 	// --- plugin interface ---
 	
@@ -598,13 +778,8 @@ namespace OpenBveApi.Runtime {
 		void Initialize(InitializationModes mode);
 		
 		/// <summary>Is called every frame.</summary>
-		/// <param name="state">The current state of the train.</param>
-		/// <param name="handles">The handles of the safety system.</param>
-		/// <param name="panel">The array of panel variables the plugin initialized in the Load call.</param>
-		/// <param name="sound">The array of sound instructions the plugin initialized in the Load call.</param>
-		/// <param name="message">The message the plugin passes to the host application for debugging purposes, or a null reference.</param>
-		/// <remarks>Set members of the Handles argument to overwrite the driver's settings.</remarks>
-		void Elapse(VehicleState state, Handles handles, int[] panel, int[] sound, out string message);
+		/// <param name="data">The data passed to the plugin.</param>
+		void Elapse(ElapseData data);
 		
 		/// <summary>Is called when the driver changes the reverser.</summary>
 		/// <param name="reverser">The new reverser position.</param>
@@ -642,6 +817,10 @@ namespace OpenBveApi.Runtime {
 		/// <summary>Is called when the train passes a beacon.</summary>
 		/// <param name="data">The beacon data.</param>
 		void SetBeacon(BeaconData data);
+		
+		/// <summary>Is called when the plugin should perform the AI.</summary>
+		/// <param name="data">The AI data.</param>
+		void PerformAI(AIData data);
 		
 	}
 	

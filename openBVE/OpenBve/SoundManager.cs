@@ -393,6 +393,9 @@ namespace OpenBve {
 						return i;
 					}
 				}
+				if (!FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase)) {
+					Interface.AddMessage(Interface.MessageType.Warning, false, "The file extension is not recognized - will be assumed to be a .wav file: " + FileName);
+				}
 				for (i = 0; i < SoundBuffers.Length; i++) {
 					if (SoundBuffers[i] == null) break;
 				}

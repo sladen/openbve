@@ -451,7 +451,7 @@ namespace OpenBve {
 					Data.OptionalInteger = this.OptionalInteger;
 					if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
 						if ((int)Data.Type >= 0) {
-							PluginManager.CurrentPlugin.UpdateBeacon(Train, (int)Data.Type, Data.SectionIndex, Data.OptionalInteger);
+							PluginManager.CurrentPlugin.UpdateBeacon((int)Data.Type, Data.SectionIndex, Data.OptionalInteger);
 						}
 					} else {
 						Train.Specs.Safety.AddPendingTransponder(Data);

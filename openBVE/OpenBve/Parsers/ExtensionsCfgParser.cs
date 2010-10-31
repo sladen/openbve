@@ -6,6 +6,7 @@ namespace OpenBve {
 		// parse extensions config
 		internal static void ParseExtensionsConfig(string TrainPath, System.Text.Encoding Encoding, out ObjectManager.UnifiedObject[] CarObjects, TrainManager.Train Train) {
 			CarObjects = new ObjectManager.UnifiedObject[Train.Cars.Length];
+			bool[] CarObjectsReversed = new bool[Train.Cars.Length];
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
 			string FileName = Interface.GetCombinedFileName(TrainPath, "extensions.cfg");
 			if (System.IO.File.Exists(FileName)) {
@@ -86,6 +87,9 @@ namespace OpenBve {
 																	}
 																}
 																break;
+															case "reversed":
+																CarObjectsReversed[n] = b.Equals("true", StringComparison.OrdinalIgnoreCase);
+																break;
 															case "length":
 																{
 																	double m;
@@ -100,7 +104,8 @@ namespace OpenBve {
 																	} else {
 																		Interface.AddMessage(Interface.MessageType.Error, false, "Value is expected to be a positive floating-point number in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 																	}
-																} break;
+																}
+																break;
 															case "axles":
 																{
 																	int k = b.IndexOf(',');
@@ -122,7 +127,8 @@ namespace OpenBve {
 																	} else {
 																		Interface.AddMessage(Interface.MessageType.Error, false, "An argument-separating comma is expected in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 																	}
-																} break;
+																}
+																break;
 															default:
 																Interface.AddMessage(Interface.MessageType.Warning, false, "Unsupported key-value pair " + a + " encountered at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 																break;
@@ -130,8 +136,10 @@ namespace OpenBve {
 													} else {
 														Interface.AddMessage(Interface.MessageType.Error, false, "Invalid statement " + Lines[i] + " encountered at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 													}
-												} i++;
-											} i--;
+												}
+												i++;
+											}
+											i--;
 											if (DefinedLength & !DefinedAxles) {
 												double AxleDistance = 0.4 * Train.Cars[n].Length;
 												Train.Cars[n].RearAxlePosition = -AxleDistance;
@@ -194,15 +202,39 @@ namespace OpenBve {
 								} else {
 									// default
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid statement " + Lines[i] + " encountered at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-								} break;
+								}
+								break;
 						}
 					}
 				}
-				// check for car objects
+				// check for car objects and reverse if necessary
 				int carObjects = 0;
 				for (int i = 0; i < Train.Cars.Length; i++) {
 					if (CarObjects[i] != null) {
 						carObjects++;
+						if (CarObjectsReversed[i]) {
+							if (CarObjects[i] is ObjectManager.StaticObject) {
+								ObjectManager.StaticObject obj = (ObjectManager.StaticObject)CarObjects[i];
+								CsvB3dObjectParser.ApplyScale(obj, -1.0, 1.0, -1.0);
+							} else if (CarObjects[i] is ObjectManager.AnimatedObjectCollection) {
+								ObjectManager.AnimatedObjectCollection obj = (ObjectManager.AnimatedObjectCollection)CarObjects[i];
+								for (int j = 0; j < obj.Objects.Length; j++) {
+									for (int h = 0; h < obj.Objects[j].States.Length; h++) {
+										CsvB3dObjectParser.ApplyScale(obj.Objects[j].States[h].Object, -1.0, 1.0, -1.0);
+										obj.Objects[j].States[h].Position.X *= -1.0;
+										obj.Objects[j].States[h].Position.Z *= -1.0;
+									}
+									obj.Objects[j].TranslateXDirection.X *= -1.0;
+									obj.Objects[j].TranslateXDirection.Z *= -1.0;
+									obj.Objects[j].TranslateYDirection.X *= -1.0;
+									obj.Objects[j].TranslateYDirection.Z *= -1.0;
+									obj.Objects[j].TranslateZDirection.X *= -1.0;
+									obj.Objects[j].TranslateZDirection.Z *= -1.0;
+								}
+							} else {
+								throw new NotImplementedException();
+							}
+						}
 					}
 				}
 				if (carObjects > 0 & carObjects < Train.Cars.Length) {

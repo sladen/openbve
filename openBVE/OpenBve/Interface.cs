@@ -145,6 +145,7 @@ namespace OpenBve {
 			internal int MainMenuWidth;
 			internal int MainMenuHeight;
 			internal bool DisableDisplayLists;
+			internal bool LoadInAdvance;
 			internal Options() {
 				this.LanguageCode = "en-US";
 				this.FullscreenMode = false;
@@ -186,6 +187,7 @@ namespace OpenBve {
 				this.MainMenuWidth = 0;
 				this.MainMenuHeight = 0;
 				this.DisableDisplayLists = false;
+				this.LoadInAdvance = false;
 			}
 		}
 		internal static Options CurrentOptions;
@@ -287,6 +289,9 @@ namespace OpenBve {
 											} break;
 										case "disabledisplaylists":
 											Interface.CurrentOptions.DisableDisplayLists = string.Compare(Value, "false", StringComparison.OrdinalIgnoreCase) != 0;
+											break;
+										case "loadinadvance":
+											Interface.CurrentOptions.LoadInAdvance = string.Compare(Value, "false", StringComparison.OrdinalIgnoreCase) != 0;
 											break;
 									} break;
 								case "quality":
@@ -520,6 +525,7 @@ namespace OpenBve {
 			Builder.AppendLine("mainmenuWidth = " + CurrentOptions.MainMenuWidth.ToString(Culture));
 			Builder.AppendLine("mainmenuHeight = " + CurrentOptions.MainMenuHeight.ToString(Culture));
 			Builder.AppendLine("disableDisplayLists = " + (CurrentOptions.DisableDisplayLists ? "true" : "false"));
+			Builder.AppendLine("loadInAdvance = " + (CurrentOptions.LoadInAdvance ? "true" : "false"));
 			Builder.AppendLine();
 			Builder.AppendLine("[quality]");
 			{
@@ -2494,7 +2500,8 @@ namespace OpenBve {
 			Value -= 1;
 			for (int i = 1; i < sizeof(int) * 8; i *= 2) {
 				Value = Value | Value >> i;
-			} return Value + 1;
+			}
+			return Value + 1;
 		}
 
 		// convert newlines to crlf

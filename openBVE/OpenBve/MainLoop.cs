@@ -17,6 +17,15 @@ namespace OpenBve {
 
 		// start loop
 		internal static void StartLoop() {
+			// load in advance
+			if (Interface.CurrentOptions.LoadInAdvance) {
+				for (int i = 0; i < TextureManager.Textures.Length; i++) {
+					if (TextureManager.Textures[i] != null) {
+						TextureManager.Textures[i].DontAllowUnload = true;
+						TextureManager.UseTexture(i, TextureManager.UseMode.LoadImmediately);
+					}
+				}
+			}
 			// camera
 			ObjectManager.InitializeVisibility();
 			TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, 0.0, true, false);
@@ -814,7 +823,7 @@ namespace OpenBve {
 													bool q = b == 1;
 													if (b > 0) b--;
 													if (b <= TrainManager.PlayerTrain.Specs.MaximumBrakeNotch) {
-														TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Driver = false;
+														TrainManager.UnapplyEmergencyBrake(TrainManager.PlayerTrain);
 														TrainManager.ApplyNotch(TrainManager.PlayerTrain, 0, true, b, false);
 													} else {
 														TrainManager.ApplyEmergencyBrake(TrainManager.PlayerTrain);
@@ -828,7 +837,7 @@ namespace OpenBve {
 													a *= (double)TrainManager.PlayerTrain.Specs.MaximumBrakeNotch + 1;
 													int b = (int)Math.Round(a);
 													if (b <= TrainManager.PlayerTrain.Specs.MaximumBrakeNotch) {
-														TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Driver = false;
+														TrainManager.UnapplyEmergencyBrake(TrainManager.PlayerTrain);
 														TrainManager.ApplyNotch(TrainManager.PlayerTrain, 0, true, b, false);
 													} else {
 														TrainManager.ApplyEmergencyBrake(TrainManager.PlayerTrain);
@@ -848,7 +857,7 @@ namespace OpenBve {
 												bool q = b == 1;
 												if (b > 0) b--;
 												if (b <= TrainManager.PlayerTrain.Specs.MaximumBrakeNotch) {
-													TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Driver = false;
+													TrainManager.UnapplyEmergencyBrake(TrainManager.PlayerTrain);
 													TrainManager.ApplyNotch(TrainManager.PlayerTrain, p, false, b, false);
 												} else {
 													TrainManager.ApplyEmergencyBrake(TrainManager.PlayerTrain);
@@ -861,7 +870,7 @@ namespace OpenBve {
 												if (p < 0) p = 0;
 												if (b < 0) b = 0;
 												if (b <= TrainManager.PlayerTrain.Specs.MaximumBrakeNotch) {
-													TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Driver = false;
+													TrainManager.UnapplyEmergencyBrake(TrainManager.PlayerTrain);
 													TrainManager.ApplyNotch(TrainManager.PlayerTrain, p, false, b, false);
 												} else {
 													TrainManager.ApplyEmergencyBrake(TrainManager.PlayerTrain);
@@ -1623,7 +1632,7 @@ namespace OpenBve {
 										} else {
 											if (TrainManager.PlayerTrain.AI == null) {
 												TrainManager.PlayerTrain.AI = new Game.SimpleHumanDriverAI(TrainManager.PlayerTrain);
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
+												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin && !PluginManager.CurrentPlugin.SupportsAI) {
 													Game.AddMessage(Interface.GetInterfaceString("notification_aiunable"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 10.0);
 												}
 											} else {
