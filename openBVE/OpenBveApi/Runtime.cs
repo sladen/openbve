@@ -6,14 +6,14 @@ namespace OpenBveApi.Runtime {
 	
 	/// <summary>Represents the handle to a sound.</summary>
 	public class SoundHandle {
-		// members
+		// --- members ---
 		/// <summary>Whether the handle to the sound is valid.</summary>
 		protected bool MyValid;
 		/// <summary>The volume. A value of 1.0 represents nominal volume.</summary>
 		protected double MyVolume;
 		/// <summary>The pitch. A value of 1.0 represents nominal pitch.</summary>
 		protected double MyPitch;
-		// properties
+		// --- properties ---
 		/// <summary>Gets whether the sound is still playing. Once this returns false, the sound handle is invalid.</summary>
 		public bool Playing {
 			get {
@@ -57,7 +57,7 @@ namespace OpenBveApi.Runtime {
 	/// <param name="pitch">The initial pitch of the sound. A value of 1.0 represents nominal pitch.</param>
 	/// <param name="looped">Whether the sound should be played in an indefinate loop.</param>
 	/// <returns>The handle to the sound, or a null reference if the sound could not be played.</returns>
-	/// <remarks>Use the handle to subsequently stop the sound or to change its volume or pitch.</remarks>
+	/// <exception cref="System.InvalidOperationException">Raised when the host application does not allow the function to be called.</exception>
 	public delegate SoundHandle PlaySoundDelegate(int index, double volume, double pitch, bool looped);
 	
 	/// <summary>Represents to which extent the plugin supports the AI.</summary>
@@ -70,7 +70,7 @@ namespace OpenBveApi.Runtime {
 
 	/// <summary>Represents properties supplied to the plugin on loading.</summary>
 	public class LoadProperties {
-		// members
+		// --- members ---
 		/// <summary>The absolute path to the plugin folder.</summary>
 		private string MyPluginFolder;
 		/// <summary>The absolute path to the train folder.</summary>
@@ -78,16 +78,17 @@ namespace OpenBveApi.Runtime {
 		/// <summary>The array of panel variables.</summary>
 		private int[] MyPanel;
 		/// <summary>The callback function for playing sounds.</summary>
+		/// <exception cref="System.InvalidOperationException">Raised when the host application does not allow the function to be called.</exception>
 		private PlaySoundDelegate MyPlaySound;
 		/// <summary>The extent to which the plugin supports the AI.</summary>
 		private AISupport MyAISupport;
 		/// <summary>The reason why the plugin failed loading.</summary>
 		private string MyFailureReason;
-		// properties
+		// --- properties ---
 		/// <summary>Gets the absolute path to the plugin folder.</summary>
 		public string PluginFolder {
 			get {
-				return this.PluginFolder;
+				return this.MyPluginFolder;
 			}
 		}
 		/// <summary>Gets the absolute path to the train folder.</summary>
@@ -129,7 +130,7 @@ namespace OpenBveApi.Runtime {
 				this.MyFailureReason = value;
 			}
 		}
-		// constructors
+		// --- constructors ---
 		/// <summary>Creates a new instance of this class.</summary>
 		/// <param name="pluginFolder">The absolute path to the plugin folder.</param>
 		/// <param name="trainFolder">The absolute path to the train folder.</param>
@@ -157,7 +158,7 @@ namespace OpenBveApi.Runtime {
 	
 	/// <summary>Represents the specification of the train.</summary>
 	public class VehicleSpecs {
-		// members
+		// --- members ---
 		/// <summary>The number of power notches the train has.</summary>
 		private int MyPowerNotches;
 		/// <summary>The type of brake the train uses.</summary>
@@ -168,7 +169,7 @@ namespace OpenBveApi.Runtime {
 		private int MyBrakeNotches;
 		/// <summary>The number of cars the train has.</summary>
 		private int MyCars;
-		// properties
+		// --- properties ---
 		/// <summary>Gets the number of power notches the train has.</summary>
 		public int PowerNotches {
 			get {
@@ -197,7 +198,7 @@ namespace OpenBveApi.Runtime {
 		/// <remarks>For trains without a hold brake, this returns 1. For trains with a hold brake, this returns 2.</remarks>
 		public int AtsNotch {
 			get {
-				if (this.HasHoldBrake) {
+				if (this.MyHasHoldBrake) {
 					return 2;
 				} else {
 					return 1;
@@ -216,7 +217,7 @@ namespace OpenBveApi.Runtime {
 				return this.MyCars;
 			}
 		}
-		// constructors
+		// --- constructors ---
 		/// <summary>Creates a new instance of this class.</summary>
 		/// <param name="powerNotches">The number of power notches the train has.</param>
 		/// <param name="brakeType">The type of brake the train uses.</param>
@@ -250,10 +251,10 @@ namespace OpenBveApi.Runtime {
 
 	/// <summary>Represents a speed.</summary>
 	public class Speed {
-		// members
+		// --- members ---
 		/// <summary>The speed in meters per second.</summary>
 		private double MyValue;
-		// properties
+		// --- properties ---
 		/// <summary>Gets the speed in meters per second.</summary>
 		public double MetersPerSecond {
 			get {
@@ -272,7 +273,7 @@ namespace OpenBveApi.Runtime {
 				return 2.236936 * this.MyValue;
 			}
 		}
-		// constructors
+		// --- constructors ---
 		/// <summary>Creates a new instance of this class.</summary>
 		/// <param name="value">The speed in meters per second.</param>
 		public Speed(double value) {
@@ -282,10 +283,10 @@ namespace OpenBveApi.Runtime {
 	
 	/// <summary>Represents a time.</summary>
 	public class Time {
-		// members
+		// --- members ---
 		/// <summary>The time in seconds.</summary>
 		private double MyValue;
-		// properties
+		// --- properties ---
 		/// <summary>Gets the time in seconds.</summary>
 		public double Seconds {
 			get {
@@ -298,7 +299,7 @@ namespace OpenBveApi.Runtime {
 				return 1000.0 * this.MyValue;
 			}
 		}
-		// constructors
+		// --- constructors ---
 		/// <summary>Creates a new instance of this class.</summary>
 		/// <param name="value">The time in seconds.</param>
 		public Time(double value) {
@@ -308,73 +309,73 @@ namespace OpenBveApi.Runtime {
 	
 	/// <summary>Represents the current state of the train.</summary>
 	public class VehicleState {
-		// members
-		/// <summary>The current location of the train, in meters.</summary>
+		// --- members ---
+		/// <summary>The location of the front of the train, in meters.</summary>
 		private double MyLocation;
-		/// <summary>The current speed of the train.</summary>
+		/// <summary>The speed of the train.</summary>
 		private Speed MySpeed;
-		/// <summary>The current pressure in the brake cylinder, in pascal.</summary>
+		/// <summary>The pressure in the brake cylinder, in pascal.</summary>
 		private double MyBcPressure;
-		/// <summary>The current pressure in the main reservoir, in pascal.</summary>
+		/// <summary>The pressure in the main reservoir, in pascal.</summary>
 		private double MyMrPressure;
-		/// <summary>The current pressure in the emergency reservoir, in pascal.</summary>
+		/// <summary>The pressure in the emergency reservoir, in pascal.</summary>
 		private double MyErPressure;
-		/// <summary>The current pressure in the brake pipe, in pascal.</summary>
+		/// <summary>The pressure in the brake pipe, in pascal.</summary>
 		private double MyBpPressure;
-		/// <summary>The current pressure in the straight air pipe, in pascal.</summary>
+		/// <summary>The pressure in the straight air pipe, in pascal.</summary>
 		private double MySapPressure;
-		// properties
-		/// <summary>Gets the current location of the train, in meters.</summary>
+		// --- properties ---
+		/// <summary>Gets the location of the front of the train, in meters.</summary>
 		public double Location {
 			get {
 				return this.MyLocation;
 			}
 		}
-		/// <summary>Gets the current speed of the train.</summary>
+		/// <summary>Gets the speed of the train.</summary>
 		public Speed Speed {
 			get {
 				return this.MySpeed;
 			}
 		}
-		/// <summary>Gets the current pressure in the brake cylinder, in pascal.</summary>
+		/// <summary>Gets the pressure in the brake cylinder, in pascal.</summary>
 		public double BcPressure {
 			get {
 				return this.MyBcPressure;
 			}
 		}
-		/// <summary>Gets the current pressure in the main reservoir, in pascal.</summary>
+		/// <summary>Gets the pressure in the main reservoir, in pascal.</summary>
 		public double MrPressure {
 			get {
 				return this.MyMrPressure;
 			}
 		}
-		/// <summary>Gets the current pressure in the emergency reservoir, in pascal.</summary>
+		/// <summary>Gets the pressure in the emergency reservoir, in pascal.</summary>
 		public double ErPressure {
 			get {
 				return this.MyErPressure;
 			}
 		}
-		/// <summary>Gets the current pressure in the brake pipe, in pascal.</summary>
+		/// <summary>Gets the pressure in the brake pipe, in pascal.</summary>
 		public double BpPressure {
 			get {
 				return this.MyBpPressure;
 			}
 		}
-		/// <summary>Gets the current pressure in the straight air pipe, in pascal.</summary>
+		/// <summary>Gets the pressure in the straight air pipe, in pascal.</summary>
 		public double SapPressure {
 			get {
 				return this.MySapPressure;
 			}
 		}
-		// constructors
+		// --- constructors ---
 		/// <summary>Creates a new instance of this class.</summary>
-		/// <param name="location">The current location of the train, in meters.</param>
-		/// <param name="speed">The current speed of the train.</param>
-		/// <param name="bcPressure">The current pressure in the brake cylinder, in pascal.</param>
-		/// <param name="mrPressure">The current pressure in the main reservoir, in pascal.</param>
-		/// <param name="erPressure">The current pressure in the emergency reservoir, in pascal.</param>
-		/// <param name="bpPressure">The current pressure in the brake pipe, in pascal.</param>
-		/// <param name="sapPressure">The current pressure in the straight air pipe, in pascal.</param>
+		/// <param name="location">The location of the front of the train, in meters.</param>
+		/// <param name="speed">The speed of the train.</param>
+		/// <param name="bcPressure">The pressure in the brake cylinder, in pascal.</param>
+		/// <param name="mrPressure">The pressure in the main reservoir, in pascal.</param>
+		/// <param name="erPressure">The pressure in the emergency reservoir, in pascal.</param>
+		/// <param name="bpPressure">The pressure in the brake pipe, in pascal.</param>
+		/// <param name="sapPressure">The pressure in the straight air pipe, in pascal.</param>
 		public VehicleState(double location, Speed speed, double bcPressure, double mrPressure, double erPressure, double bpPressure, double sapPressure) {
 			this.MyLocation = location;
 			this.MySpeed = speed;
@@ -388,30 +389,40 @@ namespace OpenBveApi.Runtime {
 	
 	/// <summary>Represents the current state of the preceding train.</summary>
 	public class PrecedingVehicleState {
-		// members
-		/// <summary>The current location of the back of the preceding train, in meters.</summary>
+		// --- members ---
+		/// <summary>The location of the back of the preceding train, in meters.</summary>
 		private double MyLocation;
+		/// <summary>The distance from the front of the current train to the back of the preceding train, in meters.</summary>
+		private double MyDistance;
 		/// <summary>The current speed of the preceding train.</summary>
 		private Speed MySpeed;
-		// properties
-		/// <summary>Gets the current location of the back of the preceding train, in meters.</summary>
+		// --- properties ---
+		/// <summary>Gets the location of the back of the preceding train, in meters.</summary>
 		public double Location {
 			get {
 				return this.MyLocation;
 			}
 		}
-		/// <summary>Gets the current speed of the preceding train.</summary>
+		/// <summary>Gets the distance from the front of the current train to the back of the preceding train, in meters.</summary>
+		public double Distance {
+			get {
+				return this.MyDistance;
+			}
+		}
+		/// <summary>Gets the speed of the preceding train.</summary>
 		public Speed Speed {
 			get {
 				return this.MySpeed;
 			}
 		}
-		// constructors
+		// --- constructors ---
 		/// <summary>Creates a new instance of this class.</summary>
-		/// <param name="location">Gets the current location of the back of the preceding train, in meters.</param>
-		/// <param name="speed">Gets the current speed of the preceding train.</param>
-		public PrecedingVehicleState(double location, Speed speed) {
+		/// <param name="location">Gets the location of the back of the preceding train, in meters.</param>
+		/// <param name="distance">The distance from the front of the current train to the back of the preceding train, in meters.</param>
+		/// <param name="speed">Gets the speed of the preceding train.</param>
+		public PrecedingVehicleState(double location, double distance, Speed speed) {
 			this.MyLocation = location;
+			this.MyDistance = distance;
 			this.MySpeed = speed;
 		}
 	}
@@ -428,7 +439,7 @@ namespace OpenBveApi.Runtime {
 	
 	/// <summary>Represents the handles of the cab.</summary>
 	public class Handles {
-		// members
+		// --- members ---
 		/// <summary>The reverser position.</summary>
 		private int MyReverser;
 		/// <summary>The power notch.</summary>
@@ -437,7 +448,7 @@ namespace OpenBveApi.Runtime {
 		private int MyBrakeNotch;
 		/// <summary>The instructions for the const speed system.</summary>
 		private ConstSpeedInstructions MyConstSpeed;
-		// properties
+		// --- properties ---
 		/// <summary>Gets or sets the reverser position.</summary>
 		public int Reverser {
 			get {
@@ -474,7 +485,7 @@ namespace OpenBveApi.Runtime {
 				this.MyConstSpeed = value;
 			}
 		}
-		// constructors
+		// --- constructors ---
 		/// <summary>Creates a new instance of this class.</summary>
 		/// <param name="reverser">The current reverser position.</param>
 		/// <param name="powerNotch">The current power notch.</param>
@@ -490,7 +501,7 @@ namespace OpenBveApi.Runtime {
 	
 	/// <summary>Represents data given to the plugin in the Elapse call.</summary>
 	public class ElapseData {
-		// members
+		// --- members ---
 		/// <summary>The state of the train.</summary>
 		private VehicleState MyVehicle;
 		/// <summary>The state of the preceding train, or a null reference if there is no preceding train.</summary>
@@ -503,7 +514,7 @@ namespace OpenBveApi.Runtime {
 		private Time MyElapsedTime;
 		/// <summary>The debug message the plugin wants the host application to display.</summary>
 		private string MyDebugMessage;
-		// constructors
+		// --- constructors ---
 		/// <summary>Creates a new instance of this class.</summary>
 		/// <param name="vehicle">The state of the train.</param>
 		/// <param name="precedingVehicle">The state of the preceding train, or a null reference if there is no preceding train.</param>
@@ -518,7 +529,7 @@ namespace OpenBveApi.Runtime {
 			this.MyElapsedTime = elapsedTime;
 			this.MyDebugMessage = null;
 		}
-		// properties
+		// --- properties ---
 		/// <summary>Gets the state of the train.</summary>
 		public VehicleState Vehicle {
 			get {
@@ -634,12 +645,12 @@ namespace OpenBveApi.Runtime {
 	
 	/// <summary>Represents information about a signal or section.</summary>
 	public class SignalData {
-		// members
+		// --- members ---
 		/// <summary>The aspect of the signal or section.</summary>
 		private int MyAspect;
 		/// <summary>The distance to the signal or section.</summary>
 		private double MyDistance;
-		// properties
+		// --- properties ---
 		/// <summary>Gets the aspect of the signal or section.</summary>
 		public int Aspect {
 			get {
@@ -652,7 +663,7 @@ namespace OpenBveApi.Runtime {
 				return this.MyDistance;
 			}
 		}
-		// constructors
+		// --- constructors ---
 		/// <summary>Creates a new instance of this class.</summary>
 		/// <param name="aspect">The aspect of the signal or section.</param>
 		/// <param name="distance">The distance to the signal or section.</param>
@@ -667,14 +678,14 @@ namespace OpenBveApi.Runtime {
 	
 	/// <summary>Represents data trasmitted by a beacon.</summary>
 	public class BeaconData {
-		// members
+		// --- members ---
 		/// <summary>The type of beacon.</summary>
 		private int MyType;
 		/// <summary>Optional data the beacon transmits.</summary>
 		private int MyOptional;
 		/// <summary>The section the beacon is attached to.</summary>
 		private SignalData MySignal;
-		// properties
+		// --- properties ---
 		/// <summary>Gets the type of beacon.</summary>
 		public int Type {
 			get {
@@ -693,7 +704,7 @@ namespace OpenBveApi.Runtime {
 				return this.MySignal;
 			}
 		}
-		// constructors
+		// --- constructors ---
 		/// <summary>Creates a new instance of this class.</summary>
 		/// <param name="type">The type of beacon.</param>
 		/// <param name="optional">Optional data the beacon transmits.</param>
@@ -721,19 +732,19 @@ namespace OpenBveApi.Runtime {
 	
 	/// <summary>Represents AI data.</summary>
 	public class AIData {
-		// members
+		// --- members ---
 		/// <summary>The driver handles.</summary>
 		private Handles MyHandles;
 		/// <summary>The AI response.</summary>
 		private AIResponse MyResponse;
-		// constructors
+		// --- constructors ---
 		/// <summary>Creates a new instance of this class.</summary>
 		/// <param name="handles">The driver handles.</param>
 		public AIData(Handles handles) {
 			this.MyHandles = handles;
 			this.MyResponse = AIResponse.None;
 		}
-		// properties
+		// --- properties ---
 		/// <summary>Gets or sets the driver handles.</summary>
 		public Handles Handles {
 			get {
@@ -755,9 +766,9 @@ namespace OpenBveApi.Runtime {
 	}
 	
 	
-	// --- plugin interface ---
+	// --- interfaces ---
 	
-	/// <summary>Represents the interface to be implemented by the plugin.</summary>
+	/// <summary>Represents the interface for performing runtime train services.</summary>
 	public interface IRuntime {
 
 		/// <summary>Is called when the plugin is loaded.</summary>

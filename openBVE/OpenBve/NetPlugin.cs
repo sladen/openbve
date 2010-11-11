@@ -56,7 +56,7 @@ namespace OpenBve {
 				throw;
 			}
 			if (success) {
-				base.Panel = properties.Panel;
+				base.Panel = properties.Panel ?? new int[] { };
 				try {
 					Api.SetVehicleSpecs(specs);
 					Api.Initialize(mode);

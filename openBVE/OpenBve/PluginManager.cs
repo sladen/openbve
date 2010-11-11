@@ -75,7 +75,7 @@ namespace OpenBve {
 				}
 				PrecedingVehicleState precedingVehicle;
 				if (bestLocation != double.MaxValue) {
-					precedingVehicle = new PrecedingVehicleState(bestLocation, new Speed(bestSpeed));
+					precedingVehicle = new PrecedingVehicleState(bestLocation, bestLocation - location, new Speed(bestSpeed));
 				} else {
 					precedingVehicle = null;
 				}

@@ -24,7 +24,7 @@ namespace OpenBve {
 				this.TrackPosition = TrackPosition;
 			}
 		}
-		internal static float NoFogStart = 800.0f; // must not be 600 nor below
+		internal static float NoFogStart = 800.0f; // must not be 600 or below
 		internal static float NoFogEnd = 1600.0f;
 		internal static Fog PreviousFog = new Fog(NoFogStart, NoFogEnd, new World.ColorRGB(128, 128, 128), 0.0);
 		internal static Fog CurrentFog = new Fog(NoFogStart, NoFogEnd, new World.ColorRGB(128, 128, 128), 0.5);
@@ -1534,6 +1534,28 @@ namespace OpenBve {
 										}
 									}
 								}
+							}
+						}
+						// buffers ahead
+						for (int i = 0; i < BufferTrackPositions.Length; i++) {
+							double dist = BufferTrackPositions[i] - tp;
+							if (dist > 0.0) {
+								double edec;
+								if (dist >= 10.0) {
+									edec = spd * spd / (2.0 * dist);
+								} else if (dist >= 5.0) {
+									TrainManager.ApplyNotch(Train, -1, true, 1, true);
+									TrainManager.ApplyAirBrakeHandle(Train, TrainManager.AirBrakeHandleState.Service);
+									this.CurrentInterval = 0.1;
+									return;
+								} else {
+									TrainManager.ApplyNotch(Train, -1, true, 1, true);
+									TrainManager.ApplyAirBrakeHandle(Train, TrainManager.AirBrakeHandleState.Service);
+									TrainManager.ApplyEmergencyBrake(Train);
+									this.CurrentInterval = 10.0;
+									return;
+								}
+								if (edec > dec) dec = edec;
 							}
 						}
 						// trains ahead

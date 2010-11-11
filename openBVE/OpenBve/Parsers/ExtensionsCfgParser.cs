@@ -87,9 +87,6 @@ namespace OpenBve {
 																	}
 																}
 																break;
-															case "reversed":
-																CarObjectsReversed[n] = b.Equals("true", StringComparison.OrdinalIgnoreCase);
-																break;
 															case "length":
 																{
 																	double m;
@@ -128,6 +125,9 @@ namespace OpenBve {
 																		Interface.AddMessage(Interface.MessageType.Error, false, "An argument-separating comma is expected in " + a + " at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 																	}
 																}
+																break;
+															case "reversed":
+																CarObjectsReversed[n] = b.Equals("true", StringComparison.OrdinalIgnoreCase);
 																break;
 															default:
 																Interface.AddMessage(Interface.MessageType.Warning, false, "Unsupported key-value pair " + a + " encountered at line " + (i + 1).ToString(Culture) + " in file " + FileName);
@@ -213,6 +213,12 @@ namespace OpenBve {
 					if (CarObjects[i] != null) {
 						carObjects++;
 						if (CarObjectsReversed[i]) {
+							{
+								// reverse axle positions
+								double temp = Train.Cars[i].FrontAxlePosition;
+								Train.Cars[i].FrontAxlePosition = -Train.Cars[i].RearAxlePosition;
+								Train.Cars[i].RearAxlePosition = -temp;
+							}
 							if (CarObjects[i] is ObjectManager.StaticObject) {
 								ObjectManager.StaticObject obj = (ObjectManager.StaticObject)CarObjects[i];
 								CsvB3dObjectParser.ApplyScale(obj, -1.0, 1.0, -1.0);
