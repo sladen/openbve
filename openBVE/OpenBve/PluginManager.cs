@@ -28,8 +28,10 @@ namespace OpenBve {
 			internal int LastPowerNotch;
 			/// <summary>The last brake notch reported to the plugin.</summary>
 			internal int LastBrakeNotch;
-			/// <summary>The last aspect reported to the plugin.</summary>
-			internal int LastAspect;
+			/// <summary>The last aspect for the current section reported to the plugin.</summary>
+			internal int LastCurrentAspect;
+			/// <summary>The last aspect for the upcoming section reported to the plugin.</summary>
+			internal int LastUpcomingAspect;
 			/// <summary>The last exception the plugin raised.</summary>
 			internal Exception LastException;
 			// functions
@@ -113,7 +115,8 @@ namespace OpenBve {
 						brakeNotch = this.Train.Specs.CurrentEmergencyBrake.Driver ? this.Train.Specs.MaximumBrakeNotch + 1 : this.Train.Specs.CurrentBrakeNotch.Driver;
 					}
 				}
-				return new Handles(reverser, powerNotch, brakeNotch, ConstSpeedInstructions.Continue);
+				bool constSpeed = this.Train.Specs.CurrentConstSpeed;
+				return new Handles(reverser, powerNotch, brakeNotch, constSpeed);
 			}
 			/// <summary>Sets the driver handles or the virtual handles.</summary>
 			/// <param name="handles">The handles.</param>
@@ -269,13 +272,7 @@ namespace OpenBve {
 				/*
 				 * Process the const speed system.
 				 * */
-				if (handles.ConstSpeed == ConstSpeedInstructions.Enable) {
-					this.Train.Specs.CurrentConstSpeed = this.Train.Specs.HasConstSpeed;
-				} else if (handles.ConstSpeed == ConstSpeedInstructions.Disable) {
-					this.Train.Specs.CurrentConstSpeed = false;
-				} else if (handles.ConstSpeed != ConstSpeedInstructions.Continue) {
-					this.PluginValid = false;
-				}
+				this.Train.Specs.CurrentConstSpeed = handles.ConstSpeed & this.Train.Specs.HasConstSpeed;
 			}
 			/// <summary>Called every frame to update the plugin.</summary>
 			/// <param name="data">The data passed to the plugin on Elapse.</param>
@@ -342,9 +339,18 @@ namespace OpenBve {
 			/// <param name="aspect">The aspect of the section.</param>
 			/// <param name="distance">The distance to the section.</param>
 			internal void UpdateSignal(int aspect, double distance) {
-				if (aspect != this.LastAspect) {
-					this.LastAspect = aspect;
-					SetSignal(new SignalData(aspect, distance));
+				if (distance <= 0.0) {
+					if (aspect != this.LastCurrentAspect) {
+						this.LastCurrentAspect = aspect;
+						SetSignal(new SignalData(aspect, distance));
+						//Game.AddMessage("CURRENT: " + aspect.ToString() + " @ " + distance.ToString("0.00"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 2.5);
+					}
+				} else {
+					if (aspect != this.LastUpcomingAspect) {
+						this.LastUpcomingAspect = aspect;
+						SetSignal(new SignalData(aspect, distance));
+						//Game.AddMessage("NEXT: " + aspect.ToString() + " @ " + distance.ToString(), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 2.5);
+					}
 				}
 			}
 			/// <summary>Called when the aspect in the current section changes.</summary>

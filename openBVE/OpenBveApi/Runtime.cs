@@ -427,16 +427,6 @@ namespace OpenBveApi.Runtime {
 		}
 	}
 	
-	/// <summary>Represents an instruction for the const speed system.</summary>
-	public enum ConstSpeedInstructions {
-		/// <summary>The const speed system should continue operation in the user-specified way.</summary>
-		Continue = 0,
-		/// <summary>The const speed system should be forced on.</summary>
-		Enable = 1,
-		/// <summary>The const speed system should be forced off.</summary>
-		Disable = 2
-	}
-	
 	/// <summary>Represents the handles of the cab.</summary>
 	public class Handles {
 		// --- members ---
@@ -446,8 +436,8 @@ namespace OpenBveApi.Runtime {
 		private int MyPowerNotch;
 		/// <summary>The brake notch.</summary>
 		private int MyBrakeNotch;
-		/// <summary>The instructions for the const speed system.</summary>
-		private ConstSpeedInstructions MyConstSpeed;
+		/// <summary>Whether the const speed system is enabled.</summary>
+		private bool MyConstSpeed;
 		// --- properties ---
 		/// <summary>Gets or sets the reverser position.</summary>
 		public int Reverser {
@@ -476,8 +466,8 @@ namespace OpenBveApi.Runtime {
 				this.MyBrakeNotch = value;
 			}
 		}
-		/// <summary>Gets or sets the instruction for the const speed system.</summary>
-		public ConstSpeedInstructions ConstSpeed {
+		/// <summary>Gets or sets whether the const speed system is enabled.</summary>
+		public bool ConstSpeed {
 			get {
 				return this.MyConstSpeed;
 			}
@@ -490,8 +480,8 @@ namespace OpenBveApi.Runtime {
 		/// <param name="reverser">The current reverser position.</param>
 		/// <param name="powerNotch">The current power notch.</param>
 		/// <param name="brakeNotch">The current brake notch.</param>
-		/// <param name="constSpeed">The current instruction for the const speed system.</param>
-		public Handles(int reverser, int powerNotch, int brakeNotch, ConstSpeedInstructions constSpeed) {
+		/// <param name="constSpeed">Whether the const speed system is enabled.</param>
+		public Handles(int reverser, int powerNotch, int brakeNotch, bool constSpeed) {
 			this.MyReverser = reverser;
 			this.MyPowerNotch = powerNotch;
 			this.MyBrakeNotch = brakeNotch;
@@ -821,8 +811,10 @@ namespace OpenBveApi.Runtime {
 		/// <param name="newState">The new state of the doors.</param>
 		void DoorChange(DoorStates oldState, DoorStates newState);
 		
-		/// <summary>Is called when the aspect in the current section changes.</summary>
+		/// <summary>Is called when the aspect in the current or upcoming section changes.</summary>
 		/// <param name="data">The signal data.</param>
+		/// <remarks>When this function is called to inform about a change in the current section, the reported distance is negative.</remarks>
+		/// <remarks>When this function is called to inform about a change in the upcoming section, the reported distance is positive.</remarks>
 		void SetSignal(SignalData data);
 		
 		/// <summary>Is called when the train passes a beacon.</summary>

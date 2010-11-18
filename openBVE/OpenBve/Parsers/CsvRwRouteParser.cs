@@ -4322,7 +4322,7 @@ namespace OpenBve {
 														int n = Data.Blocks[BlockIndex].Sound.Length;
 														Array.Resize<Sound>(ref Data.Blocks[BlockIndex].Sound, n + 1);
 														Data.Blocks[BlockIndex].Sound[n].TrackPosition = Data.TrackPosition;
-														Data.Blocks[BlockIndex].Sound[n].SoundIndex = SoundManager.LoadSound(f, 10.0);
+														Data.Blocks[BlockIndex].Sound[n].SoundIndex = SoundManager.LoadSound(f, 15.0);
 														Data.Blocks[BlockIndex].Sound[n].Type = speed == 0.0 ? SoundType.TrainStatic : SoundType.TrainDynamic;
 														Data.Blocks[BlockIndex].Sound[n].Speed = speed * Data.UnitOfSpeed;
 													}

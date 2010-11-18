@@ -35,7 +35,8 @@ namespace OpenBve {
 			base.LastReverser = -2;
 			base.LastPowerNotch = -1;
 			base.LastBrakeNotch = -1;
-			base.LastAspect = -1;
+			base.LastCurrentAspect = -1;
+			base.LastUpcomingAspect = -1;
 			base.LastException = null;
 			this.PluginFolder = System.IO.Path.GetDirectoryName(pluginFile);
 			this.TrainFolder = trainFolder;

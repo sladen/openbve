@@ -107,6 +107,12 @@ namespace OpenBve {
 			internal const int Continue = 2;
 		}
 		
+		private static class ConstSpeedInstructions {
+			internal const int Continue = 0;
+			internal const int Enable = 1;
+			internal const int Disable = 2;
+		}
+		
 		// --- members ---
 		private string PluginFile;
 		private int[] Sound;
@@ -126,7 +132,8 @@ namespace OpenBve {
 			base.LastReverser = -2;
 			base.LastPowerNotch = -1;
 			base.LastBrakeNotch = -1;
-			base.LastAspect = -1;
+			base.LastCurrentAspect = -1;
+			base.LastUpcomingAspect = -1;
 			base.LastException = null;
 			this.PluginFile = pluginFile;
 			this.Sound = new int[256];
@@ -242,12 +249,18 @@ namespace OpenBve {
 				win32Handles.Brake = data.Handles.BrakeNotch;
 				win32Handles.Power = data.Handles.PowerNotch;
 				win32Handles.Reverser = data.Handles.Reverser;
-				win32Handles.ConstantSpeed = (int)data.Handles.ConstSpeed;
+				win32Handles.ConstantSpeed = data.Handles.ConstSpeed ? ConstSpeedInstructions.Enable : ConstSpeedInstructions.Disable;
 				Win32Elapse(ref win32Handles.Brake, ref win32State.Location, ref base.Panel[0], ref this.Sound[0]);
 				data.Handles.Reverser = win32Handles.Reverser;
 				data.Handles.PowerNotch = win32Handles.Power;
 				data.Handles.BrakeNotch = win32Handles.Brake;
-				data.Handles.ConstSpeed = (ConstSpeedInstructions)win32Handles.ConstantSpeed;
+				if (win32Handles.ConstantSpeed == ConstSpeedInstructions.Enable) {
+					data.Handles.ConstSpeed = true;
+				} else if (win32Handles.ConstantSpeed == ConstSpeedInstructions.Disable) {
+					data.Handles.ConstSpeed = false;
+				} else if (win32Handles.ConstantSpeed != ConstSpeedInstructions.Continue) {
+					this.PluginValid = false;
+				}
 				/*
 				 * Process the sound instructions
 				 * */
@@ -278,7 +291,7 @@ namespace OpenBve {
 							}
 							this.Sound[i] = SoundInstructions.Continue;
 						} else if (this.Sound[i] != SoundInstructions.Continue) {
-							PluginValid = false;
+							this.PluginValid = false;
 						}
 						this.LastSound[i] = this.Sound[i];
 					} else {
@@ -290,7 +303,7 @@ namespace OpenBve {
 							}
 						}
 						if ((this.Sound[i] < SoundInstructions.Stop | this.Sound[i] > SoundInstructions.PlayLooping) && this.Sound[i] != SoundInstructions.PlayOnce & this.Sound[i] != SoundInstructions.Continue) {
-							PluginValid = false;
+							this.PluginValid = false;
 						}
 					}
 				}
@@ -365,11 +378,13 @@ namespace OpenBve {
 			}
 		}
 		internal override void SetSignal(SignalData signal) {
-			try {
-				Win32SetSignal(signal.Aspect);
-			} catch (Exception ex) {
-				base.LastException = ex;
-				throw;
+			if (signal.Distance <= 0.0) {
+				try {
+					Win32SetSignal(signal.Aspect);
+				} catch (Exception ex) {
+					base.LastException = ex;
+					throw;
+				}
 			}
 		}
 		internal override void SetBeacon(BeaconData beacon) {
