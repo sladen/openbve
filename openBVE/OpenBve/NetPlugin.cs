@@ -35,8 +35,8 @@ namespace OpenBve {
 			base.LastReverser = -2;
 			base.LastPowerNotch = -1;
 			base.LastBrakeNotch = -1;
-			base.LastCurrentAspect = -1;
-			base.LastUpcomingAspect = -1;
+			base.LastAspects = new int[] { };
+			base.LastSection = -1;
 			base.LastException = null;
 			this.PluginFolder = System.IO.Path.GetDirectoryName(pluginFile);
 			this.TrainFolder = trainFolder;
@@ -174,7 +174,7 @@ namespace OpenBve {
 				throw;
 			}
 		}
-		internal override void SetSignal(SignalData signal) {
+		internal override void SetSignal(SignalData[] signal) {
 			try {
 				this.Api.SetSignal(signal);
 			} catch (Exception ex) {
@@ -201,7 +201,7 @@ namespace OpenBve {
 		internal SoundHandleEx PlaySound(int index, double volume, double pitch, bool looped) {
 			if (index >= 0 && index < this.Train.Cars[this.Train.DriverCar].Sounds.Plugin.Length && this.Train.Cars[this.Train.DriverCar].Sounds.Plugin[index].SoundBufferIndex >= 0) {
 				int soundSourceIndex = -1;
-				SoundManager.PlaySound(ref soundSourceIndex, this.Train.Cars[this.Train.DriverCar].Sounds.Plugin[index].SoundBufferIndex, base.Train, base.Train.DriverCar, this.Train.Cars[this.Train.DriverCar].Sounds.Plugin[index].Position, SoundManager.Importance.AlwaysPlay, looped, pitch, volume);
+				SoundManager.PlaySound(ref soundSourceIndex, this.Train.Cars[this.Train.DriverCar].Sounds.Plugin[index].SoundBufferIndex, base.Train, base.Train.DriverCar, this.Train.Cars[this.Train.DriverCar].Sounds.Plugin[index].Position, SoundManager.Importance.DontCare, looped, pitch, volume);
 				if (this.SoundCount == this.Sounds.Length) {
 					Array.Resize<SoundHandleEx>(ref this.Sounds, this.Sounds.Length << 1);
 				}

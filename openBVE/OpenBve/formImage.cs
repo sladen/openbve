@@ -3,8 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 
 namespace OpenBve {
-    public partial class formImage : Form {
-        public formImage() {
+    internal partial class formImage : Form {
+        internal formImage() {
             InitializeComponent();
         }
 

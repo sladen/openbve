@@ -28,10 +28,10 @@ namespace OpenBve {
 			internal int LastPowerNotch;
 			/// <summary>The last brake notch reported to the plugin.</summary>
 			internal int LastBrakeNotch;
-			/// <summary>The last aspect for the current section reported to the plugin.</summary>
-			internal int LastCurrentAspect;
-			/// <summary>The last aspect for the upcoming section reported to the plugin.</summary>
-			internal int LastUpcomingAspect;
+			/// <summary>The last aspects per relative section reported to the plugin. Section 0 is the current section, section 1 the upcoming section, and so on.</summary>
+			internal int[] LastAspects;
+			/// <summary>The absolute section the train was last.</summary>
+			internal int LastSection;
 			/// <summary>The last exception the plugin raised.</summary>
 			internal Exception LastException;
 			// functions
@@ -335,29 +335,45 @@ namespace OpenBve {
 			internal abstract void HornBlow(HornTypes type);
 			/// <summary>Called when the state of the doors changes.</summary>
 			internal abstract void DoorChange(DoorStates oldState, DoorStates newState);
-			/// <summary>Called to update the aspect of the current section. This invokes a call to SetSignal only if a change actually occured.</summary>
-			/// <param name="aspect">The aspect of the section.</param>
-			/// <param name="distance">The distance to the section.</param>
-			internal void UpdateSignal(int aspect, double distance) {
-				if (distance <= 0.0) {
-					if (aspect != this.LastCurrentAspect) {
-						this.LastCurrentAspect = aspect;
-						SetSignal(new SignalData(aspect, distance));
-						//Game.AddMessage("CURRENT: " + aspect.ToString() + " @ " + distance.ToString("0.00"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 2.5);
+			/// <summary>Called to update the aspects of the section. This invokes a call to SetSignal only if a change in aspect occured or when changing section boundaries.</summary>
+			/// <param name="data">The sections to submit to the plugin.</param>
+			internal void UpdateSignals(SignalData[] data) {
+				if (data.Length != 0) {
+					if (data.Length > this.LastAspects.Length) {
+						int count = this.LastAspects.Length;
+						Array.Resize<int>(ref this.LastAspects, data.Length);
+						for (int i = count; i < this.LastAspects.Length; i++) {
+							this.LastAspects[i] = -1;
+						}
 					}
-				} else {
-					if (aspect != this.LastUpcomingAspect) {
-						this.LastUpcomingAspect = aspect;
-						SetSignal(new SignalData(aspect, distance));
-						//Game.AddMessage("NEXT: " + aspect.ToString() + " @ " + distance.ToString(), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 2.5);
+					bool update;
+					if (this.Train.CurrentSectionIndex != this.LastSection) {
+						update = true;
+					} else {
+						update = false;
+						for (int i = 0; i < data.Length; i++) {
+							if (data[i].Aspect != this.LastAspects[i]) {
+								update = true;
+								break;
+							}
+						}
+					}
+					if (update) {
+						SetSignal(data);
+					}
+					for (int i = 0; i < data.Length; i++) {
+//						if (update) {
+//							Game.AddMessage("SECTION " + i.ToString() + ", ASPECT " + data[i].Aspect.ToString() + ", DISTANCE " + data[i].Distance.ToString("0"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 2.5);
+//						}
+						this.LastAspects[i] = data[i].Aspect;
 					}
 				}
 			}
-			/// <summary>Called when the aspect in the current section changes.</summary>
-			/// <param name="signal">The signal data.</param>
+			/// <summary>Is called when the aspect in the current or any of the upcoming sections changes.</summary>
+			/// <param name="data">Signal information per section. In the array, index 0 is the current section, index 1 the upcoming section, and so on.</param>
 			/// <remarks>This function should not be called directly. Call UpdateSignal instead.</remarks>
-			internal abstract void SetSignal(SignalData signal);
-			/// <summary>Called when the base.Train passes a beacon.</summary>
+			internal abstract void SetSignal(SignalData[] signal);
+			/// <summary>Called when the train passes a beacon.</summary>
 			/// <param name="type">The beacon type.</param>
 			/// <param name="sectionIndex">The section the beacon is attached to, or -1 if none, or TrackManager.TransponderSpecialSection.NextRedSection.</param>
 			/// <param name="optional">Optional data attached to the beacon.</param>
@@ -435,10 +451,10 @@ namespace OpenBve {
 		/// <summary>The currently loaded plugin, or a null reference.</summary>
 		internal static Plugin CurrentPlugin = null;
 		
-		/// <summary>Loads the base.Train plugin from the ats.cfg for the specified base.Train.</summary>
-		/// <param name="base.TrainFolder">The absolute path to the base.Train folder.</param>
+		/// <summary>Loads the train plugin from the ats.cfg for the specified train.</summary>
+		/// <param name="trainFolder">The absolute path to the train folder.</param>
 		/// <param name="encoding">The encoding to be used.</param>
-		/// <param name="base.Train">The base.Train to attach the plugin to.</param>
+		/// <param name="train">The train to attach the plugin to.</param>
 		/// <returns>Whether a plugin was loaded successfully.</returns>
 		internal static bool LoadPlugin(string trainFolder, System.Text.Encoding encoding, TrainManager.Train train) {
 			/*
@@ -487,52 +503,50 @@ namespace OpenBve {
 			/*
 			 * Check if the plugin is a .NET plugin.
 			 * */
-			if (Program.IsDevelopmentVersion) {
-				Assembly assembly;
+			Assembly assembly;
+			try {
+				assembly = Assembly.LoadFile(pluginFile);
+			} catch {
+				assembly = null;
+			}
+			if (assembly != null) {
+				Type[] types;
 				try {
-					assembly = Assembly.LoadFile(pluginFile);
-				} catch {
-					assembly = null;
-				}
-				if (assembly != null) {
-					Type[] types;
-					try {
-						types = assembly.GetTypes();
-					} catch (ReflectionTypeLoadException ex) {
-						foreach (Exception e in ex.LoaderExceptions) {
-							Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " raised an exception on loading: " + e.Message);
-						}
-						return false;
+					types = assembly.GetTypes();
+				} catch (ReflectionTypeLoadException ex) {
+					foreach (Exception e in ex.LoaderExceptions) {
+						Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " raised an exception on loading: " + e.Message);
 					}
-					foreach (Type type in types) {
-						if (type.IsPublic && (type.Attributes & TypeAttributes.Abstract) == 0) {
-							object instance = assembly.CreateInstance(type.FullName);
-							IRuntime api = instance as IRuntime;
-							if (api != null) {
-								CurrentPlugin = new NetPlugin(pluginFile, trainFolder, api, train);
-								if (CurrentPlugin.Load(specs, mode)) {
-									train.Specs.Safety.Mode = TrainManager.SafetySystem.Plugin;
-									return true;
-								} else {
-									CurrentPlugin = null;
-									return false;
-								}
+					return false;
+				}
+				foreach (Type type in types) {
+					if (type.IsPublic && (type.Attributes & TypeAttributes.Abstract) == 0) {
+						object instance = assembly.CreateInstance(type.FullName);
+						IRuntime api = instance as IRuntime;
+						if (api != null) {
+							CurrentPlugin = new NetPlugin(pluginFile, trainFolder, api, train);
+							if (CurrentPlugin.Load(specs, mode)) {
+								train.Specs.Safety.Mode = TrainManager.SafetySystem.Plugin;
+								return true;
+							} else {
+								CurrentPlugin = null;
+								return false;
 							}
 						}
 					}
-					Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " does not export a public type that inherits from OpenBveApi.Runtime.IPlugin and therefore cannot be used with openBVE.");
-					return false;
 				}
+				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " does not export a internal type that inherits from OpenBveApi.Runtime.IPlugin and therefore cannot be used with openBVE.");
+				return false;
 			}
 			/*
 			 * Check if the plugin is a Win32 plugin.
 			 * */
 			if (!CheckWin32Header(pluginFile)) {
-				Interface.AddMessage(Interface.MessageType.Error, false, "The base.Train plugin " + pluginTitle + " is of an unsupported binary format and therefore cannot be used with openBVE.");
+				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " is of an unsupported binary format and therefore cannot be used with openBVE.");
 				return false;
 			}
 			if (Program.CurrentPlatform != Program.Platform.Windows | IntPtr.Size != 4) {
-				Interface.AddMessage(Interface.MessageType.Warning, false, "The base.Train plugin " + pluginTitle + " can only be used on 32-bit Microsoft Windows.");
+				Interface.AddMessage(Interface.MessageType.Warning, false, "The train plugin " + pluginTitle + " can only be used on 32-bit Microsoft Windows.");
 				return false;
 			}
 			CurrentPlugin = new LegacyPlugin(pluginFile, train);

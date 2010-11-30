@@ -638,7 +638,7 @@ namespace OpenBveApi.Runtime {
 		// --- members ---
 		/// <summary>The aspect of the signal or section.</summary>
 		private int MyAspect;
-		/// <summary>The distance to the signal or section.</summary>
+		/// <summary>The underlying section. Possible values are 0 for the current section, 1 for the upcoming section, or higher values for sections further ahead.</summary>
 		private double MyDistance;
 		// --- properties ---
 		/// <summary>Gets the aspect of the signal or section.</summary>
@@ -811,11 +811,10 @@ namespace OpenBveApi.Runtime {
 		/// <param name="newState">The new state of the doors.</param>
 		void DoorChange(DoorStates oldState, DoorStates newState);
 		
-		/// <summary>Is called when the aspect in the current or upcoming section changes.</summary>
-		/// <param name="data">The signal data.</param>
-		/// <remarks>When this function is called to inform about a change in the current section, the reported distance is negative.</remarks>
-		/// <remarks>When this function is called to inform about a change in the upcoming section, the reported distance is positive.</remarks>
-		void SetSignal(SignalData data);
+		/// <summary>Is called when the aspect in the current or in any of the upcoming sections changes, or when passing section boundaries.</summary>
+		/// <param name="data">Signal information per section. In the array, index 0 is the current section, index 1 the upcoming section, and so on.</param>
+		/// <remarks>The signal array is guaranteed to have at least one element. When accessing elements other than index 0, you must check the bounds of the array first.</remarks>
+		void SetSignal(SignalData[] data);
 		
 		/// <summary>Is called when the train passes a beacon.</summary>
 		/// <param name="data">The beacon data.</param>

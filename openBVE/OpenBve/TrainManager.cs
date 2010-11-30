@@ -1985,6 +1985,8 @@ namespace OpenBve {
 		private static void UpdateSafetySystem(Train Train, double TimeElapsed) {
 			// plugin
 			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
+				Game.UpdatePluginSections(Train);
+				PluginManager.CurrentPlugin.LastSection = Train.CurrentSectionIndex;
 				PluginManager.CurrentPlugin.UpdatePlugin();
 				return;
 			}

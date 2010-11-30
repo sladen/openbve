@@ -409,6 +409,7 @@ namespace OpenBve {
 			Expression[] Expressions;
 			PreprocessSplitIntoExpressions(FileName, IsRW, Lines, Encoding, out Expressions, true);
 			PreprocessChrRndSub(FileName, IsRW, ref Expressions);
+//			CreateRouteDump(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(FileName), System.IO.Path.GetFileNameWithoutExtension(FileName) + "_dump.txt"), Expressions);
 			double[] UnitOfLength = new double[] { 1.0 };
 			Data.UnitOfSpeed = 0.277777777777778;
 			PreprocessOptions(FileName, IsRW, Encoding, Expressions, ref Data, ref UnitOfLength);
@@ -416,6 +417,13 @@ namespace OpenBve {
 			ParseRouteForData(FileName, IsRW, Encoding, Expressions, TrainPath, ObjectPath, SoundPath, UnitOfLength, ref Data, PreviewOnly);
 			Game.RouteUnitOfLength = UnitOfLength;
 		}
+//		private static void CreateRouteDump(string file, Expression[] expressions) {
+//			System.Text.StringBuilder builder = new System.Text.StringBuilder();
+//			for (int i = 0; i < expressions.Length; i++) {
+//				builder.AppendLine(expressions[i].Text);
+//			}
+//			System.IO.File.WriteAllText(file, builder.ToString(), new System.Text.UTF8Encoding(true));
+//		}
 
 		// preprocess split into expressions
 		private static void PreprocessSplitIntoExpressions(string FileName, bool IsRW, string[] Lines, System.Text.Encoding Encoding, out Expression[] Expressions, bool AllowRwRouteDescription) {
@@ -554,6 +562,7 @@ namespace OpenBve {
 			System.Text.Encoding Encoding = new System.Text.ASCIIEncoding();
 			string[] Subs = new string[16];
 			int openIfs = 0;
+			bool ifUsed = false;
 			for (int i = 0; i < Expressions.Length; i++) {
 				string Epilog = " at line " + Expressions[i].Line.ToString(Culture) + ", column " + Expressions[i].Column.ToString(Culture) + " in file " + Expressions[i].File;
 				bool continueWithNextExpression = false;
@@ -596,6 +605,7 @@ namespace OpenBve {
 							string s = Expressions[i].Text.Substring(k + 1, h - k - 1).Trim();
 							switch (t.ToLowerInvariant()) {
 								case "$if":
+									ifUsed = true;
 									if (j != 0) {
 										Interface.AddMessage(Interface.MessageType.Error, false, "The $If directive must not appear within another statement" + Epilog);
 									} else {
@@ -644,6 +654,7 @@ namespace OpenBve {
 									continueWithNextExpression = true;
 									break;
 								case "$else":
+									ifUsed = true;
 									/*
 									 * Blank every expression until the matching $EndIf
 									 * */
@@ -681,6 +692,7 @@ namespace OpenBve {
 									continueWithNextExpression = true;
 									break;
 								case "$endif":
+									ifUsed = true;
 									Expressions[i].Text = string.Empty;
 									if (openIfs != 0) {
 										openIfs--;
@@ -896,6 +908,9 @@ namespace OpenBve {
 				if (length != Expressions.Length) {
 					Array.Resize<Expression>(ref Expressions, length);
 				}
+			}
+			if (ifUsed) {
+				Interface.AddMessage(Interface.MessageType.Information, false, "$If()/$Else()/$EndIf() are currently experimental. Use them for private testing only.");
 			}
 		}
 

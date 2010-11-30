@@ -1,10 +1,13 @@
 ﻿using System;
-using Tao.OpenGl;
-using Tao.Sdl;
+using System.Diagnostics;
+using System.Reflection;
 using System.Windows.Forms;
 
+using Tao.OpenGl;
+using Tao.Sdl;
+
 namespace OpenBve {
-	internal static partial class Program {
+	public static partial class Program {
 
 		// system
 		internal static string RestartProcessArguments = null;
@@ -18,7 +21,7 @@ namespace OpenBve {
 
 		// main
 		[STAThread]
-		internal static void Main(string[] Args) {
+		public static void Main(string[] args) {
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			// platform and mono
@@ -36,8 +39,8 @@ namespace OpenBve {
 			CurrentlyRunOnMono = Type.GetType("Mono.Runtime") != null;
 			// file hierarchy standard
 			if (CurrentPlatform != Platform.Windows) {
-				for (int i = 0; i < Args.Length; i++) {
-					if (Args[i].Equals("/fhs", StringComparison.OrdinalIgnoreCase)) {
+				for (int i = 0; i < args.Length; i++) {
+					if (args[i].Equals("/fhs", StringComparison.OrdinalIgnoreCase)) {
 						UseFilesystemHierarchyStandard = true;
 						break;
 					}
@@ -51,10 +54,10 @@ namespace OpenBve {
 			}
 			// start
 			#if DEBUG
-			Start(Args);
+			Start(args);
 			#else
 			try {
-				Start(Args);
+				Start(args);
 			} catch (Exception ex) {
 				if (PluginManager.CurrentPlugin != null && PluginManager.CurrentPlugin.LastException != null) {
 					string text = GetExceptionText(PluginManager.CurrentPlugin.LastException, 5);
@@ -82,11 +85,11 @@ namespace OpenBve {
 			Sdl.SDL_Quit();
 			// restart
 			if (RestartProcessArguments != null) {
-				System.Reflection.Assembly Assembly = System.Reflection.Assembly.GetExecutingAssembly();
+				System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
 				if (Program.UseFilesystemHierarchyStandard) {
 					RestartProcessArguments += " /fhs";
 				}
-				System.Diagnostics.Process.Start(Assembly.Location, RestartProcessArguments);
+				System.Diagnostics.Process.Start(assembly.Location, RestartProcessArguments);
 			}
 		}
 

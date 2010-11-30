@@ -132,8 +132,8 @@ namespace OpenBve {
 			base.LastReverser = -2;
 			base.LastPowerNotch = -1;
 			base.LastBrakeNotch = -1;
-			base.LastCurrentAspect = -1;
-			base.LastUpcomingAspect = -1;
+			base.LastAspects = new int[] { };
+			base.LastSection = -1;
 			base.LastException = null;
 			this.PluginFile = pluginFile;
 			this.Sound = new int[256];
@@ -377,10 +377,10 @@ namespace OpenBve {
 				}
 			}
 		}
-		internal override void SetSignal(SignalData signal) {
-			if (signal.Distance <= 0.0) {
+		internal override void SetSignal(SignalData[] signal) {
+			if (signal.Length != 0 && base.LastAspects.Length != 0 && signal[0].Aspect != base.LastAspects[0]) {
 				try {
-					Win32SetSignal(signal.Aspect);
+					Win32SetSignal(signal[0].Aspect);
 				} catch (Exception ex) {
 					base.LastException = ex;
 					throw;
