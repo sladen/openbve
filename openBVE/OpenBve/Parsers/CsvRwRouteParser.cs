@@ -2416,7 +2416,7 @@ namespace OpenBve {
 														Signal.GlowObject = null;
 														string Folder = Interface.GetCorrectedFolderName(System.IO.Path.GetDirectoryName(f));
 														if (!System.IO.Directory.Exists(Folder)) {
-															Interface.AddMessage(Interface.MessageType.Error, true, "The folder " + Folder + " could not be found in "+Command+" at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+															Interface.AddMessage(Interface.MessageType.Error, true, "The folder " + Folder + " could not be found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 														} else {
 															Signal.SignalTextures = LoadAllTextures(f, new World.ColorRGB(0, 0, 0), 1, TextureManager.TextureLoadMode.Normal);
 															Signal.GlowTextures = new int[] { };
@@ -6223,8 +6223,10 @@ namespace OpenBve {
 						Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[i + 1].Events, len + 1);
 						TrackManager.CurrentTrack.Elements[i + 1].Events[len] = TrackManager.CurrentTrack.Elements[i].Events[j];
 						TrackManager.CurrentTrack.Elements[i + 1].Events[len].TrackPositionDelta += startingTrackPosition - endingTrackPosition;
+						for (int k = j; k < TrackManager.CurrentTrack.Elements[i].Events.Length - 1; k++) {
+							TrackManager.CurrentTrack.Elements[i].Events[k] = TrackManager.CurrentTrack.Elements[i].Events[k + 1];
+						}
 						len = TrackManager.CurrentTrack.Elements[i].Events.Length;
-						TrackManager.CurrentTrack.Elements[i].Events[j] = TrackManager.CurrentTrack.Elements[i].Events[len - 1];
 						Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[i].Events, len - 1);
 						j--;
 					}

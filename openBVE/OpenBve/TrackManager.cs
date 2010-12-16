@@ -865,6 +865,9 @@ namespace OpenBve {
 				} else if (Direction > 0) {
 					for (int j = 0; j < CurrentTrack.Elements[ElementIndex].Events.Length; j++) {
 						if (OldDelta < CurrentTrack.Elements[ElementIndex].Events[j].TrackPositionDelta & NewDelta >= CurrentTrack.Elements[ElementIndex].Events[j].TrackPositionDelta) {
+							if (CurrentTrack.Elements[ElementIndex].Events[j] is SectionChangeEvent) {
+								SectionChangeEvent section = (SectionChangeEvent)CurrentTrack.Elements[ElementIndex].Events[j];
+							}
 							TryTriggerEvent(CurrentTrack.Elements[ElementIndex].Events[j], 1, Follower.TriggerType, Follower.Train, Follower.CarIndex);
 						}
 					}

@@ -848,6 +848,17 @@ namespace OpenBve {
 				}
 				return false;
 			}
+			/// <summary>Checks whether the section is free, disregarding the specified train.</summary>
+			/// <param name="train">The train to disregard.</param>
+			/// <returns>Whether the section is free, disregarding the specified train.</returns>
+			internal bool IsFree(TrainManager.Train train) {
+				for (int i = 0; i < this.Trains.Length; i++) {
+					if (this.Trains[i] != train & (this.Trains[i].State == TrainManager.TrainState.Available | this.Trains[i].State == TrainManager.TrainState.Bogus)) {
+						return false;
+					}
+				}
+				return true;
+			}
 			internal bool IsFree() {
 				for (int i = 0; i < this.Trains.Length; i++) {
 					if (this.Trains[i].State == TrainManager.TrainState.Available | this.Trains[i].State == TrainManager.TrainState.Bogus) {
@@ -1007,20 +1018,32 @@ namespace OpenBve {
 			}
 		}
 		
-		// update plugin section
-		/// <summary>Updates the plugin to inform about the specified section.</summary>
+		// get plugin signal
+		/// <summary>Gets the signal data for a plugin.</summary>
 		/// <param name="train">The train.</param>
 		/// <param name="section">The absolute section index, referencing Game.Sections[].</param>
 		/// <returns>The signal data.</returns>
-		private static OpenBveApi.Runtime.SignalData UpdatePluginSection(TrainManager.Train train, int section) {
+		private static OpenBveApi.Runtime.SignalData GetPluginSignal(TrainManager.Train train, int section) {
 			int aspect;
-			if (section == train.CurrentSectionIndex) {
+			if (Sections[section].IsFree(train)) {
 				if (Sections[section].Type == SectionType.IndexBased) {
-					int value = Sections[section].FreeSections;
-					if (value >= Sections[section].Aspects.Length) {
-						value = Sections[section].Aspects.Length - 1;
+					if (section + 1 < Sections.Length) {
+						int value = Sections[section + 1].FreeSections;
+						if (value == -1) {
+							value = Sections[section].Aspects.Length - 1;
+						} else {
+							value++;
+							if (value >= Sections[section].Aspects.Length) {
+								value = Sections[section].Aspects.Length - 1;
+							}
+							if (value < 0) {
+								value = 0;
+							}
+						}
+						aspect = Sections[section].Aspects[value].Number;
+					} else {
+						aspect = Sections[section].Aspects[Sections[section].Aspects.Length - 1].Number;
 					}
-					aspect = Sections[section].Aspects[value].Number;
 				} else {
 					aspect = Sections[section].Aspects[Sections[section].Aspects.Length - 1].Number;
 					if (section < Sections.Length - 1) {
@@ -1049,13 +1072,13 @@ namespace OpenBve {
 			int count = 0;
 			int start = train.CurrentSectionIndex >= 0 ? train.CurrentSectionIndex : 0;
 			for (int i = start; i < Sections.Length; i++) {
-				OpenBveApi.Runtime.SignalData signal = UpdatePluginSection(train, i);
+				OpenBveApi.Runtime.SignalData signal = GetPluginSignal(train, i);
 				if (data.Length == count) {
 					Array.Resize<OpenBveApi.Runtime.SignalData>(ref data, data.Length << 1);
 				}
 				data[count] = signal;
 				count++;
-				if (signal.Aspect == 0) {
+				if (signal.Aspect == 0 | count == 16) {
 					break;
 				}
 			}
@@ -1301,7 +1324,7 @@ namespace OpenBve {
 							TrainManager.ApplyAirBrakeHandle(Train, TrainManager.AirBrakeHandleState.Service);
 							TrainManager.ApplyEmergencyBrake(Train);
 							Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.None;
-							CurrentInterval = 10.0;
+							CurrentInterval = 1.0;
 						} else {
 							CurrentInterval = 1.0;
 							TrainManager.ApplyNotch(Train, -1, true, 0, true);

@@ -605,6 +605,8 @@ namespace OpenBve {
 		internal static void UpdateDamping(ref Damping Damping, double TimeElapsed, ref double Angle) {
 			if (TimeElapsed < 0.0) {
 				TimeElapsed = 0.0;
+			} else if (TimeElapsed > 1.0) {
+				TimeElapsed = 1.0;
 			}
 			if (Damping != null) {
 				if (Damping.CurrentTimeDelta > Damping.NaturalTime) {
@@ -764,17 +766,19 @@ namespace OpenBve {
 						TrainManager.Train train = null;
 						double trainDistance = double.MaxValue;
 						for (int j = 0; j < TrainManager.Trains.Length; j++) {
-							double distance;
-							if (TrainManager.Trains[j].Cars[0].FrontAxle.Follower.TrackPosition < AnimatedWorldObjects[i].TrackPosition) {
-								distance = AnimatedWorldObjects[i].TrackPosition - TrainManager.Trains[j].Cars[0].FrontAxle.Follower.TrackPosition;
-							} else if (TrainManager.Trains[j].Cars[TrainManager.Trains[j].Cars.Length - 1].RearAxle.Follower.TrackPosition > AnimatedWorldObjects[i].TrackPosition) {
-								distance = TrainManager.Trains[j].Cars[TrainManager.Trains[j].Cars.Length - 1].RearAxle.Follower.TrackPosition - AnimatedWorldObjects[i].TrackPosition;
-							} else {
-								distance = 0;
-							}
-							if (distance < trainDistance) {
-								train = TrainManager.Trains[j];
-								trainDistance = distance;
+							if (TrainManager.Trains[j].State == TrainManager.TrainState.Available) {
+								double distance;
+								if (TrainManager.Trains[j].Cars[0].FrontAxle.Follower.TrackPosition < AnimatedWorldObjects[i].TrackPosition) {
+									distance = AnimatedWorldObjects[i].TrackPosition - TrainManager.Trains[j].Cars[0].FrontAxle.Follower.TrackPosition;
+								} else if (TrainManager.Trains[j].Cars[TrainManager.Trains[j].Cars.Length - 1].RearAxle.Follower.TrackPosition > AnimatedWorldObjects[i].TrackPosition) {
+									distance = TrainManager.Trains[j].Cars[TrainManager.Trains[j].Cars.Length - 1].RearAxle.Follower.TrackPosition - AnimatedWorldObjects[i].TrackPosition;
+								} else {
+									distance = 0;
+								}
+								if (distance < trainDistance) {
+									train = TrainManager.Trains[j];
+									trainDistance = distance;
+								}
 							}
 						}
 						UpdateAnimatedObject(ref AnimatedWorldObjects[i].Object, false, train, train == null ? 0 : train.DriverCar, AnimatedWorldObjects[i].SectionIndex, AnimatedWorldObjects[i].TrackPosition, AnimatedWorldObjects[i].Position, AnimatedWorldObjects[i].Direction, AnimatedWorldObjects[i].Up, AnimatedWorldObjects[i].Side, false, true, true, timeDelta);

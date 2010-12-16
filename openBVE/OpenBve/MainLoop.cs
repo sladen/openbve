@@ -247,16 +247,20 @@ namespace OpenBve {
 				World.UpdateMouseGrab(TimeElapsed);
 				ProcessControls(TimeElapsed);
 				if (Quit) break;
-				// update in pieces
+				// update simulation in chunks
 				{
-					const double w = 0.1;
-					double u = TimeElapsed;
-					while (true) {
-						double v = u < w ? u : w;
-						u -= v;
-						Game.SecondsSinceMidnight += v;
-						TrainManager.UpdateTrains(v);
-						if (u <= 0.00000001) break;
+					const double chunkTime = 1.0 / 75.0;
+					if (TimeElapsed <= chunkTime) {
+						Game.SecondsSinceMidnight += TimeElapsed;
+						TrainManager.UpdateTrains(TimeElapsed);
+					} else {
+						const int maxChunks = 75;
+						int chunks = Math.Min((int)Math.Round(TimeElapsed / chunkTime), maxChunks);
+						double time = TimeElapsed / (double)chunks;
+						for (int i = 0; i < chunks; i++) {
+							Game.SecondsSinceMidnight += time;
+							TrainManager.UpdateTrains(time);
+						}
 					}
 				}
 				// update in one piece
