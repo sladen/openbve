@@ -138,7 +138,6 @@ namespace OpenBve {
 		internal static bool OptionBackfaceCulling = true;
 
 		// interface options
-		internal const bool OptionHeadlight = false; // for testing purposes
 		internal static bool OptionClock = false;
 		internal enum SpeedDisplayMode { None, Kmph, Mph }
 		internal static SpeedDisplayMode OptionSpeed = SpeedDisplayMode.None;
@@ -248,23 +247,9 @@ namespace OpenBve {
 		internal static void InitializeLighting() {
 			Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_AMBIENT, new float[] { inv255 * (float)OptionAmbientColor.R, inv255 * (float)OptionAmbientColor.G, inv255 * (float)OptionAmbientColor.B, 1.0f });
 			Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_DIFFUSE, new float[] { inv255 * (float)OptionDiffuseColor.R, inv255 * (float)OptionDiffuseColor.G, inv255 * (float)OptionDiffuseColor.B, 1.0f });
-			if (OptionHeadlight) {
-				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_AMBIENT, new float[] { 1.0f, 1.0f, 1.0f, 1.0f });
-				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_DIFFUSE, new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
-				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_POSITION, new float[] { 0.0f, 0.0f, 0.0f, 0.0f });
-				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_SPOT_DIRECTION, new float[] { 0.0f, 0.0f, -1.0f });
-				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_SPOT_CUTOFF, 45.0f);
-				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_SPOT_EXPONENT, 128.0f);
-				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_CONSTANT_ATTENUATION, 0.0f);
-				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_LINEAR_ATTENUATION, 0.0f);
-				Gl.glLightf(Gl.GL_LIGHT1, Gl.GL_QUADRATIC_ATTENUATION, 0.001f);
-			}
 			Gl.glLightModelfv(Gl.GL_LIGHT_MODEL_AMBIENT, new float[] { 0.0f, 0.0f, 0.0f, 1.0f });
 			Gl.glCullFace(Gl.GL_FRONT); CullEnabled = true; // possibly undocumented, but required for correct lighting
 			Gl.glEnable(Gl.GL_LIGHT0);
-			if (OptionHeadlight) {
-				Gl.glEnable(Gl.GL_LIGHT1);
-			}
 			Gl.glEnable(Gl.GL_COLOR_MATERIAL);
 			Gl.glColorMaterial(Gl.GL_FRONT_AND_BACK, Gl.GL_AMBIENT_AND_DIFFUSE);
 			Gl.glShadeModel(Gl.GL_SMOOTH);
@@ -333,16 +318,6 @@ namespace OpenBve {
 			double uz = World.AbsoluteCameraUp.Z;
 			Glu.gluLookAt(0.0, 0.0, 0.0, dx, dy, dz, ux, uy, uz);
 			Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_POSITION, new float[] { OptionLightPosition.X, OptionLightPosition.Y, OptionLightPosition.Z, 0.0f });
-			if (OptionHeadlight) {
-				World.Vector3D trainPosition = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.WorldPosition;
-				World.Vector3D trainDirection = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.WorldDirection;
-				trainPosition.X -= cx;
-				trainPosition.Y -= cy;
-				trainPosition.Z -= cz;
-				World.Vector3D direction = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.WorldDirection;
-				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_POSITION, new float[] { (float)trainPosition.X, (float)trainPosition.Y, (float)trainPosition.Z, 1.0f });
-				Gl.glLightfv(Gl.GL_LIGHT1, Gl.GL_SPOT_DIRECTION, new float[] { (float)direction.X, (float)direction.Y, (float)direction.Z });
-			}
 			// fog
 			double fd = Game.NextFog.TrackPosition - Game.PreviousFog.TrackPosition;
 			if (fd != 0.0) {

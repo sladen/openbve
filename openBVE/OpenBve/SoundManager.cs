@@ -75,14 +75,16 @@ namespace OpenBve {
 				if (OpenAlContext != IntPtr.Zero) {
 					Alc.alcMakeContextCurrent(OpenAlContext);
 					Al.alSpeedOfSound(343.0f);
+					Al.alDistanceModel(Al.AL_NONE);
 				} else {
 					Alc.alcCloseDevice(OpenAlDevice);
 					OpenAlDevice = IntPtr.Zero;
+					System.Windows.Forms.MessageBox.Show("The sound device could be opened, but the sound context could not be created.", "openBVE", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Hand);
 				}
 			} else {
 				OpenAlContext = IntPtr.Zero;
+				System.Windows.Forms.MessageBox.Show("The sound device could not be opened.", "openBVE", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Hand);
 			}
-			Al.alDistanceModel(Al.AL_NONE);
 			// outer radius
 			switch (Interface.CurrentOptions.SoundRange) {
 				case Interface.SoundRange.Low:
@@ -392,6 +394,9 @@ namespace OpenBve {
 					if (SoundBuffers[i] != null && string.Compare(SoundBuffers[i].FileName, FileName, StringComparison.OrdinalIgnoreCase) == 0 & SoundBuffers[i].Radius == Radius) {
 						return i;
 					}
+				}
+				if (!FileName.EndsWith(".wav", StringComparison.OrdinalIgnoreCase)) {
+					Interface.AddMessage(Interface.MessageType.Warning, false, "The file extension is not recognized - will be assumed to be a .wav file: " + FileName);
 				}
 				for (i = 0; i < SoundBuffers.Length; i++) {
 					if (SoundBuffers[i] == null) break;

@@ -1,7 +1,21 @@
-﻿Official homepage:
+﻿============================
+openBVE Source Code - Readme
+============================
+
+
+-----
+Links
+-----
+
+Official homepage:
 http://openbve.trainsimcentral.co.uk/
 
 Official discussion board:
-http://openbve.freeforums.net/
+http://openbve.freeforums.org/
 
-This program is dedicated to the public. I do not pose any restrictions or requirements on how this material can be used, and explicitly encourage redistribution and modification for any purpose.
+
+----------
+No license
+----------
+
+This program is placed in the public domain. This means that you can make any modifications to it you like and share your modifications with others.

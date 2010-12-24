@@ -5,8 +5,8 @@ using Tao.Sdl;
 using System.Text;
 
 namespace OpenBve {
-	public partial class formMain : Form {
-		public formMain() {
+	internal partial class formMain : Form {
+		internal formMain() {
 			InitializeComponent();
 		}
 
@@ -1058,14 +1058,23 @@ namespace OpenBve {
 						string[] Files = System.IO.Directory.GetFiles(Folder);
 						Array.Sort<string>(Files);
 						for (int i = 0; i < Files.Length; i++) {
-							string Extension = System.IO.Path.GetExtension(Files[i]);
-							switch (Extension.ToLowerInvariant()) {
+							string Extension = System.IO.Path.GetExtension(Files[i]).ToLowerInvariant();
+							switch (Extension) {
 								case ".rw":
 								case ".csv":
 									string Name = System.IO.Path.GetFileName(Files[i]);
 									if (Name.Length != 0 && Name[0] != '.') {
 										ListViewItem Item = listviewRouteFiles.Items.Add(Name);
-										Item.ImageKey = "route";
+										if (Extension == ".csv") {
+											try {
+												string text = System.IO.File.ReadAllText(Files[i], Encoding.UTF8);
+												if (text.IndexOf("With Track", StringComparison.OrdinalIgnoreCase) >= 0 | text.IndexOf("Track.", StringComparison.OrdinalIgnoreCase) >= 0) {
+													Item.ImageKey = "route";
+												}
+											} catch { }
+										} else {
+											Item.ImageKey = "route";
+										}
 										Item.Tag = Files[i];
 									}
 									break;

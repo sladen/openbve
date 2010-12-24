@@ -100,32 +100,50 @@ namespace OpenBve {
 			internal int Optional;
 		}
 		
+		private static class SoundInstructions {
+			internal const int Stop = -10000;
+			internal const int PlayLooping = 0;
+			internal const int PlayOnce = 1;
+			internal const int Continue = 2;
+		}
+		
+		private static class ConstSpeedInstructions {
+			internal const int Continue = 0;
+			internal const int Enable = 1;
+			internal const int Disable = 2;
+		}
+		
 		// --- members ---
 		private string PluginFile;
+		private int[] Sound;
+		private int[] LastSound;
 		private GCHandle PanelHandle;
 		private GCHandle SoundHandle;
 		
 		// --- constructors ---
-		internal LegacyPlugin(string pluginFile) {
+		internal LegacyPlugin(string pluginFile, TrainManager.Train train) {
 			base.PluginTitle = System.IO.Path.GetFileName(pluginFile);
 			base.PluginValid = true;
 			base.PluginMessage = null;
+			base.Train = train;
 			base.Panel = new int[256];
-			base.Sound = new int[256];
+			base.SupportsAI = false;
 			base.LastTime = 0.0;
-			base.LastSound = new int[256];
 			base.LastReverser = -2;
 			base.LastPowerNotch = -1;
 			base.LastBrakeNotch = -1;
-			base.LastAspect = -1;
+			base.LastAspects = new int[] { };
+			base.LastSection = -1;
 			base.LastException = null;
 			this.PluginFile = pluginFile;
+			this.Sound = new int[256];
+			this.LastSound = new int[256];
 			this.PanelHandle = new GCHandle();
 			this.SoundHandle = new GCHandle();
 		}
 		
 		// --- functions ---
-		internal override bool Load(TrainManager.Train train, VehicleSpecs specs, InitializationModes mode) {
+		internal override bool Load(VehicleSpecs specs, InitializationModes mode) {
 			int result;
 			try {
 				result = Win32LoadDLL(this.PluginFile, this.PluginFile);
@@ -178,9 +196,9 @@ namespace OpenBve {
 				base.LastException = ex;
 				throw;
 			}
-			UpdatePower(train);
-			UpdateBrake(train);
-			UpdateReverser(train);
+			UpdatePower();
+			UpdateBrake();
+			UpdateReverser();
 			if (PanelHandle.IsAllocated) {
 				PanelHandle.Free();
 			}
@@ -214,30 +232,81 @@ namespace OpenBve {
 			}
 		}
 		internal override void EndJump() { }
-		internal override void Elapse(VehicleState state, Handles handles, out string message) {
+		internal override void Elapse(ElapseData data) {
 			try {
-				double time = state.TotalTime.Milliseconds;
+				double time = data.TotalTime.Milliseconds;
 				Win32VehicleState win32State;
-				win32State.Location = state.Location;
-				win32State.Speed = (float)state.Speed.KilometersPerHour;
+				win32State.Location = data.Vehicle.Location;
+				win32State.Speed = (float)data.Vehicle.Speed.KilometersPerHour;
 				win32State.Time = (int)Math.Floor(time - 2073600000.0 * Math.Floor(time / 2073600000.0));
-				win32State.BcPressure = (float)state.BcPressure;
-				win32State.MrPressure = (float)state.MrPressure;
-				win32State.ErPressure = (float)state.ErPressure;
-				win32State.BpPressure = (float)state.BpPressure;
-				win32State.SapPressure = (float)state.SapPressure;
+				win32State.BcPressure = (float)data.Vehicle.BcPressure;
+				win32State.MrPressure = (float)data.Vehicle.MrPressure;
+				win32State.ErPressure = (float)data.Vehicle.ErPressure;
+				win32State.BpPressure = (float)data.Vehicle.BpPressure;
+				win32State.SapPressure = (float)data.Vehicle.SapPressure;
 				win32State.Current = 0.0f;
 				Win32Handles win32Handles;
-				win32Handles.Brake = handles.BrakeNotch;
-				win32Handles.Power = handles.PowerNotch;
-				win32Handles.Reverser = handles.Reverser;
-				win32Handles.ConstantSpeed = (int)handles.ConstSpeed;
-				Win32Elapse(ref win32Handles.Brake, ref win32State.Location, ref base.Panel[0], ref base.Sound[0]);
-				handles.Reverser = win32Handles.Reverser;
-				handles.PowerNotch = win32Handles.Power;
-				handles.BrakeNotch = win32Handles.Brake;
-				handles.ConstSpeed = (ConstSpeedInstructions)win32Handles.ConstantSpeed;
-				message = null;
+				win32Handles.Brake = data.Handles.BrakeNotch;
+				win32Handles.Power = data.Handles.PowerNotch;
+				win32Handles.Reverser = data.Handles.Reverser;
+				win32Handles.ConstantSpeed = data.Handles.ConstSpeed ? ConstSpeedInstructions.Enable : ConstSpeedInstructions.Disable;
+				Win32Elapse(ref win32Handles.Brake, ref win32State.Location, ref base.Panel[0], ref this.Sound[0]);
+				data.Handles.Reverser = win32Handles.Reverser;
+				data.Handles.PowerNotch = win32Handles.Power;
+				data.Handles.BrakeNotch = win32Handles.Brake;
+				if (win32Handles.ConstantSpeed == ConstSpeedInstructions.Enable) {
+					data.Handles.ConstSpeed = true;
+				} else if (win32Handles.ConstantSpeed == ConstSpeedInstructions.Disable) {
+					data.Handles.ConstSpeed = false;
+				} else if (win32Handles.ConstantSpeed != ConstSpeedInstructions.Continue) {
+					this.PluginValid = false;
+				}
+				/*
+				 * Process the sound instructions
+				 * */
+				for (int i = 0; i < this.Sound.Length; i++) {
+					if (this.Sound[i] != this.LastSound[i]) {
+						if (this.Sound[i] == SoundInstructions.Stop) {
+							if (i < base.Train.Cars[base.Train.DriverCar].Sounds.Plugin.Length) {
+								SoundManager.StopSound(ref base.Train.Cars[base.Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex);
+							}
+						} else if (this.Sound[i] > SoundInstructions.Stop & this.Sound[i] <= SoundInstructions.PlayLooping) {
+							if (i < base.Train.Cars[base.Train.DriverCar].Sounds.Plugin.Length) {
+								int snd = base.Train.Cars[base.Train.DriverCar].Sounds.Plugin[i].SoundBufferIndex;
+								if (snd >= 0) {
+									double gain = (double)(this.Sound[i] - SoundInstructions.Stop) / (double)(SoundInstructions.PlayLooping - SoundInstructions.Stop);
+									if (SoundManager.IsPlaying(base.Train.Cars[base.Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex)) {
+										SoundManager.ModulateSound(base.Train.Cars[base.Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex, 1.0, gain);
+									} else {
+										SoundManager.PlaySound(ref base.Train.Cars[base.Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex, snd, base.Train, base.Train.DriverCar, base.Train.Cars[base.Train.DriverCar].Sounds.Plugin[i].Position, SoundManager.Importance.AlwaysPlay, true, 1.0, gain);
+									}
+								}
+							}
+						} else if (this.Sound[i] == SoundInstructions.PlayOnce) {
+							if (i < base.Train.Cars[base.Train.DriverCar].Sounds.Plugin.Length) {
+								int snd = base.Train.Cars[base.Train.DriverCar].Sounds.Plugin[i].SoundBufferIndex;
+								if (snd >= 0) {
+									SoundManager.PlaySound(ref base.Train.Cars[base.Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex, snd, base.Train, base.Train.DriverCar, base.Train.Cars[base.Train.DriverCar].Sounds.Plugin[i].Position, SoundManager.Importance.AlwaysPlay, false);
+								}
+							}
+							this.Sound[i] = SoundInstructions.Continue;
+						} else if (this.Sound[i] != SoundInstructions.Continue) {
+							this.PluginValid = false;
+						}
+						this.LastSound[i] = this.Sound[i];
+					} else {
+						if (i < base.Train.Cars[base.Train.DriverCar].Sounds.Plugin.Length) {
+							if (base.Train.Cars[base.Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex >= 0) {
+								if (SoundManager.HasFinishedPlaying(base.Train.Cars[base.Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex)) {
+									SoundManager.StopSound(ref base.Train.Cars[base.Train.DriverCar].Sounds.Plugin[i].SoundSourceIndex);
+								}
+							}
+						}
+						if ((this.Sound[i] < SoundInstructions.Stop | this.Sound[i] > SoundInstructions.PlayLooping) && this.Sound[i] != SoundInstructions.PlayOnce & this.Sound[i] != SoundInstructions.Continue) {
+							this.PluginValid = false;
+						}
+					}
+				}
 			} catch (Exception ex) {
 				base.LastException = ex;
 				throw;
@@ -308,12 +377,14 @@ namespace OpenBve {
 				}
 			}
 		}
-		internal override void SetSignal(SignalData signal) {
-			try {
-				Win32SetSignal(signal.Aspect);
-			} catch (Exception ex) {
-				base.LastException = ex;
-				throw;
+		internal override void SetSignal(SignalData[] signal) {
+			if (base.LastAspects.Length == 0 || signal[0].Aspect != base.LastAspects[0]) {
+				try {
+					Win32SetSignal(signal[0].Aspect);
+				} catch (Exception ex) {
+					base.LastException = ex;
+					throw;
+				}
 			}
 		}
 		internal override void SetBeacon(BeaconData beacon) {
@@ -329,6 +400,7 @@ namespace OpenBve {
 				throw;
 			}
 		}
+		internal override void PerformAI(AIData data) { }
 		
 	}
 }

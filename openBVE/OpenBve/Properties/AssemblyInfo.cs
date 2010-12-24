@@ -8,12 +8,12 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("(AntiCopyright) 2008-2010 openBVE Project")]
 [assembly: ComVisible(false)]
 [assembly: Guid("bd68500e-8db6-4394-8fec-6adcde64c213")]
-[assembly: AssemblyVersion("1.2.8.2")]
-[assembly: AssemblyFileVersion("1.2.8.2")]
+[assembly: AssemblyVersion("1.2.10.0")]
+[assembly: AssemblyFileVersion("1.2.10.0")]
 [assembly: CLSCompliant(true)]
 
 namespace OpenBve {
-	internal static partial class Program {
+	public static partial class Program {
 		internal const bool IsDevelopmentVersion = false;
 	}
 }

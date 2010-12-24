@@ -409,6 +409,7 @@ namespace OpenBve {
 			Expression[] Expressions;
 			PreprocessSplitIntoExpressions(FileName, IsRW, Lines, Encoding, out Expressions, true);
 			PreprocessChrRndSub(FileName, IsRW, ref Expressions);
+//			CreateRouteDump(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(FileName), System.IO.Path.GetFileNameWithoutExtension(FileName) + "_dump.txt"), Expressions);
 			double[] UnitOfLength = new double[] { 1.0 };
 			Data.UnitOfSpeed = 0.277777777777778;
 			PreprocessOptions(FileName, IsRW, Encoding, Expressions, ref Data, ref UnitOfLength);
@@ -416,6 +417,13 @@ namespace OpenBve {
 			ParseRouteForData(FileName, IsRW, Encoding, Expressions, TrainPath, ObjectPath, SoundPath, UnitOfLength, ref Data, PreviewOnly);
 			Game.RouteUnitOfLength = UnitOfLength;
 		}
+//		private static void CreateRouteDump(string file, Expression[] expressions) {
+//			System.Text.StringBuilder builder = new System.Text.StringBuilder();
+//			for (int i = 0; i < expressions.Length; i++) {
+//				builder.AppendLine(expressions[i].Text);
+//			}
+//			System.IO.File.WriteAllText(file, builder.ToString(), new System.Text.UTF8Encoding(true));
+//		}
 
 		// preprocess split into expressions
 		private static void PreprocessSplitIntoExpressions(string FileName, bool IsRW, string[] Lines, System.Text.Encoding Encoding, out Expression[] Expressions, bool AllowRwRouteDescription) {
@@ -553,14 +561,18 @@ namespace OpenBve {
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
 			System.Text.Encoding Encoding = new System.Text.ASCIIEncoding();
 			string[] Subs = new string[16];
+			int openIfs = 0;
+			bool ifUsed = false;
 			for (int i = 0; i < Expressions.Length; i++) {
 				string Epilog = " at line " + Expressions[i].Line.ToString(Culture) + ", column " + Expressions[i].Column.ToString(Culture) + " in file " + Expressions[i].File;
-				bool cont = false;
+				bool continueWithNextExpression = false;
 				for (int j = Expressions[i].Text.Length - 1; j >= 0; j--) {
 					if (Expressions[i].Text[j] == '$') {
 						int k;
 						for (k = j + 1; k < Expressions[i].Text.Length; k++) {
-							if (Expressions[i].Text[k] == '(') break;
+							if (Expressions[i].Text[k] == '(') {
+								break;
+							}
 						}
 						if (k <= Expressions[i].Text.Length) {
 							string t = Expressions[i].Text.Substring(j, k - j).TrimEnd();
@@ -573,7 +585,8 @@ namespace OpenBve {
 									case ')':
 										l--;
 										if (l < 0) {
-											cont = true; Interface.AddMessage(Interface.MessageType.Error, false, "Invalid parenthesis structure in " + t + Epilog);
+											continueWithNextExpression = true;
+											Interface.AddMessage(Interface.MessageType.Error, false, "Invalid parenthesis structure in " + t + Epilog);
 										}
 										break;
 								}
@@ -581,90 +594,185 @@ namespace OpenBve {
 									break;
 								}
 							}
-							if (cont) {
+							if (continueWithNextExpression) {
 								break;
 							}
 							if (l != 0) {
 								Interface.AddMessage(Interface.MessageType.Error, false, "Invalid parenthesis structure in " + t + Epilog);
-								cont = true;
+								continueWithNextExpression = true;
 								break;
 							}
 							string s = Expressions[i].Text.Substring(k + 1, h - k - 1).Trim();
 							switch (t.ToLowerInvariant()) {
-								case "$include":
-									{
-										if (j != 0) {
-											Interface.AddMessage(Interface.MessageType.Error, false, "The $Include directive must not appear within another statement" + Epilog);
-											cont = true;
+								case "$if":
+									ifUsed = true;
+									if (j != 0) {
+										Interface.AddMessage(Interface.MessageType.Error, false, "The $If directive must not appear within another statement" + Epilog);
+									} else {
+										double num;
+										if (double.TryParse(s, System.Globalization.NumberStyles.Float, Culture, out num)) {
+											openIfs++;
+											Expressions[i].Text = string.Empty;
+											if (num == 0.0) {
+												/*
+												 * Blank every expression until the matching $Else or $EndIf
+												 * */
+												i++;
+												int level = 1;
+												while (i < Expressions.Length) {
+													if (Expressions[i].Text.StartsWith("$if", StringComparison.OrdinalIgnoreCase)) {
+														Expressions[i].Text = string.Empty;
+														level++;
+													} else if (Expressions[i].Text.StartsWith("$else", StringComparison.OrdinalIgnoreCase)) {
+														Expressions[i].Text = string.Empty;
+														if (level == 1) {
+															level--;
+															break;
+														}
+													} else if (Expressions[i].Text.StartsWith("$endif", StringComparison.OrdinalIgnoreCase)) {
+														Expressions[i].Text = string.Empty;
+														level--;
+														if (level == 0) {
+															openIfs--;
+															break;
+														}
+													} else {
+														Expressions[i].Text = string.Empty;
+													}
+													i++;
+												}
+												if (level != 0) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "$EndIf missing at the end of the file" + Epilog);
+												}
+											}
+											continueWithNextExpression = true;
 											break;
 										} else {
-											string[] args = s.Split(';');
-											for (int ia = 0; ia < args.Length; ia++) {
-												args[ia] = args[ia].Trim();
-											}
-											int count = (args.Length + 1) / 2;
-											string[] files = new string[count];
-											double[] weights = new double[count];
-											double weightsTotal = 0.0;
-											for (int ia = 0; ia < count; ia++) {
-												files[ia] = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), args[2 * ia]);
-												if (!System.IO.File.Exists(files[ia])) {
-													cont = true;
-													Interface.AddMessage(Interface.MessageType.Error, false, "The file " + files[ia] + " could not be found in " + t + Epilog);
+											Interface.AddMessage(Interface.MessageType.Error, false, "The $If condition does not evaluate to a number" + Epilog);
+										}
+									}
+									continueWithNextExpression = true;
+									break;
+								case "$else":
+									ifUsed = true;
+									/*
+									 * Blank every expression until the matching $EndIf
+									 * */
+									Expressions[i].Text = string.Empty;
+									if (openIfs != 0) {
+										i++;
+										int level = 1;
+										while (i < Expressions.Length) {
+											if (Expressions[i].Text.StartsWith("$if", StringComparison.OrdinalIgnoreCase)) {
+												Expressions[i].Text = string.Empty;
+												level++;
+											} else if (Expressions[i].Text.StartsWith("$else", StringComparison.OrdinalIgnoreCase)) {
+												Expressions[i].Text = string.Empty;
+												if (level == 1) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "Duplicate $Else encountered" + Epilog);
+												}
+											} else if (Expressions[i].Text.StartsWith("$endif", StringComparison.OrdinalIgnoreCase)) {
+												Expressions[i].Text = string.Empty;
+												level--;
+												if (level == 0) {
+													openIfs--;
 													break;
-												} else if (2 * ia + 1 < args.Length) {
-													if (!Interface.TryParseDoubleVb6(args[2 * ia + 1], out weights[ia])) {
-														cont = true;
-														Interface.AddMessage(Interface.MessageType.Error, false, "A weight is invalid in " + t + Epilog);
-														break;
-													} else if (weights[ia] <= 0.0) {
-														cont = true;
-														Interface.AddMessage(Interface.MessageType.Error, false, "A weight is not positive in " + t + Epilog);
-														break;
-													} else {
-														weightsTotal += weights[ia];
-													}
-												} else {
-													weights[ia] = 1.0;
-													weightsTotal += 1.0;
 												}
+											} else {
+												Expressions[i].Text = string.Empty;
 											}
-											if (count == 0) {
-												cont = true;
-												Interface.AddMessage(Interface.MessageType.Error, false, "No file was specified in " + t + Epilog);
+											i++;
+										}
+										if (level != 0) {
+											Interface.AddMessage(Interface.MessageType.Error, false, "$EndIf missing at the end of the file" + Epilog);
+										}
+									} else {
+										Interface.AddMessage(Interface.MessageType.Error, false, "$Else without matching $If encountered" + Epilog);
+									}
+									continueWithNextExpression = true;
+									break;
+								case "$endif":
+									ifUsed = true;
+									Expressions[i].Text = string.Empty;
+									if (openIfs != 0) {
+										openIfs--;
+									} else {
+										Interface.AddMessage(Interface.MessageType.Error, false, "$EndIf without matching $If encountered" + Epilog);
+									}
+									continueWithNextExpression = true;
+									break;
+								case "$include":
+									if (j != 0) {
+										Interface.AddMessage(Interface.MessageType.Error, false, "The $Include directive must not appear within another statement" + Epilog);
+										continueWithNextExpression = true;
+										break;
+									} else {
+										string[] args = s.Split(';');
+										for (int ia = 0; ia < args.Length; ia++) {
+											args[ia] = args[ia].Trim();
+										}
+										int count = (args.Length + 1) / 2;
+										string[] files = new string[count];
+										double[] weights = new double[count];
+										double weightsTotal = 0.0;
+										for (int ia = 0; ia < count; ia++) {
+											files[ia] = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), args[2 * ia]);
+											if (!System.IO.File.Exists(files[ia])) {
+												continueWithNextExpression = true;
+												Interface.AddMessage(Interface.MessageType.Error, false, "The file " + files[ia] + " could not be found in " + t + Epilog);
 												break;
-											} else if (!cont) {
-												double number = Game.Generator.NextDouble() * weightsTotal;
-												double value = 0.0;
-												int chosenIndex = 0;
-												for (int ia = 0; ia < count; ia++) {
-													value += weights[ia];
-													if (value > number) {
-														chosenIndex = ia;
-														break;
-													}
-												}
-												Expression[] expr;
-												string[] lines = System.IO.File.ReadAllLines(files[chosenIndex], Encoding);
-												PreprocessSplitIntoExpressions(files[chosenIndex], IsRW, lines, Encoding, out expr, false);
-												int length = Expressions.Length;
-												if (expr.Length == 0) {
-													for (int ia = i; ia < Expressions.Length - 1; ia++) {
-														Expressions[ia] = Expressions[ia + 1];
-													}
-													Array.Resize<Expression>(ref Expressions, length - 1);
+											} else if (2 * ia + 1 < args.Length) {
+												if (!Interface.TryParseDoubleVb6(args[2 * ia + 1], out weights[ia])) {
+													continueWithNextExpression = true;
+													Interface.AddMessage(Interface.MessageType.Error, false, "A weight is invalid in " + t + Epilog);
+													break;
+												} else if (weights[ia] <= 0.0) {
+													continueWithNextExpression = true;
+													Interface.AddMessage(Interface.MessageType.Error, false, "A weight is not positive in " + t + Epilog);
+													break;
 												} else {
-													Array.Resize<Expression>(ref Expressions, length + expr.Length - 1);
-													for (int ia = Expressions.Length - 1; ia >= i + expr.Length; ia--) {
-														Expressions[ia] = Expressions[ia - expr.Length + 1];
-													}
-													for (int ia = 0; ia < expr.Length; ia++) {
-														Expressions[i + ia] = expr[ia];
-													}
+													weightsTotal += weights[ia];
 												}
-												i--;
-												cont = true;
+											} else {
+												weights[ia] = 1.0;
+												weightsTotal += 1.0;
 											}
+										}
+										if (count == 0) {
+											continueWithNextExpression = true;
+											Interface.AddMessage(Interface.MessageType.Error, false, "No file was specified in " + t + Epilog);
+											break;
+										} else if (!continueWithNextExpression) {
+											double number = Game.Generator.NextDouble() * weightsTotal;
+											double value = 0.0;
+											int chosenIndex = 0;
+											for (int ia = 0; ia < count; ia++) {
+												value += weights[ia];
+												if (value > number) {
+													chosenIndex = ia;
+													break;
+												}
+											}
+											Expression[] expr;
+											string[] lines = System.IO.File.ReadAllLines(files[chosenIndex], Encoding);
+											PreprocessSplitIntoExpressions(files[chosenIndex], IsRW, lines, Encoding, out expr, false);
+											int length = Expressions.Length;
+											if (expr.Length == 0) {
+												for (int ia = i; ia < Expressions.Length - 1; ia++) {
+													Expressions[ia] = Expressions[ia + 1];
+												}
+												Array.Resize<Expression>(ref Expressions, length - 1);
+											} else {
+												Array.Resize<Expression>(ref Expressions, length + expr.Length - 1);
+												for (int ia = Expressions.Length - 1; ia >= i + expr.Length; ia--) {
+													Expressions[ia] = Expressions[ia - expr.Length + 1];
+												}
+												for (int ia = 0; ia < expr.Length; ia++) {
+													Expressions[i + ia] = expr[ia];
+												}
+											}
+											i--;
+											continueWithNextExpression = true;
 										}
 									}
 									break;
@@ -675,11 +783,11 @@ namespace OpenBve {
 											if (x > 0 & x < 128) {
 												Expressions[i].Text = Expressions[i].Text.Substring(0, j) + new string(Encoding.GetChars(new byte[] { (byte)x })) + Expressions[i].Text.Substring(h + 1);
 											} else {
-												cont = true;
+												continueWithNextExpression = true;
 												Interface.AddMessage(Interface.MessageType.Error, false, "Index does not correspond to a valid ASCII character in " + t + Epilog);
 											}
 										} else {
-											cont = true;
+											continueWithNextExpression = true;
 											Interface.AddMessage(Interface.MessageType.Error, false, "Index is invalid in " + t + Epilog);
 										}
 									} break;
@@ -694,15 +802,15 @@ namespace OpenBve {
 													int z = x + (int)Math.Floor(Game.Generator.NextDouble() * (double)(y - x + 1));
 													Expressions[i].Text = Expressions[i].Text.Substring(0, j) + z.ToString(Culture) + Expressions[i].Text.Substring(h + 1);
 												} else {
-													cont = true;
+													continueWithNextExpression = true;
 													Interface.AddMessage(Interface.MessageType.Error, false, "Index2 is invalid in " + t + Epilog);
 												}
 											} else {
-												cont = true;
+												continueWithNextExpression = true;
 												Interface.AddMessage(Interface.MessageType.Error, false, "Index1 is invalid in " + t + Epilog);
 											}
 										} else {
-											cont = true;
+											continueWithNextExpression = true;
 											Interface.AddMessage(Interface.MessageType.Error, false, "Two arguments are expected in " + t + Epilog);
 										}
 									} break;
@@ -744,11 +852,11 @@ namespace OpenBve {
 													Subs[x] = Expressions[i].Text.Substring(m + 1, n - m - 1).Trim();
 													Expressions[i].Text = Expressions[i].Text.Substring(0, j) + Expressions[i].Text.Substring(n);
 												} else {
-													cont = true;
+													continueWithNextExpression = true;
 													Interface.AddMessage(Interface.MessageType.Error, false, "Index is expected to be non-negative in " + t + Epilog);
 												}
 											} else {
-												cont = true;
+												continueWithNextExpression = true;
 												Interface.AddMessage(Interface.MessageType.Error, false, "Index is invalid in " + t + Epilog);
 											}
 										} else {
@@ -757,11 +865,11 @@ namespace OpenBve {
 												if (x >= 0 & x < Subs.Length && Subs[x] != null) {
 													Expressions[i].Text = Expressions[i].Text.Substring(0, j) + Subs[x] + Expressions[i].Text.Substring(h + 1);
 												} else {
-													cont = true;
+													continueWithNextExpression = true;
 													Interface.AddMessage(Interface.MessageType.Error, false, "Index is out of range in " + t + Epilog);
 												}
 											} else {
-												cont = true;
+												continueWithNextExpression = true;
 												Interface.AddMessage(Interface.MessageType.Error, false, "Index is invalid in " + t + Epilog);
 											}
 										}
@@ -771,7 +879,7 @@ namespace OpenBve {
 							}
 						}
 					}
-					if (cont) {
+					if (continueWithNextExpression) {
 						break;
 					}
 				}
@@ -800,6 +908,9 @@ namespace OpenBve {
 				if (length != Expressions.Length) {
 					Array.Resize<Expression>(ref Expressions, length);
 				}
+			}
+			if (ifUsed) {
+				Interface.AddMessage(Interface.MessageType.Information, false, "$If()/$Else()/$EndIf() are currently experimental. Use them for private testing only.");
 			}
 		}
 
@@ -2305,7 +2416,7 @@ namespace OpenBve {
 														Signal.GlowObject = null;
 														string Folder = Interface.GetCorrectedFolderName(System.IO.Path.GetDirectoryName(f));
 														if (!System.IO.Directory.Exists(Folder)) {
-															Interface.AddMessage(Interface.MessageType.Error, true, "The folder " + Folder + " could not be found in "+Command+" at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+															Interface.AddMessage(Interface.MessageType.Error, true, "The folder " + Folder + " could not be found in " + Command + " at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 														} else {
 															Signal.SignalTextures = LoadAllTextures(f, new World.ColorRGB(0, 0, 0), 1, TextureManager.TextureLoadMode.Normal);
 															Signal.GlowTextures = new int[] { };
@@ -4226,7 +4337,7 @@ namespace OpenBve {
 														int n = Data.Blocks[BlockIndex].Sound.Length;
 														Array.Resize<Sound>(ref Data.Blocks[BlockIndex].Sound, n + 1);
 														Data.Blocks[BlockIndex].Sound[n].TrackPosition = Data.TrackPosition;
-														Data.Blocks[BlockIndex].Sound[n].SoundIndex = SoundManager.LoadSound(f, 10.0);
+														Data.Blocks[BlockIndex].Sound[n].SoundIndex = SoundManager.LoadSound(f, 15.0);
 														Data.Blocks[BlockIndex].Sound[n].Type = speed == 0.0 ? SoundType.TrainStatic : SoundType.TrainDynamic;
 														Data.Blocks[BlockIndex].Sound[n].Speed = speed * Data.UnitOfSpeed;
 													}
@@ -4498,7 +4609,7 @@ namespace OpenBve {
 					x6 = Result.Mesh.Vertices[i].Coordinates.X;
 				} else if (n == 7) {
 					x7 = Result.Mesh.Vertices[i].Coordinates.X;
-				} 
+				}
 				n++;
 				if (n == 8) {
 					break;
@@ -4521,7 +4632,7 @@ namespace OpenBve {
 						Result.Mesh.Vertices[i].Coordinates.X = NearDistance - x6;
 						m = 8;
 						break;
-					} 
+					}
 					m++;
 					if (m == 8) {
 						break;
@@ -6112,8 +6223,10 @@ namespace OpenBve {
 						Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[i + 1].Events, len + 1);
 						TrackManager.CurrentTrack.Elements[i + 1].Events[len] = TrackManager.CurrentTrack.Elements[i].Events[j];
 						TrackManager.CurrentTrack.Elements[i + 1].Events[len].TrackPositionDelta += startingTrackPosition - endingTrackPosition;
+						for (int k = j; k < TrackManager.CurrentTrack.Elements[i].Events.Length - 1; k++) {
+							TrackManager.CurrentTrack.Elements[i].Events[k] = TrackManager.CurrentTrack.Elements[i].Events[k + 1];
+						}
 						len = TrackManager.CurrentTrack.Elements[i].Events.Length;
-						TrackManager.CurrentTrack.Elements[i].Events[j] = TrackManager.CurrentTrack.Elements[i].Events[len - 1];
 						Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[i].Events, len - 1);
 						j--;
 					}
