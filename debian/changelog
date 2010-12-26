@@ -1,8 +1,9 @@
-openbve (1.2.9.2-0ubuntu1) UNRELEASED; urgency=low
+openbve (1.2.7.3-0ubuntu3) natty; urgency=low
 
-  * New upstream development version (1.2.9.2)
+  * debian/control: Fixed typo in first line of third paragraph of
+    the package description-missing 's' in 'based' (LP: #628578)
 
- -- Paul Sladen <ubuntu@paul.sladen.org>  Fri, 15 Oct 2010 21:22:00 +0100
+ -- Arvind S Raj <sraj.arvind@gmail.com>  Fri, 24 Dec 2010 07:46:07 +0530
 
 openbve (1.2.7.3-0ubuntu2) maverick; urgency=low
 
