@@ -1,7 +1,13 @@
+openbve (1.2.10.0-0ubuntu1) UNRELEASED; urgency=low
+
+  * New upstream stable version (1.2.10.0)
+
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Sun, 26 Dec 2010 23:51:00 +0000
+
 openbve (1.2.7.3-0ubuntu3) natty; urgency=low
 
   * debian/control: Fixed typo in first line of third paragraph of
-    the package description-missing 's' in 'based' (LP: #628578)
+    the package description-missing 's' in 'based' (LP: #628758)
 
  -- Arvind S Raj <sraj.arvind@gmail.com>  Fri, 24 Dec 2010 07:46:07 +0530
 
