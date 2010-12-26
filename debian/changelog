@@ -1,3 +1,10 @@
+openbve (1.2.7.3-0ubuntu3) natty; urgency=low
+
+  * debian/control: Fixed typo in first line of third paragraph of
+    the package description-missing 's' in 'based' (LP: #628578)
+
+ -- Arvind S Raj <sraj.arvind@gmail.com>  Fri, 24 Dec 2010 07:46:07 +0530
+
 openbve (1.2.7.3-0ubuntu2) maverick; urgency=low
 
   * debian/control: fix minor spelling mistakes (LP: #628758)

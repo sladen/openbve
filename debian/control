@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 5), mono-xbuild, lynx
 Build-Depends-Indep: cli-common-dev (>= 0.7), mono-devel (>= 2.0.1), libmono-i18n2.0-cil, libtaoframework-openal-cil-dev, libtaoframework-opengl-cil-dev, libtaoframework-sdl-cil-dev, libmono-winforms2.0-cil
 Vcs-Browser: http://github.com/sladen/openbve/tree/debian
 Vcs-Git: git://github.com/sladen/openbve.git
-Standards-Version: 3.8.4
+Standards-Version: 3.9.1
 Homepage: http://openbve.trainsimcentral.co.uk/
 
 Package: openbve
