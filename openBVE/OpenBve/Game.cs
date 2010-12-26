@@ -24,7 +24,7 @@ namespace OpenBve {
 				this.TrackPosition = TrackPosition;
 			}
 		}
-		internal static float NoFogStart = 800.0f; // must not be 600 nor below
+		internal static float NoFogStart = 800.0f; // must not be 600 or below
 		internal static float NoFogEnd = 1600.0f;
 		internal static Fog PreviousFog = new Fog(NoFogStart, NoFogEnd, new World.ColorRGB(128, 128, 128), 0.0);
 		internal static Fog CurrentFog = new Fog(NoFogStart, NoFogEnd, new World.ColorRGB(128, 128, 128), 0.5);
@@ -848,6 +848,17 @@ namespace OpenBve {
 				}
 				return false;
 			}
+			/// <summary>Checks whether the section is free, disregarding the specified train.</summary>
+			/// <param name="train">The train to disregard.</param>
+			/// <returns>Whether the section is free, disregarding the specified train.</returns>
+			internal bool IsFree(TrainManager.Train train) {
+				for (int i = 0; i < this.Trains.Length; i++) {
+					if (this.Trains[i] != train & (this.Trains[i].State == TrainManager.TrainState.Available | this.Trains[i].State == TrainManager.TrainState.Bogus)) {
+						return false;
+					}
+				}
+				return true;
+			}
 			internal bool IsFree() {
 				for (int i = 0; i < this.Trains.Length; i++) {
 					if (this.Trains[i].State == TrainManager.TrainState.Available | this.Trains[i].State == TrainManager.TrainState.Bogus) {
@@ -999,32 +1010,80 @@ namespace OpenBve {
 					}
 				}
 			}
-			if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-				// call setsignal for plugins when section changes aspect
-				int p = Sections[SectionIndex].PreviousSection;
-				if (p >= 0 && Sections[p].Trains.Length == 1 && Sections[p].Trains[0] == TrainManager.PlayerTrain && TrainManager.PlayerTrain.CurrentSectionIndex == p) {
-					int f;
-					if (Sections[SectionIndex].FreeSections >= 0) {
-						f = Sections[SectionIndex].FreeSections + 1;
-					} else {
-						f = -1;
-					}
-					int c;
-					if (f >= 0 & f < Sections[p].Aspects.Length) {
-						c = f;
-					} else {
-						c = Sections[p].Aspects.Length - 1;
-					}
-					int b = Sections[p].Aspects[c].Number;
-					double z = TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition - TrainManager.PlayerTrain.Cars[0].FrontAxlePosition + 0.5 * TrainManager.PlayerTrain.Cars[0].Length;
-					PluginManager.CurrentPlugin.UpdateSignal(b, Sections[p].TrackPosition - z);
-				}
-			}
+			// apply new aspect
 			Sections[SectionIndex].CurrentAspect = newaspect;
 			// update previous section
 			if (Sections[SectionIndex].PreviousSection >= 0) {
 				UpdateSection(Sections[SectionIndex].PreviousSection);
 			}
+		}
+		
+		// get plugin signal
+		/// <summary>Gets the signal data for a plugin.</summary>
+		/// <param name="train">The train.</param>
+		/// <param name="section">The absolute section index, referencing Game.Sections[].</param>
+		/// <returns>The signal data.</returns>
+		private static OpenBveApi.Runtime.SignalData GetPluginSignal(TrainManager.Train train, int section) {
+			int aspect;
+			if (Sections[section].IsFree(train)) {
+				if (Sections[section].Type == SectionType.IndexBased) {
+					if (section + 1 < Sections.Length) {
+						int value = Sections[section + 1].FreeSections;
+						if (value == -1) {
+							value = Sections[section].Aspects.Length - 1;
+						} else {
+							value++;
+							if (value >= Sections[section].Aspects.Length) {
+								value = Sections[section].Aspects.Length - 1;
+							}
+							if (value < 0) {
+								value = 0;
+							}
+						}
+						aspect = Sections[section].Aspects[value].Number;
+					} else {
+						aspect = Sections[section].Aspects[Sections[section].Aspects.Length - 1].Number;
+					}
+				} else {
+					aspect = Sections[section].Aspects[Sections[section].Aspects.Length - 1].Number;
+					if (section < Sections.Length - 1) {
+						int value = Sections[section + 1].Aspects[Sections[section + 1].CurrentAspect].Number;
+						for (int i = 0; i < Sections[section].Aspects.Length; i++) {
+							if (Sections[section].Aspects[i].Number > value) {
+								aspect = Sections[section].Aspects[i].Number;
+								break;
+							}
+						}
+					}
+				}
+			} else {
+				aspect = Sections[section].Aspects[Sections[section].CurrentAspect].Number;
+			}
+			double position = train.Cars[0].FrontAxle.Follower.TrackPosition - train.Cars[0].FrontAxlePosition + 0.5 * train.Cars[0].Length;
+			double distance = Sections[section].TrackPosition - position;
+			return new OpenBveApi.Runtime.SignalData(aspect, distance);
+		}
+		
+		// update plugin sections
+		/// <summary>Updates the plugin to inform about sections.</summary>
+		/// <param name="train">The train.</param>
+		internal static void UpdatePluginSections(TrainManager.Train train) {
+			OpenBveApi.Runtime.SignalData[] data = new OpenBveApi.Runtime.SignalData[16];
+			int count = 0;
+			int start = train.CurrentSectionIndex >= 0 ? train.CurrentSectionIndex : 0;
+			for (int i = start; i < Sections.Length; i++) {
+				OpenBveApi.Runtime.SignalData signal = GetPluginSignal(train, i);
+				if (data.Length == count) {
+					Array.Resize<OpenBveApi.Runtime.SignalData>(ref data, data.Length << 1);
+				}
+				data[count] = signal;
+				count++;
+				if (signal.Aspect == 0 | count == 16) {
+					break;
+				}
+			}
+			Array.Resize<OpenBveApi.Runtime.SignalData>(ref data, count);
+			PluginManager.CurrentPlugin.UpdateSignals(data);
 		}
 
 		// buffers
@@ -1054,7 +1113,7 @@ namespace OpenBve {
 				this.TimeLastProcessed = 0.0;
 				this.CurrentInterval = 1.0;
 				this.BrakeMode = false;
-				this.PersonalitySpeedFactor = 0.85 + 0.15 * Generator.NextDouble();
+				this.PersonalitySpeedFactor = 0.90 + 0.10 * Generator.NextDouble();
 				this.CurrentSpeedFactor = this.PersonalitySpeedFactor;
 				this.PowerNotchAtWhichWheelSlipIsObserved = Train.Specs.MaximumPowerNotch + 1;
 				this.AtsChimeCancelPosition = Train.Cars[0].FrontAxle.Follower.TrackPosition + 600.0;
@@ -1074,8 +1133,22 @@ namespace OpenBve {
 					TimeLastProcessed = SecondsSinceMidnight;
 				} else if (SecondsSinceMidnight - TimeLastProcessed >= CurrentInterval) {
 					TimeLastProcessed = SecondsSinceMidnight;
-					double spd = Train.Specs.CurrentAverageSpeed;
+					// plugin
+					if (Train == TrainManager.PlayerTrain && PluginManager.CurrentPlugin != null) {
+						OpenBveApi.Runtime.AIResponse response = PluginManager.CurrentPlugin.UpdateAI();
+						if (response == OpenBveApi.Runtime.AIResponse.Short) {
+							CurrentInterval = 0.2 + 0.1 * Game.Generator.NextDouble();
+							return;
+						} else if (response == OpenBveApi.Runtime.AIResponse.Medium) {
+							CurrentInterval = 0.4 + 0.2 * Game.Generator.NextDouble();
+							return;
+						} else if (response == OpenBveApi.Runtime.AIResponse.Long) {
+							CurrentInterval = 0.8 + 0.4 * Game.Generator.NextDouble();
+							return;
+						}
+					}
 					// personality
+					double spd = Train.Specs.CurrentAverageSpeed;
 					if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Boarding) {
 						if (Train.Station != this.LastStation) {
 							this.LastStation = Train.Station;
@@ -1108,8 +1181,8 @@ namespace OpenBve {
 								} else if (diff > largeThreshold) {
 									/* The AI is too slow. Increase the preferred speed. */
 									this.CurrentSpeedFactor += largeChangeFactor * (diff - largeThreshold);
-									if (this.CurrentSpeedFactor > 1.2) {
-										this.CurrentSpeedFactor = 1.2;
+									if (this.CurrentSpeedFactor > 1.1) {
+										this.CurrentSpeedFactor = 1.1;
 									}
 								} else if (Math.Abs(diff) < smallThreshold) {
 									/* The AI is at about the right speed. Change the preferred speed toward the personality default. */
@@ -1251,7 +1324,7 @@ namespace OpenBve {
 							TrainManager.ApplyAirBrakeHandle(Train, TrainManager.AirBrakeHandleState.Service);
 							TrainManager.ApplyEmergencyBrake(Train);
 							Train.Specs.Safety.ModeChange = TrainManager.SafetySystem.None;
-							CurrentInterval = 10.0;
+							CurrentInterval = 1.0;
 						} else {
 							CurrentInterval = 1.0;
 							TrainManager.ApplyNotch(Train, -1, true, 0, true);
@@ -1400,6 +1473,29 @@ namespace OpenBve {
 						// look ahead
 						double lookahead = (Train.Station >= 0 ? 150.0 : 50.0) + (spd * spd) / (2.0 * decelerationCruise);
 						double tp = Train.Cars[0].FrontAxle.Follower.TrackPosition - Train.Cars[0].FrontAxlePosition + 0.5 * Train.Cars[0].Length;
+						double stopDistance = double.MaxValue;
+						{
+							// next station stop
+							int te = Train.Cars[0].FrontAxle.Follower.LastTrackElement;
+							for (int i = te; i < TrackManager.CurrentTrack.Elements.Length; i++) {
+								double stp = TrackManager.CurrentTrack.Elements[i].StartingTrackPosition;
+								if (tp + lookahead <= stp) break;
+								for (int j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
+									if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.StationStartEvent) {
+										TrackManager.StationStartEvent e = (TrackManager.StationStartEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
+										if (StopsAtStation(e.StationIndex, Train) & Train.LastStation != e.StationIndex) {
+											int s = GetStopIndex(e.StationIndex, Train.Cars.Length);
+											if (s >= 0) {
+												double dist = Stations[e.StationIndex].Stops[s].TrackPosition - tp;
+												if (dist > 0.0 & dist < stopDistance) {
+													stopDistance = dist;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
 						{
 							// events
 							int te = Train.Cars[0].FrontAxle.Follower.LastTrackElement;
@@ -1430,10 +1526,10 @@ namespace OpenBve {
 															if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Completed & dist < 120.0) {
 																dist = 1.0;
 																redstopdist = 25.0;
-															} else if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Pending) {
+															} else if (Train.Station >= 0 & Train.StationState == TrainManager.TrainStopState.Pending | stopDistance < dist) {
 																redstopdist = 1.0;
-															} else if (spd > 6.94444444444444) {
-																redstopdist = 85.0;
+															} else if (spd > 9.72222222222222) {
+																redstopdist = 55.0;
 															} else if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
 																redstopdist = 35.0;
 															} else if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn) {
@@ -1519,6 +1615,30 @@ namespace OpenBve {
 											if (edec > dec) dec = edec;
 										}
 									}
+								}
+							}
+						}
+						// buffers ahead
+						if (Train == TrainManager.PlayerTrain) {
+							for (int i = 0; i < BufferTrackPositions.Length; i++) {
+								double dist = BufferTrackPositions[i] - tp;
+								if (dist > 0.0) {
+									double edec;
+									if (dist >= 10.0) {
+										edec = spd * spd / (2.0 * dist);
+									} else if (dist >= 5.0) {
+										TrainManager.ApplyNotch(Train, -1, true, 1, true);
+										TrainManager.ApplyAirBrakeHandle(Train, TrainManager.AirBrakeHandleState.Service);
+										this.CurrentInterval = 0.1;
+										return;
+									} else {
+										TrainManager.ApplyNotch(Train, -1, true, 1, true);
+										TrainManager.ApplyAirBrakeHandle(Train, TrainManager.AirBrakeHandleState.Service);
+										TrainManager.ApplyEmergencyBrake(Train);
+										this.CurrentInterval = 10.0;
+										return;
+									}
+									if (edec > dec) dec = edec;
 								}
 							}
 						}
@@ -1875,7 +1995,8 @@ namespace OpenBve {
 					if (SecondsSinceMidnight >= Messages[i].Timeout & Messages[i].RendererAlpha == 0.0) {
 						for (int j = i; j < Messages.Length - 1; j++) {
 							Messages[j] = Messages[j + 1];
-						} i--;
+						}
+						i--;
 						Array.Resize<Message>(ref Messages, Messages.Length - 1);
 					}
 				}

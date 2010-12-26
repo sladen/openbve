@@ -38,12 +38,6 @@ namespace OpenBve {
 				if (a.Channels != b.Channels) return true;
 				return false;
 			}
-			public override bool Equals(object obj) {
-				return base.Equals(obj);
-			}
-			public override int GetHashCode() {
-				return base.GetHashCode();
-			}
 		}
 		
 		/// <summary>Represents wave data.</summary>

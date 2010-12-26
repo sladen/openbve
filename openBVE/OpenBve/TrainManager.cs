@@ -1985,7 +1985,9 @@ namespace OpenBve {
 		private static void UpdateSafetySystem(Train Train, double TimeElapsed) {
 			// plugin
 			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.CurrentPlugin.UpdatePlugin(Train);
+				Game.UpdatePluginSections(Train);
+				PluginManager.CurrentPlugin.LastSection = Train.CurrentSectionIndex;
+				PluginManager.CurrentPlugin.UpdatePlugin();
 				return;
 			}
 			// handles
@@ -3179,8 +3181,8 @@ namespace OpenBve {
 			Train.Specs.Safety.Eb.Reset = true;
 			// plugin
 			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.CurrentPlugin.UpdatePower(Train);
-				PluginManager.CurrentPlugin.UpdateBrake(Train);
+				PluginManager.CurrentPlugin.UpdatePower();
+				PluginManager.CurrentPlugin.UpdateBrake();
 			}
 		}
 
@@ -3204,8 +3206,8 @@ namespace OpenBve {
 				Train.Specs.Safety.Eb.Reset = true;
 				// plugin
 				if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-					PluginManager.CurrentPlugin.UpdatePower(Train);
-					PluginManager.CurrentPlugin.UpdateBrake(Train);
+					PluginManager.CurrentPlugin.UpdatePower();
+					PluginManager.CurrentPlugin.UpdateBrake();
 				}
 			}
 		}
@@ -3215,8 +3217,8 @@ namespace OpenBve {
 			Train.Specs.CurrentHoldBrake.Driver = Value;
 			// plugin
 			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.CurrentPlugin.UpdatePower(Train);
-				PluginManager.CurrentPlugin.UpdateBrake(Train);
+				PluginManager.CurrentPlugin.UpdatePower();
+				PluginManager.CurrentPlugin.UpdateBrake();
 			}
 		}
 
@@ -3226,24 +3228,26 @@ namespace OpenBve {
 			int r = Relative ? a + Value : Value;
 			if (r < -1) r = -1;
 			if (r > 1) r = 1;
-			Train.Specs.CurrentReverser.Driver = r;
-			// plugin
-			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.CurrentPlugin.UpdateReverser(Train);
-			}
-			Game.AddBlackBoxEntry(Game.BlackBoxEventToken.None);
-			// sound
-			if (a == 0 & r != 0) {
-				int snd = Train.Cars[Train.DriverCar].Sounds.ReverserOn.SoundBufferIndex;
-				if (snd >= 0) {
-					World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.ReverserOn.Position;
-					SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
+			if (a != r) {
+				Train.Specs.CurrentReverser.Driver = r;
+				// plugin
+				if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
+					PluginManager.CurrentPlugin.UpdateReverser();
 				}
-			} else if (a != 0 & r == 0) {
-				int snd = Train.Cars[Train.DriverCar].Sounds.ReverserOff.SoundBufferIndex;
-				if (snd >= 0) {
-					World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.ReverserOff.Position;
-					SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
+				Game.AddBlackBoxEntry(Game.BlackBoxEventToken.None);
+				// sound
+				if (a == 0 & r != 0) {
+					int snd = Train.Cars[Train.DriverCar].Sounds.ReverserOn.SoundBufferIndex;
+					if (snd >= 0) {
+						World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.ReverserOn.Position;
+						SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
+					}
+				} else if (a != 0 & r == 0) {
+					int snd = Train.Cars[Train.DriverCar].Sounds.ReverserOff.SoundBufferIndex;
+					if (snd >= 0) {
+						World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.ReverserOff.Position;
+						SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
+					}
 				}
 			}
 		}
@@ -3262,9 +3266,6 @@ namespace OpenBve {
 				b = 0;
 			} else if (b > Train.Specs.MaximumBrakeNotch) {
 				b = Train.Specs.MaximumBrakeNotch;
-			}
-			if (!BrakeRelative) {
-				Train.Specs.CurrentEmergencyBrake.Driver = false;
 			}
 			if (p != Train.Specs.CurrentPowerNotch.Driver | b != Train.Specs.CurrentBrakeNotch.Driver) {
 				Train.Specs.Safety.Eb.Reset = true;
@@ -3343,8 +3344,8 @@ namespace OpenBve {
 			Game.AddBlackBoxEntry(Game.BlackBoxEventToken.None);
 			// plugin
 			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.CurrentPlugin.UpdatePower(Train);
-				PluginManager.CurrentPlugin.UpdateBrake(Train);
+				PluginManager.CurrentPlugin.UpdatePower();
+				PluginManager.CurrentPlugin.UpdateBrake();
 			}
 		}
 
@@ -3410,8 +3411,8 @@ namespace OpenBve {
 					Game.AddBlackBoxEntry(Game.BlackBoxEventToken.None);
 					// plugin
 					if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-						PluginManager.CurrentPlugin.UpdatePower(Train);
-						PluginManager.CurrentPlugin.UpdateBrake(Train);
+						PluginManager.CurrentPlugin.UpdatePower();
+						PluginManager.CurrentPlugin.UpdateBrake();
 					}
 				}
 			}

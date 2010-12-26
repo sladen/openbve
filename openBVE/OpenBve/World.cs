@@ -1,33 +1,33 @@
 ﻿using System;
 
 namespace OpenBve {
-	public static class World {
+	internal static class World {
 
 		// vectors
 		/// <summary>Represents a 2D vector of System.Double coordinates.</summary>
-		public struct Vector2D {
-			public double X;
-			public double Y;
-			public Vector2D(double X, double Y) {
+		internal struct Vector2D {
+			internal double X;
+			internal double Y;
+			internal Vector2D(double X, double Y) {
 				this.X = X;
 				this.Y = Y;
 			}
 		}
 		/// <summary>Represents a 2D vector of System.Single coordinates.</summary>
-		public struct Vector2Df {
-			public float X;
-			public float Y;
-			public Vector2Df(float X, float Y) {
+		internal struct Vector2Df {
+			internal float X;
+			internal float Y;
+			internal Vector2Df(float X, float Y) {
 				this.X = X;
 				this.Y = Y;
 			}
 		}
 		/// <summary>Represents a 3D vector of System.Double coordinates.</summary>
-		public struct Vector3D {
-			public double X;
-			public double Y;
-			public double Z;
-			public Vector3D(double X, double Y, double Z) {
+		internal struct Vector3D {
+			internal double X;
+			internal double Y;
+			internal double Z;
+			internal Vector3D(double X, double Y, double Z) {
 				this.X = X;
 				this.Y = Y;
 				this.Z = Z;
@@ -35,32 +35,32 @@ namespace OpenBve {
 			/// <summary>Returns a normalized vector based on a 2D vector in the XZ plane and an additional Y-coordinate.</summary>
 			/// <param name="Vector">The vector in the XZ-plane. The X and Y components in Vector represent the X- and Z-coordinates, respectively.</param>
 			/// <param name="Y">The Y-coordinate.</param>
-			public Vector3D(Vector2D Vector, double Y) {
+			internal Vector3D(Vector2D Vector, double Y) {
 				double t = 1.0 / Math.Sqrt(Vector.X * Vector.X + Vector.Y * Vector.Y + Y * Y);
 				this.X = t * Vector.X;
 				this.Y = t * Y;
 				this.Z = t * Vector.Y;
 			}
 			/// <summary>Returns the sum of two vectors.</summary>
-			public static Vector3D Add(Vector3D A, Vector3D B) {
+			internal static Vector3D Add(Vector3D A, Vector3D B) {
 				return new Vector3D(A.X + B.X, A.Y + B.Y, A.Z + B.Z);
 			}
 			/// <summary>Returns the difference of two vectors.</summary>
-			public static Vector3D Subtract(Vector3D A, Vector3D B) {
+			internal static Vector3D Subtract(Vector3D A, Vector3D B) {
 				return new Vector3D(A.X - B.X, A.Y - B.Y, A.Z - B.Z);
 			}
 		}
 		/// <summary>Represents a 3D vector of System.Single coordinates.</summary>
-		public struct Vector3Df {
-			public float X;
-			public float Y;
-			public float Z;
-			public Vector3Df(float X, float Y, float Z) {
+		internal struct Vector3Df {
+			internal float X;
+			internal float Y;
+			internal float Z;
+			internal Vector3Df(float X, float Y, float Z) {
 				this.X = X;
 				this.Y = Y;
 				this.Z = Z;
 			}
-			public bool IsZero() {
+			internal bool IsZero() {
 				if (this.X != 0.0f) return false;
 				if (this.Y != 0.0f) return false;
 				if (this.Z != 0.0f) return false;
@@ -118,12 +118,6 @@ namespace OpenBve {
 				if (A.TextureCoordinates.X != B.TextureCoordinates.X | A.TextureCoordinates.Y != B.TextureCoordinates.Y) return true;
 				return false;
 			}
-			public override int GetHashCode() {
-				return base.GetHashCode();
-			}
-			public override bool Equals(object obj) {
-				return base.Equals(obj);
-			}
 		}
 
 		// mesh material
@@ -166,12 +160,6 @@ namespace OpenBve {
 				if (A.GlowAttenuationData != B.GlowAttenuationData) return true;
 				return false;
 			}
-			public override int GetHashCode() {
-				return base.GetHashCode();
-			}
-			public override bool Equals(object obj) {
-				return base.Equals(obj);
-			}
 		}
 		internal enum MeshMaterialBlendMode : byte {
 			Normal = 0,
@@ -207,12 +195,6 @@ namespace OpenBve {
 				if (A.Normal.Y != B.Normal.Y) return true;
 				if (A.Normal.Z != B.Normal.Z) return true;
 				return false;
-			}
-			public override int GetHashCode() {
-				return base.GetHashCode();
-			}
-			public override bool Equals(object obj) {
-				return base.Equals(obj);
 			}
 		}
 		

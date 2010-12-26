@@ -17,6 +17,15 @@ namespace OpenBve {
 
 		// start loop
 		internal static void StartLoop() {
+			// load in advance
+			if (Interface.CurrentOptions.LoadInAdvance) {
+				for (int i = 0; i < TextureManager.Textures.Length; i++) {
+					if (TextureManager.Textures[i] != null) {
+						TextureManager.Textures[i].DontAllowUnload = true;
+						TextureManager.UseTexture(i, TextureManager.UseMode.LoadImmediately);
+					}
+				}
+			}
 			// camera
 			ObjectManager.InitializeVisibility();
 			TrackManager.UpdateTrackFollower(ref World.CameraTrackFollower, 0.0, true, false);
@@ -238,16 +247,20 @@ namespace OpenBve {
 				World.UpdateMouseGrab(TimeElapsed);
 				ProcessControls(TimeElapsed);
 				if (Quit) break;
-				// update in pieces
+				// update simulation in chunks
 				{
-					const double w = 0.1;
-					double u = TimeElapsed;
-					while (true) {
-						double v = u < w ? u : w;
-						u -= v;
-						Game.SecondsSinceMidnight += v;
-						TrainManager.UpdateTrains(v);
-						if (u <= 0.00000001) break;
+					const double chunkTime = 1.0 / 75.0;
+					if (TimeElapsed <= chunkTime) {
+						Game.SecondsSinceMidnight += TimeElapsed;
+						TrainManager.UpdateTrains(TimeElapsed);
+					} else {
+						const int maxChunks = 75;
+						int chunks = Math.Min((int)Math.Round(TimeElapsed / chunkTime), maxChunks);
+						double time = TimeElapsed / (double)chunks;
+						for (int i = 0; i < chunks; i++) {
+							Game.SecondsSinceMidnight += time;
+							TrainManager.UpdateTrains(time);
+						}
 					}
 				}
 				// update in one piece
@@ -814,7 +827,7 @@ namespace OpenBve {
 													bool q = b == 1;
 													if (b > 0) b--;
 													if (b <= TrainManager.PlayerTrain.Specs.MaximumBrakeNotch) {
-														TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Driver = false;
+														TrainManager.UnapplyEmergencyBrake(TrainManager.PlayerTrain);
 														TrainManager.ApplyNotch(TrainManager.PlayerTrain, 0, true, b, false);
 													} else {
 														TrainManager.ApplyEmergencyBrake(TrainManager.PlayerTrain);
@@ -828,7 +841,7 @@ namespace OpenBve {
 													a *= (double)TrainManager.PlayerTrain.Specs.MaximumBrakeNotch + 1;
 													int b = (int)Math.Round(a);
 													if (b <= TrainManager.PlayerTrain.Specs.MaximumBrakeNotch) {
-														TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Driver = false;
+														TrainManager.UnapplyEmergencyBrake(TrainManager.PlayerTrain);
 														TrainManager.ApplyNotch(TrainManager.PlayerTrain, 0, true, b, false);
 													} else {
 														TrainManager.ApplyEmergencyBrake(TrainManager.PlayerTrain);
@@ -848,7 +861,7 @@ namespace OpenBve {
 												bool q = b == 1;
 												if (b > 0) b--;
 												if (b <= TrainManager.PlayerTrain.Specs.MaximumBrakeNotch) {
-													TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Driver = false;
+													TrainManager.UnapplyEmergencyBrake(TrainManager.PlayerTrain);
 													TrainManager.ApplyNotch(TrainManager.PlayerTrain, p, false, b, false);
 												} else {
 													TrainManager.ApplyEmergencyBrake(TrainManager.PlayerTrain);
@@ -861,7 +874,7 @@ namespace OpenBve {
 												if (p < 0) p = 0;
 												if (b < 0) b = 0;
 												if (b <= TrainManager.PlayerTrain.Specs.MaximumBrakeNotch) {
-													TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Driver = false;
+													TrainManager.UnapplyEmergencyBrake(TrainManager.PlayerTrain);
 													TrainManager.ApplyNotch(TrainManager.PlayerTrain, p, false, b, false);
 												} else {
 													TrainManager.ApplyEmergencyBrake(TrainManager.PlayerTrain);
@@ -1623,7 +1636,7 @@ namespace OpenBve {
 										} else {
 											if (TrainManager.PlayerTrain.AI == null) {
 												TrainManager.PlayerTrain.AI = new Game.SimpleHumanDriverAI(TrainManager.PlayerTrain);
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
+												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin && !PluginManager.CurrentPlugin.SupportsAI) {
 													Game.AddMessage(Interface.GetInterfaceString("notification_aiunable"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 10.0);
 												}
 											} else {

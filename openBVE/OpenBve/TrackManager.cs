@@ -306,14 +306,6 @@ namespace OpenBve {
 								Train.CurrentSectionLimit = double.PositiveInfinity;
 							}
 							Train.CurrentSectionIndex = this.NextSectionIndex;
-							if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-								int a = Game.Sections[this.NextSectionIndex].CurrentAspect;
-								if (a >= 0) {
-									double z = Train.Cars[0].FrontAxle.Follower.TrackPosition - Train.Cars[0].FrontAxlePosition + 0.5 * Train.Cars[0].Length;
-									double distance = Game.Sections[this.NextSectionIndex].TrackPosition - z;
-									PluginManager.CurrentPlugin.UpdateSignal(Game.Sections[this.NextSectionIndex].Aspects[a].Number, distance);
-								}
-							}
 						}
 					} else {
 						Train.CurrentSectionLimit = double.PositiveInfinity;
@@ -350,22 +342,7 @@ namespace OpenBve {
 					// update train
 					if (this.PreviousSectionIndex >= 0) {
 						if (!Game.Sections[this.PreviousSectionIndex].Invisible) {
-							if (Game.Sections[this.PreviousSectionIndex].CurrentAspect >= 0) {
-								Train.CurrentSectionLimit = Game.Sections[this.PreviousSectionIndex].Aspects[Game.Sections[this.PreviousSectionIndex].CurrentAspect].Speed;
-							} else {
-								Train.CurrentSectionLimit = double.PositiveInfinity;
-							}
 							Train.CurrentSectionIndex = this.PreviousSectionIndex;
-						}
-						if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-							int a = Game.Sections[this.PreviousSectionIndex].CurrentAspect;
-							if (a >= 0) {
-								double z = Train.Cars[0].FrontAxle.Follower.TrackPosition - Train.Cars[0].FrontAxlePosition + 0.5 * Train.Cars[0].Length;
-								double distance = Game.Sections[this.NextSectionIndex].TrackPosition - z;
-								PluginManager.CurrentPlugin.UpdateSignal(Game.Sections[this.PreviousSectionIndex].Aspects[a].Number, distance);
-							} else {
-								PluginManager.CurrentPlugin.UpdateSignal(255, double.MaxValue);
-							}
 						}
 					} else {
 						Train.CurrentSectionLimit = double.PositiveInfinity;
@@ -451,7 +428,7 @@ namespace OpenBve {
 					Data.OptionalInteger = this.OptionalInteger;
 					if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
 						if ((int)Data.Type >= 0) {
-							PluginManager.CurrentPlugin.UpdateBeacon(Train, (int)Data.Type, Data.SectionIndex, Data.OptionalInteger);
+							PluginManager.CurrentPlugin.UpdateBeacon((int)Data.Type, Data.SectionIndex, Data.OptionalInteger);
 						}
 					} else {
 						Train.Specs.Safety.AddPendingTransponder(Data);
@@ -888,6 +865,9 @@ namespace OpenBve {
 				} else if (Direction > 0) {
 					for (int j = 0; j < CurrentTrack.Elements[ElementIndex].Events.Length; j++) {
 						if (OldDelta < CurrentTrack.Elements[ElementIndex].Events[j].TrackPositionDelta & NewDelta >= CurrentTrack.Elements[ElementIndex].Events[j].TrackPositionDelta) {
+							if (CurrentTrack.Elements[ElementIndex].Events[j] is SectionChangeEvent) {
+								SectionChangeEvent section = (SectionChangeEvent)CurrentTrack.Elements[ElementIndex].Events[j];
+							}
 							TryTriggerEvent(CurrentTrack.Elements[ElementIndex].Events[j], 1, Follower.TriggerType, Follower.Train, Follower.CarIndex);
 						}
 					}

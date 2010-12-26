@@ -489,7 +489,9 @@ namespace OpenBve {
 										Result.Objects[ObjectCount].States[k].Position = new World.Vector3D(0.0, 0.0, 0.0);
 										if (StateFiles[k] != null) {
 											Result.Objects[ObjectCount].States[k].Object = ObjectManager.LoadStaticObject(StateFiles[k], Encoding, LoadMode, false, ForceTextureRepeatX, ForceTextureRepeatY);
-											Result.Objects[ObjectCount].States[k].Object.Dynamic = true;
+											if (Result.Objects[ObjectCount].States[k].Object != null) {
+												Result.Objects[ObjectCount].States[k].Object.Dynamic = true;
+											}
 										} else {
 											Result.Objects[ObjectCount].States[k].Object = null;
 										}
