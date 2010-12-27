@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 export DH_VERBOSE=15
-BUILDDIRS = openBVE/OpenBve
+BUILDDIRS = openBVE/OpenBve openBVE/OpenBveApi
 TARGET = $(CURDIR)/debian/openbve
 #DEBUG_CONFIGURATION=Debug
 DEBUG_CONFIGURATION=Release
@@ -14,7 +14,7 @@ build: build-stamp
 build-stamp: configure-stamp 
 	dh_testdir
 	for builddir in $(BUILDDIRS); do \
-	  (cd $$builddir && xbuild /p:Configuration=$(DEBUG_CONFIGURATION) OpenBve.csproj) || exit 1; \
+	  (cd $$builddir && xbuild /p:Configuration=$(DEBUG_CONFIGURATION) *.csproj) || exit 1; \
 	done
 	touch build-stamp
 
@@ -24,8 +24,8 @@ clean:
 	rm -f build-stamp configure-stamp
 	rm -rf $(TARGET)
 	for builddir in $(BUILDDIRS); do \
-	  (cd $$builddir && xbuild /t:Clean OpenBve.csproj); \
-	  rm -rf $$builddir/obj; \
+	  (cd $$builddir && xbuild /t:Clean *.csproj); \
+	  rm -rf $$builddir/bin $$builddir/obj; \
 	done
 	dh_clean
 
@@ -36,6 +36,8 @@ install: build
 	dh_installdirs
 	install -m 755 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe $(TARGET)/usr/lib/openbve/
 	install -m 644 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe.mdb $(TARGET)/usr/lib/openbve/
+	install -m 755 $(CURDIR)/openBVE/OpenBveApi/bin/$(DEBUG_CONFIGURATION)/OpenBveApi.dll $(TARGET)/usr/lib/openbve/
+	install -m 644 $(CURDIR)/openBVE/OpenBveApi/bin/$(DEBUG_CONFIGURATION)/OpenBveApi.dll.mdb $(TARGET)/usr/lib/openbve/
 	install -m 755 -T $(CURDIR)/debian/openbve.wrapper $(TARGET)/usr/games/openbve
 	lynx -dump -nolist $(CURDIR)/debian/changelog.html > $(TARGET)/usr/share/doc/openbve/changelog
 
