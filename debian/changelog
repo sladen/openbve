@@ -1,8 +1,8 @@
-openbve (1.2.10.0-0ubuntu1) UNRELEASED; urgency=low
+openbve (1.2.10.0-0ubuntu1) natty; urgency=low
 
   * New upstream stable version (1.2.10.0)
 
- -- Paul Sladen <ubuntu@paul.sladen.org>  Sun, 26 Dec 2010 23:51:00 +0000
+ -- Paul Sladen <ubuntu@paul.sladen.org>  Tue, 28 Dec 2010 04:12:00 +0000
 
 openbve (1.2.7.3-0ubuntu3) natty; urgency=low
 
