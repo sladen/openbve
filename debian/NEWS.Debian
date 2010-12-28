@@ -1,3 +1,22 @@
+openbve (1.2.10.0-0ubuntu1) natty; urgency=low
+
+  Openbve has gained has gained a new Train plugin API ("OpenBveApi"),
+  for plugins written in CLR-based languages such as C#.  These
+  plugins should be fully portable in source-form and are intended
+  also to be portable in binary/compiled form too.  Previously the
+  plugin API was based on that used in BVE Trainsim 4 and was limited
+  to Win32-i386-COFF .dlls.
+
+  An example plugin written against the new OpenBveApi and in C# is
+  "UkTrainSys" by Anthony Bowden. This plugin is to some extent a
+  drop-in replacement for several previous generations of the plugins
+  'OS_Ats1.dll' and UkMut.dll', commonly distributed across many trains.
+
+  Plugins are activated by putting the plugin filename in 'ats.cfg' in
+  a corresponding Train/.../ directory.
+
+ -- Paul Sladen <sladen@ubuntu.com>  Tue, 28 Dec 2010 02:49:00 +0000
+
 openbve (1.2.4.1-0ubuntu1) lucid; urgency=low
 
   Openbve now uses a home-grown .wav parser for loading audio files.
