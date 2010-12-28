@@ -1,1508 +1,1518 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link rel="SHORTCUT ICON" href="common/favicon.png" />
-<meta name="keywords" content="openBVE,homepage" />
-<title>Changelog</title>
-</head>
-<body style="font-family:sans-serif;font-size:small">
-<table width="100%" cellspacing="0" style="min-width:1090px">
-<tr>
-<td bgcolor="#000000" height="96"><a href="index.html"><img style="border: none;" src="common/homepage_logo.png" alt="Logo" /></a></td>
-<td bgcolor="#000000" width="100%">
-<a href="about/index.html"><img style="border: none;" src="common/button_about.png" alt="About" /></a>
-&nbsp;<a href="screenshots.html"><img style="border: none;" src="common/button_screenshots.png" alt="Screenshots" /></a>
-&nbsp;<a href="use/index.html"><img style="border: none;" src="common/button_using.png" alt="Using" /></a>
-&nbsp;<a href="develop/index.html"><img style="border: none;" src="common/button_developing.png" alt="Developing" /></a>
-&nbsp;<a href="blog/index.html"><img style="border: none;" src="common/button_blog.png" alt="Blog" /></a>
-&nbsp;<a href="http://openbve.freeforums.org"><img style="border: none;" src="common/button_forum.png" alt="Forum" /></a>
-&nbsp;<a href="downloads.html"><img style="border: none;" src="common/button_downloads.png" alt="Download" /></a>
-</td>
-</tr>
-<tr><td bgcolor="#808080" height="16" style="background-image:url(common/gradient_16.png)" colspan="2"></td></tr>
-<tr><td bgcolor="#E0E0E0" height="10" colspan="2"></td></tr>
-<tr><td bgcolor="#E0E0E0" colspan="2"><table cellspacing="15" width="100%"><tr><td>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0">
-<tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04_inverted.png)">
-</td></tr>
-<tr><td height="24">
-<font color="#0060A0" size="+1"><b>Changelog&nbsp;</b></font>
-</td></tr>
-<tr><td bgcolor="#808080" height="4" style="background-image:url(common/gradient_04.png)">
-</td></tr>
-</table><br />
-<table><tr style="height: 4px;"><td /></tr></table>
-This changelog is intended for advanced users and developers. It does not summarize important changes for regular users.<br /><br />↷ <a href="#history12">1.2 series (stable)</a><br />
-↷ <a href="#history11">1.1 series (development)</a><br />
-↷ <a href="#history10">1.0 series (stable)</a><br />
-↷ <a href="#history09">0.9 series (development)</a><br />
-<br /><a name="history12" />
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF"><b>&nbsp;1.2 series (stable)&nbsp;</b></font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.7.3 (2010-08-07)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The AI should adapt its preferred driving speed depending on earliness or lateness at stations since v1.2.7.2, but did not incorporate its timetable offset (for non-player trains). This would lead to the preceding train to drive slower after every station stop until it matched the player's train's timetable.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The AI would not usually decelerate if overspeeding, but just cruise at its current (over)speed.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.7.2 (2010-07-31)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />The AI has been fine-tuned. It should stop gentler at stations now, being less prone to overrun than before. Also, it dynamically adapts its preferred driving speed depending on whether it is early or late at stations. Finally, the AI now stops in front of the preceding train, useful for tram scenarios or other scenarios where multiple trains are allowed to be within the same block.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />When using the <em>Jump to Station</em> command, any previously derailed train will now be on the tracks again, not just the player's train.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />In the main menu, the train selection box now shows the <em>Browse</em> tab on startup, not the <em>Route default</em> tab.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />The lamps for the built-in ATS and ATC were previously not shown for <em>panel.animated</em> cabs. This was intentional in order to move cab developers to show the lamps as part of the cab itself. However, for consistency reasons, the lamps are now shown for all cabs, regardless of the underlying file format.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Negative track positions in CSV/RW routes could crash the game (and RouteViewer, too). They are now reported as errors.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.7.0 (2010-07-11)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />Superelevation is now simulated. In previous versions, the train would simply roll around its z-axis, while now, one wheel is actually elevated on banked curves.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />The cant interpolation algorithm has been rewritten to make use of monotone cubic interpolation. This makes the train tilt on banked curves much more smoothly than before, when linear interpolation was used.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />The simulation of track inaccuracy has been overhauled. Aside from the previous horizontal and vertical offsets, cant is now irregular as well and lets the train shake to the sides. If the level of track accuracy changes from one block to the next, interpolation is now used, where before, the axles could make sudden jumps.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />The fly-by cameras now focus on the front car of the nearest train. Previously, the fly-by cameras would only focus on the player's train and shifted focus from the front car to the rear car on approach.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />When using the <em>Jump to Station</em> command, a previously derailed player's train will now be on the tracks again.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />Keys and joystick buttons now employ key repeat, meaning that holding down a key or button will trigger the associated event multiple times until the key or button is released again. The default delay and repetition intervals are 500 and 100 milliseconds, respectively, and can be customized in the <em>options.cfg</em> file.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing objects</b></font><br />Animated objects can now show the timetable as set up by CSV/RW routes. See the <em>TextureOverride</em> parameter in the documentation for the <em>[Object]</em> section. This allows to integrate the custom timetable as part of the 3D cab geometry.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />The new Options.CantBehavior command allows to change the way cant works in the Track.Curve command. The default behavior is that cant is unsigned, i.e. the sign is ignored and the superelevation is always towards the curve center, and that cant cannot be applied on straight track. The new behavior is that cant is signed, i.e. inward banking or outward banking can explicitly be set up, and that cant can also be applied on straight track.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing trains</b></font><br />The [DigitalGauge] section in the panel2.cfg was previously confined to angles that did not span across the 6 o'clock position, i.e. angles between -180 and 180 degrees. This limitation has been overcome now due to a rewrite of the code that creates the individual triangles that make up the LED square.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Sound</b></font><br />When a train starts from standstill or when the camera is moved in sound range of a train, all run sounds of all cars start playing simultaneously. This leads to an undesired echo effect. To counteract this effect, track positions are assigned at which the run sounds start playing from the start, thus asynchronizing the car run sounds again. This is not done regularly, but only when considered necessary.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Cant was ignored on curves if the <em>CantInMillimeters</em> parameter in <em>Track.Curve</em> was a single character in length.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Some animated objects would stop being updated if jumping backward in time, for example when using the <em>Jump to Station</em> command.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Animated objects were not updated at the beginning of the simulation until <em>RefreshRate</em> seconds had passed.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Translations</b></font><br />Added translations for the Catalan (ca-ES) and Romanian (ro-RO) languages.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b><em>Experimental (Simulation)</em></b></font><br /><em>Custom timetables that can be set up by route developers are now available in all trains. Previously, only trains where custom timetables were explicitly enabled could show them. For trains which explicitly support custom timetables, the timetables are shown as part of the 3D scenery (just as before), while for non-supported trains, they are shown as part of the UI overlay (and then can be scrolled using Shift+Up and Shift+Down just as with the default timetables). Please note that this feature might undergo changes or be removed in future versions of openBVE.</em></td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b><em>Experimental (Developing routes)</em></b></font><br /><em>The Train.Timetable command now accepts files that are relative to the Object folder in addition to the previous model of interpreting files relative to the current train's folder. Please note that this feature might undergo changes or be removed in future versions of openBVE.</em></td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.6.3 (2010-05-02)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The first Track.Brightness command in CSV/RW routes did not work correctly unless it was Track.Brightness(255). This got unnoticed earlier because many routes employ multiple Track.Brightness commands before the starting location.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Selecting a route or train in the main menu could lead to a race condition that caused the user-selected encoding to switch back to UTF-8.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.6.1 (2010-04-06)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />Changed the light arrangement of the built-in six aspect Japanese signal to match real installations more closely.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The Options.UnitOfSpeed command in CSV/RW routes could produce erroneous results in some cases.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.6.0 (2010-03-14)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />Passengers boarding the train now increase the mass of the train. This means that the performance of the train can slightly vary depending on how crowded the train is. The degree of crowdedness is set primarily by route developers (Track.Sta command), but is also slightly randomized.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />The cruising and braking behavior of the AI has been revised.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />The passenger discomfort algorithm has been rewritten. It is now a little less sensitive and better incorporates the degree of crowdedness in the train. Consequently, it does not cause discomfort messages any longer when the train has no passengers on board.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />A new option for the departure time has been added to the Track.Sta and Track.Station commands. It allows to set a departure time for terminal stations, intended to allow an otherwise forced red signal to change to green eventually.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />When entering the <em>Jump to Station</em> menu, just any station could be highlighted by default. Now, it is always the next station (as originally intended).</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The player train's AI would previously depart from a terminal station if the terminal station required the train to not open any doors (e.g. a siding).</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.5.2 (2010-02-16)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />Made <em>Interior (look ahead)</em> the default view mode for 3D cabs.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.5.1 (2010-02-14)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />When zooming out of a 2D cab with camera restriction enabled, the camera could get stuck, preventing the user from zooming in again or moving around.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />On trains with the automatic air brake, the <em>brake.wav</em> or <em>BP Decomp</em> sounds would play when moving from SRV to LAP or from LAP to REL when they should actually play when moving from REL/LAP to SRV/EMG.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Passengers should get stuck between the doors every once in a while - a feature that was introduced in v1.0.5. This feature never worked at all until now.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.5.0 (2010-01-24)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Sound</b></font><br />The distance attenuation model has been rewritten. Additionally, the dependencies on ALUT and SDL_MIXER have been removed.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Sound</b></font><br />The list of <a href="develop/information_soundformats.html">supported sound formats</a> has changed. Most importantly, all sample rates and numbers of channels are supported now. Aside from PCM, Microsoft ADPCM is supported now, too.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />The player's train now derails when passing the end of the track.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />In the <em>Jump to Station</em> menu, the current station is now the one highlighted by default. Previously, it was always the first station in the list.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />The main menu is now smaller by default in order to accomodate smaller screens or larger fonts. If resized, the size of the main menu is preserved between sessions now.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.3.3 (2010-01-03)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Performance</b></font><br />During the time the in-game loading screen is showing, time is fast-forwarded until the player train's arrival time. Up to now, animated objects of trains (panel, exterior) were always updated during this time, leading to excessive loading times for very detailed animated objects. Updating those objects is now skipped during the fast-forward stage, leading to faster loading times in those cases.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />In some cases, the Track.Rail and Track.RailStart commands in CSV/RW routes could reset the rail type to 0 even when this was not intended.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />In some cases, CSV/RW route errors were reported without giving the file name of the route, making debugging the error potentially harder, especially if $Include statements were used.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.3.2 (2009-12-13)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />There was a chance that the program could crash with a NaN in multiple places. While such a crash has not been observed yet, it's probably best to fix this anyway.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.3.1 (2009-11-29)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />Point-based turns are now smoothened out by using short curve segments instead of discontinuous straight track pieces.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Miscellaneous</b></font><br />Removed the dependency on specific versions of the Tao.OpenAL, Tao.OpenGL and Tao.SDL libraries, which could cause problems in recent Linux distributions.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Miscellaneous</b></font><br />Due to an apparent glitch in Mono, the loading screen would not show the <em>Save Report</em> button on Mac OS X. An attempt has been made to circumvent this glitch.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.3.0 (2009-11-15)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />Minor improvements to the AI. In particular, the AI should not get stuck in front of a stop point on upward gradients any longer.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />The $Include command has been added which allows to include other files, optionally one of a set of files with a certain probability.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />Added the Train.Velocity command in CSV/RW routes. The command defines the upper speed limit the AI-controlled trains may travel at.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Miscellaneous</b></font><br />Comments in RW routes now span the whole line instead of up to the beginning of the next command.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Miscellaneous</b></font><br />Due to an apparent glitch in Mono, the loading screen would not show the <em>Ignore</em> button on Mac OS X. An attempt has been made to circumvent this glitch.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.2.0 (2009-09-20)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing objects</b></font><br />Added the <em>hasPlugin</em>, <em>acceleration</em> and <em>accelerationMotor</em> variables (among others) for use in animated objects.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing trains</b></font><br />Added the <em>acc</em> and <em>motor</em> subjects for use in the panel2.cfg.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />Lengths using the colon notation in CSV/RW routes are now well-defined when omitting parameters.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />Some controls in the main menu used a custom background color but a system-specific foreground color, rendering text unreadable with some color schemes.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The <em>delta</em> variable returned incorrect results in animated objects whenever <em>RefreshRate</em> was set to a non-zero value.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Lengths entered without the colon notation were not processed correctly when using Options.UnitOfLength in CSV/RW routes.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Gray fog could show on routes which did not use fog, but only if the viewing distance was below 600 meters.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.1.3 (2009-08-31)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Value-based sections could crash the program with an <em>Index is outside the bounds of the array</em> message.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.1.2 (2009-08-30)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />For trains which do not have exterior objects for their cars, a default object is now shown. In contrast to previous versions, this feature is now not only the default behavior, but also, it cannot be deactivated through conventional means. <br />
- <b>Rationale:</b> Many users wonder why signalling works the way it does, or wonder why they suddenly derail en-route. Often, this is due to the presence of a preceding train which does not come with exterior objects. Further, the own train is not invisible this way, either.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />When resetting the camera view for the fly-by modes, the camera is now placed about 5 seconds ahead of the train for more interesting approaches.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing trains</b></font><br />The [Breaker] section is now available in the sound.cfg for compatibility reasons.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />The train reference for animated world objects is now the nearest train instead of the player's train. This should allow simulating crossings, station doors, etc. with any train.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />When mouse grab was activated and the user toggled to or from fullscreen mode, the viewing angle could abruptly change to arbitrary angles.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />When starting the simulation or when using the <em>Jump to</em> feature, the train's first car's front axle lined up with the stopping post instead of the very front of the train.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.1.1 (2009-08-17)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Plugins were reported the wrong initialization mode of the safety system via the Initialize call. This could lead to some trains not working correctly. <br />
- (Plugin developers are advised to update their <em>plugin.h</em> header file and to inspect whether their plugin's behavior (still) conforms to the documentation.)</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.0.3 (2009-08-04)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The AI could crash the game with an <em>The index is outside of the bounds of the array</em> error whenever it encountered a station without defined station stops.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The route parser did not process the Route.Change command correctly and could mix up the values. An attempt was made to correct this. (<em>late note: did not work</em>)</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.0.1 (2009-07-29)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The object optimizer could create incorrect geometry when trying to optimize for TRIANGLE_STRIP structures.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.2.0.0 (2009-07-26)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<em>Compared to v1.0.7.3 (most important changes only):</em><br /><br /><table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation / Interface</b></font><br />Fully 3D cabs are now available (<em>panel.animated</em>) along with mouse-supported camera rotation. Right-click at any time to enable or disable mouse grab.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />In 3D cabs, the driver's head and body are now simulated. This feature reacts to changes in acceleration and to inertia in curves, resulting in pitch and roll of the body or head. Manual camera rotation also makes use of this model.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />In 3D cabs, a look-ahead view has been introduced. This essentially focuses the view on an upcoming part of the track, thus following curves and pitch changes. This view can be switched on or off by pressing F1 (CAMERA_INTERIOR) multiple times.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Options</b></font><br />Vertical synchronization (vsync) can now be enabled or disabled in the Options menu.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing objects</b></font><br />A series of new variables has been introduced to the functions of animated objects.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing objects</b></font><br />The ANIMATED object format has been given an [Include] section that just allows to easier integrate other objects without animating them, including other ANIMATED objects.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />The Route.RunInterval command (CSV) now allows to create any amount of preceding or following trains. The Route.RunInterval and Track.PreTrain commands can now also be used in conjunction, which was not previously possible.</td>
-</tr></table>
-<br /><em>Compared to v1.1.4.0:</em><br /><br /><table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation / Interface</b></font><br />Adjusted the sensitivity of the mouse, the speed of exterior rotation, as well as the forces employed by the body/head model.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />All of the Track.Beacon, Track.Tr and Track.Relay commands now have <em>X</em>, <em>Y</em>, <em>Yaw</em>, <em>Pitch</em> and <em>Roll</em> arguments.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Increased the robustness of the route parser to avoid crashes on invalid arguments (e.g. Track.Back, Track.Announce and Track.Doppler).</td>
-</tr></table>
-<br /><a name="history11" />
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF"><b>&nbsp;1.1 series (development)&nbsp;</b></font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.1.4.0 (2009-07-18)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />The pseudo-ORP functionality of the built-in ATC safety system has been removed for better, mostly visual compatibility with older routes.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />The AI now waits at the stopping point of a station if there is a red signal about 150m ahead.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The new damping algorithm would hang whenever the natural frequency was zero (which is not very meaningful, but is encountered with some add-ons).</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br /><em>Option.ObjectVisibility 1</em> did not work correctly with static objects embedded in ANIMATED object files.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.1.3.1 (2009-07-14)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Using the Track.Turn command could mess up the track geometry with v1.1.3.0 when other rails were in use at that track position.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Static objects embedded in ANIMATED object files (i.e. no functions used) did not take auxillary transformations, such as yaw, pitch and roll, which are employed by various route commands, into account.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.1.3.0 (2009-07-13)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />The Route.RunInterval command (CSV) now allows to create any amount of preceding or following trains. The Route.RunInterval and Track.PreTrain commands can now also be used in conjunction, which was not previously possible.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />The .Load suffix is now optional in Train.Timetable(<em>TimetableIndex</em>).Day.Load and Train.Timetable(<em>TimetableIndex</em>).Night.Load in CSV routes.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing objects</b></font><br />The ANIMATED object format has been given an [Include] section that just allows to easier integrate other objects without animating them, including other ANIMATED objects.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Renderer</b></font><br />The precision of the z-buffer has been increased from 16 bit to 24 bit. In addition, 3D cabs and scenery now use different settings for the near and far clipping planes so that scenery has more precision in the distance, while 3D cabs have more precision near the camera.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Miscellaneous</b></font><br />The Win32-specific timers have been removed as they could yield erratic results on some multi-core processors. The general SDL timer is now used instead.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The opening and closing times of the doors were supposed to derive directly from their respective sounds. As the sound manager was not yet initialized at the time the duration of the sounds were queried, the internal default values for opening and closing times were used all the time.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />An error in the geometric model employed by the CSV/RW route parser has been detected, and attempts have been made to correct the problem. Presently, it has not been fully evaluated if the problem has indeed been fixed.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.1.2.0 (2009-07-08)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing objects/panels</b></font><br />The mappings of the built-in safety systems in <em>pluginState</em> (animated objects) and <em>atsi</em> (panel2.cfg) has been changed from 0-14 to 256-271. While existing trains using the built-in safety systems are unlikely to use these variables, trains using Windows-only DLL plugins on Linux/Mac will use the built-in safety systems instead. As the variables 0-14 might already be in use by panels/objects (e.g. lamps/wipers/drops) in this case, these elements might be fed non-compatible data. The mapping 256-271 is safe because it cannot be used by existing plugins. This is a non-backward-compatible change since v1.1.0.0.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />Scolling with the mouse has been made more smooth.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Aspects in Track.Section were previously sorted into ascending order, which should not have happened for index-based section behavior. This prevented the safety systems of some trains from working properly on some routes. Example: IIYAMA 2060.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Lighting was still not correct on 2D cabs since v1.1.1.0, which is definately fixed now.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.1.1.0 (2009-07-03)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />In 3D cabs, the driver's head and body are now simulated to parts. This experimental feature reacts to changes in acceleration and to inertia in curves, resulting in pitch and roll of the body or head. Manual camera rotation also makes use of the body/head model.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />In 3D cabs, an experimental look-ahead view has been introduced. This essentially focuses the view on an upcoming part of the track, thus following curves and pitch changes. This view can be switched on or off by pressing F1 (CAMERA_INTERIOR) multiple times.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Renderer</b></font><br />If no background image is present, a black background is shown. This also works with fog now, which did not show on the background previously in such a case.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />Toggling the mouse grab on or off has been changed from the left mouse button to the right mouse button. This allows to give the window focus with the left mouse button without affecting the mouse grab status, which is more intuitive (at least on Windows).</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The damping algorithm has been completely rewritten. Previously, it was unstable with low frame rates, and also did not handle constantly changing angles well. The new algorithm synchronizes updating the target angle with its own natural frequency, and also uses a mathematically correct implementation for calculating derivatives.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The ambient and diffuse lighting conditions in 3D cabs were supposed to be independent from the environmental conditions. However, this lighting model was accidentally applied on the 2D cabs in v1.1.0.0 instead of on the 3D cabs, resulting in wrong lighting conditions for both.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.1.0.0 (2009-06-28)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation / Interface</b></font><br />Fully 3D cabs are now available (<em>panel.animated</em>) along with mouse-supported camera rotation. Left-click at any time to enable or disable mouse grab.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Options</b></font><br />Vertical synchronization (vsync) can now be enabled or disabled in the Options menu.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing objects</b></font><br />A series of new variables has been introduced to the functions of animated objects. The documentation has all changes highlighted.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing panels</b></font><br />The ats<em>i</em> subject now also has a meaning with the built-in safety systems. The documentation has all changes highlighted.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Objects mirrored by the Track.Pole command could appear inside-out if GL_QUAD_STRIP structures were generated by the object optimizer. Example: DemoRoute1.</td>
-</tr></table>
-<br /><a name="history10" />
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF"><b>&nbsp;1.0 series (stable)&nbsp;</b></font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.0.7.3 (2009-07-08)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Objects mirrored by the Track.Pole command could appear inside-out if GL_QUAD_STRIP structures were generated by the object optimizer. Example: DemoRoute1.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Aspects in Track.Section were previously sorted into ascending order, which should not have happened for index-based section behavior. This prevented the safety systems of some trains from working properly on some routes. Example: IIYAMA 2060.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Internationalization</b></font><br />Added translation for the Korean language.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.0.7.2 (2009-06-17)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Some objects did not load correctly since 1.0.7.0 and would produce a message about an unexpected error.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.0.7.1 (2009-06-14)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Renderer</b></font><br />Rendering is now noticably faster.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Renderer</b></font><br />Minor improvements to reduce artifacts related to depth sorting.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Renderer</b></font><br />Circumvented an OpenGL glitch that could cause erratic polygons to appear whenever fullscreen was toggled on or off.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />For users who experience long loading times, <a href="use/hidden.html">hidden options</a> have been introduced to reduce or disable the object optimization process.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />Fully rewritten ATS-P results in more realistic brake curves.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />New options for <em>ArrivalTime</em> in the <em>Track.Sta</em> and <em>Track.Station</em> commands make it possible for the player to stop at a station, but not the preceding train, or vise versa.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing objects</b></font><br />New arguments for <em>AddVertex</em> (CSV) and <em>Vertex</em> (B3D) allow for providing custom normals.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing objects</b></font><br />Added the <em>Shear</em> and <em>ShearAll</em> commands to allow for shear mapping (skewing).</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.0.6.2 (2009-05-28)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Fog did not show the correct color in some cases since 1.0.6.0. The interpolation to a no-fog condition has been made smoother and consistent. The route parser reports fog-related ill-conditions now.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The in-game clock did not wrap after 23:59:59 and showed 24:00:00 instead of the desired 00:00:00, for example.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.0.6.0 (2009-05-24)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Renderer</b></font><br />The quality of the <em>Smooth</em> transparency mode has been radically improved at the expence of some performance.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />The AI now takes a bit less time trying to stop accurately at stations.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />ATC now works in 200 meter long blocks instead of calculating a brake curve to the preceding train continuously. Previously, the continuous update could create too frequent changes of the allowed speed, leading to a lot of successive ding sounds.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />A command to accelerate time has been added, MISC_TIMEFACTOR, which defaults to CTRL+J.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />A command to mute/resume sound has been added, MISC_MUTE, which defaults to CTRL+M.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />Non-Windows users now get a warning message in a train's description box if that train uses a Windows-only safety system plugin.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Routes</b></font><br />If the $Chr/$Rnd/$Sub preprocessor creates a leading semicolon in an expression, that expression is now considered a comment. Previously, stripping away comments was only done before the preprocessor, which made it impossible to dynamically create comments.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The cab and exterior objects were placed incorrectly if the car had an asymmetric axle setup.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Fog on the background image now produces a consistent look regardless of the viewing distance. Previously, the background image could look differently depending on the viewing distance.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.0.5.0 (2009-05-03)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />Passenger-related door lock is now simulated. This is based on the <em>PassengerRatio</em> parameter in the <em>Track.Sta</em> command, and is more probable to occur on crowded trains.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Simulation</b></font><br />The AI has been fine-tuned. It makes use of cruising, holding speed by selecting a suitable power notch, and can react to wheel slip by restricting use of certain power notches.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Internationalization</b></font><br />Added translation for the Czech language.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />Added new options to the <em>Doors</em> parameter in the <em>Track.Sta</em> command.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The route parser could previously accept , and ; as an argument separator for either CSV or RW formats, even though only one of these characters is used by either format. This could seldom lead to parsing problems, but is corrected now anyway.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The background image was not correctly aligned vertically if the <em>Texture.Background(BackgroundTextureIndex).Aspect</em> option was set to 1 (keep aspect ratio) in route files.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Version 1.0.4.0 introduced the peculiar behavior of rolling the external view at startup, which is corrected now.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.0.4.0 (2009-04-26)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />In route files, commands from namespaces other than <em>Track</em> are now processed first, then the track position is reset to 0, then commands from the <em>Track</em> namespace are processed. This is to increase compatibility with routes which use track positions before using commands from the <em>Track</em> namespace.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />Rephrased all error messages in the CSV/RW route parser to match the terminology of the documentation.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />All parsers now validate file names, as otherwise, the program could crash when any format referenced a file name which included invalid characters.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.0.3.0 (2009-04-12)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />The default camera locations of the exterior and track/fly-by modes are now at the top-left of the rear of first car again.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />Resetting the camera view in the fly-by modes reflects the current speed of the train by placing the camera further away from the train the higher the speed is.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing trains</b></font><br />For compatibility reasons, the exponent <em>e</em> in the acceleration section of train.dat versions 1.22 is now clipped at 4 after converting to a 2.0 exponent.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />Updated the URLs used inside the program to point to the new homepage. This has also been done for Train Editor.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Internationalization</b></font><br />Renamed the en-UK language to en-GB. The reason is simply that GB stands for United Kingdom, while UK stands for Ukraine.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Miscellaneous</b></font><br />Renamed OpenBve64.exe to OpenBveAllCpu.exe, which is now compiled against any CPU instead of AMD x64.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Miscellaneous</b></font><br />Some minor Linux-specific things to increase portability.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.0.2.0 (2009-04-05)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing trains</b></font><br />If a train does not explicitly specify the operating pressure of the brake pipe, it is now assumed to be 490 kPa if applicable.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />PNG and GIF textures are now synchronously loaded in order to prevent them from ending up in the alpha rendering list where applicable (which is more expensive to render and can cause visual glitches if too heavily populated due to the use of depth sorting).</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The <em>RefreshRate</em> parameter in animated objects was not applied if the animated object was used as a train exterior object.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Beacons which appeared before the starting position were not triggered, causing some trains to operate incorrectly on some routes.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.0.1.0 (2009-03-29)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />The stop indicator previously showed in Expert mode, which was not intended. It is now displayed only in Arcade and Normal modes. Additionally, the debug output is now unavailable in Expert mode.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />Camera settings are now preserved when changing interior, exterior and track views. The zoom is reset though when switching the views.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />The scrolling speed inside the cab has been made slightly slower.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />Warning messages are now shown again in openBVE. However, both warning and error messages can now be invidually disabled in the Options menu. Developers are strictly encouraged to leave these settings enabled, though.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />A default set of points of interests is now included for every station if the route does not define any points of interest itself.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Developing routes</b></font><br />Track positions in RW and CSV routes now require to adhere to the <em>Strict</em> number format. Previously, they were interpreted as <em>Loose</em>, which could mess up the route too much if an invalid statement was interpreted as a track position.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Miscellaneous</b></font><br />Some compatibility graphics (needles) have been resaved as 8-bit per channel RGBA in order to appear correctly on Linux.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Miscellaneous</b></font><br />The code that applied transparency to the SDL window icon is now only executed on Windows. It could previously crash the program on Linux.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Miscellaneous</b></font><br />The sound subsystem can now be deactivated in the options.cfg.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Miscellaneous</b></font><br />OpenBve64.exe is now available. It can be used on 64-bit systems that also provide 64-bit versions of the dependencies.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />Entering the <em>Jump to station</em> menu previously crashed the program with an <em>Index was outside the bounds of the array</em> when the route did not have any stations. The menu entry is not displayed any longer.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />In animated objects, the <em>leftdoorstarget</em> and <em>rightdoorstarget</em> variables could previously crash the program with an <em>Index was outside the bounds of the array</em> message, or these variables simply didn't work correctly.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />In animated objects, texture clamping was disabled and could lead to visual artifacts at the edges of some textures.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v1.0.0.0 (2009-03-23)&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />Messages about missing support for Windows-only DLL plugins on Linux/Mac are now only generated if the train actually uses a plugin.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Interface</b></font><br />If an exception (runtime error) occurs inside a plugin, openBVE now crashes with the name of the plugin being reported.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td><font color="red"><b>Bugfix</b></font><br />The train toppled and derailed to the wrong side when driving backward.</td>
-</tr></table>
-<br /><a name="history09" />
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0" width="100%"><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF"><b>&nbsp;0.9 series (development)&nbsp;</b></font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.7.0&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: Digital gauges (LEDs) appeared incorrectly since 0.9.6.0.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Modified some of the ingame-displays, including bringing back old stop indicator and repositioning fps/clock/speed indicators.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The AI now drives at 80%-100% of the route speed, depending on a random initial choice. This adds some slight variation to the preceding train.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.6.0&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The in-game displays have been redrawn to result in a hopefully more professional look.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Cant (superelevation) is now interpolated between blocks to give a smoother ride.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The built-in security systems now cut off power when the doors are not fully closed.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The volume of flange sounds has been slightly adjusted.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: A crash could occur when colliding backward with buffer stop.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Fixed a design flaw in the sound manager that could randomly prevent sounds from playing on some sound cards.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Compatibility with compressed X files has been improved.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Radically improved Linux compatibility. The Filesystem Hierarchy Standard is now also supported. See the <em>Using openBVE</em> pages for more information on this.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Slight performance improvements and slightly reduced memory consumption.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The setting of the Arcade, Normal and Expert game modes are now preserved.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>A frame rate command has been introduced as MISC_FPS. The default key combination to show/hide it is CTRL+X.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.5.5&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The default encoding for all routes and trains is now UTF-8. Buttons for the three most commonly used encodings (Latin-1, Shift_JIS and Big-5) have been added to the main menu in order to quickly select these encodings.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Custom normals on animated objects are now preserved, allowing for smooth shading on such objects. Previously, smooth shading was not available on animated objects.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: Cars could run into the front car when the front car was prevented to move by a buffer stop.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: A series of things relatd to animated objects. Most prominently, the <em>pluginstate</em> variable was affected and did not work correctly.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.5.0&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Door operation can now be set to fully manual, automatic with manual override and fully automatic inside the train.dat. The default behavior is now automatic door operation with manual override.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Door opening and closing speeds are now the same as the durations of their respective sound files (if present).</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The new variables <em>leftdoorstarget</em> and <em>rightdoorstarget</em> are now available in functions (animated objects) in order to query the target state of the doors (compared to the current states of the doors.)</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The call to the HornBlow function in DLL plugins is now actually made. By accident, it was never implemented before.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.4.2&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Signal.Load can now be used to load animated objects as signals, and Track.SigF to place them. The signalling functionality of Track.FreeObj is now deprecated and will be removed soon.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Track.Signal and Track.SigF now all have additional <em>Yaw</em>, <em>Pitch</em> and <em>Roll</em> arguments.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: Arguments enclosed by parantheses in CSV routes were not recognized whenever a space preceded the argument's parantheses and no other parantheses were used in the same expression.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: The != operator was not recognized in functions (animated objects).</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.4.0&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Animated objects can now be used as train exterior objects, allowing for animated doors, wheels, and via plugins, also for whipers, headlights and more. The new variables <em>distance[i]</em>, <em>trackdistance[i]</em>, <em>cameradistance</em> and <em>pluginstate[i]</em> have been added.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Updated all compatibility signal graphics. The new images are slightly darker than the original ones, have more distinct colors (especially red vs. yellow) and use more photo-realistic textures.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: The motor sound volumes read from the train.dat was incorrectly applied. Additionally, the volume curve has been further adjusted for compatibility reasons.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: Train plugins received wrong values regarding brake notches when the train was equipped with a hold brake system. The effect was mainly that the emergency brake could not be applied on those trains.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: Custom timetable images could appear in the exterior view whenever the timetable was instructed to update but the user was not in the cab.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The scoring system has been fine-tuned. The most noticable effect is that lateness, off station stop and overspeed are now less penalized.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Added the <em>rev</em> subject to the panel2.cfg in order to allow showing the state of the reverser.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.3.7&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Removed all platform-specific conditional compilation from the source code. The same executable can now be used on all platforms (<em>not tested yet</em>).</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Adjusted the sound volume curve for motor power and electric brake. The most noticable effect is that lower brake notches now produce louder eletric brake sounds.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Adjusted the brake behavior. Some values that were previously not incorporated from the #MOVE section in the train.dat are so now.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Added variables for function scripts: <em>speedometer</em>, <em>trackdistance</em>, <em>leftdoors[i]</em>, <em>rightdoors[i]</em>. Changed the meanings of <em>speed</em> and <em>distance</em>.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: The function script optimizer prevented certain combinations of additions and multiplications from producing working code.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: The Texture.Background(<em>index</em>).Aspect command was not recognized.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.3.3&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Parts of the route parser have been completely rewritten to better account for the many syntactical variations possible in CSV routes and also to better recover from ill-conditions.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: The route parser crashed when a signal was used before the first station.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: Departure signals could jump back to red once the train left the station area but did not pass the respective signal yet.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Added a version check facility to the main menu. The version check, once clicked, informs the user of possible updates available, but does not automatically download them.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.3.0&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Fixed wrong interpretation of commands in CSV routes when the arguments were enclosed in parantheses and spaces were used in the expression.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Changed fog behavior: By default, the fog will now blend from the old settings at the beginning of the block where <em>Track.Fog</em> is used to the new settings at the beginning of the next block. Additionally, the new command <em>Option.FogBehavior</em> allows to switch to a different interpretation where the fog is interpolated between successive <em>Track.Fog</em> commands akin to <em>Track.Brightness</em>.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Added subjects in the panel2.cfg: <em>ms</em> (meters/second), <em>mph</em> (miles/hour) and <em>atc</em>. Additionally, the <em>d0</em>, <em>d1</em>, <em>d2</em>, etc. suffixes can now be applied to all subjects.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Added commands to the panel.cfg: The <em>Unit</em> key-value pair has been added to the <em>DigitalIndicator</em> section in order to select between kilometers per hour, miles per hour or meters per second for the display.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Removed problematic algorithm for brake pipe pressure distribution. For the time being, the brake pipe pressure will be equal on all cars by having the brake pipe pressures from the different cars averaged.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Added new default keyboard configuration for notebooks (without keypad). This configuration remaps the keys that are normally assigned to the keypad to other keys instead. The configuration can be imported within the <em>Customize controls</em> tab in the main menu. Please inspect the list of commands to see which keys have been remapped.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.2.6&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The background cylinder has been given top and bottom caps. When the background image changes, the new image will now smoothly fade in.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Some admendments to the file formats have been made, including Japanese names for arguments in the panel.cfg, a compatibility fix regarding Track.Rail for route files and some alterations to Option.UnitOfLength and Option.UnitOfSpeed behavior for route files.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Slight changes in brake behavior for automatic air brakes; some optimizations for function scripts.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.2.3&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The maximum angle that can be produced for forward/backward shaking has been slightly increased again, but the effect is no longer performed on the train exterior.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The effect of boarding passengers has been made less frequent and also less intense.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>In previous versions, some sounds would play with a seemingly random pitch or gain occasionally and usually non-reproducably, which has been corrected now. The problem resulted from the fact that the sound manager could stop sounds and free their handles if the respective sounds were too far away from the listener or too many sounds were playing at the same time, but the train manager still had a handle to that sound and was trying to modify its pitch or gain, resulting in a change of another sound which had been assigned the just freed handle.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>In previous versions, some sounds were modified in volume by a quadratic formula which only worked in the range from 0 to 1. As openBVE uses some sort of high dynamic range volume, occasionally volumes higher than 1 are encountered and incorrectly modified, forcing such high-volume sounds to become essentially mute instead. This has been resolved by not making use of such quadratic formulas any longer.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.2.2&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The forward/backward shaking has been made faster, while the maximum angle that can be produced has been reduced.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>If a route file referenced objects without file extensions, files of B3D, CSV and X types would be looked for in this order. This caused some signals to not load correctly if both an X file and B3D/CSV files of the same base name were present in the respective folder, but the developer intended to load the X file for the signal. As such, the precedence order is now reversed so that X files are looked for first, then CSV and finally B3D.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.2.1&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Passenger comfort now depends on how much the train is crowded (<em>Jam</em> parameter in <em>Track.Sta</em>)</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Removed in-game debug output that was not intended to show up in the public release.</td>
-</tr></table>
-<br /><table><tr style="height: 4px;"><td /></tr></table>
-<table><tr><td bgcolor="#808080" height="24" style="background-image:url(common/gradient_24.png)">
-<font color="#FFFFFF">&nbsp;v0.9.2.0&nbsp;</font>
-</td></tr></table>
-<table><tr style="height: 4px;"><td /></tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The train now shakes forward/backward on excessive change of acceleration.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>The train now shakes left/right as a result of passenger boarding at stations.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Jerk regulation is now used for both motor power and motor brake, leading to gentler changes in acceleration.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Animated scenery objects have been introduced and can be used by route developers mostly just as static objects.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Rewritten geometric transformations in the route loading process have fixed some alignment issues and also speed up the loading process slightly.</td>
-</tr></table>
-<table cellspacing="0"><tr>
-<td valign="top">●</td>
-<td>&nbsp;</td>
-<td>Bugfix: The panel2.cfg parser inverted the yaw, so that the driver would be looking left instead of right or vice versa.</td>
-</tr></table>
-
-</td></tr></table>
-</td></tr>
-</table>
-</body>
+	<head>
+		<title>
+			Changelog
+		</title>
+		<link rel="stylesheet" href="homepage.css" />
+	</head>
+	<body>
+		<div class="homepage-body">
+			<a href="index.html"><img src="common/homepage_banner.png" alt="Banner" style="border-style: none;" /></a>
+			<ul class="bullet-menu">
+				<li>
+					<a href="screenshots.html">Screenshots</a>
+				</li>
+				<li>
+					<a href="use/index.html">Play</a>
+				</li>
+				<li>
+					<a href="develop/index.html">Create</a>
+				</li>
+				<li>
+					<a href="roadmap.html">Roadmap</a>
+				</li>
+				<li>
+					<a href="http://openbve.freeforums.org">Discussion Board</a>
+				</li>
+				<li>
+					<a href="downloads.html">Downloads</a>
+				</li>
+			</ul>
+			<h1>
+				Changelog
+			</h1>
+			<div>
+				The changelog contains a list of changes between openBVE versions. The changelog is aimed at advanced users and add-on developers.
+			</div>
+			<ol class="contents">
+				<li>
+					<a href="#n12series">1.2 series</a>
+				</li>
+				<li>
+					<a href="#n11series">1.1 series</a>
+				</li>
+				<li>
+					<a href="#n10series">1.0 series</a>
+				</li>
+			</ol>
+			<h2>
+				<a id="n12series">1.2 series</a>
+			</h2>
+			<h3>
+				v1.2.10.0 (2010-12-19)
+			</h3>
+			<div>
+				This is a summary of what has changed since the last stable version 1.2.8.2.
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The AI now stops for buffers. Previously, it would happily drive into them and cause the train to derail.
+					</dd>
+					<dt>
+						Developing trains
+					</dt>
+					<dd>
+						Plugins can now be developed that run on all platforms, including support for the AI and better support for continuous transmission of signal states via SetSignal.
+					</dd>
+					<dt>
+						Developing trains
+					</dt>
+					<dd>
+						The extensions.cfg now allows to reverse cars in the consist. This makes it unnecessary to create reversed copies of car objects.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.9.25 (2010-12-07)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						All simulation-related components are now updated at an average of 75 times per second, but at least 50 times per second, regardless of framerate. This should give a minimum amount of precision for plugins to work with. Previously, if framerates were low, the distance traveled by the train between frames was too great to meaningfully work with.
+					</dd>
+					<dt>
+						Plugins
+					</dt>
+					<dd>
+						SetSignal is now limited to reporting at most 16 sections. This is intended to prevent a massive amount of data to be generated and transmitted to plugins when there are lots of sections on the route and most of the upcoming sections are clear.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Various bugs related to SetSignal were fixed that would prevent notable routes from working correctly.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.9.20 (2010-11-28)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Plugins
+					</dt>
+					<dd>
+						Backward-incompatible changes have been made to the .NET train plugin API: The SetSignal function is now called for every section that changes aspect until the first red one. All aspects are sent to the plugin in an array instead of making individual calls for each section. SetSignal is also called when changing section boundaries regardless of whether aspects changed.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.9.15 (2010-11-14)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Plugins
+					</dt>
+					<dd>
+						Backward-incompatible changes have been made to the .NET train plugin API: The SetSignal function is now called for both a change in the current section as well as in the upcoming section. The distance to the section can be examined to distinguish between the two. Furthermore, the const speed system is now represented as a simple boolean instead of an enumeration.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						Minor fine-tuning to get the AI to behave better when approaching a red signal that is just behind a station stop.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.9.11 (2010-11-07)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The AI now stops for buffers. Previously, it would happily drive into them and cause the train to derail.
+					</dd>
+					<dt>
+						Developing trains
+					</dt>
+					<dd>
+						The extensions.cfg now allows to reverse cars in the consist. This makes it unnecessary to create reversed copies of car objects.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Accessing the data.PluginFolder property in the Load call of .NET plugins would result in a crash.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.9.10 (2010-10-31)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Plugins
+					</dt>
+					<dd>
+						Backward-incompatible changes have been made to the .NET train plugin API in order to implement a new handle-based sound model with ability to change pitch and volume of sounds, to allow to query the distance to and speed of the preceding train, and to complement the built-in AI with plugin-specific driving mechanisms. See the documentation for details.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.9.2 (2010-10-07)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						When negative numbers were used for radii in the Cylinder command in CSV/B3D files in order to omit the respective cap, the wrong cap would be omitted.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						When the properties.Sound array was set to a null reference in the Load call in .NET plugins, openBVE would crash with a System.NullReferenceException.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.9.0 (2010-10-03)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Plugins
+					</dt>
+					<dd>
+						Initial support for .NET assembly train plugins has been added. Train plugins can now be developed that run on all platforms. See the documentation for details. Also mind that during the development release, the API might change in backward-incompatible ways.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.8.2 (2010-10-07)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						When negative numbers were used for radii in the Cylinder command in CSV/B3D files in order to omit the respective cap, the wrong cap would be omitted.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.8.1 (2010-10-04)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Removed an unintended debug message that showed up every once in a while.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.8.0 (2010-10-03)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Renderer
+					</dt>
+					<dd>
+						The renderer should now be a lot faster on most computers. This is due to the fact that all static opaque faces are now optimized using display lists, while all other faces continue to be rendered in immediate mode.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						In the list of problems, critical errors are now shown first, followed by normal errors and warnings.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Plugins could receive beacon types -3 or -2 when passing Track.Pattern commands. This was unintentional. Plugins no longer receive data from this command.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.7.4 (2010-08-29)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The renderer could crash when trying to render a string with characters outside the BMP (i.e. codepoints between 0x10000 and 0x10FFFF).
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.7.3 (2010-08-07)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The AI should adapt its preferred driving speed depending on earliness or lateness at stations since v1.2.7.2, but did not incorporate its timetable offset (for non-player trains). This would lead to the preceding train to drive slower after every station stop until it matched the player's train's timetable.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The AI would not usually decelerate if overspeeding, but just cruise at its current (over)speed.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.7.2 (2010-07-31)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The AI has been fine-tuned. It should stop gentler at stations now, being less prone to overrun than before. Also, it dynamically adapts its preferred driving speed depending on whether it is early or late at stations. Finally, the AI now stops in front of the preceding train, useful for tram scenarios or other scenarios where multiple trains are allowed to be within the same block.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						When using the <em>Jump to Station</em> command, any previously derailed train will now be on the tracks again, not just the player's train.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						In the main menu, the train selection box now shows the <em>Browse</em> tab on startup, not the <em>Route default</em> tab.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						The lamps for the built-in ATS and ATC were previously not shown for <em>panel.animated</em> cabs. This was intentional in order to move cab developers to show the lamps as part of the cab itself. However, for consistency reasons, the lamps are now shown for all cabs, regardless of the underlying file format.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Negative track positions in CSV/RW routes could crash the game (and RouteViewer, too). They are now reported as errors.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.7.0 (2010-07-11)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						Superelevation is now simulated. In previous versions, the train would simply roll around its z-axis, while now, one wheel is actually elevated on banked curves.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The cant interpolation algorithm has been rewritten to make use of monotone cubic interpolation. This makes the train tilt on banked curves much more smoothly than before, when linear interpolation was used.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The simulation of track inaccuracy has been overhauled. Aside from the previous horizontal and vertical offsets, cant is now irregular as well and lets the train shake to the sides. If the level of track accuracy changes from one block to the next, interpolation is now used, where before, the axles could make sudden jumps.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The fly-by cameras now focus on the front car of the nearest train. Previously, the fly-by cameras would only focus on the player's train and shifted focus from the front car to the rear car on approach.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						When using the <em>Jump to Station</em> command, a previously derailed player's train will now be on the tracks again.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						Custom timetables that can be set up by route developers are now available in all trains. Previously, only trains where custom timetables were explicitly enabled could show them. For trains which explicitly support custom timetables, the timetables are shown as part of the 3D scenery (just as before), while for non-supported trains, they are shown as part of the UI overlay (and then can be scrolled using Shift+Up and Shift+Down just as with the default timetables).
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Keys and joystick buttons now employ key repeat, meaning that holding down a key or button will trigger the associated event multiple times until the key or button is released again. The default delay and repetition intervals are 500 and 100 milliseconds, respectively, and can be customized in the <em>options.cfg</em> file.
+					</dd>
+					<dt>
+						Developing objects
+					</dt>
+					<dd>
+						Animated objects can now show the timetable as set up by CSV/RW routes. See the <em>TextureOverride</em> parameter in the documentation for the <em>[Object]</em> section. This allows to integrate the custom timetable as part of the 3D cab geometry.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						The new Options.CantBehavior command allows to change the way cant works in the Track.Curve command. The default behavior is that cant is unsigned, i.e. the sign is ignored and the superelevation is always towards the curve center, and that cant cannot be applied on straight track. The new behavior is that cant is signed, i.e. inward banking or outward banking can explicitly be set up, and that cant can also be applied on straight track.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						The Train.Timetable command now accepts files that are relative to the Object folder in addition to the previous model of interpreting files relative to the current train's folder.
+					</dd>
+					<dt>
+						Developing trains
+					</dt>
+					<dd>
+						The [DigitalGauge] section in the panel2.cfg was previously confined to angles that did not span across the 6 o'clock position, i.e. angles between -180 and 180 degrees. This limitation has been overcome now due to a rewrite of the code that creates the individual triangles that make up the LED square.
+					</dd>
+					<dt>
+						Sound
+					</dt>
+					<dd>
+						When a train starts from standstill or when the camera is moved in sound range of a train, all run sounds of all cars start playing simultaneously. This leads to an undesired echo effect. To counteract this effect, track positions are assigned at which the run sounds start playing from the start, thus asynchronizing the car run sounds again. This is not done regularly, but only when considered necessary.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Cant was ignored on curves if the <em>CantInMillimeters</em> parameter in <em>Track.Curve</em> was a single character in length.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Some animated objects would stop being updated if jumping backward in time, for example when using the <em>Jump to Station</em> command.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Animated objects were not updated at the beginning of the simulation until <em>RefreshRate</em> seconds had passed.
+					</dd>
+					<dt>
+						Translations
+					</dt>
+					<dd>
+						Added translations for the Catalan (ca-ES) and Romanian (ro-RO) languages.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.6.3 (2010-05-02)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The first Track.Brightness command in CSV/RW routes did not work correctly unless it was Track.Brightness(255). This got unnoticed earlier because many routes employ multiple Track.Brightness commands before the starting location.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Selecting a route or train in the main menu could lead to a race condition that caused the user-selected encoding to switch back to UTF-8.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.6.1 (2010-04-06)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						Changed the light arrangement of the built-in six aspect Japanese signal to match real installations more closely.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The Options.UnitOfSpeed command in CSV/RW routes could produce erroneous results in some cases.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.6.0 (2010-03-14)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						Passengers boarding the train now increase the mass of the train. This means that the performance of the train can slightly vary depending on how crowded the train is. The degree of crowdedness is set primarily by route developers (Track.Sta command), but is also slightly randomized.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The cruising and braking behavior of the AI has been revised.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The passenger discomfort algorithm has been rewritten. It is now a little less sensitive and better incorporates the degree of crowdedness in the train. Consequently, it does not cause discomfort messages any longer when the train has no passengers on board.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						A new option for the departure time has been added to the Track.Sta and Track.Station commands. It allows to set a departure time for terminal stations, intended to allow an otherwise forced red signal to change to green eventually.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						When entering the <em>Jump to Station</em> menu, just any station could be highlighted by default. Now, it is always the next station (as originally intended).
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The player train's AI would previously depart from a terminal station if the terminal station required the train to not open any doors (e.g. a siding).
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.5.2 (2010-02-16)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						Made <em>Interior (look ahead)</em> the default view mode for 3D cabs.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.5.1 (2010-02-14)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						When zooming out of a 2D cab with camera restriction enabled, the camera could get stuck, preventing the user from zooming in again or moving around.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						On trains with the automatic air brake, the <em>brake.wav</em> or <em>BP Decomp</em> sounds would play when moving from SRV to LAP or from LAP to REL when they should actually play when moving from REL/LAP to SRV/EMG.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Passengers should get stuck between the doors every once in a while - a feature that was introduced in v1.0.5. This feature never worked at all until now.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.5.0 (2010-01-24)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Sound
+					</dt>
+					<dd>
+						The distance attenuation model has been rewritten. Additionally, the dependencies on ALUT and SDL_MIXER have been removed.
+					</dd>
+					<dt>
+						Sound
+					</dt>
+					<dd>
+						The list of
+						<a href="develop/information_soundformats.html">supported sound formats</a>
+						has changed. Most importantly, all sample rates and numbers of channels are supported now. Aside from PCM, Microsoft ADPCM is supported now, too.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The player's train now derails when passing the end of the track.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						In the <em>Jump to Station</em> menu, the current station is now the one highlighted by default. Previously, it was always the first station in the list.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						The main menu is now smaller by default in order to accomodate smaller screens or larger fonts. If resized, the size of the main menu is preserved between sessions now.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.3.3 (2010-01-03)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Performance
+					</dt>
+					<dd>
+						During the time the in-game loading screen is showing, time is fast-forwarded until the player train's arrival time. Up to now, animated objects of trains (panel, exterior) were always updated during this time, leading to excessive loading times for very detailed animated objects. Updating those objects is now skipped during the fast-forward stage, leading to faster loading times in those cases.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						In some cases, the Track.Rail and Track.RailStart commands in CSV/RW routes could reset the rail type to 0 even when this was not intended.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						In some cases, CSV/RW route errors were reported without giving the file name of the route, making debugging the error potentially harder, especially if $Include statements were used.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.3.2 (2009-12-13)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						There was a chance that the program could crash with a NaN in multiple places. While such a crash has not been observed yet, it's probably best to fix this anyway.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.3.1 (2009-11-29)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						Point-based turns are now smoothened out by using short curve segments instead of discontinuous straight track pieces.
+					</dd>
+					<dt>
+						Miscellaneous
+					</dt>
+					<dd>
+						Removed the dependency on specific versions of the Tao.OpenAL, Tao.OpenGL and Tao.SDL libraries, which could cause problems in recent Linux distributions.
+					</dd>
+					<dt>
+						Miscellaneous
+					</dt>
+					<dd>
+						Due to an apparent glitch in Mono, the loading screen would not show the <em>Save Report</em> button on Mac OS X. An attempt has been made to circumvent this glitch.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.3.0 (2009-11-15)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						Minor improvements to the AI. In particular, the AI should not get stuck in front of a stop point on upward gradients any longer.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						The $Include command has been added which allows to include other files, optionally one of a set of files with a certain probability.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						Added the Train.Velocity command in CSV/RW routes. The command defines the upper speed limit the AI-controlled trains may travel at.
+					</dd>
+					<dt>
+						Miscellaneous
+					</dt>
+					<dd>
+						Comments in RW routes now span the whole line instead of up to the beginning of the next command.
+					</dd>
+					<dt>
+						Miscellaneous
+					</dt>
+					<dd>
+						Due to an apparent glitch in Mono, the loading screen would not show the <em>Ignore</em> button on Mac OS X. An attempt has been made to circumvent this glitch.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.2.0 (2009-09-20)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Developing objects
+					</dt>
+					<dd>
+						Added the <em>hasPlugin</em>, <em>acceleration</em> and <em>accelerationMotor</em> variables (among others) for use in animated objects.
+					</dd>
+					<dt>
+						Developing trains
+					</dt>
+					<dd>
+						Added the <em>acc</em> and <em>motor</em> subjects for use in the panel2.cfg.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						Lengths using the colon notation in CSV/RW routes are now well-defined when omitting parameters.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Some controls in the main menu used a custom background color but a system-specific foreground color, rendering text unreadable with some color schemes.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The <em>delta</em> variable returned incorrect results in animated objects whenever <em>RefreshRate</em> was set to a non-zero value.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Lengths entered without the colon notation were not processed correctly when using Options.UnitOfLength in CSV/RW routes.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Gray fog could show on routes which did not use fog, but only if the viewing distance was below 600 meters.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.1.3 (2009-08-31)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Value-based sections could crash the program with an <em>Index is outside the bounds of the array</em> message.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.1.2 (2009-08-30)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						For trains which do not have exterior objects for their cars, a default object is now shown. In contrast to previous versions, this feature is now not only the default behavior, but also, it cannot be deactivated through conventional means.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						When resetting the camera view for the fly-by modes, the camera is now placed about 5 seconds ahead of the train for more interesting approaches.
+					</dd>
+					<dt>
+						Developing trains
+					</dt>
+					<dd>
+						The [Breaker] section is now available in the sound.cfg for compatibility reasons.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						The train reference for animated world objects is now the nearest train instead of the player's train. This should allow simulating crossings, station doors, etc. with any train.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						When mouse grab was activated and the user toggled to or from fullscreen mode, the viewing angle could abruptly change to arbitrary angles.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						When starting the simulation or when using the <em>Jump to</em> feature, the train's first car's front axle lined up with the stopping post instead of the very front of the train.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.1.1 (2009-08-17)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Plugins were reported the wrong initialization mode of the safety system via the Initialize call. This could lead to some trains not working correctly.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.0.3 (2009-08-04)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The AI could crash the game with an <em>The index is outside of the bounds of the array</em> error whenever it encountered a station without defined station stops.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The route parser did not process the Route.Change command correctly and could mix up the values. An attempt was made to correct this. (<em>late note: did not work</em>)
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.0.1 (2009-07-29)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The object optimizer could create incorrect geometry when trying to optimize for TRIANGLE_STRIP structures.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.0.0 (2009-07-26)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Adjusted the sensitivity of the mouse, the speed of exterior rotation, as well as the forces employed by the body/head model.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						All of the Track.Beacon, Track.Tr and Track.Relay commands now have <em>X</em>, <em>Y</em>, <em>Yaw</em>, <em>Pitch</em> and <em>Roll</em> arguments.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Increased the robustness of the route parser to avoid crashes on invalid arguments (e.g. Track.Back, Track.Announce and Track.Doppler).
+					</dd>
+				</dl>
+			</div>
+			<h2>
+				<a id="n11series">1.1 series</a>
+			</h2>
+			<h3>
+				v1.1.4.0 (2009-07-18)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The pseudo-ORP functionality of the built-in ATC safety system has been removed for better, mostly visual compatibility with older routes.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The AI now waits at the stopping point of a station if there is a red signal about 150m ahead.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The new damping algorithm would hang whenever the natural frequency was zero (which is not very meaningful, but is encountered with some add-ons).
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						<em>Option.ObjectVisibility 1</em> did not work correctly with static objects embedded in ANIMATED object files.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.1.3.1 (2009-07-14)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Using the Track.Turn command could mess up the track geometry with v1.1.3.0 when other rails were in use at that track position.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Static objects embedded in ANIMATED object files (i.e. no functions used) did not take auxillary transformations, such as yaw, pitch and roll, which are employed by various route commands, into account.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.1.3.0 (2009-07-13)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						The Route.RunInterval command (CSV) now allows to create any amount of preceding or following trains. The Route.RunInterval and Track.PreTrain commands can now also be used in conjunction, which was not previously possible.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						The .Load suffix is now optional in Train.Timetable(<em>TimetableIndex</em>).Day.Load and Train.Timetable(<em>TimetableIndex</em>).Night.Load in CSV routes.
+					</dd>
+					<dt>
+						Developing objects
+					</dt>
+					<dd>
+						The ANIMATED object format has been given an [Include] section that just allows to easier integrate other objects without animating them, including other ANIMATED objects.
+					</dd>
+					<dt>
+						Renderer
+					</dt>
+					<dd>
+						The precision of the z-buffer has been increased from 16 bit to 24 bit. In addition, 3D cabs and scenery now use different settings for the near and far clipping planes so that scenery has more precision in the distance, while 3D cabs have more precision near the camera.
+					</dd>
+					<dt>
+						Miscellaneous
+					</dt>
+					<dd>
+						The Win32-specific timers have been removed as they could yield erratic results on some multi-core processors. The general SDL timer is now used instead.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The opening and closing times of the doors were supposed to derive directly from their respective sounds. As the sound manager was not yet initialized at the time the duration of the sounds were queried, the internal default values for opening and closing times were used all the time.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						An error in the geometric model employed by the CSV/RW route parser has been detected, and attempts have been made to correct the problem. Presently, it has not been fully evaluated if the problem has indeed been fixed.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.1.2.0 (2009-07-08)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Developing objects/panels
+					</dt>
+					<dd>
+						The mappings of the built-in safety systems in <em>pluginState</em> (animated objects) and <em>atsi</em> (panel2.cfg) has been changed from 0-14 to 256-271. While existing trains using the built-in safety systems are unlikely to use these variables, trains using Windows-only DLL plugins on Linux/Mac will use the built-in safety systems instead. As the variables 0-14 might already be in use by panels/objects (e.g. lamps/wipers/drops) in this case, these elements might be fed non-compatible data. The mapping 256-271 is safe because it cannot be used by existing plugins. This is a non-backward-compatible change since v1.1.0.0.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Scolling with the mouse has been made more smooth.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Aspects in Track.Section were previously sorted into ascending order, which should not have happened for index-based section behavior. This prevented the safety systems of some trains from working properly on some routes. Example: IIYAMA 2060.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Lighting was still not correct on 2D cabs since v1.1.1.0, which is definately fixed now.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.1.1.0 (2009-07-03)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						In 3D cabs, the driver's head and body are now simulated to parts. This experimental feature reacts to changes in acceleration and to inertia in curves, resulting in pitch and roll of the body or head. Manual camera rotation also makes use of the body/head model.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						In 3D cabs, an experimental look-ahead view has been introduced. This essentially focuses the view on an upcoming part of the track, thus following curves and pitch changes. This view can be switched on or off by pressing F1 (CAMERA_INTERIOR) multiple times.
+					</dd>
+					<dt>
+						Renderer
+					</dt>
+					<dd>
+						If no background image is present, a black background is shown. This also works with fog now, which did not show on the background previously in such a case.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Toggling the mouse grab on or off has been changed from the left mouse button to the right mouse button. This allows to give the window focus with the left mouse button without affecting the mouse grab status, which is more intuitive (at least on Windows).
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The damping algorithm has been completely rewritten. Previously, it was unstable with low frame rates, and also did not handle constantly changing angles well. The new algorithm synchronizes updating the target angle with its own natural frequency, and also uses a mathematically correct implementation for calculating derivatives.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The ambient and diffuse lighting conditions in 3D cabs were supposed to be independent from the environmental conditions. However, this lighting model was accidentally applied on the 2D cabs in v1.1.0.0 instead of on the 3D cabs, resulting in wrong lighting conditions for both.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.1.0.0 (2009-06-28)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						Fully 3D cabs are now available (<em>panel.animated</em>) along with mouse-supported camera rotation. Left-click at any time to enable or disable mouse grab.
+					</dd>
+					<dt>
+						Options
+					</dt>
+					<dd>
+						Vertical synchronization (vsync) can now be enabled or disabled in the Options menu.
+					</dd>
+					<dt>
+						Developing objects
+					</dt>
+					<dd>
+						A series of new variables has been introduced to the functions of animated objects. The documentation has all changes highlighted.
+					</dd>
+					<dt>
+						Developing panels
+					</dt>
+					<dd>
+						The ats<em>i</em> subject now also has a meaning with the built-in safety systems. The documentation has all changes highlighted.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Objects mirrored by the Track.Pole command could appear inside-out if GL_QUAD_STRIP structures were generated by the object optimizer. Example: DemoRoute1.
+					</dd>
+				</dl>
+			</div>
+			<h2>
+				<a id="n10series">1.0 series</a>
+			</h2>
+			<h3>
+				v1.0.7.3 (2009-07-08)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Objects mirrored by the Track.Pole command could appear inside-out if GL_QUAD_STRIP structures were generated by the object optimizer. Example: DemoRoute1.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Aspects in Track.Section were previously sorted into ascending order, which should not have happened for index-based section behavior. This prevented the safety systems of some trains from working properly on some routes. Example: IIYAMA 2060.
+					</dd>
+					<dt>
+						Internationalization
+					</dt>
+					<dd>
+						Added translation for the Korean language.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.0.7.2 (2009-06-17)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Some objects did not load correctly since 1.0.7.0 and would produce a message about an unexpected error.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.0.7.1 (2009-06-14)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Renderer
+					</dt>
+					<dd>
+						Rendering is now noticably faster.
+					</dd>
+					<dt>
+						Renderer
+					</dt>
+					<dd>
+						Minor improvements to reduce artifacts related to depth sorting.
+					</dd>
+					<dt>
+						Renderer
+					</dt>
+					<dd>
+						Circumvented an OpenGL glitch that could cause erratic polygons to appear whenever fullscreen was toggled on or off.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						For users who experience long loading times,
+						<a href="use/hidden.html">hidden options</a>
+						have been introduced to reduce or disable the object optimization process.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						Fully rewritten ATS-P results in more realistic brake curves.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						New options for <em>ArrivalTime</em> in the <em>Track.Sta</em> and <em>Track.Station</em> commands make it possible for the player to stop at a station, but not the preceding train, or vise versa.
+					</dd>
+					<dt>
+						Developing objects
+					</dt>
+					<dd>
+						New arguments for <em>AddVertex</em> (CSV) and <em>Vertex</em> (B3D) allow for providing custom normals.
+					</dd>
+					<dt>
+						Developing objects
+					</dt>
+					<dd>
+						Added the <em>Shear</em> and <em>ShearAll</em> commands to allow for shear mapping (skewing).
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.0.6.2 (2009-05-28)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Fog did not show the correct color in some cases since 1.0.6.0. The interpolation to a no-fog condition has been made smoother and consistent. The route parser reports fog-related ill-conditions now.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The in-game clock did not wrap after 23:59:59 and showed 24:00:00 instead of the desired 00:00:00, for example.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.0.6.0 (2009-05-24)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Renderer
+					</dt>
+					<dd>
+						The quality of the <em>Smooth</em> transparency mode has been radically improved at the expence of some performance.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The AI now takes a bit less time trying to stop accurately at stations.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						ATC now works in 200 meter long blocks instead of calculating a brake curve to the preceding train continuously. Previously, the continuous update could create too frequent changes of the allowed speed, leading to a lot of successive ding sounds.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						A command to accelerate time has been added, MISC_TIMEFACTOR, which defaults to CTRL+J.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						A command to mute/resume sound has been added, MISC_MUTE, which defaults to CTRL+M.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Non-Windows users now get a warning message in a train's description box if that train uses a Windows-only safety system plugin.
+					</dd>
+					<dt>
+						Routes
+					</dt>
+					<dd>
+						If the $Chr/$Rnd/$Sub preprocessor creates a leading semicolon in an expression, that expression is now considered a comment. Previously, stripping away comments was only done before the preprocessor, which made it impossible to dynamically create comments.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The cab and exterior objects were placed incorrectly if the car had an asymmetric axle setup.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Fog on the background image now produces a consistent look regardless of the viewing distance. Previously, the background image could look differently depending on the viewing distance.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.0.5.0 (2009-05-03)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						Passenger-related door lock is now simulated. This is based on the <em>PassengerRatio</em> parameter in the <em>Track.Sta</em> command, and is more probable to occur on crowded trains.
+					</dd>
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The AI has been fine-tuned. It makes use of cruising, holding speed by selecting a suitable power notch, and can react to wheel slip by restricting use of certain power notches.
+					</dd>
+					<dt>
+						Internationalization
+					</dt>
+					<dd>
+						Added translation for the Czech language.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						Added new options to the <em>Doors</em> parameter in the <em>Track.Sta</em> command.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The route parser could previously accept , and ; as an argument separator for either CSV or RW formats, even though only one of these characters is used by either format. This could seldom lead to parsing problems, but is corrected now anyway.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The background image was not correctly aligned vertically if the <em>Texture.Background(BackgroundTextureIndex).Aspect</em> option was set to 1 (keep aspect ratio) in route files.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Version 1.0.4.0 introduced the peculiar behavior of rolling the external view at startup, which is corrected now.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.0.4.0 (2009-04-26)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						In route files, commands from namespaces other than <em>Track</em> are now processed first, then the track position is reset to 0, then commands from the <em>Track</em> namespace are processed. This is to increase compatibility with routes which use track positions before using commands from the <em>Track</em> namespace.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						Rephrased all error messages in the CSV/RW route parser to match the terminology of the documentation.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						All parsers now validate file names, as otherwise, the program could crash when any format referenced a file name which included invalid characters.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.0.3.0 (2009-04-12)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						The default camera locations of the exterior and track/fly-by modes are now at the top-left of the rear of first car again.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Resetting the camera view in the fly-by modes reflects the current speed of the train by placing the camera further away from the train the higher the speed is.
+					</dd>
+					<dt>
+						Developing trains
+					</dt>
+					<dd>
+						For compatibility reasons, the exponent <em>e</em> in the acceleration section of train.dat versions 1.22 is now clipped at 4 after converting to a 2.0 exponent.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Updated the URLs used inside the program to point to the new homepage. This has also been done for Train Editor.
+					</dd>
+					<dt>
+						Internationalization
+					</dt>
+					<dd>
+						Renamed the en-UK language to en-GB. The reason is simply that GB stands for United Kingdom, while UK stands for Ukraine.
+					</dd>
+					<dt>
+						Miscellaneous
+					</dt>
+					<dd>
+						Renamed OpenBve64.exe to OpenBveAllCpu.exe, which is now compiled against any CPU instead of AMD x64.
+					</dd>
+					<dt>
+						Miscellaneous
+					</dt>
+					<dd>
+						Some minor Linux-specific things to increase portability.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.0.2.0 (2009-04-05)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Developing trains
+					</dt>
+					<dd>
+						If a train does not explicitly specify the operating pressure of the brake pipe, it is now assumed to be 490 kPa if applicable.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						PNG and GIF textures are now synchronously loaded in order to prevent them from ending up in the alpha rendering list where applicable (which is more expensive to render and can cause visual glitches if too heavily populated due to the use of depth sorting).
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The <em>RefreshRate</em> parameter in animated objects was not applied if the animated object was used as a train exterior object.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Beacons which appeared before the starting position were not triggered, causing some trains to operate incorrectly on some routes.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.0.1.0 (2009-03-29)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						The stop indicator previously showed in Expert mode, which was not intended. It is now displayed only in Arcade and Normal modes. Additionally, the debug output is now unavailable in Expert mode.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Camera settings are now preserved when changing interior, exterior and track views. The zoom is reset though when switching the views.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						The scrolling speed inside the cab has been made slightly slower.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Warning messages are now shown again in openBVE. However, both warning and error messages can now be invidually disabled in the Options menu. Developers are strictly encouraged to leave these settings enabled, though.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						A default set of points of interests is now included for every station if the route does not define any points of interest itself.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						Track positions in RW and CSV routes now require to adhere to the <em>Strict</em> number format. Previously, they were interpreted as <em>Loose</em>, which could mess up the route too much if an invalid statement was interpreted as a track position.
+					</dd>
+					<dt>
+						Miscellaneous
+					</dt>
+					<dd>
+						Some compatibility graphics (needles) have been resaved as 8-bit per channel RGBA in order to appear correctly on Linux.
+					</dd>
+					<dt>
+						Miscellaneous
+					</dt>
+					<dd>
+						The code that applied transparency to the SDL window icon is now only executed on Windows. It could previously crash the program on Linux.
+					</dd>
+					<dt>
+						Miscellaneous
+					</dt>
+					<dd>
+						The sound subsystem can now be deactivated in the options.cfg.
+					</dd>
+					<dt>
+						Miscellaneous
+					</dt>
+					<dd>
+						OpenBve64.exe is now available. It can be used on 64-bit systems that also provide 64-bit versions of the dependencies.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Entering the <em>Jump to station</em> menu previously crashed the program with an <em>Index was outside the bounds of the array</em> when the route did not have any stations. The menu entry is not displayed any longer.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						In animated objects, the <em>leftdoorstarget</em> and <em>rightdoorstarget</em> variables could previously crash the program with an <em>Index was outside the bounds of the array</em> message, or these variables simply didn't work correctly.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						In animated objects, texture clamping was disabled and could lead to visual artifacts at the edges of some textures.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.0.0.0 (2009-03-23)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Messages about missing support for Windows-only DLL plugins on Linux/Mac are now only generated if the train actually uses a plugin.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						If an exception (runtime error) occurs inside a plugin, openBVE now crashes with the name of the plugin being reported.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The train toppled and derailed to the wrong side when driving backward.
+					</dd>
+				</dl>
+			</div>
+		</div>
+	</body>
 </html>
