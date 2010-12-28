@@ -69,12 +69,46 @@ functions and save configuration data in the right places.
 16. After selecting an exterior camera view and then switching back to
 the interior camera; the cab/panel overlay appears in a different position.
 
+12. Language Locale not automatically set by default;  patched to  use
+System.Globalization.CultureInfo.CurrentCulture.Name as default, but
+needs refining to cope with 'll_CC' not just 'll' language codes.
+This is done on first-load but then forcifully saved in the options
+even if the user has not manually selected a language (prevents
+future automatic language selection working).
+
+20. No way reset the Train (and camera) to be upright after a crash.  You
+should drive more carefully next time!
+
+29. When running on non-Win32 systems where Win32 plugin loading is not
+attempted, the message given may be the current one.  Repeated patches
+sent to upstream to fix the ordering, but not yet applied.
+
+30. When jumping to a station, the position will overrun by the z-offset
+of the cab in the '#COCKPIT' section of 'train.dat'.
+
+31. When running the 'HighDetail_323_Summer_2002_0931_Rain_Overcast.csv'
+diagram of the Cross City-South route under the AI, the AI will get
+stuck at 2.5 metres before "Station 4" (a signalling-onlynon-station
+after Northfield).  The AI stops outside the allowed tolerance and so
+the signal does not clear and the AI does not attempt to progress any
+closer.  (1.2.1.1 onwards).
+
+32. If mouse-look is in use (click the right mouse button once) and
+Ctrl-f is pressed to switch between windowed and fullscreen, then the
+viewport direction will randomly move; leaving the camera in a number
+of strange directions (eg. upside down, sideways or looking backwards).
+More pronounced with the cab camera restriction disabled (Ctrl-r).
+
 Fixed with outstanding patches:
 -------------------------------
 14. Loading fails if 'Train/' and 'Railway/' do not share a common parent
 directory at some point.  # Disabled the check for 'Train/' as it is
 not actually used later (loading works fine when a Train/ and Railway/
 are in separate locations.
+
+26. On closing, it may go into an infinite loop waiting on a futex
+(100% CPU).  Currently worked around by adding a Watchdog that will
+force the program to exit.
 
 Remaining:
 ----------
@@ -100,9 +134,6 @@ causes 100% CPU.
 even when the correct files do exist.  clicking on another route/directory
 and then clicking back works around it, so this is probably a race condition.
 
-20. No way reset the Train (and camera) to be upright after a crash.  You
-should drive more carefully next time!
-
 22. Excessive re-drawing of the listview boxes causes the interface to lag
 (particularly noticable when typing in the route selection path box.
 
@@ -121,10 +152,6 @@ mouse pointer may stay busy even after loading is completely.  As
 a workaround, move the mouse-pointer out of the listview rectangle
 and back in again.
 
-26. On closing, it may go into an infinite loop waiting on a futex
-(100% CPU).  Currently worked around by adding a Watchdog that will
-force the program to exit.
-
 27. First noticed in 1.0.2.0; alpha shading under bridges and lampposts
 will flicker and may be yellow instead of gray.  Other people have noticed
 similar issues since at least 0.9.3.3:
@@ -134,32 +161,5 @@ http://openbve.freeforums.org/texture-colouration-in-xcs-t445.html
 Diposed() (closed/destroyed) when the main Game Window opens and
 hangs around in the background without being redrawn.
 
-29. When running on non-Win32 systems where Win32 plugin loading is not
-attempted, the message given may be the current one.  Repeated patches
-sent to upstream to fix the ordering, but not yet applied.
-
-30. When jumping to a station, the position will overrun by the z-offset
-of the cab in the '#COCKPIT' section of 'train.dat'.
-
-31. When running the 'HighDetail_323_Summer_2002_0931_Rain_Overcast.csv'
-diagram of the Cross City-South route under the AI, the AI will get
-stuck at 2.5 metres before "Station 4" (a signalling-onlynon-station
-after Northfield).  The AI stops outside the allowed tolerance and so
-the signal does not clear and the AI does not attempt to progress any
-closer.  (1.2.1.1 onwards).
-
-32. If mouse-look is in use (click the right mouse button once) and
-Ctrl-f is pressed to switch between windowed and fullscreen, then the
-viewport direction will randomly move; leaving the camera in a number
-of strange directions (eg. upside down, sideways or looking backwards).
-More pronounced with the cab camera restriction disabled (Ctrl-r).
-
 In-progress:
 ------------
-12. Language Locale not automatically set by default;  patched to  use
-System.Globalization.CultureInfo.CurrentCulture.Name as default, but
-needs refining to cope with 'll_CC' not just 'll' language codes.
-This is done on first-load but then forcifully saved in the options
-even if the user has not manually selected a language (prevents
-future automatic language selection working).
-
