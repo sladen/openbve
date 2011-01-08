@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace OpenBve {
 	internal class CsvRwRouteParser {
@@ -222,7 +223,7 @@ namespace OpenBve {
 		// parse route
 		internal static void ParseRoute(string FileName, bool IsRW, System.Text.Encoding Encoding, string TrainPath, string ObjectPath, string SoundPath, bool PreviewOnly) {
 			// initialize data
-			string CompatibilityFolder = Interface.GetDataFolder("Compatibility");
+			string CompatibilityFolder = Program.FileSystem.GetDataFolder("Compatibility");
 			RouteData Data = new RouteData();
 			Data.BlockInterval = 25.0;
 			Data.AccurateObjectDisposal = false;
@@ -402,14 +403,14 @@ namespace OpenBve {
 			internal string Text;
 			internal int Line;
 			internal int Column;
+			internal double TrackPositionOffset;
 		}
 		private static void ParseRouteForData(string FileName, bool IsRW, System.Text.Encoding Encoding, string TrainPath, string ObjectPath, string SoundPath, ref RouteData Data, bool PreviewOnly) {
 			// parse
 			string[] Lines = System.IO.File.ReadAllLines(FileName, Encoding);
 			Expression[] Expressions;
-			PreprocessSplitIntoExpressions(FileName, IsRW, Lines, Encoding, out Expressions, true);
+			PreprocessSplitIntoExpressions(FileName, IsRW, Lines, Encoding, out Expressions, true, 0.0);
 			PreprocessChrRndSub(FileName, IsRW, ref Expressions);
-//			CreateRouteDump(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(FileName), System.IO.Path.GetFileNameWithoutExtension(FileName) + "_dump.txt"), Expressions);
 			double[] UnitOfLength = new double[] { 1.0 };
 			Data.UnitOfSpeed = 0.277777777777778;
 			PreprocessOptions(FileName, IsRW, Encoding, Expressions, ref Data, ref UnitOfLength);
@@ -417,16 +418,9 @@ namespace OpenBve {
 			ParseRouteForData(FileName, IsRW, Encoding, Expressions, TrainPath, ObjectPath, SoundPath, UnitOfLength, ref Data, PreviewOnly);
 			Game.RouteUnitOfLength = UnitOfLength;
 		}
-//		private static void CreateRouteDump(string file, Expression[] expressions) {
-//			System.Text.StringBuilder builder = new System.Text.StringBuilder();
-//			for (int i = 0; i < expressions.Length; i++) {
-//				builder.AppendLine(expressions[i].Text);
-//			}
-//			System.IO.File.WriteAllText(file, builder.ToString(), new System.Text.UTF8Encoding(true));
-//		}
 
 		// preprocess split into expressions
-		private static void PreprocessSplitIntoExpressions(string FileName, bool IsRW, string[] Lines, System.Text.Encoding Encoding, out Expression[] Expressions, bool AllowRwRouteDescription) {
+		private static void PreprocessSplitIntoExpressions(string FileName, bool IsRW, string[] Lines, System.Text.Encoding Encoding, out Expression[] Expressions, bool AllowRwRouteDescription, double trackPositionOffset) {
 			Expressions = new Expression[4096];
 			int e = 0;
 			// full-line rw comments
@@ -517,6 +511,7 @@ namespace OpenBve {
 										Expressions[e].Text = t;
 										Expressions[e].Line = i + 1;
 										Expressions[e].Column = c + 1;
+										Expressions[e].TrackPositionOffset = trackPositionOffset;
 										e++;
 									}
 									a = j + 1;
@@ -532,6 +527,7 @@ namespace OpenBve {
 										Expressions[e].Text = t;
 										Expressions[e].Line = i + 1;
 										Expressions[e].Column = c + 1;
+										Expressions[e].TrackPositionOffset = trackPositionOffset;
 										e++;
 									}
 									a = j + 1;
@@ -548,6 +544,7 @@ namespace OpenBve {
 							Expressions[e].Text = t;
 							Expressions[e].Line = i + 1;
 							Expressions[e].Column = c + 1;
+							Expressions[e].TrackPositionOffset = trackPositionOffset;
 							e++;
 						}
 					}
@@ -562,7 +559,6 @@ namespace OpenBve {
 			System.Text.Encoding Encoding = new System.Text.ASCIIEncoding();
 			string[] Subs = new string[16];
 			int openIfs = 0;
-			bool ifUsed = false;
 			for (int i = 0; i < Expressions.Length; i++) {
 				string Epilog = " at line " + Expressions[i].Line.ToString(Culture) + ", column " + Expressions[i].Column.ToString(Culture) + " in file " + Expressions[i].File;
 				bool continueWithNextExpression = false;
@@ -605,7 +601,6 @@ namespace OpenBve {
 							string s = Expressions[i].Text.Substring(k + 1, h - k - 1).Trim();
 							switch (t.ToLowerInvariant()) {
 								case "$if":
-									ifUsed = true;
 									if (j != 0) {
 										Interface.AddMessage(Interface.MessageType.Error, false, "The $If directive must not appear within another statement" + Epilog);
 									} else {
@@ -654,7 +649,6 @@ namespace OpenBve {
 									continueWithNextExpression = true;
 									break;
 								case "$else":
-									ifUsed = true;
 									/*
 									 * Blank every expression until the matching $EndIf
 									 * */
@@ -692,7 +686,6 @@ namespace OpenBve {
 									continueWithNextExpression = true;
 									break;
 								case "$endif":
-									ifUsed = true;
 									Expressions[i].Text = string.Empty;
 									if (openIfs != 0) {
 										openIfs--;
@@ -714,12 +707,29 @@ namespace OpenBve {
 										int count = (args.Length + 1) / 2;
 										string[] files = new string[count];
 										double[] weights = new double[count];
+										double[] offsets = new double[count];
 										double weightsTotal = 0.0;
 										for (int ia = 0; ia < count; ia++) {
-											files[ia] = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), args[2 * ia]);
+											string file;
+											double offset;
+											int colon = args[2 * ia].IndexOf(':');
+											if (colon >= 0) {
+												file = args[2 * ia].Substring(0, colon).TrimEnd();
+												string value = args[2 * ia].Substring(colon + 1).TrimStart();
+												if (!double.TryParse(value, NumberStyles.Float, Culture, out offset)) {
+													continueWithNextExpression = true;
+													Interface.AddMessage(Interface.MessageType.Error, false, "The track position offset " + value + " is invalid in " + t + Epilog);
+													break;
+												}
+											} else {
+												file = args[2 * ia];
+												offset = 0.0;
+											}
+											files[ia] = Interface.GetCombinedFileName(System.IO.Path.GetDirectoryName(FileName), file);
+											offsets[ia] = offset;
 											if (!System.IO.File.Exists(files[ia])) {
 												continueWithNextExpression = true;
-												Interface.AddMessage(Interface.MessageType.Error, false, "The file " + files[ia] + " could not be found in " + t + Epilog);
+												Interface.AddMessage(Interface.MessageType.Error, false, "The file " + file + " could not be found in " + t + Epilog);
 												break;
 											} else if (2 * ia + 1 < args.Length) {
 												if (!Interface.TryParseDoubleVb6(args[2 * ia + 1], out weights[ia])) {
@@ -755,7 +765,7 @@ namespace OpenBve {
 											}
 											Expression[] expr;
 											string[] lines = System.IO.File.ReadAllLines(files[chosenIndex], Encoding);
-											PreprocessSplitIntoExpressions(files[chosenIndex], IsRW, lines, Encoding, out expr, false);
+											PreprocessSplitIntoExpressions(files[chosenIndex], IsRW, lines, Encoding, out expr, false, offsets[chosenIndex] + Expressions[i].TrackPositionOffset);
 											int length = Expressions.Length;
 											if (expr.Length == 0) {
 												for (int ia = i; ia < Expressions.Length - 1; ia++) {
@@ -909,15 +919,13 @@ namespace OpenBve {
 					Array.Resize<Expression>(ref Expressions, length);
 				}
 			}
-			if (ifUsed) {
-				Interface.AddMessage(Interface.MessageType.Information, false, "$If()/$Else()/$EndIf() are currently experimental. Use them for private testing only.");
-			}
 		}
 
 		// preprocess options
 		private static void PreprocessOptions(string FileName, bool IsRW, System.Text.Encoding Encoding, Expression[] Expressions, ref RouteData Data, ref double[] UnitOfLength) {
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
-			string Section = ""; bool SectionAlwaysPrefix = false;
+			string Section = "";
+			bool SectionAlwaysPrefix = false;
 			// process expressions
 			for (int j = 0; j < Expressions.Length; j++) {
 				if (IsRW && Expressions[j].Text.StartsWith("[") && Expressions[j].Text.EndsWith("]")) {
@@ -1098,7 +1106,8 @@ namespace OpenBve {
 		}
 		private static void PreprocessSortByTrackPosition(string FileName, bool IsRW, double[] UnitFactors, ref Expression[] Expressions) {
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
-			PositionedExpression[] p = new PositionedExpression[Expressions.Length]; int n = 0;
+			PositionedExpression[] p = new PositionedExpression[Expressions.Length];
+			int n = 0;
 			double a = -1.0;
 			bool NumberCheck = !IsRW;
 			for (int i = 0; i < Expressions.Length; i++) {
@@ -1115,6 +1124,7 @@ namespace OpenBve {
 				}
 				double x;
 				if (NumberCheck && Interface.TryParseDouble(Expressions[i].Text, UnitFactors, out x)) {
+					x += Expressions[i].TrackPositionOffset;
 					if (x >= 0.0) {
 						a = x;
 					} else {
@@ -1123,7 +1133,8 @@ namespace OpenBve {
 				} else {
 					p[n].TrackPosition = a;
 					p[n].Expression = Expressions[i];
-					int j = n; n++;
+					int j = n;
+					n++;
 					while (j > 0) {
 						if (p[j].TrackPosition < p[j - 1].TrackPosition) {
 							PositionedExpression t = p[j];
@@ -3530,9 +3541,9 @@ namespace OpenBve {
 									{
 										CurrentStation++;
 										Array.Resize<Game.Station>(ref Game.Stations, CurrentStation + 1);
-										Game.Stations[CurrentStation].Name = "(Station " + (CurrentStation + 1).ToString(Culture) + ")";
+										Game.Stations[CurrentStation].Name = string.Empty;
 										Game.Stations[CurrentStation].StopMode = Game.StationStopMode.AllStop;
-										Game.Stations[CurrentStation].IsTerminalStation = false;
+										Game.Stations[CurrentStation].StationType = Game.StationType.Normal;
 										if (Arguments.Length >= 1 && Arguments[0].Length > 0) {
 											Game.Stations[CurrentStation].Name = Arguments[0];
 										}
@@ -3563,9 +3574,17 @@ namespace OpenBve {
 										}
 										if (Arguments.Length >= 3 && Arguments[2].Length > 0) {
 											if (string.Equals(Arguments[2], "T", StringComparison.OrdinalIgnoreCase) | string.Equals(Arguments[2], "=", StringComparison.OrdinalIgnoreCase)) {
-												Game.Stations[CurrentStation].IsTerminalStation = true;
-											} else if (Arguments[1].StartsWith("T:", StringComparison.InvariantCultureIgnoreCase)) {
-												Game.Stations[CurrentStation].IsTerminalStation = true;
+												Game.Stations[CurrentStation].StationType = Game.StationType.Terminal;
+											} else if (Arguments[2].StartsWith("T:", StringComparison.InvariantCultureIgnoreCase)) {
+												Game.Stations[CurrentStation].StationType = Game.StationType.Terminal;
+												if (!Interface.TryParseTime(Arguments[2].Substring(2).TrimStart(), out dep)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "DepartureTime is invalid in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+													dep = -1.0;
+												}
+											} else if (string.Equals(Arguments[2], "C", StringComparison.OrdinalIgnoreCase)) {
+												Game.Stations[CurrentStation].StationType = Game.StationType.ChangeEnds;
+											} else if (Arguments[2].StartsWith("C:", StringComparison.InvariantCultureIgnoreCase)) {
+												Game.Stations[CurrentStation].StationType = Game.StationType.ChangeEnds;
 												if (!Interface.TryParseTime(Arguments[2].Substring(2).TrimStart(), out dep)) {
 													Interface.AddMessage(Interface.MessageType.Error, false, "DepartureTime is invalid in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 													dep = -1.0;
@@ -3707,6 +3726,9 @@ namespace OpenBve {
 												}
 											}
 										}
+										if (Game.Stations[CurrentStation].Name.Length == 0 & (Game.Stations[CurrentStation].StopMode == Game.StationStopMode.PlayerStop | Game.Stations[CurrentStation].StopMode == Game.StationStopMode.AllStop)) {
+											Game.Stations[CurrentStation].Name = "Station " + (CurrentStation + 1).ToString(Culture) + ")";
+										}
 										Game.Stations[CurrentStation].ArrivalTime = arr;
 										Game.Stations[CurrentStation].ArrivalSoundIndex = arrsnd;
 										Game.Stations[CurrentStation].DepartureTime = dep;
@@ -3730,9 +3752,9 @@ namespace OpenBve {
 									{
 										CurrentStation++;
 										Array.Resize<Game.Station>(ref Game.Stations, CurrentStation + 1);
-										Game.Stations[CurrentStation].Name = "(Station " + (CurrentStation + 1).ToString(Culture) + ")";
+										Game.Stations[CurrentStation].Name = string.Empty;
 										Game.Stations[CurrentStation].StopMode = Game.StationStopMode.AllStop;
-										Game.Stations[CurrentStation].IsTerminalStation = false;
+										Game.Stations[CurrentStation].StationType = Game.StationType.Normal;
 										if (Arguments.Length >= 1 && Arguments[0].Length > 0) {
 											Game.Stations[CurrentStation].Name = Arguments[0];
 										}
@@ -3763,9 +3785,17 @@ namespace OpenBve {
 										}
 										if (Arguments.Length >= 3 && Arguments[2].Length > 0) {
 											if (string.Equals(Arguments[2], "T", StringComparison.OrdinalIgnoreCase) | string.Equals(Arguments[2], "=", StringComparison.OrdinalIgnoreCase)) {
-												Game.Stations[CurrentStation].IsTerminalStation = true;
-											} else if (Arguments[1].StartsWith("T:", StringComparison.InvariantCultureIgnoreCase)) {
-												Game.Stations[CurrentStation].IsTerminalStation = true;
+												Game.Stations[CurrentStation].StationType = Game.StationType.Terminal;
+											} else if (Arguments[2].StartsWith("T:", StringComparison.InvariantCultureIgnoreCase)) {
+												Game.Stations[CurrentStation].StationType = Game.StationType.Terminal;
+												if (!Interface.TryParseTime(Arguments[2].Substring(2).TrimStart(), out dep)) {
+													Interface.AddMessage(Interface.MessageType.Error, false, "DepartureTime is invalid in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
+													dep = -1.0;
+												}
+											} else if (string.Equals(Arguments[2], "C", StringComparison.OrdinalIgnoreCase)) {
+												Game.Stations[CurrentStation].StationType = Game.StationType.ChangeEnds;
+											} else if (Arguments[2].StartsWith("C:", StringComparison.InvariantCultureIgnoreCase)) {
+												Game.Stations[CurrentStation].StationType = Game.StationType.ChangeEnds;
 												if (!Interface.TryParseTime(Arguments[2].Substring(2).TrimStart(), out dep)) {
 													Interface.AddMessage(Interface.MessageType.Error, false, "DepartureTime is invalid in Track.Sta at line " + Expressions[j].Line.ToString(Culture) + ", column " + Expressions[j].Column.ToString(Culture) + " in file " + Expressions[j].File);
 													dep = -1.0;
@@ -3808,6 +3838,9 @@ namespace OpenBve {
 													}
 												}
 											}
+										}
+										if (Game.Stations[CurrentStation].Name.Length == 0 & (Game.Stations[CurrentStation].StopMode == Game.StationStopMode.PlayerStop | Game.Stations[CurrentStation].StopMode == Game.StationStopMode.AllStop)) {
+											Game.Stations[CurrentStation].Name = "Station " + (CurrentStation + 1).ToString(Culture) + ")";
 										}
 										Game.Stations[CurrentStation].ArrivalTime = arr;
 										Game.Stations[CurrentStation].ArrivalSoundIndex = -1;
@@ -4727,7 +4760,7 @@ namespace OpenBve {
 			ObjectManager.StaticObject LimitOneDigit, LimitTwoDigits, LimitThreeDigits, StopPost;
 			ObjectManager.StaticObject TransponderS, TransponderSN, TransponderFalseStart, TransponderPOrigin, TransponderPStop;
 			if (!PreviewOnly) {
-				string CompatibilityFolder = Interface.GetDataFolder("Compatibility");
+				string CompatibilityFolder = Program.FileSystem.GetDataFolder("Compatibility");
 				// load compatibility objects
 				SignalPath = Interface.GetCombinedFolderName(CompatibilityFolder, "Signals");
 				SignalPost = ObjectManager.LoadStaticObject(Interface.GetCombinedFileName(SignalPath, "signal_post.csv"), Encoding, ObjectManager.ObjectLoadMode.Normal, false, false, false);
@@ -5904,9 +5937,20 @@ namespace OpenBve {
 					Interface.AddMessage(Interface.MessageType.Warning, false, "Station " + Game.Stations[i].Name + " expects trains to stop but does not define stop points at track position " + Game.Stations[i].DefaultTrackPosition.ToString(Culture) + " in file " + FileName);
 					Game.Stations[i].StopMode = Game.StationStopMode.AllPass;
 				}
+				if (Game.Stations[i].StationType == Game.StationType.ChangeEnds) {
+					if (i < Game.Stations.Length - 1) {
+						if (Game.Stations[i + 1].StopMode != Game.StationStopMode.AllStop) {
+							Interface.AddMessage(Interface.MessageType.Warning, false, "Station " + Game.Stations[i].Name + " is marked as \"change ends\" but the subsequent station does not expect all trains to stop in file " + FileName);
+							Game.Stations[i + 1].StopMode = Game.StationStopMode.AllStop;
+						}
+					} else {
+						Interface.AddMessage(Interface.MessageType.Warning, false, "Station " + Game.Stations[i].Name + " is marked as \"change ends\" but there is no subsequent station defined in file " + FileName);
+						Game.Stations[i].StationType = Game.StationType.Terminal;
+					}
+				}
 			}
 			if (Game.Stations.Length != 0) {
-				Game.Stations[Game.Stations.Length - 1].IsTerminalStation = true;
+				Game.Stations[Game.Stations.Length - 1].StationType = Game.StationType.Terminal;
 			}
 			if (TrackManager.CurrentTrack.Elements.Length != 0) {
 				int n = TrackManager.CurrentTrack.Elements.Length - 1;

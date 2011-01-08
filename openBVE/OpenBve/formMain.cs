@@ -46,6 +46,7 @@ namespace OpenBve {
 				this.Size = new Size(Interface.CurrentOptions.MainMenuWidth, Interface.CurrentOptions.MainMenuHeight);
 				this.CenterToScreen();
 			}
+			#pragma warning disable 0162 // Unreachable code
 			if (Program.IsDevelopmentVersion) {
 				labelVersion.Text = "   v" + Application.ProductVersion + " (development)";
 				labelVersion.Location = new Point(0, labelInfoTop.Bottom);
@@ -56,10 +57,11 @@ namespace OpenBve {
 			} else {
 				labelVersion.Text = "v" + Application.ProductVersion;
 			}
+			#pragma warning restore 0162 // Unreachable code
 			System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
 			// form icon
 			try {
-				string File = Interface.GetCombinedFileName(Interface.GetDataFolder(), "icon.ico");
+				string File = Interface.GetCombinedFileName(Program.FileSystem.GetDataFolder(), "icon.ico");
 				this.Icon = new Icon(File);
 			} catch { }
 			// use button-style radio buttons on non-Mono
@@ -103,7 +105,7 @@ namespace OpenBve {
 				}
 			}
 			// icons and images
-			string MenuFolder = Interface.GetDataFolder("Menu");
+			string MenuFolder = Program.FileSystem.GetDataFolder("Menu");
 			Image ParentIcon = LoadImage(MenuFolder, "icon_parent.png");
 			Image FolderIcon = LoadImage(MenuFolder, "icon_folder.png");
 			Image RouteIcon = LoadImage(MenuFolder, "icon_route.png");
@@ -159,12 +161,12 @@ namespace OpenBve {
 			if (Interface.CurrentOptions.RouteFolder.Length != 0 && System.IO.Directory.Exists(Interface.CurrentOptions.RouteFolder)) {
 				textboxRouteFolder.Text = Interface.CurrentOptions.RouteFolder;
 			} else {
-				textboxRouteFolder.Text = Interface.GetPersonalFolder();
+				textboxRouteFolder.Text = Program.FileSystem.InitialRouteFolder;
 			}
 			if (Interface.CurrentOptions.TrainFolder.Length != 0 && System.IO.Directory.Exists(Interface.CurrentOptions.TrainFolder)) {
 				textboxTrainFolder.Text = Interface.CurrentOptions.TrainFolder;
 			} else {
-				textboxTrainFolder.Text = Interface.GetPersonalFolder();
+				textboxTrainFolder.Text = Program.FileSystem.InitialTrainFolder;
 			}
 			// encodings
 			{
@@ -310,7 +312,7 @@ namespace OpenBve {
 			checkboxErrorMessages.Checked = Interface.CurrentOptions.ShowErrorMessages;
 			// language
 			{
-				string Folder = Interface.GetDataFolder("Languages");
+				string Folder = Program.FileSystem.GetDataFolder("Languages");
 				int j;
 				for (j = 0; j < LanguageFiles.Length; j++) {
 					string File = Interface.GetCombinedFileName(Folder, Interface.CurrentOptions.LanguageCode + ".cfg");
@@ -676,14 +678,18 @@ namespace OpenBve {
 				#endif
 				Interface.SaveOptions();
 				#if !DEBUG
-			} catch { }
+			} catch (Exception ex) {
+				MessageBox.Show(ex.Message, "Save options", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+			}
 			#endif
 			#if !DEBUG
 			try {
 				#endif
 				Interface.SaveControls(null);
 				#if !DEBUG
-			} catch { }
+			} catch (Exception ex) {
+				MessageBox.Show(ex.Message, "Save controls", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+			}
 			#endif
 		}
 
@@ -765,7 +771,7 @@ namespace OpenBve {
 
 		// list languages
 		private void ListLanguages() {
-			string Folder = Interface.GetDataFolder("Languages");
+			string Folder = Program.FileSystem.GetDataFolder("Languages");
 			if (System.IO.Directory.Exists(Folder)) {
 				string[] Files = System.IO.Directory.GetFiles(Folder);
 				string[] LanguageNames = new string[Files.Length];
@@ -962,6 +968,7 @@ namespace OpenBve {
 						MessageBox.Show(Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
 						Found = true;
 					}
+					#pragma warning disable 0162 // Unreachable code
 					if (Program.IsDevelopmentVersion) {
 						if (IsNewVersionHigher(Application.ProductVersion, DevelopmentVersion)) {
 							string Message = Interface.GetInterfaceString("panel_updates_new") + DevelopmentText.ToString().Trim();
@@ -971,6 +978,7 @@ namespace OpenBve {
 							Found = true;
 						}
 					}
+					#pragma warning restore 0162 // Unreachable code
 					if (!Found) {
 						string Message = Interface.GetInterfaceString("panel_updates_old");
 						MessageBox.Show(Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1068,7 +1076,7 @@ namespace OpenBve {
 										if (Extension == ".csv") {
 											try {
 												string text = System.IO.File.ReadAllText(Files[i], Encoding.UTF8);
-												if (text.IndexOf("With Track", StringComparison.OrdinalIgnoreCase) >= 0 | text.IndexOf("Track.", StringComparison.OrdinalIgnoreCase) >= 0) {
+												if (text.IndexOf("With Track", StringComparison.OrdinalIgnoreCase) >= 0 | text.IndexOf("Track.", StringComparison.OrdinalIgnoreCase) >= 0 | text.IndexOf("$Include", StringComparison.OrdinalIgnoreCase) >= 0) {
 													Item.ImageKey = "route";
 												}
 											} catch { }
@@ -1419,7 +1427,7 @@ namespace OpenBve {
 			int i = comboboxLanguages.SelectedIndex;
 			if (i >= 0 & i < LanguageFiles.Length) {
 				string Code = System.IO.Path.GetFileNameWithoutExtension(LanguageFiles[i]);
-				string Folder = Interface.GetDataFolder("Flags");
+				string Folder = Program.FileSystem.GetDataFolder("Flags");
 				#if !DEBUG
 				try {
 					#endif
@@ -1835,7 +1843,7 @@ namespace OpenBve {
 		private void buttonControlsImport_Click(object sender, EventArgs e) {
 			OpenFileDialog Dialog = new OpenFileDialog();
 			Dialog.CheckFileExists = true;
-			Dialog.InitialDirectory = Interface.GetControlsFolder();
+			//Dialog.InitialDirectory = Interface.GetControlsFolder();
 			Dialog.Filter = Interface.GetInterfaceString("dialog_controlsfiles") + "|*.controls|" + Interface.GetInterfaceString("dialog_allfiles") + "|*";
 			if (Dialog.ShowDialog() == DialogResult.OK) {
 				try {
@@ -1861,7 +1869,7 @@ namespace OpenBve {
 		private void buttonControlsExport_Click(object sender, EventArgs e) {
 			SaveFileDialog Dialog = new SaveFileDialog();
 			Dialog.OverwritePrompt = true;
-			Dialog.InitialDirectory = Interface.GetControlsFolder();
+			//Dialog.InitialDirectory = Interface.GetControlsFolder();
 			Dialog.Filter = Interface.GetInterfaceString("dialog_controlsfiles") + "|*.controls|" + Interface.GetInterfaceString("dialog_allfiles") + "|*";
 			if (Dialog.ShowDialog() == DialogResult.OK) {
 				try {
@@ -2447,7 +2455,7 @@ namespace OpenBve {
 
 		// try load image
 		private bool TryLoadImage(PictureBox Box, string Title) {
-			string Folder = Interface.GetDataFolder("Menu");
+			string Folder = Program.FileSystem.GetDataFolder("Menu");
 			string File = Interface.GetCombinedFileName(Folder, Title);
 			if (System.IO.File.Exists(File)) {
 				try {

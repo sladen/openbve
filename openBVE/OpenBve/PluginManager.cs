@@ -536,12 +536,17 @@ namespace OpenBve {
 			/*
 			 * Check if the plugin is a Win32 plugin.
 			 * */
-			if (!CheckWin32Header(pluginFile)) {
-				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " is of an unsupported binary format and therefore cannot be used with openBVE.");
+			try {
+				if (!CheckWin32Header(pluginFile)) {
+					Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " is of an unsupported binary format and therefore cannot be used with openBVE.");
+					return false;
+				}
+			} catch (Exception ex) {
+				Interface.AddMessage(Interface.MessageType.Error, false, "The train plugin " + pluginTitle + " could not be read due to the following reason: " + ex.Message);
 				return false;
 			}
 			if (Program.CurrentPlatform != Program.Platform.Windows | IntPtr.Size != 4) {
-				Interface.AddMessage(Interface.MessageType.Warning, false, "The train plugin " + pluginTitle + " is not a .NET plugin and can therefore only be used on 32-bit Microsoft Windows.");
+				Interface.AddMessage(Interface.MessageType.Warning, false, "The train plugin " + pluginTitle + " can only be used on 32-bit Microsoft Windows.");
 				return false;
 			}
 			CurrentPlugin = new LegacyPlugin(pluginFile, train);
@@ -558,29 +563,25 @@ namespace OpenBve {
 		/// <param name="file">The file to check.</param>
 		/// <returns>Whether the file is a valid Win32 plugin.</returns>
 		private static bool CheckWin32Header(string file) {
-			try {
-				using (System.IO.FileStream stream = new System.IO.FileStream(file, System.IO.FileMode.Open, System.IO.FileAccess.Read)) {
-					using (System.IO.BinaryReader reader = new System.IO.BinaryReader(stream)) {
-						if (reader.ReadUInt16() != 0x5A4D) {
-							/* Not MZ signature */
-							return false;
-						}
-						stream.Position = 0x3C;
-						stream.Position = reader.ReadInt32();
-						if (reader.ReadUInt32() != 0x00004550) {
-							/* Not PE signature */
-							return false;
-						}
-						if (reader.ReadUInt16() != 0x014C) {
-							/* Not IMAGE_FILE_MACHINE_I386 */
-							return false;
-						}
+			using (System.IO.FileStream stream = new System.IO.FileStream(file, System.IO.FileMode.Open, System.IO.FileAccess.Read)) {
+				using (System.IO.BinaryReader reader = new System.IO.BinaryReader(stream)) {
+					if (reader.ReadUInt16() != 0x5A4D) {
+						/* Not MZ signature */
+						return false;
+					}
+					stream.Position = 0x3C;
+					stream.Position = reader.ReadInt32();
+					if (reader.ReadUInt32() != 0x00004550) {
+						/* Not PE signature */
+						return false;
+					}
+					if (reader.ReadUInt16() != 0x014C) {
+						/* Not IMAGE_FILE_MACHINE_I386 */
+						return false;
 					}
 				}
-				return true;
-			} catch {
-				return false;
 			}
+			return true;
 		}
 		
 		/// <summary>Unloads the currently loaded plugin, if any.</summary>

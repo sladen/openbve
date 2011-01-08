@@ -329,7 +329,7 @@ namespace OpenBve {
 										// needles
 										for (int k = 0; k < 2; k++) {
 											if (NeedleType[k] != 0) {
-												string Folder = Interface.GetDataFolder("Compatibility");
+												string Folder = Program.FileSystem.GetDataFolder("Compatibility");
 												string File = Interface.GetCombinedFileName(Folder, k == 0 ? "needle_pressuregauge_lower.png" : "needle_pressuregauge_upper.png");
 												int t = TextureManager.RegisterTexture(File, new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 												TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
@@ -583,7 +583,7 @@ namespace OpenBve {
 									}
 									if (Type == 0) {
 										// needle
-										string Folder = Interface.GetDataFolder("Compatibility");
+										string Folder = Program.FileSystem.GetDataFolder("Compatibility");
 										string File = Interface.GetCombinedFileName(Folder, "needle_speedometer.png");
 										int t = TextureManager.RegisterTexture(File, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
@@ -903,7 +903,7 @@ namespace OpenBve {
 										double h = (double)TextureManager.Textures[t].ClipHeight;
 										CreateElement(Train, CenterX - 0.5 * w, CenterY + SemiHeight - 0.5 * h, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 3.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
 									}
-									string Folder = Interface.GetDataFolder("Compatibility");
+									string Folder = Program.FileSystem.GetDataFolder("Compatibility");
 									{ // hour
 										string File = Interface.GetCombinedFileName(Folder, "needle_hour.png");
 										int t = TextureManager.RegisterTexture(File, new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true);

@@ -24,7 +24,7 @@ namespace OpenBve {
 		private void formLoading_Load(object sender, EventArgs e) {
 			this.MinimumSize = this.Size;
 			try {
-				string f = Interface.GetCombinedFileName(Interface.GetDataFolder("Menu"), "banner.png");
+				string f = Interface.GetCombinedFileName(Program.FileSystem.GetDataFolder("Menu"), "banner.png");
 				pictureboxBanner.Image = Image.FromFile(f);
 			} catch { }
 			labelRoute.Text = Interface.GetInterfaceString("loading_loading_route");
@@ -158,7 +158,7 @@ namespace OpenBve {
 		// show messages
 		private void ShowMessages() {
 			listviewProblems.SmallImageList = new ImageList();
-			string Folder = Interface.GetDataFolder("Menu");
+			string Folder = Program.FileSystem.GetDataFolder("Menu");
 			try {
 				listviewProblems.SmallImageList.Images.Add("information", Image.FromFile(Interface.GetCombinedFileName(Folder, "icon_information.png")));
 			} catch { }

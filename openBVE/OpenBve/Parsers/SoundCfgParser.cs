@@ -19,51 +19,51 @@ namespace OpenBve {
 			for (int i = 0; i < Train.Cars.Length; i++) {
 				Train.Cars[i].Sounds.Run = new TrainManager.CarSound[] { };
 				Train.Cars[i].Sounds.Flange = new TrainManager.CarSound[] { };
-				Train.Cars[i].Sounds.Adjust = GetNoSound();
-				Train.Cars[i].Sounds.Air = GetNoSound();
-				Train.Cars[i].Sounds.AirHigh = GetNoSound();
-				Train.Cars[i].Sounds.AirZero = GetNoSound();
-				Train.Cars[i].Sounds.Ats = GetNoSound();
-				Train.Cars[i].Sounds.AtsCnt = GetNoSound();
-				Train.Cars[i].Sounds.Brake = GetNoSound();
-				Train.Cars[i].Sounds.BrakeHandleApply = GetNoSound();
-				Train.Cars[i].Sounds.BrakeHandleMin = GetNoSound();
-				Train.Cars[i].Sounds.BrakeHandleMax = GetNoSound();
-				Train.Cars[i].Sounds.BrakeHandleRelease = GetNoSound();
-				Train.Cars[i].Sounds.BreakerResume = GetNoSound();
-				Train.Cars[i].Sounds.BreakerResumeOrInterrupt = GetNoSound();
-				Train.Cars[i].Sounds.CpEnd = GetNoSound();
-				Train.Cars[i].Sounds.CpLoop = GetNoSound();
-				Train.Cars[i].Sounds.CpStart = GetNoSound();
-				Train.Cars[i].Sounds.Ding = GetNoSound();
-				Train.Cars[i].Sounds.DoorCloseL = GetNoSound();
-				Train.Cars[i].Sounds.DoorCloseR = GetNoSound();
-				Train.Cars[i].Sounds.DoorOpenL = GetNoSound();
-				Train.Cars[i].Sounds.DoorOpenR = GetNoSound();
-				Train.Cars[i].Sounds.Eb = GetNoSound();
-				Train.Cars[i].Sounds.EmrBrake = GetNoSound();
+				Train.Cars[i].Sounds.Adjust = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.Air = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.AirHigh = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.AirZero = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.Ats = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.AtsCnt = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.Brake = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.BrakeHandleApply = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.BrakeHandleMin = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.BrakeHandleMax = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.BrakeHandleRelease = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.BreakerResume = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.BreakerResumeOrInterrupt = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.CpEnd = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.CpLoop = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.CpStart = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.Ding = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.DoorCloseL = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.DoorCloseR = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.DoorOpenL = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.DoorOpenR = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.Eb = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.EmrBrake = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.Flange = new TrainManager.CarSound[] { };
 				Train.Cars[i].Sounds.FlangeVolume = new double[] { };
-				Train.Cars[i].Sounds.Halt = GetNoSound();
-				Train.Cars[i].Sounds.Horns = new TrainManager.Horn[] { };
-				Train.Cars[i].Sounds.Loop = GetNoSound();
-				Train.Cars[i].Sounds.MasterControllerUp = GetNoSound();
-				Train.Cars[i].Sounds.MasterControllerDown = GetNoSound();
-				Train.Cars[i].Sounds.MasterControllerMin = GetNoSound();
-				Train.Cars[i].Sounds.MasterControllerMax = GetNoSound();
-				Train.Cars[i].Sounds.PilotLampOn = GetNoSound();
-				Train.Cars[i].Sounds.PilotLampOff = GetNoSound();
-				Train.Cars[i].Sounds.PointFrontAxle = GetNoSound();
-				Train.Cars[i].Sounds.PointRearAxle = GetNoSound();
-				Train.Cars[i].Sounds.ReverserOn = GetNoSound();
-				Train.Cars[i].Sounds.ReverserOff = GetNoSound();
-				Train.Cars[i].Sounds.Rub = GetNoSound();
+				Train.Cars[i].Sounds.Halt = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.Horns = new TrainManager.Horn[] { TrainManager.Horn.Empty, TrainManager.Horn.Empty, TrainManager.Horn.Empty };
+				Train.Cars[i].Sounds.Loop = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.MasterControllerUp = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.MasterControllerDown = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.MasterControllerMin = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.MasterControllerMax = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.PilotLampOn = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.PilotLampOff = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.PointFrontAxle = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.PointRearAxle = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.ReverserOn = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.ReverserOff = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.Rub = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.Run = new TrainManager.CarSound[] { };
 				Train.Cars[i].Sounds.RunVolume = new double[] { };
-				Train.Cars[i].Sounds.SpringL = GetNoSound();
-				Train.Cars[i].Sounds.SpringR = GetNoSound();
-				Train.Cars[i].Sounds.ToAtc = GetNoSound();
-				Train.Cars[i].Sounds.ToAts = GetNoSound();
+				Train.Cars[i].Sounds.SpringL = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.SpringR = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.ToAtc = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.ToAts = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.Plugin = new TrainManager.CarSound[] { };
 			}
 		}
@@ -90,7 +90,6 @@ namespace OpenBve {
 			Train.Cars[Train.DriverCar].Sounds.Ding = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Ding.wav"), panel, tiny);
 			Train.Cars[Train.DriverCar].Sounds.Eb = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Eb.wav"), panel, tiny);
 			Train.Cars[Train.DriverCar].Sounds.Halt = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Halt.wav"), cab, tiny);
-			Train.Cars[Train.DriverCar].Sounds.Horns = new TrainManager.Horn[3];
 			Train.Cars[Train.DriverCar].Sounds.Horns[0].Sound = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Klaxon0.wav"), front, large);
 			Train.Cars[Train.DriverCar].Sounds.Horns[0].Loop = false;
 			if (Train.Cars[Train.DriverCar].Sounds.Horns[0].Sound.SoundBufferIndex == -1) {
@@ -101,7 +100,7 @@ namespace OpenBve {
 			Train.Cars[Train.DriverCar].Sounds.Horns[2].Sound = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Klaxon2.wav"), front, medium);
 			Train.Cars[Train.DriverCar].Sounds.Horns[2].Loop = true;
 			Train.Cars[Train.DriverCar].Sounds.PilotLampOn = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Leave.wav"), cab, tiny);
-			Train.Cars[Train.DriverCar].Sounds.PilotLampOff = GetNoSound();
+			Train.Cars[Train.DriverCar].Sounds.PilotLampOff = TrainManager.CarSound.Empty;
 			Train.Cars[Train.DriverCar].Sounds.ToAtc = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "ToAtc.wav"), cab, tiny);
 			Train.Cars[Train.DriverCar].Sounds.ToAts = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "ToAts.wav"), cab, tiny);
 			// load sounds for all cars
@@ -116,8 +115,8 @@ namespace OpenBve {
 					Train.Cars[i].Sounds.CpLoop = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "CpLoop.wav"), center, medium);
 					Train.Cars[i].Sounds.CpStart = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "CpStart.wav"), center, medium);
 				}
-				Train.Cars[i].Sounds.BreakerResume = GetNoSound();
-				Train.Cars[i].Sounds.BreakerResumeOrInterrupt = GetNoSound();
+				Train.Cars[i].Sounds.BreakerResume = TrainManager.CarSound.Empty;
+				Train.Cars[i].Sounds.BreakerResumeOrInterrupt = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.BreakerResumed = false;
 				Train.Cars[i].Sounds.DoorCloseL = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "DoorClsL.wav"), left, small);
 				Train.Cars[i].Sounds.DoorCloseR = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "DoorClsR.wav"), right, small);
@@ -225,7 +224,7 @@ namespace OpenBve {
 											if (k >= n) {
 												Array.Resize<TrainManager.CarSound>(ref Train.Cars[c].Sounds.Run, k + 1);
 												for (int h = n; h < k; h++) {
-													Train.Cars[c].Sounds.Run[h] = GetNoSound();
+													Train.Cars[c].Sounds.Run[h] = TrainManager.CarSound.Empty;
 													Train.Cars[c].Sounds.Run[h].SoundSourceIndex = -1;
 												}
 											}
@@ -255,7 +254,7 @@ namespace OpenBve {
 											if (k >= n) {
 												Array.Resize<TrainManager.CarSound>(ref Train.Cars[c].Sounds.Flange, k + 1);
 												for (int h = n; h < k; h++) {
-													Train.Cars[c].Sounds.Flange[h] = GetNoSound();
+													Train.Cars[c].Sounds.Flange[h] = TrainManager.CarSound.Empty;
 													Train.Cars[c].Sounds.Flange[h].SoundSourceIndex = -1;
 												}
 											}
@@ -407,7 +406,8 @@ namespace OpenBve {
 							} i++;
 						} i--; break;
 					case "[horn]":
-						i++; while (i < Lines.Length && !Lines[i].StartsWith("[", StringComparison.Ordinal)) {
+						i++; 
+						while (i < Lines.Length && !Lines[i].StartsWith("[", StringComparison.Ordinal)) {
 							int j = Lines[i].IndexOf("=");
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
@@ -417,23 +417,14 @@ namespace OpenBve {
 								} else {
 									switch (a.ToLowerInvariant()) {
 										case "primary":
-											if (Train.Cars[Train.DriverCar].Sounds.Horns.Length < 1) {
-												Array.Resize<TrainManager.Horn>(ref Train.Cars[Train.DriverCar].Sounds.Horns, 1);
-											}
 											Train.Cars[Train.DriverCar].Sounds.Horns[0].Sound = TryLoadSound(Interface.GetCombinedFileName(TrainPath, b), front, large);
 											Train.Cars[Train.DriverCar].Sounds.Horns[0].Loop = false;
 											break;
 										case "secondary":
-											if (Train.Cars[Train.DriverCar].Sounds.Horns.Length < 2) {
-												Array.Resize<TrainManager.Horn>(ref Train.Cars[Train.DriverCar].Sounds.Horns, 2);
-											}
 											Train.Cars[Train.DriverCar].Sounds.Horns[1].Sound = TryLoadSound(Interface.GetCombinedFileName(TrainPath, b), front, large);
 											Train.Cars[Train.DriverCar].Sounds.Horns[1].Loop = false;
 											break;
 										case "music":
-											if (Train.Cars[Train.DriverCar].Sounds.Horns.Length < 3) {
-												Array.Resize<TrainManager.Horn>(ref Train.Cars[Train.DriverCar].Sounds.Horns, 3);
-											}
 											Train.Cars[Train.DriverCar].Sounds.Horns[2].Sound = TryLoadSound(Interface.GetCombinedFileName(TrainPath, b), front, medium);
 											Train.Cars[Train.DriverCar].Sounds.Horns[2].Loop = true;
 											break;
@@ -495,7 +486,7 @@ namespace OpenBve {
 											if (k >= n) {
 												Array.Resize<TrainManager.CarSound>(ref Train.Cars[Train.DriverCar].Sounds.Plugin, k + 1);
 												for (int h = n; h < k; h++) {
-													Train.Cars[Train.DriverCar].Sounds.Plugin[h] = GetNoSound();
+													Train.Cars[Train.DriverCar].Sounds.Plugin[h] = TrainManager.CarSound.Empty;
 													Train.Cars[Train.DriverCar].Sounds.Plugin[h].SoundSourceIndex = -1;
 												}
 											}
@@ -711,19 +702,10 @@ namespace OpenBve {
 			}
 		}
 
-		// get no sound
-		private static TrainManager.CarSound GetNoSound() {
-			TrainManager.CarSound s;
-			s.Position = new World.Vector3D(0.0, 0.0, 0.0);
-			s.SoundBufferIndex = -1;
-			s.SoundSourceIndex = -1;
-			return s;
-		}
-
 		// try load sound
 		private static TrainManager.CarSound TryLoadSound(string FileName, World.Vector3D Position, double Radius) {
 			TrainManager.CarSound s;
-			s = GetNoSound();
+			s = TrainManager.CarSound.Empty;
 			s.Position = Position;
 			s.SoundSourceIndex = -1;
 			if (FileName != null) {
@@ -748,7 +730,7 @@ namespace OpenBve {
 								if (n >= m) {
 									Array.Resize<TrainManager.CarSound>(ref Sounds, n + 1);
 									for (int j = m; j < n; j++) {
-										Sounds[j] = GetNoSound();
+										Sounds[j] = TrainManager.CarSound.Empty;
 										Sounds[j].SoundSourceIndex = -1;
 									}
 								}

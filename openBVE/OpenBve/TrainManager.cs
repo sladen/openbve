@@ -186,11 +186,22 @@ namespace OpenBve {
 		internal struct Horn {
 			internal CarSound Sound;
 			internal bool Loop;
+			private Horn(CarSound sound, bool loop) {
+				this.Sound = sound;
+				this.Loop = loop;
+			}
+			internal static readonly Horn Empty = new Horn(CarSound.Empty, false);
 		}
 		internal struct CarSound {
 			internal int SoundBufferIndex;
 			internal int SoundSourceIndex;
 			internal World.Vector3D Position;
+			private CarSound(int buffer, int source, World.Vector3D position) {
+				this.SoundBufferIndex = buffer;
+				this.SoundSourceIndex = source;
+				this.Position = position;
+			}
+			internal static readonly CarSound Empty = new CarSound(-1, -1, new World.Vector3D(0.0, 0.0, 0.0));
 		}
 		internal struct MotorSoundTableEntry {
 			internal int SoundBufferIndex;
@@ -1617,14 +1628,14 @@ namespace OpenBve {
 									}
 									double d = Math.Abs(Train.StationDistanceToStopPoint);
 									string c = d.ToString("0.0", Culture);
-									if (Game.Stations[i].IsTerminalStation) {
+									if (Game.Stations[i].StationType == Game.StationType.Terminal) {
 										s += Interface.GetInterfaceString("message_delimiter") + Interface.GetInterfaceString("message_station_terminal");
 									}
 									s = s.Replace("[name]", Game.Stations[i].Name);
 									s = s.Replace("[time]", b);
 									s = s.Replace("[difference]", c);
 									Game.AddMessage(s, Game.MessageDependency.None, Interface.GameMode.Normal, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 10.0);
-									if (!Game.Stations[i].IsTerminalStation) {
+									if (Game.Stations[i].StationType == Game.StationType.Normal) {
 										s = Interface.GetInterfaceString("message_station_deadline");
 										Game.AddMessage(s, Game.MessageDependency.Station, Interface.GameMode.Normal, Game.MessageColor.Blue, double.PositiveInfinity);
 									}
@@ -1697,7 +1708,7 @@ namespace OpenBve {
 					}
 				} else if (Train.StationState == TrainStopState.Boarding) {
 					// automatically close doors
-					if (Train.Specs.DoorCloseMode != DoorMode.Manual & !Game.Stations[i].IsTerminalStation) {
+					if (Train.Specs.DoorCloseMode != DoorMode.Manual & Game.Stations[i].StationType == Game.StationType.Normal) {
 						if (Game.SecondsSinceMidnight >= Train.StationDepartureTime - 1.0 / Train.Cars[Train.DriverCar].Specs.DoorCloseFrequency) {
 							if ((GetDoorsState(Train, true, true) & TrainDoorState.AllClosed) == 0) {
 								CloseTrainDoors(Train, true, true);
@@ -1739,12 +1750,15 @@ namespace OpenBve {
 						// departure message
 						if (Game.SecondsSinceMidnight > Train.StationDepartureTime) {
 							Train.StationState = TrainStopState.Completed;
-							if (Train == PlayerTrain & !Game.Stations[i].IsTerminalStation) {
+							if (Train == PlayerTrain & Game.Stations[i].StationType == Game.StationType.Normal) {
 								if (!Game.Stations[i].OpenLeftDoors & !Game.Stations[i].OpenRightDoors | Train.Specs.DoorCloseMode != DoorMode.Manual) {
 									Game.AddMessage(Interface.GetInterfaceString("message_station_depart"), Game.MessageDependency.None, Interface.GameMode.Normal, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 5.0);
 								} else {
 									Game.AddMessage(Interface.GetInterfaceString("message_station_depart_closedoors"), Game.MessageDependency.None, Interface.GameMode.Normal, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 5.0);
 								}
+							} else if (Game.Stations[i].StationType == Game.StationType.ChangeEnds) {
+								//Game.AddMessage("CHANGE ENDS", Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 5.0);
+								JumpTrain(Train, i + 1);
 							}
 						}
 						// passengers boarding
@@ -1759,7 +1773,7 @@ namespace OpenBve {
 						}
 					} else {
 						Train.StationState = TrainStopState.Completed;
-						if (Train == PlayerTrain & !Game.Stations[i].IsTerminalStation) {
+						if (Train == PlayerTrain & Game.Stations[i].StationType == Game.StationType.Normal) {
 							Game.AddMessage(Interface.GetInterfaceString("message_station_depart"), Game.MessageDependency.None, Interface.GameMode.Normal, Game.MessageColor.Blue, Game.SecondsSinceMidnight + 5.0);
 						}
 					}
@@ -3904,6 +3918,91 @@ namespace OpenBve {
 			for (int i = 0; i < Train.Cars.Length; i++) {
 				Train.Cars[i].Specs.CurrentRollDueToTopplingAngle = 0.0;
 				Train.Cars[i].Derailed = false;
+			}
+		}
+		
+		// jump train
+		internal static void JumpTrain(Train train, int stationIndex) {
+			int stopIndex = Game.GetStopIndex(stationIndex, train.Cars.Length);
+			if (stopIndex >= 0) {
+				if (train == PlayerTrain) {
+					if (PluginManager.CurrentPlugin != null) {
+						PluginManager.CurrentPlugin.BeginJump((OpenBveApi.Runtime.InitializationModes)Game.TrainStart);
+					}
+				}
+				for (int h = 0; h < train.Cars.Length; h++) {
+					train.Cars[h].Specs.CurrentSpeed = 0.0;
+				}
+				double d = Game.Stations[stationIndex].Stops[stopIndex].TrackPosition - train.Cars[0].FrontAxle.Follower.TrackPosition + train.Cars[0].FrontAxlePosition - 0.5 * train.Cars[0].Length;
+				if (train == PlayerTrain) {
+					TrackManager.SuppressSoundEvents = true;
+				}
+				while (d != 0.0) {
+					double x;
+					if (Math.Abs(d) > 1.0) {
+						x = (double)Math.Sign(d);
+					} else {
+						x = d;
+					}
+					for (int h = 0; h < train.Cars.Length; h++) {
+						TrainManager.MoveCar(train, h, x, 0.0);
+					}
+					if (Math.Abs(d) >= 1.0) {
+						d -= x;
+					} else {
+						break;
+					}
+				}
+				if (train == PlayerTrain) {
+					TrainManager.UnderailTrains();
+					TrackManager.SuppressSoundEvents = false;
+				}
+				if (train.Specs.CurrentEmergencyBrake.Driver) {
+					TrainManager.ApplyNotch(train, 0, false, 0, true);
+				} else {
+					TrainManager.ApplyNotch(train, 0, false, train.Specs.MaximumBrakeNotch, false);
+					TrainManager.ApplyAirBrakeHandle(train, TrainManager.AirBrakeHandleState.Service);
+				}
+				if (Game.Sections.Length > 0) {
+					Game.UpdateSection(Game.Sections.Length - 1);
+				}
+				if (train == PlayerTrain) {
+					if (Game.CurrentScore.ArrivalStation <= stationIndex) {
+						Game.CurrentScore.ArrivalStation = stationIndex + 1;
+					}
+				}
+				if (train == PlayerTrain) {
+					if (Game.Stations[stationIndex].ArrivalTime >= 0.0) {
+						Game.SecondsSinceMidnight = Game.Stations[stationIndex].ArrivalTime;
+					} else if (Game.Stations[stationIndex].DepartureTime >= 0.0) {
+						Game.SecondsSinceMidnight = Game.Stations[stationIndex].DepartureTime - Game.Stations[stationIndex].StopTime;
+					}
+				}
+				//TrainManager.OpenTrainDoors(train, Game.Stations[stationIndex].OpenLeftDoors, Game.Stations[stationIndex].OpenRightDoors);
+				//TrainManager.CloseTrainDoors(train, !Game.Stations[stationIndex].OpenLeftDoors, !Game.Stations[stationIndex].OpenRightDoors);
+				for (int i = 0; i < train.Cars.Length; i++) {
+					train.Cars[i].Specs.AnticipatedLeftDoorsOpened = Game.Stations[stationIndex].OpenLeftDoors;
+					train.Cars[i].Specs.AnticipatedRightDoorsOpened = Game.Stations[stationIndex].OpenRightDoors;
+					for (int j = 0; j < train.Cars[i].Specs.Doors.Length; j++) {
+						if (train.Cars[i].Specs.Doors[j].Direction == -1) {
+							train.Cars[i].Specs.Doors[j].State = Game.Stations[stationIndex].OpenLeftDoors ? 1.0 : 0.0;
+						} else if (train.Cars[i].Specs.Doors[j].Direction == 1) {
+							train.Cars[i].Specs.Doors[j].State = Game.Stations[stationIndex].OpenRightDoors ? 1.0 : 0.0;
+						}
+					}
+				}
+				if (train == PlayerTrain) {
+					Game.CurrentScore.DepartureStation = stationIndex;
+					Game.CurrentInterface = Game.InterfaceType.Normal;
+					Game.Messages = new Game.Message[] { };
+				}
+				ObjectManager.UpdateAnimatedWorldObjects(0.0, true);
+				TrainManager.UpdateTrainObjects(0.0, true);
+				if (train == PlayerTrain) {
+					if (PluginManager.CurrentPlugin != null) {
+						PluginManager.CurrentPlugin.EndJump();
+					}
+				}
 			}
 		}
 		

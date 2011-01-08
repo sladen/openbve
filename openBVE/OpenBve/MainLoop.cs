@@ -122,7 +122,9 @@ namespace OpenBve {
 			Game.CurrentScore.Maximum = 0;
 			for (int i = 0; i < Game.Stations.Length; i++) {
 				if (i != PlayerFirstStationIndex & Game.PlayerStopsAtStation(i)) {
-					Game.CurrentScore.Maximum += Game.ScoreValueStationArrival;
+					if (i == 0 || Game.Stations[i - 1].StationType != Game.StationType.ChangeEnds) {
+						Game.CurrentScore.Maximum += Game.ScoreValueStationArrival;
+					}
 				}
 			}
 			if (Game.CurrentScore.Maximum <= 0) {
@@ -639,66 +641,8 @@ namespace OpenBve {
 															Array.Resize<double>(ref Game.CurrentMenuOffsets, Game.CurrentMenuOffsets.Length - 1);
 														} break;
 													case Game.MenuTag.JumpToStation:
-														{
-															// jump to station
-															int k = b.Data;
-															int t = Game.GetStopIndex(k, TrainManager.PlayerTrain.Cars.Length);
-															if (t >= 0) {
-																if (PluginManager.CurrentPlugin != null) {
-																	PluginManager.CurrentPlugin.BeginJump((OpenBveApi.Runtime.InitializationModes)Game.TrainStart);
-																}
-																for (int h = 0; h < TrainManager.PlayerTrain.Cars.Length; h++) {
-																	TrainManager.PlayerTrain.Cars[h].Specs.CurrentSpeed = 0.0;
-																}
-																double d = Game.Stations[k].Stops[t].TrackPosition - TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition + TrainManager.PlayerTrain.Cars[0].FrontAxlePosition - 0.5 * TrainManager.PlayerTrain.Cars[0].Length;
-																TrackManager.SuppressSoundEvents = true;
-																while (d != 0.0) {
-																	double x;
-																	if (Math.Abs(d) > 1.0) {
-																		x = (double)Math.Sign(d);
-																	} else {
-																		x = d;
-																	}
-																	for (int h = 0; h < TrainManager.PlayerTrain.Cars.Length; h++) {
-																		TrainManager.MoveCar(TrainManager.PlayerTrain, h, x, 0.0);
-																	}
-																	if (Math.Abs(d) >= 1.0) {
-																		d -= x;
-																	} else {
-																		break;
-																	}
-																}
-																TrainManager.UnderailTrains();
-																TrackManager.SuppressSoundEvents = false;
-																if (TrainManager.PlayerTrain.Specs.CurrentEmergencyBrake.Driver) {
-																	TrainManager.ApplyNotch(TrainManager.PlayerTrain, 0, false, 0, true);
-																} else {
-																	TrainManager.ApplyNotch(TrainManager.PlayerTrain, 0, false, TrainManager.PlayerTrain.Specs.MaximumBrakeNotch, false);
-																	TrainManager.ApplyAirBrakeHandle(TrainManager.PlayerTrain, TrainManager.AirBrakeHandleState.Service);
-																}
-																if (Game.Sections.Length > 0) {
-																	Game.UpdateSection(Game.Sections.Length - 1);
-																}
-																if (Game.CurrentScore.ArrivalStation <= k) {
-																	Game.CurrentScore.ArrivalStation = k + 1;
-																}
-																if (Game.Stations[k].ArrivalTime >= 0.0) {
-																	Game.SecondsSinceMidnight = Game.Stations[k].ArrivalTime;
-																} else if (Game.Stations[k].DepartureTime >= 0.0) {
-																	Game.SecondsSinceMidnight = Game.Stations[k].DepartureTime - Game.Stations[k].StopTime;
-																}
-																TrainManager.OpenTrainDoors(TrainManager.PlayerTrain, Game.Stations[k].OpenLeftDoors, Game.Stations[k].OpenRightDoors);
-																TrainManager.CloseTrainDoors(TrainManager.PlayerTrain, !Game.Stations[k].OpenLeftDoors, !Game.Stations[k].OpenRightDoors);
-																Game.CurrentScore.DepartureStation = k;
-																Game.CurrentInterface = Game.InterfaceType.Normal;
-																Game.Messages = new Game.Message[] { };
-																ObjectManager.UpdateAnimatedWorldObjects(0.0, true);
-																TrainManager.UpdateTrainObjects(0.0, true);
-																if (PluginManager.CurrentPlugin != null) {
-																	PluginManager.CurrentPlugin.EndJump();
-																}
-															}
-														}
+														// jump to station
+														TrainManager.JumpTrain(TrainManager.PlayerTrain, b.Data);
 														break;
 													case Game.MenuTag.ExitToMainMenu:
 														Program.RestartProcessArguments = Interface.CurrentOptions.GameMode == Interface.GameMode.Arcade ? "/review" : "";

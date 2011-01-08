@@ -22,9 +22,9 @@ namespace OpenBveApi.Texture {
 		/// <exception cref="System.ArgumentException">Raised when the length of the byte array is not 4 * width * height.</exception>
 		public Texture(int width, int height, byte[] bytes) {
 			if (bytes != null) {
-				throw new ArgumentNullException();
+				throw new ArgumentNullException("The data bytes are a null reference.");
 			} else if (4 * width * height != bytes.Length) {
-				throw new ArgumentException();
+				throw new ArgumentException("The data bytes are not of the expected length.");
 			} else {
 				this.MyWidth = width;
 				this.MyHeight = height;

@@ -147,7 +147,7 @@ namespace OpenBve {
 			for (int k = 0; k < TrainManager.Trains.Length; k++) {
 				if (TrainManager.Trains[k].State == TrainManager.TrainState.Bogus) {
 					// bogus train
-					string Folder = Interface.GetDataFolder("Compatibility", "PreTrain");
+					string Folder = Program.FileSystem.GetDataFolder("Compatibility", "PreTrain");
 					TrainDatParser.ParseTrainData(Folder, System.Text.Encoding.UTF8, TrainManager.Trains[k]);
 					System.Threading.Thread.Sleep(1); if (Cancel) return;
 					SoundCfgParser.LoadNoSound(TrainManager.Trains[k]);
@@ -233,7 +233,7 @@ namespace OpenBve {
 					for (int i = 0; i < TrainManager.Trains[k].Cars.Length; i++) {
 						if (CarObjects[i] == null) {
 							// load default exterior object
-							string file = Interface.GetCombinedFileName(Interface.GetDataFolder("Compatibility"), "exterior.csv");
+							string file = Interface.GetCombinedFileName(Program.FileSystem.GetDataFolder("Compatibility"), "exterior.csv");
 							ObjectManager.StaticObject so = ObjectManager.LoadStaticObject(file, System.Text.Encoding.UTF8, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 							if (so == null) {
 								CarObjects[i] = null;

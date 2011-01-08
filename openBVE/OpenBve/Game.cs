@@ -429,82 +429,84 @@ namespace OpenBve {
 				int j = TrainManager.PlayerTrain.Station;
 				if (j >= 0 & j < Stations.Length) {
 					if (j >= CurrentScore.ArrivalStation & TrainManager.PlayerTrain.StationState == TrainManager.TrainStopState.Boarding) {
-						/// arrival
-						int xa = ScoreValueStationArrival;
-						CurrentScore.Value += xa;
-						if (xa != 0) {
-							AddScore(xa, ScoreTextToken.ArrivedAtStation, 10.0);
-						}
-						/// early/late
-						int xb;
-						if (Stations[j].ArrivalTime >= 0) {
-							double d = SecondsSinceMidnight - Stations[j].ArrivalTime;
-							if (d >= -5.0 & d <= 0.0) {
-								xb = ScoreValueStationPerfectTime;
-								CurrentScore.Value += xb;
-								AddScore(xb, ScoreTextToken.PerfectTimeBonus, 10.0);
-							} else if (d > 0.0) {
-								xb = (int)Math.Ceiling(ScoreFactorStationLate * (d - 1.0));
-								CurrentScore.Value += xb;
-								if (xb != 0) {
-									AddScore(xb, ScoreTextToken.Late, 10.0);
+						if (j == 0 || Stations[j - 1].StationType != StationType.ChangeEnds) {
+							// arrival
+							int xa = ScoreValueStationArrival;
+							CurrentScore.Value += xa;
+							if (xa != 0) {
+								AddScore(xa, ScoreTextToken.ArrivedAtStation, 10.0);
+							}
+							// early/late
+							int xb;
+							if (Stations[j].ArrivalTime >= 0) {
+								double d = SecondsSinceMidnight - Stations[j].ArrivalTime;
+								if (d >= -5.0 & d <= 0.0) {
+									xb = ScoreValueStationPerfectTime;
+									CurrentScore.Value += xb;
+									AddScore(xb, ScoreTextToken.PerfectTimeBonus, 10.0);
+								} else if (d > 0.0) {
+									xb = (int)Math.Ceiling(ScoreFactorStationLate * (d - 1.0));
+									CurrentScore.Value += xb;
+									if (xb != 0) {
+										AddScore(xb, ScoreTextToken.Late, 10.0);
+									}
+								} else {
+									xb = 0;
 								}
 							} else {
 								xb = 0;
 							}
-						} else {
-							xb = 0;
-						}
-						/// position
-						int xc;
-						int p = Game.GetStopIndex(j, TrainManager.PlayerTrain.Cars.Length);
-						if (p >= 0) {
-							double d = TrainManager.PlayerTrain.StationDistanceToStopPoint;
-							double r;
-							if (d >= 0) {
-								double t = Stations[j].Stops[p].BackwardTolerance;
-								r = (Math.Sqrt(d * d + 1.0) - 1.0) / (Math.Sqrt(t * t + 1.0) - 1.0);
+							// position
+							int xc;
+							int p = Game.GetStopIndex(j, TrainManager.PlayerTrain.Cars.Length);
+							if (p >= 0) {
+								double d = TrainManager.PlayerTrain.StationDistanceToStopPoint;
+								double r;
+								if (d >= 0) {
+									double t = Stations[j].Stops[p].BackwardTolerance;
+									r = (Math.Sqrt(d * d + 1.0) - 1.0) / (Math.Sqrt(t * t + 1.0) - 1.0);
+								} else {
+									double t = Stations[j].Stops[p].ForwardTolerance;
+									r = (Math.Sqrt(d * d + 1.0) - 1.0) / (Math.Sqrt(t * t + 1.0) - 1.0);
+								}
+								if (r < 0.01) {
+									xc = ScoreValueStationPerfectStop;
+									CurrentScore.Value += xc;
+									AddScore(xc, ScoreTextToken.PerfectStopBonus, 10.0);
+								} else {
+									if (r > 1.0) r = 1.0;
+									r = (r - 0.01) * 1.01010101010101;
+									xc = (int)Math.Ceiling(ScoreFactorStationStop * r);
+									CurrentScore.Value += xc;
+									if (xc != 0) {
+										AddScore(xc, ScoreTextToken.Stop, 10.0);
+									}
+								}
 							} else {
-								double t = Stations[j].Stops[p].ForwardTolerance;
-								r = (Math.Sqrt(d * d + 1.0) - 1.0) / (Math.Sqrt(t * t + 1.0) - 1.0);
+								xc = 0;
 							}
-							if (r < 0.01) {
-								xc = ScoreValueStationPerfectStop;
-								CurrentScore.Value += xc;
-								AddScore(xc, ScoreTextToken.PerfectStopBonus, 10.0);
-							} else {
-								if (r > 1.0) r = 1.0;
-								r = (r - 0.01) * 1.01010101010101;
-								xc = (int)Math.Ceiling(ScoreFactorStationStop * r);
-								CurrentScore.Value += xc;
-								if (xc != 0) {
-									AddScore(xc, ScoreTextToken.Stop, 10.0);
+							// sum
+							if (Interface.CurrentOptions.GameMode == Interface.GameMode.Arcade) {
+								int xs = xa + xb + xc;
+								AddScore("", 10.0);
+								AddScore(xs, ScoreTextToken.Total, 10.0, false);
+								AddScore(" ", 10.0);
+							}
+							// evaluation
+							if (Interface.CurrentOptions.GameMode == Interface.GameMode.Arcade) {
+								if (Stations[j].StationType == StationType.Terminal) {
+									double y = (double)CurrentScore.Value / (double)CurrentScore.Maximum;
+									if (y < 0.0) y = 0.0;
+									if (y > 1.0) y = 1.0;
+									int k = (int)Math.Floor(y * (double)Interface.RatingsCount);
+									if (k >= Interface.RatingsCount) k = Interface.RatingsCount - 1;
+									System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
+									AddScore(Interface.GetInterfaceString("score_rating"), 20.0);
+									AddScore(Interface.GetInterfaceString("rating_" + k.ToString(Culture)) + " (" + (100.0 * y).ToString("0.00", Culture) + "%)", 20.0);
 								}
 							}
-						} else {
-							xc = 0;
 						}
-						/// sum
-						if (Interface.CurrentOptions.GameMode == Interface.GameMode.Arcade) {
-							int xs = xa + xb + xc;
-							AddScore("", 10.0);
-							AddScore(xs, ScoreTextToken.Total, 10.0, false);
-							AddScore(" ", 10.0);
-						}
-						/// evaluation
-						if (Interface.CurrentOptions.GameMode == Interface.GameMode.Arcade) {
-							if (Stations[j].IsTerminalStation) {
-								double y = (double)CurrentScore.Value / (double)CurrentScore.Maximum;
-								if (y < 0.0) y = 0.0;
-								if (y > 1.0) y = 1.0;
-								int k = (int)Math.Floor(y * (double)Interface.RatingsCount);
-								if (k >= Interface.RatingsCount) k = Interface.RatingsCount - 1;
-								System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
-								AddScore(Interface.GetInterfaceString("score_rating"), 20.0);
-								AddScore(Interface.GetInterfaceString("rating_" + k.ToString(Culture)) + " (" + (100.0 * y).ToString("0.00", Culture) + "%)", 20.0);
-							}
-						}
-						/// finalize
+						// finalize
 						CurrentScore.DepartureStation = j;
 						CurrentScore.ArrivalStation = j + 1;
 					}
@@ -751,6 +753,11 @@ namespace OpenBve {
 			PlayerStop = 2,
 			PlayerPass = 3
 		}
+		internal enum StationType {
+			Normal = 0,
+			ChangeEnds = 1,
+			Terminal = 2
+		}
 		internal struct Station {
 			internal string Name;
 			internal double ArrivalTime;
@@ -760,7 +767,7 @@ namespace OpenBve {
 			internal double StopTime;
 			internal World.Vector3D SoundOrigin;
 			internal StationStopMode StopMode;
-			internal bool IsTerminalStation;
+			internal StationType StationType;
 			internal bool ForceStopSignal;
 			internal bool OpenLeftDoors;
 			internal bool OpenRightDoors;
@@ -951,14 +958,14 @@ namespace OpenBve {
 					} else if (Stations[d].ArrivalTime >= 0.0) {
 						t = Stations[d].ArrivalTime;
 					}
-					if (train == TrainManager.PlayerTrain & Stations[d].IsTerminalStation & Stations[d].DepartureTime < 0.0) {
+					if (train == TrainManager.PlayerTrain & Stations[d].StationType != StationType.Normal & Stations[d].DepartureTime < 0.0) {
 						settored = true;
 					} else if (t >= 0.0 & SecondsSinceMidnight < t - train.TimetableDelta) {
 						settored = true;
 					} else if (!Sections[SectionIndex].TrainReachedStopPoint) {
 						settored = true;
 					}
-				} else if (Stations[d].IsTerminalStation) {
+				} else if (Stations[d].StationType != StationType.Normal) {
 					settored = true;
 				}
 			}
@@ -1317,7 +1324,7 @@ namespace OpenBve {
 					} else if (doorsopen | Train.StationState == TrainManager.TrainStopState.Boarding) {
 						// door opened or boarding at station
 						this.PowerNotchAtWhichWheelSlipIsObserved = Train.Specs.MaximumPowerNotch + 1;
-						if (Train.Station >= 0 && Stations[Train.Station].IsTerminalStation && Train == TrainManager.PlayerTrain) {
+						if (Train.Station >= 0 && Stations[Train.Station].StationType != StationType.Normal && Train == TrainManager.PlayerTrain) {
 							// player's terminal station
 							TrainManager.ApplyReverser(Train, 0, false);
 							TrainManager.ApplyNotch(Train, -1, true, 1, true);
@@ -1378,7 +1385,7 @@ namespace OpenBve {
 							TrainManager.OpenTrainDoors(Train, Stations[Train.Station].OpenLeftDoors, Stations[Train.Station].OpenRightDoors);
 						}
 						CurrentInterval = 1.0;
-					} else if (Train.Station >= 0 && Stations[Train.Station].IsTerminalStation && Train == TrainManager.PlayerTrain && Train.StationDistanceToStopPoint < Stations[Train.Station].Stops[stopIndex].BackwardTolerance && -Train.StationDistanceToStopPoint < Stations[Train.Station].Stops[stopIndex].ForwardTolerance && Math.Abs(Train.Specs.CurrentAverageSpeed) < 0.25) {
+					} else if (Train.Station >= 0 && Stations[Train.Station].StationType != StationType.Normal && Train == TrainManager.PlayerTrain && Train.StationDistanceToStopPoint < Stations[Train.Station].Stops[stopIndex].BackwardTolerance && -Train.StationDistanceToStopPoint < Stations[Train.Station].Stops[stopIndex].ForwardTolerance && Math.Abs(Train.Specs.CurrentAverageSpeed) < 0.25) {
 						// player's terminal station (not boarding any longer)
 						TrainManager.ApplyReverser(Train, 0, false);
 						TrainManager.ApplyNotch(Train, -1, true, 1, true);

@@ -104,8 +104,7 @@ namespace OpenBve {
 		private static ObjectGroup[] StaticOpaque = new ObjectGroup[] { };
 		/// <summary>Whether to enforce updating all display lists.</summary>
 		internal static bool StaticOpaqueForceUpdate = true;
-		
-		
+				
 		// all other lists
 		/// <summary>The list of dynamic opaque faces to be rendered.</summary>
 		private static ObjectList DynamicOpaque = new ObjectList();
@@ -143,6 +142,9 @@ namespace OpenBve {
 		internal static SpeedDisplayMode OptionSpeed = SpeedDisplayMode.None;
 		internal static bool OptionFrameRates = false;
 		internal static bool OptionBrakeSystems = false;
+		
+		// fade to black
+		private static double FadeToBlackDueToChangeEnds = 0.0;
 
 		// textures
 		private static int TextureLogo = -1;
@@ -193,7 +195,7 @@ namespace OpenBve {
 			Gl.glDisable(Gl.GL_TEXTURE_2D); TexturingEnabled = false;
 			// hud
 			Interface.LoadHUD();
-			string Path = Interface.GetDataFolder("In-game");
+			string Path = Program.FileSystem.GetDataFolder("In-game");
 			TextureLogo = TextureManager.RegisterTexture(Interface.GetCombinedFileName(Path, "logo.png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 			TextureManager.ValidateTexture(ref TextureLogo);
 			// opengl
@@ -2636,6 +2638,27 @@ namespace OpenBve {
 					Game.MenuSubmenu n = m[Game.CurrentMenuSelection[i]] as Game.MenuSubmenu;
 					m = n == null ? null : n.Entries;
 				}
+			}
+			// fade to black on change ends
+			if (TrainManager.PlayerTrain.Station >= 0 && Game.Stations[TrainManager.PlayerTrain.Station].StationType == Game.StationType.ChangeEnds && TrainManager.PlayerTrain.StationState == TrainManager.TrainStopState.Boarding) {
+				double time = TrainManager.PlayerTrain.StationDepartureTime - Game.SecondsSinceMidnight;
+				if (time < 1.0) {
+					FadeToBlackDueToChangeEnds = Math.Max(0.0, 1.0 - time);
+				} else if (FadeToBlackDueToChangeEnds > 0.0) {
+					FadeToBlackDueToChangeEnds -= TimeElapsed;
+					if (FadeToBlackDueToChangeEnds < 0.0) {
+						FadeToBlackDueToChangeEnds = 0.0;
+					}
+				}
+			} else if (FadeToBlackDueToChangeEnds > 0.0) {
+				FadeToBlackDueToChangeEnds -= TimeElapsed;
+				if (FadeToBlackDueToChangeEnds < 0.0) {
+					FadeToBlackDueToChangeEnds = 0.0;
+				}
+			}
+			if (FadeToBlackDueToChangeEnds > 0.0) {
+				Gl.glColor4d(0.0, 0.0, 0.0, FadeToBlackDueToChangeEnds);
+				RenderOverlaySolid(0.0, 0.0, (double)ScreenWidth, (double)ScreenHeight);
 			}
 			// finalize
 			Gl.glPopMatrix();
