@@ -2656,7 +2656,7 @@ namespace OpenBve {
 					FadeToBlackDueToChangeEnds = 0.0;
 				}
 			}
-			if (FadeToBlackDueToChangeEnds > 0.0) {
+			if (FadeToBlackDueToChangeEnds > 0.0 & (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead)) {
 				Gl.glColor4d(0.0, 0.0, 0.0, FadeToBlackDueToChangeEnds);
 				RenderOverlaySolid(0.0, 0.0, (double)ScreenWidth, (double)ScreenHeight);
 			}

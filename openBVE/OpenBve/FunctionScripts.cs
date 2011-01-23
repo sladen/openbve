@@ -1024,8 +1024,8 @@ namespace OpenBve {
 					if (i >= s) {
 						int j = i + 1, t = j, m = 1;
 						string[] p = new string[4]; int n = 0;
+						bool q = false;
 						while (j < Expression.Length) {
-							bool q = false;
 							switch (Expression[j]) {
 								case '[':
 									m++;
@@ -1049,12 +1049,14 @@ namespace OpenBve {
 										Expression = a + "[" + r.ToString() + "]" + c;
 										s = i + r.Length + 2;
 										q = true;
-									} break;
+									}
+									break;
 								case ',':
 									if (m == 1) {
 										if (n >= p.Length) Array.Resize<string>(ref p, n << 1);
 										p[n] = Expression.Substring(t, j - t);
-										n++; t = j + 1;
+										n++;
+										t = j + 1;
 									}
 									break;
 							}
@@ -1062,6 +1064,9 @@ namespace OpenBve {
 								break;
 							}
 							j++;
+						}
+						if (!q) {
+							throw new System.IO.InvalidDataException("Missing closing bracket encountered in " + Expression);
 						}
 					} else {
 						break;

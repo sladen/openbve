@@ -176,6 +176,9 @@ namespace OpenBve {
 		}
 		internal override void SetSignal(SignalData[] signal) {
 			try {
+//				for (int i = 0; i < signal.Length; i++) {
+//					Game.AddDebugMessage(i.ToString() + " - " + signal[i].Aspect.ToString(), 3.0);
+//				}
 				this.Api.SetSignal(signal);
 			} catch (Exception ex) {
 				base.LastException = ex;

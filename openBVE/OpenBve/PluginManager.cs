@@ -357,10 +357,8 @@ namespace OpenBve {
 						SetSignal(data);
 						this.LastAspects = new int[data.Length];
 						for (int i = 0; i < data.Length; i++) {
-							//Game.AddMessage("SECTION " + i.ToString() + ", ASPECT " + data[i].Aspect.ToString() + ", DISTANCE " + data[i].Distance.ToString("0"), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 2.5);
 							this.LastAspects[i] = data[i].Aspect;
 						}
-						//Game.AddMessage("TRAIN SECTION INDEX " + Train.CurrentSectionIndex.ToString(), Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + 2.5);
 					}
 				}
 			}

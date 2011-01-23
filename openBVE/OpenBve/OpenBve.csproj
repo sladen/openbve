@@ -114,6 +114,14 @@
     <Compile Include="FunctionScripts.cs" />
     <Compile Include="SoundManager.cs" />
     <Compile Include="System\FileSystem.cs" />
+    <None Include="System\ManagedContent.cs" />
+    <Compile Include="System\Gzip.cs">
+    </Compile>
+    <Compile Include="System\Tar.cs">
+    </Compile>
+    <None Include="System\ManagedContent.Versions.cs">
+      <DependentUpon>ManagedContent.cs</DependentUpon>
+    </None>
     <Compile Include="TextureManager.cs">
     </Compile>
     <Compile Include="Program.cs" />

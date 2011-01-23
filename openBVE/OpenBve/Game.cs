@@ -1031,44 +1031,51 @@ namespace OpenBve {
 		/// <param name="section">The absolute section index, referencing Game.Sections[].</param>
 		/// <returns>The signal data.</returns>
 		private static OpenBveApi.Runtime.SignalData GetPluginSignal(TrainManager.Train train, int section) {
-			int aspect;
-			if (Sections[section].IsFree(train)) {
-				if (Sections[section].Type == SectionType.IndexBased) {
-					if (section + 1 < Sections.Length) {
-						int value = Sections[section + 1].FreeSections;
-						if (value == -1) {
-							value = Sections[section].Aspects.Length - 1;
-						} else {
-							value++;
-							if (value >= Sections[section].Aspects.Length) {
+			if (Sections[section].Exists(train)) {
+				int aspect;
+				if (Sections[section].IsFree(train)) {
+					if (Sections[section].Type == SectionType.IndexBased) {
+						if (section + 1 < Sections.Length) {
+							int value = Sections[section + 1].FreeSections;
+							if (value == -1) {
 								value = Sections[section].Aspects.Length - 1;
+							} else {
+								value++;
+								if (value >= Sections[section].Aspects.Length) {
+									value = Sections[section].Aspects.Length - 1;
+								}
+								if (value < 0) {
+									value = 0;
+								}
 							}
-							if (value < 0) {
-								value = 0;
-							}
+							aspect = Sections[section].Aspects[value].Number;
+						} else {
+							aspect = Sections[section].Aspects[Sections[section].Aspects.Length - 1].Number;
 						}
-						aspect = Sections[section].Aspects[value].Number;
 					} else {
 						aspect = Sections[section].Aspects[Sections[section].Aspects.Length - 1].Number;
-					}
-				} else {
-					aspect = Sections[section].Aspects[Sections[section].Aspects.Length - 1].Number;
-					if (section < Sections.Length - 1) {
-						int value = Sections[section + 1].Aspects[Sections[section + 1].CurrentAspect].Number;
-						for (int i = 0; i < Sections[section].Aspects.Length; i++) {
-							if (Sections[section].Aspects[i].Number > value) {
-								aspect = Sections[section].Aspects[i].Number;
-								break;
+						if (section < Sections.Length - 1) {
+							int value = Sections[section + 1].Aspects[Sections[section + 1].CurrentAspect].Number;
+							for (int i = 0; i < Sections[section].Aspects.Length; i++) {
+								if (Sections[section].Aspects[i].Number > value) {
+									aspect = Sections[section].Aspects[i].Number;
+									break;
+								}
 							}
 						}
 					}
+				} else {
+					aspect = Sections[section].Aspects[Sections[section].CurrentAspect].Number;
 				}
+				double position = train.Cars[0].FrontAxle.Follower.TrackPosition - train.Cars[0].FrontAxlePosition + 0.5 * train.Cars[0].Length;
+				double distance = Sections[section].TrackPosition - position;
+				return new OpenBveApi.Runtime.SignalData(aspect, distance);
 			} else {
-				aspect = Sections[section].Aspects[Sections[section].CurrentAspect].Number;
+				int aspect = Sections[section].Aspects[Sections[section].CurrentAspect].Number;
+				double position = train.Cars[0].FrontAxle.Follower.TrackPosition - train.Cars[0].FrontAxlePosition + 0.5 * train.Cars[0].Length;
+				double distance = Sections[section].TrackPosition - position;
+				return new OpenBveApi.Runtime.SignalData(aspect, distance);
 			}
-			double position = train.Cars[0].FrontAxle.Follower.TrackPosition - train.Cars[0].FrontAxlePosition + 0.5 * train.Cars[0].Length;
-			double distance = Sections[section].TrackPosition - position;
-			return new OpenBveApi.Runtime.SignalData(aspect, distance);
 		}
 		
 		// update plugin sections
@@ -1940,6 +1947,9 @@ namespace OpenBve {
 				Messages[n].RendererPosition = new World.Vector2D(0.0, 0.0);
 				Messages[n].RendererAlpha = 0.0;
 			}
+		}
+		internal static void AddDebugMessage(string text, double duration) {
+			Game.AddMessage(text, Game.MessageDependency.None, Interface.GameMode.Expert, Game.MessageColor.Magenta, Game.SecondsSinceMidnight + duration);
 		}
 		internal static void UpdateMessages() {
 			for (int i = 0; i < Messages.Length; i++) {
