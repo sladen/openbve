@@ -320,8 +320,8 @@ namespace OpenBve {
 					// extract clip into power-of-two bitmap
 					if (Textures[TextureIndex].ClipWidth == 0) Textures[TextureIndex].ClipWidth = Bitmap.Width;
 					if (Textures[TextureIndex].ClipHeight == 0) Textures[TextureIndex].ClipHeight = Bitmap.Height;
-					Width = Interface.RoundToPowerOfTwo(Textures[TextureIndex].ClipWidth);
-					Height = Interface.RoundToPowerOfTwo(Textures[TextureIndex].ClipHeight);
+					Width = Interface.CurrentOptions.NoTextureResize ? Textures[TextureIndex].ClipWidth : Interface.RoundToPowerOfTwo(Textures[TextureIndex].ClipWidth);
+					Height = Interface.CurrentOptions.NoTextureResize ? Textures[TextureIndex].ClipHeight : Interface.RoundToPowerOfTwo(Textures[TextureIndex].ClipHeight);
 					Bitmap c = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
 					Graphics g = Graphics.FromImage(c);
 					Point[] p = new Point[] { new Point(0, 0), new Point(Width, 0), new Point(0, Height) };
@@ -577,24 +577,31 @@ namespace OpenBve {
 					}
 				}
 				// non-power of two
-				int TargetWidth = Interface.RoundToPowerOfTwo(Width);
-				int TargetHeight = Interface.RoundToPowerOfTwo(Height);
-				if (TargetWidth != Width | TargetHeight != Height) {
-					Bitmap b = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
-					BitmapData d = b.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, b.PixelFormat);
-					System.Runtime.InteropServices.Marshal.Copy(Data, 0, d.Scan0, d.Stride * d.Height);
-					b.UnlockBits(d);
-					Bitmap c = new Bitmap(TargetWidth, TargetHeight, PixelFormat.Format32bppArgb);
-					Graphics g = Graphics.FromImage(c);
-					g.DrawImage(b, 0, 0, TargetWidth, TargetHeight);
-					g.Dispose();
-					b.Dispose();
-					d = c.LockBits(new Rectangle(0, 0, TargetWidth, TargetHeight), ImageLockMode.ReadOnly, c.PixelFormat);
-					Stride = d.Stride;
-					Data = new byte[Stride * TargetHeight];
-					System.Runtime.InteropServices.Marshal.Copy(d.Scan0, Data, 0, Stride * TargetHeight);
-					c.UnlockBits(d);
-					c.Dispose();
+				int TargetWidth;
+				int TargetHeight;
+				if (Interface.CurrentOptions.NoTextureResize) {
+					TargetWidth = Width;
+					TargetHeight = Height;
+				} else {
+					TargetWidth = Interface.RoundToPowerOfTwo(Width);
+					TargetHeight = Interface.RoundToPowerOfTwo(Height);
+					if (TargetWidth != Width | TargetHeight != Height) {
+						Bitmap b = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
+						BitmapData d = b.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, b.PixelFormat);
+						System.Runtime.InteropServices.Marshal.Copy(Data, 0, d.Scan0, d.Stride * d.Height);
+						b.UnlockBits(d);
+						Bitmap c = new Bitmap(TargetWidth, TargetHeight, PixelFormat.Format32bppArgb);
+						Graphics g = Graphics.FromImage(c);
+						g.DrawImage(b, 0, 0, TargetWidth, TargetHeight);
+						g.Dispose();
+						b.Dispose();
+						d = c.LockBits(new Rectangle(0, 0, TargetWidth, TargetHeight), ImageLockMode.ReadOnly, c.PixelFormat);
+						Stride = d.Stride;
+						Data = new byte[Stride * TargetHeight];
+						System.Runtime.InteropServices.Marshal.Copy(d.Scan0, Data, 0, Stride * TargetHeight);
+						c.UnlockBits(d);
+						c.Dispose();
+					}
 				}
 				Textures[TextureIndex].Width = TargetWidth;
 				Textures[TextureIndex].Height = TargetHeight;

@@ -80,11 +80,15 @@ namespace OpenBve {
 			try {
 				LoadEverythingThreaded();
 			} catch (Exception ex) {
-				if (PluginManager.CurrentPlugin != null && PluginManager.CurrentPlugin.LastException != null) {
-					Interface.AddMessage(Interface.MessageType.Critical, false, "The train plugin " + PluginManager.CurrentPlugin.PluginTitle + " caused a critical error in the route and train loader: " + PluginManager.CurrentPlugin.LastException.Message);
-				} else {
-					Interface.AddMessage(Interface.MessageType.Critical, false, "The route and train loader encountered the following critical error: " + ex.Message);
+				for (int i = 0; i < TrainManager.Trains.Length; i++) {
+					if (TrainManager.Trains[i] != null && TrainManager.Trains[i].Plugin != null) {
+						if (TrainManager.Trains[i].Plugin.LastException != null) {
+							Interface.AddMessage(Interface.MessageType.Critical, false, "The train plugin " + TrainManager.Trains[i].Plugin.PluginTitle + " caused a critical error in the route and train loader: " + TrainManager.Trains[i].Plugin.LastException.Message);
+							return;
+						}
+					}
 				}
+				Interface.AddMessage(Interface.MessageType.Critical, false, "The route and train loader encountered the following critical error: " + ex.Message);
 			}
 			#endif
 			Complete = true;
@@ -301,8 +305,16 @@ namespace OpenBve {
 				Game.UpdateSection(Game.Sections.Length - 1);
 			}
 			// load plugin
-			if (TrainManager.PlayerTrain != null) {
-				PluginManager.LoadPlugin(CurrentTrainFolder, CurrentTrainEncoding, TrainManager.PlayerTrain);
+			for (int i = 0; i < TrainManager.Trains.Length; i++) {
+				if (TrainManager.Trains[i].State != TrainManager.TrainState.Bogus) {
+					if (TrainManager.Trains[i] == TrainManager.PlayerTrain) {
+						if (!PluginManager.LoadCustomPlugin(TrainManager.Trains[i], CurrentTrainFolder, CurrentTrainEncoding)) {
+							PluginManager.LoadDefaultPlugin(TrainManager.Trains[i], CurrentTrainFolder);
+						}
+					} else {
+						PluginManager.LoadDefaultPlugin(TrainManager.Trains[i], CurrentTrainFolder);
+					}
+				}
 			}
 			// continue after opengl is initialized
 			/*

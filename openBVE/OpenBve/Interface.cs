@@ -102,6 +102,7 @@ namespace OpenBve {
 			internal int MainMenuHeight;
 			internal bool DisableDisplayLists;
 			internal bool LoadInAdvance;
+			internal bool NoTextureResize;
 			internal Options() {
 				this.LanguageCode = "en-US";
 				this.FullscreenMode = false;
@@ -144,6 +145,7 @@ namespace OpenBve {
 				this.MainMenuHeight = 0;
 				this.DisableDisplayLists = false;
 				this.LoadInAdvance = false;
+				this.NoTextureResize = false;
 			}
 		}
 		internal static Options CurrentOptions;
@@ -248,6 +250,9 @@ namespace OpenBve {
 											break;
 										case "loadinadvance":
 											Interface.CurrentOptions.LoadInAdvance = string.Compare(Value, "false", StringComparison.OrdinalIgnoreCase) != 0;
+											break;
+										case "notextureresize":
+											Interface.CurrentOptions.NoTextureResize = string.Compare(Value, "false", StringComparison.OrdinalIgnoreCase) != 0;
 											break;
 									} break;
 								case "quality":
@@ -482,6 +487,7 @@ namespace OpenBve {
 			Builder.AppendLine("mainmenuHeight = " + CurrentOptions.MainMenuHeight.ToString(Culture));
 			Builder.AppendLine("disableDisplayLists = " + (CurrentOptions.DisableDisplayLists ? "true" : "false"));
 			Builder.AppendLine("loadInAdvance = " + (CurrentOptions.LoadInAdvance ? "true" : "false"));
+			Builder.AppendLine("noTextureResize = " + (CurrentOptions.NoTextureResize ? "true" : "false"));
 			Builder.AppendLine();
 			Builder.AppendLine("[quality]");
 			{
@@ -1186,7 +1192,7 @@ namespace OpenBve {
 			DoorsLeft, DoorsRight,
 			HornPrimary, HornSecondary, HornMusic,
 			DeviceConstSpeed,
-			SecurityPower, SecurityS, SecurityA1, SecurityA2, SecurityB1, SecurityB2, SecurityC1, SecurityC2,
+			SecurityS, SecurityA1, SecurityA2, SecurityB1, SecurityB2, SecurityC1, SecurityC2,
 			SecurityD, SecurityE, SecurityF, SecurityG, SecurityH, SecurityI, SecurityJ, SecurityK, SecurityL,
 			CameraInterior, CameraExterior, CameraTrack, CameraFlyBy,
 			CameraMoveForward, CameraMoveBackward, CameraMoveLeft, CameraMoveRight, CameraMoveUp, CameraMoveDown,
@@ -1421,7 +1427,6 @@ namespace OpenBve {
 			new CommandInfo(Command.HornSecondary, CommandType.Digital, "HORN_SECONDARY"),
 			new CommandInfo(Command.HornMusic, CommandType.Digital, "HORN_MUSIC"),
 			new CommandInfo(Command.DeviceConstSpeed, CommandType.Digital, "DEVICE_CONSTSPEED"),
-			new CommandInfo(Command.SecurityPower, CommandType.Digital, "SECURITY_POWER"),
 			new CommandInfo(Command.SecurityS, CommandType.Digital, "SECURITY_S"),
 			new CommandInfo(Command.SecurityA1, CommandType.Digital, "SECURITY_A1"),
 			new CommandInfo(Command.SecurityA2, CommandType.Digital, "SECURITY_A2"),

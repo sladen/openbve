@@ -229,8 +229,6 @@ namespace OpenBve {
 			internal CarSound Air;
 			internal CarSound AirHigh;
 			internal CarSound AirZero;
-			internal CarSound Ats;
-			internal CarSound AtsCnt;
 			internal CarSound Brake;
 			internal CarSound BrakeHandleApply;
 			internal CarSound BrakeHandleRelease;
@@ -244,12 +242,10 @@ namespace OpenBve {
 			internal bool CpLoopStarted;
 			internal CarSound CpStart;
 			internal double CpStartTimeStarted;
-			internal CarSound Ding;
 			internal CarSound DoorCloseL;
 			internal CarSound DoorCloseR;
 			internal CarSound DoorOpenL;
 			internal CarSound DoorOpenR;
-			internal CarSound Eb;
 			internal CarSound EmrBrake;
 			internal CarSound[] Flange;
 			internal double[] FlangeVolume;
@@ -272,8 +268,6 @@ namespace OpenBve {
 			internal double RunNextReasynchronizationPosition;
 			internal CarSound SpringL;
 			internal CarSound SpringR;
-			internal CarSound ToAtc;
-			internal CarSound ToAts;
 			internal CarSound[] Plugin;
 			internal int FrontAxleRunIndex;
 			internal int RearAxleRunIndex;
@@ -365,91 +359,6 @@ namespace OpenBve {
 			internal bool Driver;
 			internal bool Actual;
 		}
-		// train safety
-		internal enum SafetyState {
-			Normal = 0,
-			Initialization = 1,
-			Ringing = 2,
-			Emergency = 3,
-			Pattern = 4,
-			Service = 5
-		}
-		internal enum SafetySystem {
-			None = 0,
-			AtsSn = 1,
-			AtsP = 2,
-			Atc = 3,
-			Plugin = 4
-		}
-		internal struct Ats {
-			internal double Time;
-			internal bool AtsAvailable;
-			internal bool AtsPAvailable;
-			internal double AtsPDistance;
-			internal double AtsPTemporarySpeed;
-			internal double AtsPPermanentSpeed;
-			internal bool AtsPOverride;
-			internal double AtsPOverrideTime;
-		}
-		internal struct Atc {
-			internal bool Available;
-			internal bool Transmitting;
-			internal bool AutomaticSwitch;
-			internal double SpeedRestriction;
-			internal double LastSectionPosition;
-		}
-		internal struct Eb {
-			internal bool Available;
-			internal SafetyState BellState;
-			internal double Time;
-			internal bool Reset;
-		}
-		internal struct TrainPendingTransponder {
-			internal TrackManager.TransponderType Type;
-			internal bool SwitchSubsystem;
-			internal int OptionalInteger;
-			internal double OptionalFloat;
-			internal int SectionIndex;
-		}
-		internal struct TrainSafety {
-			internal SafetySystem Mode;
-			internal SafetySystem ModeChange;
-			internal SafetyState State;
-			internal TrainPendingTransponder[] PendingTransponders;
-			internal Ats Ats;
-			internal Atc Atc;
-			internal Eb Eb;
-			internal void AddPendingTransponder(TrainPendingTransponder Data) {
-				int n = this.PendingTransponders.Length;
-				Array.Resize<TrainPendingTransponder>(ref this.PendingTransponders, n + 1);
-				this.PendingTransponders[n] = Data;
-			}
-			internal bool IsTransponderPending() {
-				return this.PendingTransponders.Length > 0;
-			}
-			internal TrainPendingTransponder GetPendingTransponder() {
-				if (this.PendingTransponders.Length != 0) {
-					return this.PendingTransponders[0];
-				} else {
-					TrainPendingTransponder Data;
-					Data.Type = TrackManager.TransponderType.None;
-					Data.SwitchSubsystem = false;
-					Data.OptionalInteger = 0;
-					Data.OptionalFloat = 0;
-					Data.SectionIndex = 0;
-					return Data;
-				}
-			}
-			internal void RemovePendingTransponder() {
-				int n = this.PendingTransponders.Length;
-				if (n != 0) {
-					for (int i = 0; i < n - 1; i++) {
-						this.PendingTransponders[i] = this.PendingTransponders[i + 1];
-					}
-					Array.Resize<TrainPendingTransponder>(ref this.PendingTransponders, n - 1);
-				}
-			}
-		}
 		// train specs
 		internal enum PassAlarmType {
 			None = 0,
@@ -463,6 +372,12 @@ namespace OpenBve {
 			AutomaticManualOverride = 0,
 			Automatic = 1,
 			Manual = 2
+		}
+		internal enum DefaultSafetySystems {
+			AtsSn = 1,
+			AtsP = 2,
+			Atc = 4,
+			Eb = 8
 		}
 		internal struct TrainSpecs {
 			internal double TotalMass;
@@ -483,9 +398,9 @@ namespace OpenBve {
 			internal EmergencyHandle CurrentEmergencyBrake;
 			internal bool HasHoldBrake;
 			internal HoldBrakeHandle CurrentHoldBrake;
+			internal DefaultSafetySystems DefaultSafetySystems;
 			internal bool HasConstSpeed;
 			internal bool CurrentConstSpeed;
-			internal TrainSafety Safety;
 			internal TrainAirBrake AirBrake;
 			internal double DelayPowerUp;
 			internal double DelayPowerDown;
@@ -510,6 +425,8 @@ namespace OpenBve {
 			Pending = 0, Boarding = 1, Completed = 2
 		}
 		internal class Train {
+			/// <summary>The plugin used by this train.</summary>
+			internal PluginManager.Plugin Plugin;
 			internal int TrainIndex;
 			internal TrainState State;
 			internal Car[] Cars;
@@ -538,7 +455,7 @@ namespace OpenBve {
 
 		// trains
 		/// <summary>The list of trains available in the simulation.</summary>
-		internal static Train[] Trains = null;
+		internal static Train[] Trains = new Train[] { };
 		/// <summary>A reference to the train of the Trains element that corresponds to the player's train.</summary>
 		internal static Train PlayerTrain = null;
 
@@ -1250,15 +1167,13 @@ namespace OpenBve {
 				// available train
 				UpdateTrainPhysicsAndControls(Train, TimeElapsed);
 				if (Interface.CurrentOptions.GameMode == Interface.GameMode.Arcade) {
-					if (Train == TrainManager.PlayerTrain & Train.Specs.Safety.Mode != TrainManager.SafetySystem.Atc) {
-						if (Train.Specs.CurrentAverageSpeed > Train.CurrentRouteLimit) {
-							Game.AddMessage(Interface.GetInterfaceString("message_route_overspeed"), Game.MessageDependency.RouteLimit, Interface.GameMode.Arcade, Game.MessageColor.Orange, double.PositiveInfinity);
-						}
-						if (Train.CurrentSectionLimit == 0.0) {
-							Game.AddMessage(Interface.GetInterfaceString("message_signal_stop"), Game.MessageDependency.SectionLimit, Interface.GameMode.Normal, Game.MessageColor.Red, double.PositiveInfinity);
-						} else if (Train.Specs.CurrentAverageSpeed > Train.CurrentSectionLimit) {
-							Game.AddMessage(Interface.GetInterfaceString("message_signal_overspeed"), Game.MessageDependency.SectionLimit, Interface.GameMode.Normal, Game.MessageColor.Orange, double.PositiveInfinity);
-						}
+					if (Train.Specs.CurrentAverageSpeed > Train.CurrentRouteLimit) {
+						Game.AddMessage(Interface.GetInterfaceString("message_route_overspeed"), Game.MessageDependency.RouteLimit, Interface.GameMode.Arcade, Game.MessageColor.Orange, double.PositiveInfinity);
+					}
+					if (Train.CurrentSectionLimit == 0.0) {
+						Game.AddMessage(Interface.GetInterfaceString("message_signal_stop"), Game.MessageDependency.SectionLimit, Interface.GameMode.Normal, Game.MessageColor.Red, double.PositiveInfinity);
+					} else if (Train.Specs.CurrentAverageSpeed > Train.CurrentSectionLimit) {
+						Game.AddMessage(Interface.GetInterfaceString("message_signal_overspeed"), Game.MessageDependency.SectionLimit, Interface.GameMode.Normal, Game.MessageColor.Orange, double.PositiveInfinity);
 					}
 				}
 				if (Train.AI != null) {
@@ -1554,7 +1469,7 @@ namespace OpenBve {
 						// automatically open doors
 						if (Train.Specs.DoorOpenMode != DoorMode.Manual) {
 							if ((GetDoorsState(Train, Game.Stations[i].OpenLeftDoors, Game.Stations[i].OpenRightDoors) & TrainDoorState.AllOpened) == 0) {
-								if (Train.Specs.CurrentAverageSpeed > -0.00277777777777778 & Train.Specs.CurrentAverageSpeed < 0.00277777777777778 & Train.Specs.CurrentPowerNotch.Driver == 0) {
+								if (Math.Abs(Train.Specs.CurrentAverageSpeed) < 0.1 / 3.6 & Math.Abs(Train.Specs.CurrentAverageAcceleration) < 0.1 / 3.6) {
 									if (Train.StationDistanceToStopPoint < tb & -Train.StationDistanceToStopPoint < tf) {
 										OpenTrainDoors(Train, Game.Stations[i].OpenLeftDoors, Game.Stations[i].OpenRightDoors);
 									}
@@ -1639,30 +1554,7 @@ namespace OpenBve {
 										s = Interface.GetInterfaceString("message_station_deadline");
 										Game.AddMessage(s, Game.MessageDependency.Station, Interface.GameMode.Normal, Game.MessageColor.Blue, double.PositiveInfinity);
 									}
-									if (Train.Specs.Safety.Mode != SafetySystem.Plugin) {
-										if (Train.Specs.Safety.Atc.Available & !Train.Specs.Safety.Atc.AutomaticSwitch) {
-											if (Game.Stations[i].SafetySystem == Game.SafetySystem.Ats & Train.Specs.Safety.Mode != SafetySystem.AtsSn & Train.Specs.Safety.Mode != SafetySystem.AtsP) {
-												s = Interface.GetInterfaceString("message_station_security");
-												s = s.Replace("[system]", "ATS");
-												Game.AddMessage(s, Game.MessageDependency.None, Interface.GameMode.Normal, Game.MessageColor.Orange, Game.SecondsSinceMidnight + 5.0);
-											} else if (Game.Stations[i].SafetySystem == Game.SafetySystem.Atc & Train.Specs.Safety.Mode != SafetySystem.Atc) {
-												s = Interface.GetInterfaceString("message_station_security");
-												s = s.Replace("[system]", "ATC");
-												Game.AddMessage(s, Game.MessageDependency.None, Interface.GameMode.Normal, Game.MessageColor.Orange, Game.SecondsSinceMidnight + 5.0);
-											}
-										}
-									}
 									Timetable.UpdateCustomTimetable(Game.Stations[i].TimetableDaytimeTexture, Game.Stations[i].TimetableNighttimeTexture);
-								}
-								// atc switch
-								if (Train.Specs.Safety.Atc.Available & Train.Specs.Safety.Atc.AutomaticSwitch & Train.Specs.Safety.Mode != SafetySystem.None) {
-									if (Game.Stations[i].SafetySystem == Game.SafetySystem.Ats & Train.Specs.Safety.Mode != SafetySystem.AtsSn & Train.Specs.Safety.Mode != SafetySystem.AtsP) {
-										if (Train.Specs.Safety.Ats.AtsAvailable) {
-											Train.Specs.Safety.ModeChange = SafetySystem.AtsSn;
-										}
-									} else if (Game.Stations[i].SafetySystem == Game.SafetySystem.Atc & Train.Specs.Safety.Mode != SafetySystem.Atc) {
-										Train.Specs.Safety.ModeChange = SafetySystem.Atc;
-									}
 								}
 								// schedule door locks (passengers stuck between the doors)
 								for (int j = 0; j < Train.Cars.Length; j++) {
@@ -1871,8 +1763,10 @@ namespace OpenBve {
 					SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
 				}
 			}
-			if (oldState != newState & Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-				PluginManager.CurrentPlugin.DoorChange(oldState, newState);
+			if (oldState != newState) {
+				if (Train.Plugin != null) {
+					Train.Plugin.DoorChange(oldState, newState);
+				}
 			}
 		}
 
@@ -1997,604 +1891,9 @@ namespace OpenBve {
 
 		// update safety system
 		private static void UpdateSafetySystem(Train Train, double TimeElapsed) {
-			// plugin
-			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				Game.UpdatePluginSections(Train);
-				PluginManager.CurrentPlugin.LastSection = Train.CurrentSectionIndex;
-				PluginManager.CurrentPlugin.UpdatePlugin();
-				return;
-			}
-			// handles
-			Train.Specs.CurrentReverser.Actual = Train.Specs.CurrentReverser.Driver;
-			Train.Specs.CurrentPowerNotch.Safety = Train.Specs.CurrentPowerNotch.Driver;
-			Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.CurrentBrakeNotch.Driver;
-			Train.Specs.AirBrake.Handle.Safety = Train.Specs.AirBrake.Handle.Driver;
-			Train.Specs.CurrentEmergencyBrake.Safety = Train.Specs.CurrentEmergencyBrake.Driver;
-			Train.Specs.CurrentHoldBrake.Actual = Train.Specs.CurrentHoldBrake.Driver;
-			// mode change
-			if (Train.Specs.Safety.Mode != Train.Specs.Safety.ModeChange & (Train.Specs.Safety.State != SafetyState.Emergency | Train.Specs.Safety.ModeChange == SafetySystem.None | Train.Specs.Safety.ModeChange == SafetySystem.AtsSn)) {
-				if (Train.Specs.Safety.ModeChange != SafetySystem.None) {
-					int snd = Train.Cars[Train.DriverCar].Sounds.Ding.SoundBufferIndex;
-					if (snd >= 0) {
-						World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.Ding.Position;
-						SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
-					}
-				}
-				if ((Train.Specs.Safety.ModeChange == SafetySystem.AtsSn | Train.Specs.Safety.ModeChange == SafetySystem.AtsP) & Train.Specs.Safety.Mode == SafetySystem.Atc) {
-					int snd = Train.Cars[Train.DriverCar].Sounds.ToAts.SoundBufferIndex;
-					if (snd >= 0) {
-						World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.ToAts.Position;
-						SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
-					}
-				} else if (Train.Specs.Safety.ModeChange == SafetySystem.Atc & (Train.Specs.Safety.Mode == SafetySystem.AtsSn | Train.Specs.Safety.Mode == SafetySystem.AtsP)) {
-					int snd = Train.Cars[Train.DriverCar].Sounds.ToAtc.SoundBufferIndex;
-					if (snd >= 0) {
-						World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.ToAtc.Position;
-						SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
-					}
-				}
-				Train.Specs.Safety.Mode = Train.Specs.Safety.ModeChange;
-				Train.Specs.Safety.Ats.AtsPOverrideTime = double.NegativeInfinity;
-			}
-			// mode
-			TrainPendingTransponder Transponder = Train.Specs.Safety.GetPendingTransponder();
-			if (Transponder.SectionIndex == (int)TrackManager.TransponderSpecialSection.NextRedSection) {
-				// next red section
-				int s = Train.CurrentSectionIndex;
-				if (s >= 0) {
-					s = Game.Sections[s].NextSection;
-					while (s >= 0) {
-						int a = Game.Sections[s].CurrentAspect;
-						if (a >= 0) {
-							if (Game.Sections[s].Aspects[a].Number == 0) {
-								Transponder.SectionIndex = s;
-								break;
-							}
-						} s = Game.Sections[s].NextSection;
-					}
-				}
-			}
-			bool KeepTransponderData = false;
-			if (Train.Specs.Safety.Mode != SafetySystem.None) {
-				// eb device
-				if (Train.Specs.Safety.Eb.Available) {
-					if (Train.Specs.CurrentEmergencyBrake.Driver | Game.MinimalisticSimulation & Train != PlayerTrain) {
-						Train.Specs.Safety.Eb.Time = Game.SecondsSinceMidnight;
-					} else {
-						if (Train.Specs.Safety.Eb.BellState == SafetyState.Normal) {
-							if (Game.SecondsSinceMidnight - Train.Specs.Safety.Eb.Time >= 60.0 & Math.Abs(Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed) >= 4.16666666666667) {
-								Train.Specs.Safety.Eb.BellState = SafetyState.Ringing;
-								Train.Specs.Safety.Eb.Time = Game.SecondsSinceMidnight;
-								Train.Specs.Safety.Eb.Reset = false;
-								int snd = Train.Cars[Train.DriverCar].Sounds.Eb.SoundBufferIndex;
-								if (snd >= 0) {
-									World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.Eb.Position;
-									SoundManager.PlaySound(ref Train.Cars[Train.DriverCar].Sounds.Eb.SoundSourceIndex, snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, true);
-								}
-							} else if (Train.Specs.Safety.Eb.Reset) {
-								Train.Specs.Safety.Eb.Time = Game.SecondsSinceMidnight;
-								Train.Specs.Safety.Eb.Reset = false;
-							}
-						} else if (Train.Specs.Safety.Eb.BellState == SafetyState.Ringing) {
-							if (Train.Specs.Safety.Eb.Reset) {
-								Train.Specs.Safety.Eb.BellState = SafetyState.Normal;
-								Train.Specs.Safety.Eb.Time = Game.SecondsSinceMidnight;
-								Train.Specs.Safety.Eb.Reset = false;
-								SoundManager.StopSound(ref Train.Cars[Train.DriverCar].Sounds.Eb.SoundSourceIndex);
-							} else if (Game.SecondsSinceMidnight - Train.Specs.Safety.Eb.Time >= 5.0) {
-								Train.Specs.Safety.Eb.BellState = SafetyState.Emergency;
-								Train.Specs.Safety.Eb.Time = Game.SecondsSinceMidnight;
-							}
-						} else if (Train.Specs.Safety.Eb.BellState == SafetyState.Emergency) {
-							SoundManager.StopSound(ref Train.Cars[Train.DriverCar].Sounds.Eb.SoundSourceIndex);
-							if (Train.Specs.Safety.Ats.AtsAvailable) {
-								Train.Specs.Safety.ModeChange = SafetySystem.AtsSn;
-							}
-							Train.Specs.Safety.State = SafetyState.Emergency;
-						}
-					}
-				}
-				// ats
-				if (Train.Specs.Safety.State == SafetyState.Initialization | Train.Specs.Safety.State == SafetyState.Ringing | Train.Specs.Safety.State == SafetyState.Emergency) {
-					if (Train.Specs.Safety.State == SafetyState.Initialization & Game.SecondsSinceMidnight - Train.Specs.Safety.Ats.Time >= 1.0) {
-						Train.Specs.Safety.State = SafetyState.Normal;
-						Train.Specs.Safety.Ats.AtsPDistance = double.PositiveInfinity;
-						Train.Specs.Safety.Ats.AtsPTemporarySpeed = double.PositiveInfinity;
-						Train.Specs.Safety.Ats.AtsPPermanentSpeed = double.PositiveInfinity;
-						Train.Specs.Safety.Ats.AtsPOverride = false;
-						Train.Specs.Safety.Ats.AtsPOverrideTime = double.NegativeInfinity;
-						int snd = Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundBufferIndex;
-						if (snd >= 0 & Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundSourceIndex < 0) {
-							World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.AtsCnt.Position;
-							SoundManager.PlaySound(ref Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundSourceIndex, snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, true);
-						}
-					} else if (Game.SecondsSinceMidnight - Train.Specs.Safety.Ats.Time >= 5.0) {
-						Train.Specs.Safety.State = SafetyState.Emergency;
-					}
-					{
-						int snd = Train.Cars[Train.DriverCar].Sounds.Ats.SoundBufferIndex;
-						if (snd >= 0) {
-							if (!SoundManager.IsPlaying(Train.Cars[Train.DriverCar].Sounds.Ats.SoundSourceIndex)) {
-								World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.Ats.Position;
-								SoundManager.PlaySound(ref Train.Cars[Train.DriverCar].Sounds.Ats.SoundSourceIndex, snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, true);
-							}
-						}
-					}
-					if (Train.Specs.Safety.State != SafetyState.Ringing) {
-						Train.Specs.CurrentEmergencyBrake.Safety = true;
-					}
-				} else {
-					Train.Specs.Safety.Ats.Time = Game.SecondsSinceMidnight;
-					SoundManager.StopSound(ref Train.Cars[Train.DriverCar].Sounds.Ats.SoundSourceIndex);
-				}
-				// mode
-				if (Train.Specs.Safety.Mode == SafetySystem.AtsSn) {
-					// ats-sn
-					if (Train.Specs.Safety.State == SafetyState.Pattern | Train.Specs.Safety.State == SafetyState.Service) {
-						Train.Specs.Safety.State = SafetyState.Normal;
-					}
-					int s = Transponder.SectionIndex;
-					if (Transponder.Type == TrackManager.TransponderType.SLong) {
-						if (s >= 0) {
-							if (Game.Sections[s].Aspects[Game.Sections[s].CurrentAspect].Speed == 0.0) {
-								Train.Specs.Safety.State = SafetyState.Ringing;
-							}
-						} else {
-							Train.Specs.Safety.State = SafetyState.Ringing;
-						}
-					} else if (Transponder.Type == TrackManager.TransponderType.SN | Transponder.Type == TrackManager.TransponderType.AccidentalDeparture) {
-						if (s >= 0) {
-							if (Game.Sections[s].Aspects[Game.Sections[s].CurrentAspect].Speed == 0.0) {
-								Train.Specs.Safety.State = SafetyState.Emergency;
-							}
-						} else {
-							Train.Specs.Safety.State = SafetyState.Emergency;
-						}
-					} else if (Transponder.Type == TrackManager.TransponderType.AtsPPatternOrigin | Transponder.Type == TrackManager.TransponderType.AtsPImmediateStop) {
-						if (Train.Specs.Safety.Ats.AtsPAvailable & Transponder.SwitchSubsystem) {
-							Train.Specs.Safety.ModeChange = SafetySystem.AtsP;
-							KeepTransponderData = true;
-						}
-					}
-				} else if (Train.Specs.Safety.Mode == SafetySystem.AtsP) {
-					// ats-p
-					bool brakeRelease = Game.SecondsSinceMidnight - Train.Specs.Safety.Ats.AtsPOverrideTime < 60.0;
-					if (brakeRelease != Train.Specs.Safety.Ats.AtsPOverride) {
-						Train.Specs.Safety.Ats.AtsPOverride = brakeRelease;
-						int snd = Train.Cars[Train.DriverCar].Sounds.Ding.SoundBufferIndex;
-						if (snd >= 0) {
-							World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.Ding.Position;
-							SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
-						}
-					}
-					if (!brakeRelease) {
-						Train.Specs.Safety.Ats.AtsPOverrideTime = double.NegativeInfinity;
-					}
-					if (Train.Specs.Safety.State == SafetyState.Ringing | Train.Specs.Safety.State == SafetyState.Emergency) {
-						Train.Specs.Safety.State = SafetyState.Normal;
-					}
-					SafetyState state = Train.Specs.Safety.State;
-					int s = Transponder.SectionIndex;
-					if (Transponder.Type == TrackManager.TransponderType.SLong | Transponder.Type == TrackManager.TransponderType.SN) {
-						if (Train.Specs.Safety.Ats.AtsAvailable & Transponder.SwitchSubsystem) {
-							Train.Specs.Safety.ModeChange = SafetySystem.AtsSn;
-							int snd = Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundBufferIndex;
-							if (snd >= 0 & Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundSourceIndex < 0) {
-								World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.AtsCnt.Position;
-								SoundManager.PlaySound(ref Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundSourceIndex, snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, true);
-							}
-							KeepTransponderData = true;
-						}
-					} else if (Transponder.Type == TrackManager.TransponderType.AtsPPatternOrigin | Transponder.Type == TrackManager.TransponderType.AtsPImmediateStop) {
-						if (s >= 0) {
-							int k = s;
-							if (Game.Sections[k].Aspects[Game.Sections[k].CurrentAspect].Speed == 0.0) {
-								const double signalStopDistance = 0.0;
-								Train.Specs.Safety.Ats.AtsPDistance = Game.Sections[k].TrackPosition - Train.Cars[0].FrontAxle.Follower.TrackPosition - signalStopDistance;
-							} else {
-								Train.Specs.Safety.Ats.AtsPDistance = double.PositiveInfinity;
-							}
-							bool q = false;
-							do {
-								if (Game.Sections[k].Exists(Train)) {
-									if (q & Transponder.Type == TrackManager.TransponderType.AtsPImmediateStop) {
-										Train.Specs.Safety.Ats.AtsPDistance = 0.0;
-									}
-									break;
-								}
-								if (Game.Sections[k].Aspects[Game.Sections[k].CurrentAspect].Speed == 0.0) {
-									Train.Specs.Safety.Ats.AtsPDistance = Game.Sections[k].TrackPosition - Train.Cars[0].FrontAxle.Follower.TrackPosition - 20.0;
-									if (Train.Specs.Safety.Ats.AtsPDistance < 0.0) break;
-									q = true;
-								} else {
-									q = false;
-								}
-								k = Game.Sections[k].PreviousSection;
-							} while (k >= 0);
-						} else {
-							Train.Specs.Safety.Ats.AtsPDistance = double.PositiveInfinity;
-						}
-					} else if (Transponder.Type == TrackManager.TransponderType.AccidentalDeparture & Train.Specs.Safety.Ats.AtsAvailable) {
-						if (s < 0 || Game.Sections[s].Aspects[Game.Sections[s].CurrentAspect].Speed == 0.0) {
-							Train.Specs.Safety.ModeChange = SafetySystem.AtsSn;
-							Train.Specs.Safety.State = SafetyState.Emergency;
-							KeepTransponderData = true;
-						}
-					} else if (Transponder.Type == TrackManager.TransponderType.AtsPTemporarySpeedRestriction) {
-						if (Transponder.OptionalFloat >= 0.0) {
-							Train.Specs.Safety.Ats.AtsPTemporarySpeed = Transponder.OptionalFloat;
-						}
-					} else if (Transponder.Type == TrackManager.TransponderType.AtsPPermanentSpeedRestriction) {
-						if (Transponder.OptionalFloat >= 0.0) {
-							Train.Specs.Safety.Ats.AtsPPermanentSpeed = Transponder.OptionalFloat;
-						}
-					}
-					if (Train.Specs.Safety.ModeChange != SafetySystem.AtsSn) {
-						double trainSpeed = Math.Abs(Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed);
-						double signalDistance = Train.Specs.Safety.Ats.AtsPDistance;
-						// pattern
-						double speedApplication;
-						double speedPattern;
-						double speedNormal;
-						if (signalDistance != double.PositiveInfinity) {
-							{ // normal
-								double t = -52.65740740740741 + 1.531172839506173 * signalDistance;
-								if (t > 0.0) {
-									speedNormal = -4.888888888888889 + Math.Sqrt(t);
-								} else {
-									speedNormal = 0.0;
-								}
-							}
-							{ // pattern
-								double t = 23.90123456790123 + 1.275977366255144 * signalDistance;
-								if (t > 0.0) {
-									speedPattern = -4.888888888888889 + Math.Sqrt(t);
-								} else {
-									speedPattern = 0.0;
-								}
-							}
-							{ // application
-								double t = signalDistance;
-								if (t > 0.0) {
-									speedApplication = 1.138738321874893 * Math.Sqrt(t);
-								} else {
-									speedApplication = 0.0;
-								}
-							}
-						} else {
-							speedNormal = double.PositiveInfinity;
-							speedPattern = double.PositiveInfinity;
-							speedApplication = double.PositiveInfinity;
-						}
-						// temporary speed restriction
-						{
-							double deceleration = 1.0 * Train.Cars[Train.DriverCar].Specs.BrakeDecelerationAtServiceMaximumPressure;
-							double lookAhead = 100.0 + (trainSpeed * trainSpeed) / (2.0 * deceleration);
-							int i0 = Train.Cars[Train.DriverCar].FrontAxle.Follower.LastTrackElement;
-							double p0 = Train.Cars[Train.DriverCar].FrontAxle.Follower.TrackPosition;
-							double p = p0;
-							for (int i = i0; i < TrackManager.CurrentTrack.Elements.Length; i++) {
-								double stp = TrackManager.CurrentTrack.Elements[i].StartingTrackPosition;
-								if (p0 + lookAhead <= stp) break;
-								p = TrackManager.CurrentTrack.Elements[i].StartingTrackPosition;
-								for (int j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
-									TrackManager.TransponderEvent e = TrackManager.CurrentTrack.Elements[i].Events[j] as TrackManager.TransponderEvent;
-									if (e != null) {
-										if (e.Type == TrackManager.TransponderType.AtsPTemporarySpeedRestriction) {
-											double pe = p + e.TrackPositionDelta;
-											double distance = pe - p0;
-											if (distance > 0.0 & trainSpeed > e.OptionalFloat) {
-												{ // normal
-													double speed;
-													double t = -52.65740740740741 + 1.531172839506173 * distance;
-													if (t > 0.0) {
-														speed = -4.888888888888889 + Math.Sqrt(t) + e.OptionalFloat;
-													} else {
-														speed = e.OptionalFloat;
-													}
-													if (speed < speedNormal) speedNormal = speed;
-												}
-												{ // pattern
-													double speed;
-													double t = 23.90123456790123 + 1.275977366255144 * distance;
-													if (t > 0.0) {
-														speed = -4.888888888888889 + Math.Sqrt(t) + e.OptionalFloat;
-													} else {
-														speed = e.OptionalFloat;
-													}
-													if (speed < speedPattern) speedPattern = speed;
-												}
-												{ // application
-													double speed = 1.138738321874893 * Math.Sqrt(distance) + e.OptionalFloat;
-													if (speed < speedApplication) speedApplication = speed;
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-						// permanent speed restriction
-						if (trainSpeed > Train.Specs.Safety.Ats.AtsPPermanentSpeed) {
-							if (Train.Specs.Safety.Ats.AtsPPermanentSpeed < speedNormal) speedNormal = Train.Specs.Safety.Ats.AtsPPermanentSpeed;
-							if (Train.Specs.Safety.Ats.AtsPPermanentSpeed < speedPattern) speedPattern = Train.Specs.Safety.Ats.AtsPPermanentSpeed;
-							if (Train.Specs.Safety.Ats.AtsPPermanentSpeed < speedApplication) speedApplication = Train.Specs.Safety.Ats.AtsPPermanentSpeed;
-						}
-						// determine state
-						if (trainSpeed >= speedApplication) {
-							if (Train.Specs.Safety.State != SafetyState.Service) {
-								Train.Specs.Safety.State = SafetyState.Service;
-							}
-						} else if (trainSpeed >= speedPattern) {
-							if (Train.Specs.Safety.State == SafetyState.Normal) {
-								Train.Specs.Safety.State = SafetyState.Pattern;
-							}
-						} else if (trainSpeed >= speedNormal) {
-							if (Train.Specs.Safety.State == SafetyState.Service) {
-								Train.Specs.Safety.State = SafetyState.Pattern;
-							}
-						} else {
-							if (Train.Specs.Safety.State != SafetyState.Normal) {
-								Train.Specs.Safety.State = SafetyState.Normal;
-							}
-						}
-						// apply state
-						if (Train.Specs.Safety.State == SafetyState.Service & !brakeRelease) {
-							Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.MaximumBrakeNotch;
-							Train.Specs.AirBrake.Handle.Safety = AirBrakeHandleState.Service;
-						}
-						if (Train.Specs.Safety.Ats.AtsPDistance != double.PositiveInfinity) {
-							Train.Specs.Safety.Ats.AtsPDistance -= Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed * TimeElapsed;
-						}
-						// play ding
-						bool q = Train.Specs.Safety.State == SafetyState.Normal | state == SafetyState.Normal;
-						if (Train.Specs.Safety.State != state & (q | !brakeRelease)) {
-							int snd = Train.Cars[Train.DriverCar].Sounds.Ding.SoundBufferIndex;
-							if (snd >= 0) {
-								World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.Ding.Position;
-								SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
-							}
-						}
-					}
-				} else if (Train.Specs.Safety.Mode == SafetySystem.Atc) {
-					// atc
-					if (Train.Specs.Safety.State != SafetyState.Normal & Train.Specs.Safety.State != SafetyState.Service) {
-						Train.Specs.Safety.State = SafetyState.Normal;
-					}
-					if (Train.Specs.Safety.Atc.Transmitting) {
-						// limit
-						double spd = Train.RouteLimits.Length > 0 ? Train.RouteLimits[Train.RouteLimits.Length - 1] : double.PositiveInfinity;
-						// upcoming speed limits
-						double Position = Train.Cars[0].FrontAxle.Follower.TrackPosition;
-						double CurrentSpeed = Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed;
-						double Deceleration = 0.4 * Train.Cars[Train.DriverCar].Specs.BrakeDecelerationAtServiceMaximumPressure;
-						double LookAhead = 50.0 + 555.555555555555 / Deceleration; // 120 km/h
-						{
-							int lte = Train.Cars[0].FrontAxle.Follower.LastTrackElement;
-							bool limit = false;
-							for (int i = lte; i < TrackManager.CurrentTrack.Elements.Length; i++) {
-								double stp = TrackManager.CurrentTrack.Elements[i].StartingTrackPosition;
-								if (Position + LookAhead <= stp) break;
-								int j;
-								for (j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
-									if (!limit & TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.LimitChangeEvent) {
-										TrackManager.LimitChangeEvent e = (TrackManager.LimitChangeEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
-										if (e.NextSpeedLimit < spd) {
-											double d = stp + e.TrackPositionDelta - Position;
-											if (d > 0.0) {
-												double s = Math.Sqrt(2.0 * Deceleration * d + e.NextSpeedLimit * e.NextSpeedLimit);
-												if (s >= 36.1111111111111) {
-													s = double.PositiveInfinity;
-												} else if (s >= 33.3333333333333) {
-													s = 33.3333333333333;
-												} else if (s >= 30.5555555555555) {
-													s = 30.5555555555555;
-												} else if (s >= 27.7777777777777) {
-													s = 27.7777777777777;
-												} else if (s >= 25.0000000000000) {
-													s = 25.0000000000000;
-												} else if (s >= 20.8333333333333) {
-													s = 20.8333333333333;
-												} else if (s >= 18.0555555555555) {
-													s = 18.0555555555555;
-												} else if (s >= 15.2777777777777) {
-													s = 15.2777777777777;
-												} else if (s >= 12.5000000000000) {
-													s = 12.5000000000000;
-												} else if (s >= 6.94444444444444) {
-													s = 6.94444444444444;
-												} else if (s >= 4.16666666666666) {
-													s = 4.16666666666666;
-												} else {
-													s = 0.0;
-												}
-												if (s < e.NextSpeedLimit) s = e.NextSpeedLimit;
-												if (s < spd - 0.01) spd = s;
-											}
-										}
-										limit = true;
-									}
-								} if (j < TrackManager.CurrentTrack.Elements[i].Events.Length) break;
-							}
-						}
-						// previous train
-						if (Position > Train.Specs.Safety.Atc.LastSectionPosition + 200.0) {
-							double p0 = 200.0 * Math.Round(0.005 * Position);
-							Train.Specs.Safety.Atc.LastSectionPosition = p0;
-						}
-						{
-							for (int i = 0; i < Trains.Length; i++) {
-								if (i != Train.TrainIndex & (Trains[i].State == TrainState.Available | Trains[i].State == TrainState.Bogus)) {
-									double p1 = 200.0 * Math.Floor(0.005 * Trains[i].Cars[Trains[i].Cars.Length - 1].RearAxle.Follower.TrackPosition);
-									if (p1 > Position) {
-										p1 -= 200.0;
-										double d = p1 - Train.Specs.Safety.Atc.LastSectionPosition;
-										if (d > 0.0) {
-											double s = Math.Sqrt(2.0 * Deceleration * d);
-											if (s >= 36.1111111111111) {
-												s = double.PositiveInfinity;
-											} else if (s >= 33.3333333333333) {
-												s = 33.3333333333333;
-											} else if (s >= 30.5555555555555) {
-												s = 30.5555555555555;
-											} else if (s >= 27.7777777777777) {
-												s = 27.7777777777777;
-											} else if (s >= 25.0000000000000) {
-												s = 25.0000000000000;
-											} else if (s >= 20.8333333333333) {
-												s = 20.8333333333333;
-											} else if (s >= 18.0555555555555) {
-												s = 18.0555555555555;
-											} else if (s >= 15.2777777777777) {
-												s = 15.2777777777777;
-											} else if (s >= 12.5000000000000) {
-												s = 12.5000000000000;
-											} else if (s >= 6.94444444444444) {
-												s = 6.94444444444444;
-											} else if (s >= 4.16666666666666) {
-												s = 4.16666666666666;
-											} else {
-												s = 0.0;
-											}
-											if (s < spd - 0.01) spd = s;
-										} else {
-											spd = 0.0;
-										}
-									}
-								}
-							}
-						}
-						// new speed restriction
-						if (Math.Abs(spd - Train.Specs.Safety.Atc.SpeedRestriction) > 0.0277777777777778) {
-							int snd = Train.Cars[Train.DriverCar].Sounds.Ding.SoundBufferIndex;
-							if (snd >= 0) {
-								World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.Ding.Position;
-								SoundManager.PlaySound(snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, false);
-							}
-						}
-						Train.Specs.Safety.Atc.SpeedRestriction = spd;
-						// service
-						if (Train.Specs.Safety.State == SafetyState.Service) {
-							if (Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed <= Train.Specs.Safety.Atc.SpeedRestriction & Train.Specs.Safety.Atc.SpeedRestriction > 0.0) {
-								Train.Specs.Safety.State = SafetyState.Normal;
-							} else {
-								if (spd == 0.0) {
-									Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.MaximumBrakeNotch;
-								} else {
-									int n = (int)Math.Ceiling(10.0 * (Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed - spd));
-									if (n < Train.Specs.CurrentBrakeNotch.Driver) {
-										n = Train.Specs.CurrentBrakeNotch.Driver;
-									}
-									if (n < 1) n = 1;
-									if (n > Train.Specs.MaximumBrakeNotch) {
-										n = Train.Specs.MaximumBrakeNotch;
-									}
-									Train.Specs.CurrentBrakeNotch.Safety = n;
-								}
-								Train.Specs.AirBrake.Handle.Safety = AirBrakeHandleState.Service;
-							}
-						} else {
-							if (Train.Cars[Train.DriverCar].Specs.CurrentPerceivedSpeed >= Train.Specs.Safety.Atc.SpeedRestriction + 0.555555555555556 | Train.Specs.Safety.Atc.SpeedRestriction == 0.0) {
-								Train.Specs.Safety.State = SafetyState.Service;
-							}
-						}
-					} else {
-						Train.Specs.CurrentEmergencyBrake.Safety = true;
-					}
-				}
-				if (Train.Cars[Train.DriverCar].Specs.BrakeType == CarBrakeType.AutomaticAirBrake) {
-					if (Train.Specs.AirBrake.Handle.Safety != AirBrakeHandleState.Release) {
-						Train.Specs.CurrentPowerNotch.Safety = 0;
-					}
-				} else if (Train.Specs.CurrentBrakeNotch.Safety != 0) {
-					Train.Specs.CurrentPowerNotch.Safety = 0;
-				}
-				if (Train.Specs.CurrentEmergencyBrake.Safety | Train.Specs.CurrentHoldBrake.Actual) {
-					Train.Specs.CurrentPowerNotch.Safety = 0;
-				}
-				if (Train.Specs.CurrentEmergencyBrake.Safety) {
-					Train.Specs.CurrentBrakeNotch.Safety = Train.Specs.MaximumBrakeNotch;
-					Train.Specs.AirBrake.Handle.Safety = AirBrakeHandleState.Service;
-				}
-				if ((GetDoorsState(Train, true, true) & TrainDoorState.AllClosed) == 0) {
-					Train.Specs.CurrentPowerNotch.Safety = 0;
-				}
-			} else {
-				// security system deactivated
-				Train.Specs.Safety.State = SafetyState.Initialization;
-				Train.Specs.Safety.Ats.Time = Game.SecondsSinceMidnight;
-				Train.Specs.Safety.Eb.BellState = SafetyState.Normal;
-				Train.Specs.Safety.Eb.Time = Game.SecondsSinceMidnight;
-				Train.Specs.Safety.Eb.Reset = false;
-				if (Train.Specs.CurrentPowerNotch.Driver > 0) {
-					int snd = Train.Cars[Train.DriverCar].Sounds.Ats.SoundBufferIndex;
-					if (snd >= 0) {
-						if (!SoundManager.IsPlaying(Train.Cars[Train.DriverCar].Sounds.Ats.SoundSourceIndex)) {
-							World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.Ats.Position;
-							SoundManager.PlaySound(ref Train.Cars[Train.DriverCar].Sounds.Ats.SoundSourceIndex, snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, true);
-						}
-					}
-				} else {
-					SoundManager.StopSound(ref Train.Cars[Train.DriverCar].Sounds.Ats.SoundSourceIndex);
-				}
-				SoundManager.StopSound(ref Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundSourceIndex);
-				SoundManager.StopSound(ref Train.Cars[Train.DriverCar].Sounds.Eb.SoundSourceIndex);
-			}
-			// clear transponder data
-			if (!KeepTransponderData) {
-				Train.Specs.Safety.RemovePendingTransponder();
-			}
-		}
-
-		// acknowledge security system
-		internal enum AcknowledgementType { Alarm, Chime, Eb, Reset, Override }
-		internal static void AcknowledgeSafetySystem(Train Train, AcknowledgementType Type) {
-			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) return;
-			switch (Type) {
-				case AcknowledgementType.Alarm:
-					if (Train.Specs.Safety.State == SafetyState.Ringing) {
-						if (Train.Specs.CurrentPowerNotch.Driver == 0) {
-							bool q = false;
-							if (Train.Specs.CurrentEmergencyBrake.Driver) {
-								q = true;
-							} else if (Train.Cars[Train.DriverCar].Specs.BrakeType == CarBrakeType.AutomaticAirBrake) {
-								if (Train.Specs.AirBrake.Handle.Driver == AirBrakeHandleState.Service) q = true;
-							} else {
-								if (Train.Specs.CurrentBrakeNotch.Driver > 0) q = true;
-							}
-							if (q) {
-								Train.Specs.Safety.State = SafetyState.Normal;
-								int snd = Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundBufferIndex;
-								if (snd >= 0 & Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundSourceIndex < 0) {
-									World.Vector3D pos = Train.Cars[Train.DriverCar].Sounds.AtsCnt.Position;
-									SoundManager.PlaySound(ref Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundSourceIndex, snd, Train, Train.DriverCar, pos, SoundManager.Importance.DontCare, true);
-								}
-							}
-						}
-					} break;
-				case AcknowledgementType.Chime:
-					SoundManager.StopSound(ref Train.Cars[Train.DriverCar].Sounds.AtsCnt.SoundSourceIndex);
-					break;
-				case AcknowledgementType.Eb:
-					Train.Specs.Safety.Eb.Reset = true;
-					break;
-				case AcknowledgementType.Reset:
-					if (Train.Specs.Safety.Mode == SafetySystem.AtsP) {
-						bool q = false;
-						if (Train.Cars[Train.DriverCar].Specs.BrakeType == CarBrakeType.AutomaticAirBrake) {
-							q = Train.Specs.CurrentReverser.Driver == 0 & Train.Specs.CurrentPowerNotch.Driver == 0 & (Train.Specs.AirBrake.Handle.Driver == AirBrakeHandleState.Service | Train.Specs.CurrentEmergencyBrake.Driver) & !Train.Specs.CurrentHoldBrake.Driver;
-						} else {
-							q = Train.Specs.CurrentReverser.Driver == 0 & Train.Specs.CurrentPowerNotch.Driver == 0 & (Train.Specs.CurrentBrakeNotch.Driver == Train.Specs.MaximumBrakeNotch | Train.Specs.CurrentEmergencyBrake.Driver) & !Train.Specs.CurrentHoldBrake.Driver;
-						}
-						if (q) {
-							Train.Specs.Safety.Ats.AtsPDistance = double.PositiveInfinity;
-						}
-					} break;
-				case AcknowledgementType.Override:
-					if (Train.Specs.Safety.Mode == SafetySystem.AtsP & Train.Specs.Safety.Ats.AtsPOverrideTime == double.NegativeInfinity) {
-						Train.Specs.Safety.Ats.AtsPOverrideTime = Game.SecondsSinceMidnight;
-					} break;
-			}
+			Game.UpdatePluginSections(Train);
+			Train.Plugin.LastSection = Train.CurrentSectionIndex;
+			Train.Plugin.UpdatePlugin();
 		}
 
 		// update brake system
@@ -3192,11 +2491,10 @@ namespace OpenBve {
 			Train.Specs.CurrentEmergencyBrake.Driver = true;
 			Train.Specs.CurrentHoldBrake.Driver = false;
 			Train.Specs.CurrentConstSpeed = false;
-			Train.Specs.Safety.Eb.Reset = true;
 			// plugin
-			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.CurrentPlugin.UpdatePower();
-				PluginManager.CurrentPlugin.UpdateBrake();
+			if (Train.Plugin != null) {
+				Train.Plugin.UpdatePower();
+				Train.Plugin.UpdateBrake();
 			}
 		}
 
@@ -3217,11 +2515,10 @@ namespace OpenBve {
 				}
 				ApplyAirBrakeHandle(Train, AirBrakeHandleState.Service);
 				Train.Specs.CurrentEmergencyBrake.Driver = false;
-				Train.Specs.Safety.Eb.Reset = true;
 				// plugin
-				if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-					PluginManager.CurrentPlugin.UpdatePower();
-					PluginManager.CurrentPlugin.UpdateBrake();
+				if (Train.Plugin != null) {
+					Train.Plugin.UpdatePower();
+					Train.Plugin.UpdateBrake();
 				}
 			}
 		}
@@ -3229,10 +2526,9 @@ namespace OpenBve {
 		// apply hold brake
 		internal static void ApplyHoldBrake(Train Train, bool Value) {
 			Train.Specs.CurrentHoldBrake.Driver = Value;
-			// plugin
-			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.CurrentPlugin.UpdatePower();
-				PluginManager.CurrentPlugin.UpdateBrake();
+			if (Train.Plugin != null) {
+				Train.Plugin.UpdatePower();
+				Train.Plugin.UpdateBrake();
 			}
 		}
 
@@ -3244,9 +2540,8 @@ namespace OpenBve {
 			if (r > 1) r = 1;
 			if (a != r) {
 				Train.Specs.CurrentReverser.Driver = r;
-				// plugin
-				if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-					PluginManager.CurrentPlugin.UpdateReverser();
+				if (Train.Plugin != null) {
+					Train.Plugin.UpdateReverser();
 				}
 				Game.AddBlackBoxEntry(Game.BlackBoxEventToken.None);
 				// sound
@@ -3280,9 +2575,6 @@ namespace OpenBve {
 				b = 0;
 			} else if (b > Train.Specs.MaximumBrakeNotch) {
 				b = Train.Specs.MaximumBrakeNotch;
-			}
-			if (p != Train.Specs.CurrentPowerNotch.Driver | b != Train.Specs.CurrentBrakeNotch.Driver) {
-				Train.Specs.Safety.Eb.Reset = true;
 			}
 			// power sound
 			if (p < Train.Specs.CurrentPowerNotch.Driver) {
@@ -3357,9 +2649,9 @@ namespace OpenBve {
 			Train.Specs.CurrentBrakeNotch.Driver = b;
 			Game.AddBlackBoxEntry(Game.BlackBoxEventToken.None);
 			// plugin
-			if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-				PluginManager.CurrentPlugin.UpdatePower();
-				PluginManager.CurrentPlugin.UpdateBrake();
+			if (Train.Plugin != null) {
+				Train.Plugin.UpdatePower();
+				Train.Plugin.UpdateBrake();
 			}
 		}
 
@@ -3385,7 +2677,6 @@ namespace OpenBve {
 		internal static void ApplyAirBrakeHandle(Train Train, AirBrakeHandleState State) {
 			if (Train.Cars[Train.DriverCar].Specs.BrakeType == CarBrakeType.AutomaticAirBrake) {
 				if (State != Train.Specs.AirBrake.Handle.Driver) {
-					Train.Specs.Safety.Eb.Reset = true;
 					// sound when moved to service
 					if (State == AirBrakeHandleState.Service) {
 						int snd = Train.Cars[Train.DriverCar].Sounds.Brake.SoundBufferIndex;
@@ -3424,9 +2715,9 @@ namespace OpenBve {
 					Train.Specs.AirBrake.Handle.Driver = State;
 					Game.AddBlackBoxEntry(Game.BlackBoxEventToken.None);
 					// plugin
-					if (Train.Specs.Safety.Mode == SafetySystem.Plugin) {
-						PluginManager.CurrentPlugin.UpdatePower();
-						PluginManager.CurrentPlugin.UpdateBrake();
+					if (Train.Plugin != null) {
+						Train.Plugin.UpdatePower();
+						Train.Plugin.UpdateBrake();
 					}
 				}
 			}
@@ -3926,8 +3217,8 @@ namespace OpenBve {
 			int stopIndex = Game.GetStopIndex(stationIndex, train.Cars.Length);
 			if (stopIndex >= 0) {
 				if (train == PlayerTrain) {
-					if (PluginManager.CurrentPlugin != null) {
-						PluginManager.CurrentPlugin.BeginJump((OpenBveApi.Runtime.InitializationModes)Game.TrainStart);
+					if (train.Plugin != null) {
+						train.Plugin.BeginJump((OpenBveApi.Runtime.InitializationModes)Game.TrainStart);
 					}
 				}
 				for (int h = 0; h < train.Cars.Length; h++) {
@@ -3999,8 +3290,8 @@ namespace OpenBve {
 				ObjectManager.UpdateAnimatedWorldObjects(0.0, true);
 				TrainManager.UpdateTrainObjects(0.0, true);
 				if (train == PlayerTrain) {
-					if (PluginManager.CurrentPlugin != null) {
-						PluginManager.CurrentPlugin.EndJump();
+					if (train.Plugin != null) {
+						train.Plugin.EndJump();
 					}
 				}
 			}

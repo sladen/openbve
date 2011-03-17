@@ -39,6 +39,9 @@ namespace OpenBve {
 			// file system
 			FileSystem = FileSystem.FromCommandLineArgs(args);
 			FileSystem.CreateFileSystem();
+			if (!System.IO.File.Exists(Interface.GetCombinedFileName(FileSystem.GetDataFolder("Plugins"), "OpenBveAts.dll"))) {
+				MessageBox.Show("Some data files are missing. Please check that your openBVE installation is complete. You can download openBVE from http://openbve.trainsimcentral.co.uk.", "openBVE", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
 			// start
 			#if DEBUG
 			Start(args);
@@ -46,10 +49,17 @@ namespace OpenBve {
 			try {
 				Start(args);
 			} catch (Exception ex) {
-				if (PluginManager.CurrentPlugin != null && PluginManager.CurrentPlugin.LastException != null) {
-					string text = GetExceptionText(PluginManager.CurrentPlugin.LastException, 5);
-					MessageBox.Show("The train plugin " + PluginManager.CurrentPlugin.PluginTitle + " caused the following exception:\n\n" + text, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-				} else {
+				bool shown = false;
+				for (int i = 0; i < TrainManager.Trains.Length; i++) {
+					if (TrainManager.Trains[i] != null && TrainManager.Trains[i].Plugin != null) {
+						if (TrainManager.Trains[i].Plugin.LastException != null) {
+							string text = GetExceptionText(TrainManager.Trains[i].Plugin.LastException, 5);
+							MessageBox.Show("The train plugin " + TrainManager.Trains[i].Plugin.PluginTitle + " caused the following exception:\n\n" + text, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+							shown = false;
+						}
+					}
+				}
+				if (!shown) {
 					string text = GetExceptionText(ex, 5);
 					MessageBox.Show(text, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
@@ -62,7 +72,11 @@ namespace OpenBve {
 			Renderer.Deinitialize();
 			TextureManager.UnuseAllTextures();
 			Asynchronous.Deinitialize();
-			PluginManager.UnloadPlugin();
+			for (int i = 0; i < TrainManager.Trains.Length; i++) {
+				if (TrainManager.Trains[i] != null && TrainManager.Trains[i].Plugin != null) {
+					PluginManager.UnloadPlugin(TrainManager.Trains[i]);
+				}
+			}
 			SoundManager.Deinitialize();
 			// close sdl
 			for (int i = 0; i < Interface.CurrentJoysticks.Length; i++) {

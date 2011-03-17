@@ -1,12 +1,62 @@
 ﻿using System;
+using System.Text;
 
 namespace OpenBveApi {
 	/// <summary>Provides path-related functions for accessing files and directories in a cross-platform manner.</summary>
 	public static class Path {
 		
+		
+		// --- path references ---
+		
+		/// <summary>Represents a reference to a file or folder.</summary>
+		public abstract class PathReference { }
+		
+		/// <summary>Represents a reference to a file.</summary>
+		public class FileReference : PathReference {
+			// --- members ---
+			/// <summary>The absolute path to the file.</summary>
+			public string File;
+			/// <summary>Additional data that describes how to process the file, or a null reference.</summary>
+			public string Data;
+			/// <summary>The encoding that should be used to process textual data if no specific encoding is mandated.</summary>
+			public Encoding Encoding;
+			// --- constructors ---
+			/// <summary>Creates a new file reference.</summary>
+			/// <param name="file">The absolute path to the file.</param>
+			/// <param name="data">Additional data that describes how to process the file, or a null reference.</param>
+			/// <param name="encoding">The encoding that should be used to process textual data if no specific encoding is mandated.</param>
+			public FileReference(string file, string data, Encoding encoding) {
+				this.File = file;
+				this.Data = data;
+				this.Encoding = encoding;
+			}
+		}
+		
+		/// <summary>Represents a reference to a folder.</summary>
+		public class FolderReference : PathReference {
+			// --- members ---
+			/// <summary>The absolute path to the folder.</summary>
+			public string File;
+			/// <summary>Additional data that describes how to process the folder, or a null reference.</summary>
+			public string Data;
+			/// <summary>The encoding that should be used to process textual data if no specific encoding is mandated.</summary>
+			public Encoding Encoding;
+			// --- constructors ---
+			/// <summary>Creates a new folder reference.</summary>
+			/// <param name="file">The absolute path to the folder.</param>
+			/// <param name="data">Additional data that describes how to process the folder, or a null reference.</param>
+			/// <param name="encoding">The encoding that should be used to process textual data if no specific encoding is mandated.</param>
+			public FolderReference(string file, string data, Encoding encoding) {
+				this.File = file;
+				this.Data = data;
+				this.Encoding = encoding;
+			}
+		}
+		
+		
 		// --- read-only fields ---
 		
-		/// <summary>The list of characters that are invalid in a platform-independent relative path.</summary>
+		/// <summary>The list of characters that are invalid in platform-independent relative paths.</summary>
 		private static readonly char[] InvalidPathChars = new char[] { ':', '*', '?', '"', '<', '>', '|' };
 		
 		

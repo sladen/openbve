@@ -1,4 +1,6 @@
-﻿using System;
+﻿// === NOT CURRENTLY COMPILED ===
+
+using System;
 using System.Globalization;
 
 namespace OpenBve {

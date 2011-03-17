@@ -186,6 +186,8 @@ namespace OpenBve {
 			}
 		}
 		internal override void SetBeacon(BeaconData beacon) {
+//			Game.AddDebugMessage("beacon signal aspect " + beacon.Signal.Aspect.ToString(), 3.0);
+//			Game.AddDebugMessage("Beacon, type=" + beacon.Type.ToString() + ", data=" + beacon.Optional.ToString(), 3.0);
 			try {
 				this.Api.SetBeacon(beacon);
 			} catch (Exception ex) {

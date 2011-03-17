@@ -7,9 +7,12 @@ namespace OpenBve {
 		
 		/// <summary>Represents an abstract plugin.</summary>
 		internal abstract class Plugin {
-			// members
+			
+			// --- members ---
 			/// <summary>The file title of the plugin, including the file extension.</summary>
 			internal string PluginTitle;
+			/// <summary>Whether the plugin is the default ATS/ATC plugin.</summary>
+			internal bool IsDefault;
 			/// <summary>Whether the plugin returned valid information in the last Elapse call.</summary>
 			internal bool PluginValid;
 			/// <summary>The debug message the plugin returned in the last Elapse call.</summary>
@@ -34,7 +37,8 @@ namespace OpenBve {
 			internal int LastSection;
 			/// <summary>The last exception the plugin raised.</summary>
 			internal Exception LastException;
-			// functions
+			
+			// --- functions ---
 			/// <summary>Called to load and initialize the plugin.</summary>
 			/// <param name="specs">The train specifications.</param>
 			/// <param name="mode">The initialization mode of the train.</param>
@@ -66,7 +70,7 @@ namespace OpenBve {
 				double bestLocation = double.MaxValue;
 				double bestSpeed = 0.0;
 				for (int i = 0; i < TrainManager.Trains.Length; i++) {
-					if (TrainManager.Trains[i] != this.Train) {
+					if (TrainManager.Trains[i] != this.Train & TrainManager.Trains[i].State == TrainManager.TrainState.Available) {
 						int c = TrainManager.Trains[i].Cars.Length - 1;
 						double z = TrainManager.Trains[i].Cars[c].RearAxle.Follower.TrackPosition - TrainManager.Trains[i].Cars[c].RearAxlePosition - 0.5 * TrainManager.Trains[i].Cars[c].Length;
 						if (z >= location & z < bestLocation) {
@@ -371,51 +375,12 @@ namespace OpenBve {
 			/// <param name="sectionIndex">The section the beacon is attached to, or -1 if none, or TrackManager.TransponderSpecialSection.NextRedSection.</param>
 			/// <param name="optional">Optional data attached to the beacon.</param>
 			internal void UpdateBeacon(int type, int sectionIndex, int optional) {
-				int aspect = 255;
-				double distance = double.MaxValue;
-				if (sectionIndex == (int)TrackManager.TransponderSpecialSection.NextRedSection) {
-					sectionIndex = this.Train.CurrentSectionIndex;
-					if (sectionIndex >= 0) {
-						sectionIndex = Game.Sections[sectionIndex].NextSection;
-						while (sectionIndex >= 0) {
-							int a = Game.Sections[sectionIndex].CurrentAspect;
-							if (a >= 0) {
-								if (Game.Sections[sectionIndex].Aspects[a].Number == 0) {
-									break;
-								}
-							}
-							sectionIndex = Game.Sections[sectionIndex].NextSection;
-						}
-					}
-				}
 				if (sectionIndex >= 0) {
-					if (Game.Sections[sectionIndex].Exists(this.Train)) {
-						int n = Game.Sections[sectionIndex].NextSection;
-						if (n >= 0) {
-							int c = -1;
-							int a = Game.Sections[n].CurrentAspect;
-							for (int i = Game.Sections[sectionIndex].Aspects.Length - 1; i >= 0; i--) {
-								if (Game.Sections[sectionIndex].Aspects[i].Number > Game.Sections[n].Aspects[a].Number) {
-									c = i;
-								}
-							}
-							if (c == -1) {
-								c = Game.Sections[sectionIndex].Aspects.Length - 1;
-							}
-							aspect = Game.Sections[sectionIndex].Aspects[c].Number;
-						} else {
-							aspect = Game.Sections[sectionIndex].Aspects[Game.Sections[sectionIndex].Aspects.Length - 1].Number;
-						}
-					} else {
-						int a = Game.Sections[sectionIndex].CurrentAspect;
-						if (a >= 0) {
-							aspect = Game.Sections[sectionIndex].Aspects[a].Number;
-						}
-					}
-					double position = this.Train.Cars[0].FrontAxle.Follower.TrackPosition - this.Train.Cars[0].FrontAxlePosition + 0.5 * this.Train.Cars[0].Length;
-					distance = Game.Sections[sectionIndex].TrackPosition - position;
+					SignalData signal = Game.GetPluginSignal(this.Train, sectionIndex);
+					SetBeacon(new BeaconData(type, optional, signal));
+				} else {
+					SetBeacon(new BeaconData(type, optional, new SignalData(-1, double.MaxValue)));
 				}
-				SetBeacon(new BeaconData(type, optional, new SignalData(aspect, distance)));
 			}
 			/// <summary>Called when the train passes a beacon.</summary>
 			/// <param name="data">The beacon data.</param>
@@ -439,27 +404,15 @@ namespace OpenBve {
 			/// <param name="data">The AI data.</param>
 			/// <remarks>This function should not be called directly. Call UpdateAI instead.</remarks>
 			internal abstract void PerformAI(AIData data);
+			
 		}
 		
-		/// <summary>The currently loaded plugin, or a null reference.</summary>
-		internal static Plugin CurrentPlugin = null;
-		
-		/// <summary>Loads the train plugin from the ats.cfg for the specified train.</summary>
+		/// <summary>Loads a custom plugin for the specified train.</summary>
+		/// <param name="train">The train to attach the plugin to.</param>
 		/// <param name="trainFolder">The absolute path to the train folder.</param>
 		/// <param name="encoding">The encoding to be used.</param>
-		/// <param name="train">The train to attach the plugin to.</param>
-		/// <returns>Whether a plugin was loaded successfully.</returns>
-		internal static bool LoadPlugin(string trainFolder, System.Text.Encoding encoding, TrainManager.Train train) {
-			/*
-			 * Unload plugin if already loaded.
-			 * */
-			if (CurrentPlugin != null) {
-				UnloadPlugin();
-			}
-			/*
-			 * Check if the ats.cfg file exists, and if
-			 * it points to an existing plugin file.
-			 * */
+		/// <returns>Whether the plugin was loaded successfully.</returns>
+		internal static bool LoadCustomPlugin(TrainManager.Train train, string trainFolder, System.Text.Encoding encoding) {
 			string config = Interface.GetCombinedFileName(trainFolder, "ats.cfg");
 			if (!System.IO.File.Exists(config)) {
 				return false;
@@ -468,11 +421,45 @@ namespace OpenBve {
 			if (lines.Length == 0) {
 				return false;
 			}
-			string pluginFile = Interface.GetCombinedFileName(trainFolder, lines[0]);
+			string file = Interface.GetCombinedFileName(trainFolder, lines[0]);
+			string title = System.IO.Path.GetFileName(file);
+			if (!System.IO.File.Exists(file)) {
+				Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + title + " could not be found in " + config);
+				return false;
+			}
+			return LoadPlugin(train, file, trainFolder);
+		}
+		
+		/// <summary>Loads the default plugin for the specified train.</summary>
+		/// <param name="train">The train to attach the plugin to.</param>
+		/// <param name="trainFolder">The train folder.</param>
+		/// <returns>Whether the plugin was loaded successfully.</returns>
+		internal static bool LoadDefaultPlugin(TrainManager.Train train, string trainFolder) {
+			string file = Interface.GetCombinedFileName(Program.FileSystem.GetDataFolder("Plugins"), "OpenbveAts.dll");
+			bool success = LoadPlugin(train, file, trainFolder);
+			if (success) {
+				train.Plugin.IsDefault = true;
+				SoundCfgParser.LoadDefaultPluginSounds(train, trainFolder);
+			}
+			return success;
+		}
+		
+		/// <summary>Loads the specified plugin for the specified train.</summary>
+		/// <param name="train">The train to attach the plugin to.</param>
+		/// <param name="pluginFile">The file to the plugin.</param>
+		/// <param name="trainFolder">The train folder.</param>
+		/// <returns>Whether the plugin was loaded successfully.</returns>
+		private static bool LoadPlugin(TrainManager.Train train, string pluginFile, string trainFolder) {
 			string pluginTitle = System.IO.Path.GetFileName(pluginFile);
 			if (!System.IO.File.Exists(pluginFile)) {
-				Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + pluginTitle + " could not be found in " + config);
+				Interface.AddMessage(Interface.MessageType.Error, true, "The train plugin " + pluginTitle + " could not be found.");
 				return false;
+			}
+			/*
+			 * Unload plugin if already loaded.
+			 * */
+			if (train.Plugin != null) {
+				UnloadPlugin(train);
 			}
 			/*
 			 * Prepare initialization data for the plugin.
@@ -517,12 +504,11 @@ namespace OpenBve {
 						object instance = assembly.CreateInstance(type.FullName);
 						IRuntime api = instance as IRuntime;
 						if (api != null) {
-							CurrentPlugin = new NetPlugin(pluginFile, trainFolder, api, train);
-							if (CurrentPlugin.Load(specs, mode)) {
-								train.Specs.Safety.Mode = TrainManager.SafetySystem.Plugin;
+							train.Plugin = new NetPlugin(pluginFile, trainFolder, api, train);
+							if (train.Plugin.Load(specs, mode)) {
 								return true;
 							} else {
-								CurrentPlugin = null;
+								train.Plugin = null;
 								return false;
 							}
 						}
@@ -547,12 +533,11 @@ namespace OpenBve {
 				Interface.AddMessage(Interface.MessageType.Warning, false, "The train plugin " + pluginTitle + " can only be used on 32-bit Microsoft Windows.");
 				return false;
 			}
-			CurrentPlugin = new LegacyPlugin(pluginFile, train);
-			if (CurrentPlugin.Load(specs, mode)) {
-				train.Specs.Safety.Mode = TrainManager.SafetySystem.Plugin;
+			train.Plugin = new LegacyPlugin(pluginFile, train);
+			if (train.Plugin.Load(specs, mode)) {
 				return true;
 			} else {
-				CurrentPlugin = null;
+				train.Plugin = null;
 				return false;
 			}
 		}
@@ -583,10 +568,11 @@ namespace OpenBve {
 		}
 		
 		/// <summary>Unloads the currently loaded plugin, if any.</summary>
-		internal static void UnloadPlugin() {
-			if (CurrentPlugin != null) {
-				CurrentPlugin.Unload();
-				CurrentPlugin = null;
+		/// <param name="train">Unloads the plugin for the specified train.</param>
+		internal static void UnloadPlugin(TrainManager.Train train) {
+			if (train.Plugin != null) {
+				train.Plugin.Unload();
+				train.Plugin = null;
 			}
 		}
 		

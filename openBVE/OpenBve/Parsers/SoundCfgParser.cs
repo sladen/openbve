@@ -12,6 +12,19 @@ namespace OpenBve {
 				LoadBve2Sound(TrainPath, Train);
 			}
 		}
+		
+		internal static void LoadDefaultPluginSounds(TrainManager.Train train, string trainFolder) {
+			World.Vector3D position = new World.Vector3D(train.Cars[0].DriverX, train.Cars[0].DriverY, train.Cars[0].DriverZ + 1.0);
+			const double radius = 2.0;
+			train.Cars[0].Sounds.Plugin = new TrainManager.CarSound[] {
+				TryLoadSound(Interface.GetCombinedFileName(trainFolder, "ats.wav"), position, radius),
+				TryLoadSound(Interface.GetCombinedFileName(trainFolder, "atscnt.wav"), position, radius),
+				TryLoadSound(Interface.GetCombinedFileName(trainFolder, "ding.wav"), position, radius),
+				TryLoadSound(Interface.GetCombinedFileName(trainFolder, "toats.wav"), position, radius),
+				TryLoadSound(Interface.GetCombinedFileName(trainFolder, "toatc.wav"), position, radius),
+				TryLoadSound(Interface.GetCombinedFileName(trainFolder, "eb.wav"), position, radius)
+			};
+		}
 
 		// load no sound
 		internal static void LoadNoSound(TrainManager.Train Train) {
@@ -23,8 +36,6 @@ namespace OpenBve {
 				Train.Cars[i].Sounds.Air = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.AirHigh = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.AirZero = TrainManager.CarSound.Empty;
-				Train.Cars[i].Sounds.Ats = TrainManager.CarSound.Empty;
-				Train.Cars[i].Sounds.AtsCnt = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.Brake = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.BrakeHandleApply = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.BrakeHandleMin = TrainManager.CarSound.Empty;
@@ -35,12 +46,10 @@ namespace OpenBve {
 				Train.Cars[i].Sounds.CpEnd = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.CpLoop = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.CpStart = TrainManager.CarSound.Empty;
-				Train.Cars[i].Sounds.Ding = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.DoorCloseL = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.DoorCloseR = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.DoorOpenL = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.DoorOpenR = TrainManager.CarSound.Empty;
-				Train.Cars[i].Sounds.Eb = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.EmrBrake = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.Flange = new TrainManager.CarSound[] { };
 				Train.Cars[i].Sounds.FlangeVolume = new double[] { };
@@ -62,8 +71,6 @@ namespace OpenBve {
 				Train.Cars[i].Sounds.RunVolume = new double[] { };
 				Train.Cars[i].Sounds.SpringL = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.SpringR = TrainManager.CarSound.Empty;
-				Train.Cars[i].Sounds.ToAtc = TrainManager.CarSound.Empty;
-				Train.Cars[i].Sounds.ToAts = TrainManager.CarSound.Empty;
 				Train.Cars[i].Sounds.Plugin = new TrainManager.CarSound[] { };
 			}
 		}
@@ -84,11 +91,7 @@ namespace OpenBve {
 			LoadNoSound(Train);
 			// load sounds for driver's car
 			Train.Cars[Train.DriverCar].Sounds.Adjust = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Adjust.wav"), panel, tiny);
-			Train.Cars[Train.DriverCar].Sounds.Ats = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Ats.wav"), cab, tiny);
-			Train.Cars[Train.DriverCar].Sounds.AtsCnt = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "AtsCnt.wav"), cab, tiny);
 			Train.Cars[Train.DriverCar].Sounds.Brake = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Brake.wav"), center, small);
-			Train.Cars[Train.DriverCar].Sounds.Ding = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Ding.wav"), panel, tiny);
-			Train.Cars[Train.DriverCar].Sounds.Eb = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Eb.wav"), panel, tiny);
 			Train.Cars[Train.DriverCar].Sounds.Halt = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Halt.wav"), cab, tiny);
 			Train.Cars[Train.DriverCar].Sounds.Horns[0].Sound = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Klaxon0.wav"), front, large);
 			Train.Cars[Train.DriverCar].Sounds.Horns[0].Loop = false;
@@ -101,8 +104,6 @@ namespace OpenBve {
 			Train.Cars[Train.DriverCar].Sounds.Horns[2].Loop = true;
 			Train.Cars[Train.DriverCar].Sounds.PilotLampOn = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "Leave.wav"), cab, tiny);
 			Train.Cars[Train.DriverCar].Sounds.PilotLampOff = TrainManager.CarSound.Empty;
-			Train.Cars[Train.DriverCar].Sounds.ToAtc = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "ToAtc.wav"), cab, tiny);
-			Train.Cars[Train.DriverCar].Sounds.ToAts = TryLoadSound(Interface.GetCombinedFileName(TrainPath, "ToAts.wav"), cab, tiny);
 			// load sounds for all cars
 			for (int i = 0; i < Train.Cars.Length; i++) {
 				World.Vector3D frontaxle = new World.Vector3D(0.0, 0.0, Train.Cars[i].FrontAxlePosition);
@@ -406,7 +407,7 @@ namespace OpenBve {
 							} i++;
 						} i--; break;
 					case "[horn]":
-						i++; 
+						i++;
 						while (i < Lines.Length && !Lines[i].StartsWith("[", StringComparison.Ordinal)) {
 							int j = Lines[i].IndexOf("=");
 							if (j >= 0) {

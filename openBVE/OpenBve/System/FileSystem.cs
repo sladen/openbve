@@ -3,6 +3,9 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
+// TODO: Ensure that parent directory references (../) are processed manually
+//       as System.IO.Path does not handle them correctly on all platforms.
+
 namespace OpenBve {
 	/// <summary>Represents the program's organization of files and folders.</summary>
 	internal class FileSystem {
@@ -49,7 +52,7 @@ namespace OpenBve {
 		}
 		
 		
-		// --- public functions ---
+		// --- internal functions ---
 		
 		/// <summary>Creates the file system information from the command line arguments. If no configuration file is specified in the command line arguments, the default lookup location is used. If no configuration file is found, default values are used.</summary>
 		/// <param name="args">The command line arguments.</param>

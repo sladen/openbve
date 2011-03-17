@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace OpenBve {
@@ -105,12 +106,10 @@ namespace OpenBve {
 		}
 		private struct Transponder {
 			internal double TrackPosition;
-			internal TrackManager.TransponderType Type;
+			internal int Type;
 			internal bool ShowDefaultObject;
-			internal bool SwitchSubsystem;
 			internal int BeaconStructureIndex;
-			internal int OptionalInteger;
-			internal double OptionalFloat;
+			internal int Data;
 			internal int Section;
 			internal double X;
 			internal double Y;
@@ -3331,11 +3330,10 @@ namespace OpenBve {
 												int n = Data.Blocks[BlockIndex].Transponder.Length;
 												Array.Resize<Transponder>(ref Data.Blocks[BlockIndex].Transponder, n + 1);
 												Data.Blocks[BlockIndex].Transponder[n].TrackPosition = Data.TrackPosition;
-												Data.Blocks[BlockIndex].Transponder[n].Type = (TrackManager.TransponderType)type;
-												Data.Blocks[BlockIndex].Transponder[n].OptionalInteger = optional;
+												Data.Blocks[BlockIndex].Transponder[n].Type = type;
+												Data.Blocks[BlockIndex].Transponder[n].Data = optional;
 												Data.Blocks[BlockIndex].Transponder[n].BeaconStructureIndex = structure;
 												Data.Blocks[BlockIndex].Transponder[n].Section = section;
-												Data.Blocks[BlockIndex].Transponder[n].SwitchSubsystem = optional != -1;
 												Data.Blocks[BlockIndex].Transponder[n].ShowDefaultObject = false;
 												Data.Blocks[BlockIndex].Transponder[n].X = x;
 												Data.Blocks[BlockIndex].Transponder[n].Y = y;
@@ -3391,20 +3389,15 @@ namespace OpenBve {
 											int n = Data.Blocks[BlockIndex].Transponder.Length;
 											Array.Resize<Transponder>(ref Data.Blocks[BlockIndex].Transponder, n + 1);
 											Data.Blocks[BlockIndex].Transponder[n].TrackPosition = Data.TrackPosition;
-											Data.Blocks[BlockIndex].Transponder[n].Type = (TrackManager.TransponderType)type;
+											Data.Blocks[BlockIndex].Transponder[n].Type = type;
+											Data.Blocks[BlockIndex].Transponder[n].Data = work;
 											Data.Blocks[BlockIndex].Transponder[n].ShowDefaultObject = true;
-											Data.Blocks[BlockIndex].Transponder[n].SwitchSubsystem = work == 0;
 											Data.Blocks[BlockIndex].Transponder[n].BeaconStructureIndex = -1;
 											Data.Blocks[BlockIndex].Transponder[n].X = x;
 											Data.Blocks[BlockIndex].Transponder[n].Y = y;
 											Data.Blocks[BlockIndex].Transponder[n].Yaw = yaw * 0.0174532925199433;
 											Data.Blocks[BlockIndex].Transponder[n].Pitch = pitch * 0.0174532925199433;
 											Data.Blocks[BlockIndex].Transponder[n].Roll = roll * 0.0174532925199433;
-											if (type == 2) {
-												Data.Blocks[BlockIndex].Transponder[n].OptionalInteger = CurrentStop >= 0 ? CurrentStop : 0;
-											} else {
-												Data.Blocks[BlockIndex].Transponder[n].OptionalInteger = work;
-											}
 											Data.Blocks[BlockIndex].Transponder[n].Section = CurrentSection + oversig + 1;
 										}
 									} break;
@@ -3414,11 +3407,10 @@ namespace OpenBve {
 											int n = Data.Blocks[BlockIndex].Transponder.Length;
 											Array.Resize<Transponder>(ref Data.Blocks[BlockIndex].Transponder, n + 1);
 											Data.Blocks[BlockIndex].Transponder[n].TrackPosition = Data.TrackPosition;
-											Data.Blocks[BlockIndex].Transponder[n].Type = TrackManager.TransponderType.SLong;
+											Data.Blocks[BlockIndex].Transponder[n].Type = 0;
+											Data.Blocks[BlockIndex].Transponder[n].Data = 0;
 											Data.Blocks[BlockIndex].Transponder[n].ShowDefaultObject = true;
-											Data.Blocks[BlockIndex].Transponder[n].SwitchSubsystem = true;
 											Data.Blocks[BlockIndex].Transponder[n].BeaconStructureIndex = -1;
-											Data.Blocks[BlockIndex].Transponder[n].OptionalInteger = -1;
 											Data.Blocks[BlockIndex].Transponder[n].Section = CurrentSection + 1;
 										}
 									} break;
@@ -3428,11 +3420,10 @@ namespace OpenBve {
 											int n = Data.Blocks[BlockIndex].Transponder.Length;
 											Array.Resize<Transponder>(ref Data.Blocks[BlockIndex].Transponder, n + 1);
 											Data.Blocks[BlockIndex].Transponder[n].TrackPosition = Data.TrackPosition;
-											Data.Blocks[BlockIndex].Transponder[n].Type = TrackManager.TransponderType.AtsPPatternOrigin;
+											Data.Blocks[BlockIndex].Transponder[n].Type = 3;
+											Data.Blocks[BlockIndex].Transponder[n].Data = 0;
 											Data.Blocks[BlockIndex].Transponder[n].ShowDefaultObject = true;
-											Data.Blocks[BlockIndex].Transponder[n].SwitchSubsystem = true;
 											Data.Blocks[BlockIndex].Transponder[n].BeaconStructureIndex = -1;
-											Data.Blocks[BlockIndex].Transponder[n].OptionalInteger = -1;
 											Data.Blocks[BlockIndex].Transponder[n].Section = CurrentSection + 1;
 										}
 									} break;
@@ -3452,10 +3443,15 @@ namespace OpenBve {
 											int n = Data.Blocks[BlockIndex].Transponder.Length;
 											Array.Resize<Transponder>(ref Data.Blocks[BlockIndex].Transponder, n + 1);
 											Data.Blocks[BlockIndex].Transponder[n].TrackPosition = Data.TrackPosition;
-											Data.Blocks[BlockIndex].Transponder[n].Type = type == 1 ? TrackManager.TransponderType.AtsPPermanentSpeedRestriction : TrackManager.TransponderType.AtsPTemporarySpeedRestriction;
+											if (type == 0) {
+												Data.Blocks[BlockIndex].Transponder[n].Type = TrackManager.SpecialTransponderTypes.InternalAtsPTemporarySpeedLimit;
+												Data.Blocks[BlockIndex].Transponder[n].Data = (int)Math.Round(speed * Data.UnitOfSpeed * 3.6);
+											} else {
+												Data.Blocks[BlockIndex].Transponder[n].Type = TrackManager.SpecialTransponderTypes.AtsPPermanentSpeedLimit;
+												Data.Blocks[BlockIndex].Transponder[n].Data = (int)Math.Round(speed * Data.UnitOfSpeed * 3.6);
+											}
 											Data.Blocks[BlockIndex].Transponder[n].Section = -1;
 											Data.Blocks[BlockIndex].Transponder[n].BeaconStructureIndex = -1;
-											Data.Blocks[BlockIndex].Transponder[n].OptionalFloat = speed * Data.UnitOfSpeed;
 										}
 									} break;
 								case "track.plimit":
@@ -3469,10 +3465,10 @@ namespace OpenBve {
 											int n = Data.Blocks[BlockIndex].Transponder.Length;
 											Array.Resize<Transponder>(ref Data.Blocks[BlockIndex].Transponder, n + 1);
 											Data.Blocks[BlockIndex].Transponder[n].TrackPosition = Data.TrackPosition;
-											Data.Blocks[BlockIndex].Transponder[n].Type = TrackManager.TransponderType.AtsPPermanentSpeedRestriction;
+											Data.Blocks[BlockIndex].Transponder[n].Type = TrackManager.SpecialTransponderTypes.AtsPPermanentSpeedLimit;
+											Data.Blocks[BlockIndex].Transponder[n].Data = (int)Math.Round(speed * Data.UnitOfSpeed * 3.6);
 											Data.Blocks[BlockIndex].Transponder[n].Section = -1;
 											Data.Blocks[BlockIndex].Transponder[n].BeaconStructureIndex = -1;
-											Data.Blocks[BlockIndex].Transponder[n].OptionalFloat = speed * Data.UnitOfSpeed;
 										}
 									} break;
 								case "track.limit":
@@ -5582,11 +5578,11 @@ namespace OpenBve {
 								ObjectManager.UnifiedObject obj = null;
 								if (Data.Blocks[i].Transponder[k].ShowDefaultObject) {
 									switch (Data.Blocks[i].Transponder[k].Type) {
-											case TrackManager.TransponderType.SLong: obj = TransponderS; break;
-											case TrackManager.TransponderType.SN: obj = TransponderSN; break;
-											case TrackManager.TransponderType.AccidentalDeparture: obj = TransponderFalseStart; break;
-											case TrackManager.TransponderType.AtsPPatternOrigin: obj = TransponderPOrigin; break;
-											case TrackManager.TransponderType.AtsPImmediateStop: obj = TransponderPStop; break;
+											case 0: obj = TransponderS; break;
+											case 1: obj = TransponderSN; break;
+											case 2: obj = TransponderFalseStart; break;
+											case 3: obj = TransponderPOrigin; break;
+											case 4: obj = TransponderPStop; break;
 									}
 								} else {
 									int b = Data.Blocks[i].Transponder[k].BeaconStructureIndex;
@@ -5728,12 +5724,12 @@ namespace OpenBve {
 								// create associated transponders
 								for (int g = 0; g <= i; g++) {
 									for (int l = 0; l < Data.Blocks[g].Transponder.Length; l++) {
-										if (Data.Blocks[g].Transponder[l].Type != TrackManager.TransponderType.None & Data.Blocks[g].Transponder[l].Section == m) {
+										if (Data.Blocks[g].Transponder[l].Type != -1 & Data.Blocks[g].Transponder[l].Section == m) {
 											int o = TrackManager.CurrentTrack.Elements[n - i + g].Events.Length;
 											Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[n - i + g].Events, o + 1);
 											double dt = Data.Blocks[g].Transponder[l].TrackPosition - StartingDistance + (double)(i - g) * Data.BlockInterval;
-											TrackManager.CurrentTrack.Elements[n - i + g].Events[o] = new TrackManager.TransponderEvent(dt, Data.Blocks[g].Transponder[l].Type, Data.Blocks[g].Transponder[l].SwitchSubsystem, Data.Blocks[g].Transponder[l].OptionalInteger, Data.Blocks[g].Transponder[l].OptionalFloat, m);
-											Data.Blocks[g].Transponder[l].Type = TrackManager.TransponderType.None;
+											TrackManager.CurrentTrack.Elements[n - i + g].Events[o] = new TrackManager.TransponderEvent(dt, Data.Blocks[g].Transponder[l].Type, Data.Blocks[g].Transponder[l].Data, m);
+											Data.Blocks[g].Transponder[l].Type = -1;
 										}
 									}
 								}
@@ -5768,14 +5764,14 @@ namespace OpenBve {
 							}
 							// transponders introduced after corresponding sections
 							for (int l = 0; l < Data.Blocks[i].Transponder.Length; l++) {
-								if (Data.Blocks[i].Transponder[l].Type != TrackManager.TransponderType.None) {
+								if (Data.Blocks[i].Transponder[l].Type != -1) {
 									int t = Data.Blocks[i].Transponder[l].Section;
 									if (t >= 0 & t < Game.Sections.Length) {
 										int m = TrackManager.CurrentTrack.Elements[n].Events.Length;
 										Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[n].Events, m + 1);
 										double dt = Data.Blocks[i].Transponder[l].TrackPosition - StartingDistance;
-										TrackManager.CurrentTrack.Elements[n].Events[m] = new TrackManager.TransponderEvent(dt, Data.Blocks[i].Transponder[l].Type, Data.Blocks[i].Transponder[l].SwitchSubsystem, Data.Blocks[i].Transponder[l].OptionalInteger, Data.Blocks[i].Transponder[l].OptionalFloat, t);
-										Data.Blocks[i].Transponder[l].Type = TrackManager.TransponderType.None;
+										TrackManager.CurrentTrack.Elements[n].Events[m] = new TrackManager.TransponderEvent(dt, Data.Blocks[i].Transponder[l].Type, Data.Blocks[i].Transponder[l].Data, t);
+										Data.Blocks[i].Transponder[l].Type = -1;
 									}
 								}
 							}
@@ -5870,15 +5866,15 @@ namespace OpenBve {
 			if (!PreviewOnly) {
 				for (int i = Data.FirstUsedBlock; i < Data.Blocks.Length; i++) {
 					for (int j = 0; j < Data.Blocks[i].Transponder.Length; j++) {
-						if (Data.Blocks[i].Transponder[j].Type != TrackManager.TransponderType.None) {
+						if (Data.Blocks[i].Transponder[j].Type != -1) {
 							int n = i - Data.FirstUsedBlock;
 							int m = TrackManager.CurrentTrack.Elements[n].Events.Length;
 							Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[n].Events, m + 1);
 							double d = Data.Blocks[i].Transponder[j].TrackPosition - TrackManager.CurrentTrack.Elements[n].StartingTrackPosition;
 							int s = Data.Blocks[i].Transponder[j].Section;
 							if (s >= 0) s = -1;
-							TrackManager.CurrentTrack.Elements[n].Events[m] = new TrackManager.TransponderEvent(d, Data.Blocks[i].Transponder[j].Type, Data.Blocks[i].Transponder[j].SwitchSubsystem, Data.Blocks[i].Transponder[j].OptionalInteger, Data.Blocks[i].Transponder[j].OptionalFloat, s);
-							Data.Blocks[i].Transponder[j].Type = TrackManager.TransponderType.None;
+							TrackManager.CurrentTrack.Elements[n].Events[m] = new TrackManager.TransponderEvent(d, Data.Blocks[i].Transponder[j].Type, Data.Blocks[i].Transponder[j].Data, s);
+							Data.Blocks[i].Transponder[j].Type = -1;
 						}
 					}
 				}
@@ -5958,6 +5954,76 @@ namespace OpenBve {
 				Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[n].Events, m + 1);
 				TrackManager.CurrentTrack.Elements[n].Events[m] = new TrackManager.TrackEndEvent(Data.BlockInterval);
 			}
+			// insert compatibility beacons
+			if (!PreviewOnly) {
+				List<TrackManager.TransponderEvent> transponders = new List<TrackManager.TransponderEvent>();
+				bool atc = false;
+				for (int i = 0; i < TrackManager.CurrentTrack.Elements.Length; i++) {
+					for (int j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
+						if (!atc) {
+							if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.StationStartEvent) {
+								TrackManager.StationStartEvent station = (TrackManager.StationStartEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
+								if (Game.Stations[station.StationIndex].SafetySystem == Game.SafetySystem.Atc) {
+									Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[i].Events, TrackManager.CurrentTrack.Elements[i].Events.Length + 2);
+									TrackManager.CurrentTrack.Elements[i].Events[TrackManager.CurrentTrack.Elements[i].Events.Length - 2] = new TrackManager.TransponderEvent(0.0, TrackManager.SpecialTransponderTypes.AtcTrackStatus, 0, 0);
+									TrackManager.CurrentTrack.Elements[i].Events[TrackManager.CurrentTrack.Elements[i].Events.Length - 1] = new TrackManager.TransponderEvent(0.0, TrackManager.SpecialTransponderTypes.AtcTrackStatus, 1, 0);
+									atc = true;
+								}
+							} else if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.StationEndEvent) {
+								TrackManager.StationEndEvent station = (TrackManager.StationEndEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
+								if (Game.Stations[station.StationIndex].SafetySystem == Game.SafetySystem.Atc) {
+									Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[i].Events, TrackManager.CurrentTrack.Elements[i].Events.Length + 2);
+									TrackManager.CurrentTrack.Elements[i].Events[TrackManager.CurrentTrack.Elements[i].Events.Length - 2] = new TrackManager.TransponderEvent(0.0, TrackManager.SpecialTransponderTypes.AtcTrackStatus, 1, 0);
+									TrackManager.CurrentTrack.Elements[i].Events[TrackManager.CurrentTrack.Elements[i].Events.Length - 1] = new TrackManager.TransponderEvent(0.0, TrackManager.SpecialTransponderTypes.AtcTrackStatus, 2, 0);
+								}
+							}
+						} else {
+							if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.StationStartEvent) {
+								TrackManager.StationStartEvent station = (TrackManager.StationStartEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
+								if (Game.Stations[station.StationIndex].SafetySystem == Game.SafetySystem.Ats) {
+									Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[i].Events, TrackManager.CurrentTrack.Elements[i].Events.Length + 2);
+									TrackManager.CurrentTrack.Elements[i].Events[TrackManager.CurrentTrack.Elements[i].Events.Length - 2] = new TrackManager.TransponderEvent(0.0, TrackManager.SpecialTransponderTypes.AtcTrackStatus, 2, 0);
+									TrackManager.CurrentTrack.Elements[i].Events[TrackManager.CurrentTrack.Elements[i].Events.Length - 1] = new TrackManager.TransponderEvent(0.0, TrackManager.SpecialTransponderTypes.AtcTrackStatus, 3, 0);
+								}
+							} else if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.StationEndEvent) {
+								TrackManager.StationEndEvent station = (TrackManager.StationEndEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
+								if (Game.Stations[station.StationIndex].SafetySystem == Game.SafetySystem.Ats) {
+									Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[i].Events, TrackManager.CurrentTrack.Elements[i].Events.Length + 2);
+									TrackManager.CurrentTrack.Elements[i].Events[TrackManager.CurrentTrack.Elements[i].Events.Length - 2] = new TrackManager.TransponderEvent(0.0, TrackManager.SpecialTransponderTypes.AtcTrackStatus, 3, 0);
+									TrackManager.CurrentTrack.Elements[i].Events[TrackManager.CurrentTrack.Elements[i].Events.Length - 1] = new TrackManager.TransponderEvent(0.0, TrackManager.SpecialTransponderTypes.AtcTrackStatus, 0, 0);
+									atc = false;
+								}
+							} else if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.LimitChangeEvent) {
+								TrackManager.LimitChangeEvent limit = (TrackManager.LimitChangeEvent)TrackManager.CurrentTrack.Elements[i].Events[j];
+								int speed = Math.Min(4095, (int)Math.Round(3.6 * limit.NextSpeedLimit));
+								int distance = Math.Min(1048575, (int)Math.Round(TrackManager.CurrentTrack.Elements[i].StartingTrackPosition + limit.TrackPositionDelta));
+								unchecked {
+									int value = (int)((uint)speed | ((uint)distance << 12));
+									transponders.Add(new TrackManager.TransponderEvent(0.0, TrackManager.SpecialTransponderTypes.AtcSpeedLimit, value, 0));
+								}
+							}
+						}
+						if (TrackManager.CurrentTrack.Elements[i].Events[j] is TrackManager.TransponderEvent) {
+							TrackManager.TransponderEvent transponder = TrackManager.CurrentTrack.Elements[i].Events[j] as TrackManager.TransponderEvent;
+							if (transponder.Type == TrackManager.SpecialTransponderTypes.InternalAtsPTemporarySpeedLimit) {
+								int speed = Math.Min(4095, transponder.Data);
+								int distance = Math.Min(1048575, (int)Math.Round(TrackManager.CurrentTrack.Elements[i].StartingTrackPosition + transponder.TrackPositionDelta));
+								unchecked {
+									int value = (int)((uint)speed | ((uint)distance << 12));
+									transponders.Add(new TrackManager.TransponderEvent(0.0, TrackManager.SpecialTransponderTypes.AtsPTemporarySpeedLimit, value, 0));
+									transponder.DontTriggerAnymore = true;
+								}
+							}
+						}
+					}
+				}
+				int n = TrackManager.CurrentTrack.Elements[0].Events.Length;
+				Array.Resize<TrackManager.GeneralEvent>(ref TrackManager.CurrentTrack.Elements[0].Events, n + transponders.Count);
+				for (int i = 0; i < transponders.Count; i++) {
+					TrackManager.CurrentTrack.Elements[0].Events[n + i] = transponders[i];
+				}
+			}
+			// cant
 			if (!PreviewOnly) {
 				ComputeCantTangents();
 				int subdivisions = (int)Math.Floor(Data.BlockInterval / 5.0);

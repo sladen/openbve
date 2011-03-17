@@ -176,16 +176,10 @@ namespace OpenBve {
 					if (Direction < 0) {
 						Train.Station = -1;
 						Train.StationFrontCar = false;
-						if (Game.Stations[this.StationIndex].SafetySystem != Game.SafetySystem.Atc) {
-							Train.Specs.Safety.Atc.Transmitting = false;
-						}
 					} else if (Direction > 0) {
 						Train.Station = StationIndex;
 						Train.StationFrontCar = true;
 						Train.StationState = TrainManager.TrainStopState.Pending;
-						if (Game.Stations[this.StationIndex].SafetySystem == Game.SafetySystem.Atc) {
-							Train.Specs.Safety.Atc.Transmitting = true;
-						}
 						Train.LastStation = this.StationIndex;
 					}
 				} else if (TriggerType == EventTriggerType.RearCarRearAxle) {
@@ -209,14 +203,8 @@ namespace OpenBve {
 				if (TriggerType == EventTriggerType.FrontCarFrontAxle) {
 					if (Direction < 0) {
 						Train.StationFrontCar = true;
-						if (Game.Stations[this.StationIndex].SafetySystem == Game.SafetySystem.Atc) {
-							Train.Specs.Safety.Atc.Transmitting = true;
-						}
 					} else if (Direction > 0) {
 						Train.StationFrontCar = false;
-						if (Game.Stations[this.StationIndex].SafetySystem != Game.SafetySystem.Atc) {
-							Train.Specs.Safety.Atc.Transmitting = false;
-						}
 						if (Train == TrainManager.PlayerTrain) {
 							Timetable.UpdateCustomTimetable(Game.Stations[this.StationIndex].TimetableDaytimeTexture, Game.Stations[this.StationIndex].TimetableNighttimeTexture);
 						}
@@ -313,12 +301,10 @@ namespace OpenBve {
 					}
 					// messages
 					if (this.NextSectionIndex < 0 || !Game.Sections[this.NextSectionIndex].Invisible) {
-						if (Train == TrainManager.PlayerTrain & Train.Specs.Safety.Mode != TrainManager.SafetySystem.Atc) {
-							if (Train.CurrentSectionLimit == 0.0) {
-								Game.AddMessage(Interface.GetInterfaceString("message_signal_stop"), Game.MessageDependency.SectionLimit, Interface.GameMode.Normal, Game.MessageColor.Red, double.PositiveInfinity);
-							} else if (Train.Specs.CurrentAverageSpeed > Train.CurrentSectionLimit) {
-								Game.AddMessage(Interface.GetInterfaceString("message_signal_overspeed"), Game.MessageDependency.SectionLimit, Interface.GameMode.Normal, Game.MessageColor.Orange, double.PositiveInfinity);
-							}
+						if (Train.CurrentSectionLimit == 0.0) {
+							Game.AddMessage(Interface.GetInterfaceString("message_signal_stop"), Game.MessageDependency.SectionLimit, Interface.GameMode.Normal, Game.MessageColor.Red, double.PositiveInfinity);
+						} else if (Train.Specs.CurrentAverageSpeed > Train.CurrentSectionLimit) {
+							Game.AddMessage(Interface.GetInterfaceString("message_signal_overspeed"), Game.MessageDependency.SectionLimit, Interface.GameMode.Normal, Game.MessageColor.Orange, double.PositiveInfinity);
 						}
 					}
 				}
@@ -363,43 +349,34 @@ namespace OpenBve {
 			}
 		}
 		// transponder
-		/// <summary>Represents the type of transponder. Numerical values less than zero are reserved for built-in functionality. Plugins may only be fed with non-negative types.</summary>
-		internal enum TransponderType {
-			None = -1,
-			SLong = 0,
-			SN = 1,
-			AccidentalDeparture = 2,
-			AtsPPatternOrigin = 3,
-			AtsPImmediateStop = 4,
-			AtsPTemporarySpeedRestriction = -2,
-			AtsPPermanentSpeedRestriction = -3
+		internal static class SpecialTransponderTypes {
+			/// <summary>Marks the status of ATC.</summary>
+			internal const int AtcTrackStatus = -16777215;
+			/// <summary>Sets up an ATC speed limit.</summary>
+			internal const int AtcSpeedLimit = -16777214;
+			/// <summary>Sets up an ATS-P temporary speed limit.</summary>
+			internal const int AtsPTemporarySpeedLimit = -16777213;
+			/// <summary>Sets up an ATS-P permanent speed limit.</summary>
+			internal const int AtsPPermanentSpeedLimit = -16777212;
+			/// <summary>For internal use inside the CSV/RW parser only.</summary>
+			internal const int InternalAtsPTemporarySpeedLimit = -16777201;
 		}
 		internal enum TransponderSpecialSection {
 			NextRedSection = -2,
 		}
 		internal class TransponderEvent : GeneralEvent {
-			internal TransponderType Type;
-			internal bool SwitchSubsystem;
-			internal int OptionalInteger;
-			internal double OptionalFloat;
+			internal int Type;
+			internal int Data;
 			internal int SectionIndex;
-			internal TransponderEvent(double TrackPositionDelta, TransponderType Type, bool SwitchSubsystem, int OptionalInteger, double OptionalFloat, int SectionIndex) {
-				this.TrackPositionDelta = TrackPositionDelta;
+			internal TransponderEvent(double trackPositionDelta, int type, int data, int sectionIndex) {
+				this.TrackPositionDelta = trackPositionDelta;
 				this.DontTriggerAnymore = false;
-				this.Type = Type;
-				this.SwitchSubsystem = SwitchSubsystem;
-				this.OptionalInteger = OptionalInteger;
-				this.OptionalFloat = OptionalFloat;
-				this.SectionIndex = SectionIndex;
+				this.Type = type;
+				this.Data = data;
+				this.SectionIndex = sectionIndex;
 			}
 			internal override void Trigger(int Direction, EventTriggerType TriggerType, TrainManager.Train Train, int CarIndex) {
 				if (TriggerType == EventTriggerType.TrainFront) {
-					if (Train.Specs.Safety.Mode != TrainManager.SafetySystem.Plugin) {
-						if (this.Type == TransponderType.AccidentalDeparture) {
-							if (Train.Station == -1) return;
-							if (Train.StationDistanceToStopPoint >= 0.0) return;
-						}
-					}
 					int s = this.SectionIndex;
 					if (s >= 0) {
 						while (true) {
@@ -420,18 +397,8 @@ namespace OpenBve {
 							}
 						}
 					}
-					TrainManager.TrainPendingTransponder Data;
-					Data.Type = this.Type;
-					Data.SwitchSubsystem = this.SwitchSubsystem;
-					Data.SectionIndex = s;
-					Data.OptionalFloat = this.OptionalFloat;
-					Data.OptionalInteger = this.OptionalInteger;
-					if (Train.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
-						if ((int)Data.Type >= 0) {
-							PluginManager.CurrentPlugin.UpdateBeacon((int)Data.Type, Data.SectionIndex, Data.OptionalInteger);
-						}
-					} else {
-						Train.Specs.Safety.AddPendingTransponder(Data);
+					if (Train.Plugin != null) {
+						Train.Plugin.UpdateBeacon((int)this.Type, s, this.Data);
 					}
 				}
 			}
@@ -475,10 +442,8 @@ namespace OpenBve {
 						if (this.NextSpeedLimit < Train.CurrentRouteLimit) {
 							Train.CurrentRouteLimit = this.NextSpeedLimit;
 						}
-						if (Train == TrainManager.PlayerTrain & Train.Specs.Safety.Mode != TrainManager.SafetySystem.Atc) {
-							if (Train.Specs.CurrentAverageSpeed > this.NextSpeedLimit) {
-								Game.AddMessage(Interface.GetInterfaceString("message_route_overspeed"), Game.MessageDependency.RouteLimit, Interface.GameMode.Normal, Game.MessageColor.Orange, double.PositiveInfinity);
-							}
+						if (Train.Specs.CurrentAverageSpeed > this.NextSpeedLimit) {
+							Game.AddMessage(Interface.GetInterfaceString("message_route_overspeed"), Game.MessageDependency.RouteLimit, Interface.GameMode.Normal, Game.MessageColor.Orange, double.PositiveInfinity);
 						}
 					} else if (TriggerType == EventTriggerType.RearCarRearAxle) {
 						int n = Train.RouteLimits.Length;
