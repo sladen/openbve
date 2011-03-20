@@ -2270,8 +2270,8 @@ namespace OpenBve {
 						int h = TextureManager.Textures[tn].ClipHeight;
 						float alpha;
 						if (td >= 0) {
-							double t = (TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition - TrainManager.PlayerTrain.Cars[0].Brightness.PreviousTrackPosition) / (TrainManager.PlayerTrain.Cars[0].Brightness.NextTrackPosition - TrainManager.PlayerTrain.Cars[0].Brightness.PreviousTrackPosition);
-							alpha = (float)((1.0 - t) * TrainManager.PlayerTrain.Cars[0].Brightness.PreviousBrightness + t * TrainManager.PlayerTrain.Cars[0].Brightness.NextBrightness);
+							double t = (TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].FrontAxle.Follower.TrackPosition - TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].Brightness.PreviousTrackPosition) / (TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].Brightness.NextTrackPosition - TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].Brightness.PreviousTrackPosition);
+							alpha = (float)((1.0 - t) * TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].Brightness.PreviousBrightness + t * TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].Brightness.NextBrightness);
 						} else {
 							alpha = 1.0f;
 						}

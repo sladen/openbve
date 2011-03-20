@@ -34,9 +34,9 @@ namespace OpenBve {
 			}
 			World.CameraRestrictionBottomLeft = new World.Vector3D(-0.5 * WorldWidth, -0.5 * WorldHeight, EyeDistance);
 			World.CameraRestrictionTopRight = new World.Vector3D(0.5 * WorldWidth, 0.5 * WorldHeight, EyeDistance);
-			double WorldLeft = Train.Cars[0].DriverX - 0.5 * WorldWidth;
-			double WorldTop = Train.Cars[0].DriverY + 0.5 * WorldHeight;
-			double WorldZ = Train.Cars[0].DriverZ;
+			double WorldLeft = Train.Cars[Train.DriverCar].DriverX - 0.5 * WorldWidth;
+			double WorldTop = Train.Cars[Train.DriverCar].DriverY + 0.5 * WorldHeight;
+			double WorldZ = Train.Cars[Train.DriverCar].DriverZ;
 			const double UpDownAngleConstant = -0.191986217719376;
 			double PanelYaw = 0.0;
 			double PanelPitch = UpDownAngleConstant;
@@ -102,8 +102,8 @@ namespace OpenBve {
 					}
 				}
 			}
-			Train.Cars[0].DriverYaw = PanelYaw;
-			Train.Cars[0].DriverPitch = PanelPitch;
+			Train.Cars[Train.DriverCar].DriverYaw = PanelYaw;
+			Train.Cars[Train.DriverCar].DriverPitch = PanelPitch;
 			// panel
 			{
 				if (!System.IO.File.Exists(PanelBackground)) {
@@ -114,7 +114,7 @@ namespace OpenBve {
 					double w = (double)TextureManager.Textures[t].ClipWidth;
 					double h = (double)TextureManager.Textures[t].ClipHeight;
 					SemiHeight = FullHeight - h;
-					CreateElement(Train, 0, SemiHeight, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
+					CreateElement(Train, 0, SemiHeight, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
 				}
 			}
 			// parse lines for rest
@@ -315,7 +315,7 @@ namespace OpenBve {
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
-										CreateElement(Train, CenterX - 0.5 * w, CenterY + SemiHeight - 0.5 * h, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 3.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
+										CreateElement(Train, CenterX - 0.5 * w, CenterY + SemiHeight - 0.5 * h, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 3.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
 									}
 									// cover
 									if (Cover != null) {
@@ -323,7 +323,7 @@ namespace OpenBve {
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
-										CreateElement(Train, CenterX - 0.5 * w, CenterY + SemiHeight - 0.5 * h, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 6.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
+										CreateElement(Train, CenterX - 0.5 * w, CenterY + SemiHeight - 0.5 * h, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 6.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
 									}
 									if (Type == 0) {
 										// needles
@@ -335,10 +335,10 @@ namespace OpenBve {
 												TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 												double w = (double)TextureManager.Textures[t].ClipWidth;
 												double h = (double)TextureManager.Textures[t].ClipHeight;
-												int j = CreateElement(Train, CenterX - Radius * w / h, CenterY + SemiHeight - Radius, 2.0 * Radius * w / h, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - (double)(4 + k) * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, NeedleColor[k], false);
-												Train.Cars[0].Sections[0].Elements[j].RotateZDirection = new World.Vector3D(0.0, 0.0, -1.0);
-												Train.Cars[0].Sections[0].Elements[j].RotateXDirection = new World.Vector3D(1.0, 0.0, 0.0);
-												Train.Cars[0].Sections[0].Elements[j].RotateYDirection = World.Cross(Train.Cars[0].Sections[0].Elements[j].RotateZDirection, Train.Cars[0].Sections[0].Elements[j].RotateXDirection);
+												int j = CreateElement(Train, CenterX - Radius * w / h, CenterY + SemiHeight - Radius, 2.0 * Radius * w / h, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - (double)(4 + k) * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, NeedleColor[k], false);
+												Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDirection = new World.Vector3D(0.0, 0.0, -1.0);
+												Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateXDirection = new World.Vector3D(1.0, 0.0, 0.0);
+												Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateYDirection = World.Cross(Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDirection, Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateXDirection);
 												double c0 = (Angle * (Maximum - Minimum) - 2.0 * Minimum * Math.PI) / (Maximum - Minimum) + Math.PI;
 												double c1 = 2.0 * (Math.PI - Angle) / (Maximum - Minimum);
 												string Variable = "0";
@@ -349,25 +349,25 @@ namespace OpenBve {
 														case 4: Variable = "equalizingreservoir"; break;
 														case 5: Variable = "mainreservoir"; break;
 												}
-												Train.Cars[0].Sections[0].Elements[j].RotateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(Variable + " " + c1.ToString(Culture) + " " + c0.ToString(Culture) + " fma");
+												Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(Variable + " " + c1.ToString(Culture) + " " + c0.ToString(Culture) + " fma");
 											}
 										}
 									} else if (Type == 1) {
 										// leds
 										if (NeedleType[1] != 0) {
-											int j = CreateElement(Train, CenterX - Radius, CenterY + SemiHeight - Radius, 2.0 * Radius, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 5.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, -1, NeedleColor[1], false);
-											double x0 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[0].Coordinates.X;
-											double y0 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[0].Coordinates.Y;
-											double z0 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[0].Coordinates.Z;
-											double x1 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[1].Coordinates.X;
-											double y1 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[1].Coordinates.Y;
-											double z1 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[1].Coordinates.Z;
-											double x2 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[2].Coordinates.X;
-											double y2 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[2].Coordinates.Y;
-											double z2 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[2].Coordinates.Z;
-											double x3 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[3].Coordinates.X;
-											double y3 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[3].Coordinates.Y;
-											double z3 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[3].Coordinates.Z;
+											int j = CreateElement(Train, CenterX - Radius, CenterY + SemiHeight - Radius, 2.0 * Radius, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 5.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, -1, NeedleColor[1], false);
+											double x0 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[0].Coordinates.X;
+											double y0 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[0].Coordinates.Y;
+											double z0 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[0].Coordinates.Z;
+											double x1 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[1].Coordinates.X;
+											double y1 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[1].Coordinates.Y;
+											double z1 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[1].Coordinates.Z;
+											double x2 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[2].Coordinates.X;
+											double y2 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[2].Coordinates.Y;
+											double z2 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[2].Coordinates.Z;
+											double x3 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[3].Coordinates.X;
+											double y3 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[3].Coordinates.Y;
+											double z3 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[3].Coordinates.Z;
 											double cx = 0.25 * (x0 + x1 + x2 + x3);
 											double cy = 0.25 * (y0 + y1 + y2 + y3);
 											double cz = 0.25 * (z0 + z1 + z2 + z3);
@@ -379,11 +379,11 @@ namespace OpenBve {
 												new int[] { 0, 7, 8 },
 												new int[] { 0, 9, 10 }
 											};
-											Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh = new World.Mesh(vertices, faces, NeedleColor[1]);
-											Train.Cars[0].Sections[0].Elements[j].LEDClockwiseWinding = true;
-											Train.Cars[0].Sections[0].Elements[j].LEDInitialAngle = Angle - 2.0 * Math.PI;
-											Train.Cars[0].Sections[0].Elements[j].LEDLastAngle = 2.0 * Math.PI - Angle;
-											Train.Cars[0].Sections[0].Elements[j].LEDVectors = new World.Vector3D[] {
+											Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh = new World.Mesh(vertices, faces, NeedleColor[1]);
+											Train.Cars[Train.DriverCar].CarSections[0].Elements[j].LEDClockwiseWinding = true;
+											Train.Cars[Train.DriverCar].CarSections[0].Elements[j].LEDInitialAngle = Angle - 2.0 * Math.PI;
+											Train.Cars[Train.DriverCar].CarSections[0].Elements[j].LEDLastAngle = 2.0 * Math.PI - Angle;
+											Train.Cars[Train.DriverCar].CarSections[0].Elements[j].LEDVectors = new World.Vector3D[] {
 												new World.Vector3D(x0, y0, z0),
 												new World.Vector3D(x1, y1, z1),
 												new World.Vector3D(x2, y2, z2),
@@ -401,7 +401,7 @@ namespace OpenBve {
 													case 5: Variable = "mainreservoir"; break;
 													default: Variable = "0"; break;
 											}
-											Train.Cars[0].Sections[0].Elements[j].LEDFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(Variable + " " + c1.ToString(Culture) + " " + c0.ToString(Culture) + " fma");
+											Train.Cars[Train.DriverCar].CarSections[0].Elements[j].LEDFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation(Variable + " " + c1.ToString(Culture) + " " + c0.ToString(Culture) + " fma");
 										}
 									}
 								} break;
@@ -534,7 +534,7 @@ namespace OpenBve {
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
-										CreateElement(Train, CenterX - 0.5 * w, CenterY + SemiHeight - 0.5 * h, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 3.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
+										CreateElement(Train, CenterX - 0.5 * w, CenterY + SemiHeight - 0.5 * h, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 3.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
 									}
 									if (Cover != null) {
 										// cover
@@ -542,7 +542,7 @@ namespace OpenBve {
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
-										CreateElement(Train, CenterX - 0.5 * w, CenterY + SemiHeight - 0.5 * h, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 6.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
+										CreateElement(Train, CenterX - 0.5 * w, CenterY + SemiHeight - 0.5 * h, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 6.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
 									}
 									if (Atc != null) {
 										// atc
@@ -574,12 +574,12 @@ namespace OpenBve {
 											int t = TextureManager.RegisterTexture(Atc, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true, j * h, 0, h, h);
 											TextureManager.UseTexture(t, TextureManager.UseMode.Normal);
 											if (j == 0) {
-												k = CreateElement(Train, x, y, (double)h, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 4.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
+												k = CreateElement(Train, x, y, (double)h, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 4.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
 											} else {
-												CreateElement(Train, x, y, (double)h, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 4.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), true);
+												CreateElement(Train, x, y, (double)h, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 4.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), true);
 											}
 										}
-										Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("271 pluginstate");
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("271 pluginstate");
 									}
 									if (Type == 0) {
 										// needle
@@ -589,29 +589,29 @@ namespace OpenBve {
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
-										int j = CreateElement(Train, CenterX - Radius * w / h, CenterY + SemiHeight - Radius, 2.0 * Radius * w / h, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 5.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, Needle, false);
-										Train.Cars[0].Sections[0].Elements[j].RotateZDirection = new World.Vector3D(0.0, 0.0, -1.0);
-										Train.Cars[0].Sections[0].Elements[j].RotateXDirection = new World.Vector3D(1.0, 0.0, 0.0);
-										Train.Cars[0].Sections[0].Elements[j].RotateYDirection = World.Cross(Train.Cars[0].Sections[0].Elements[j].RotateZDirection, Train.Cars[0].Sections[0].Elements[j].RotateXDirection);
+										int j = CreateElement(Train, CenterX - Radius * w / h, CenterY + SemiHeight - Radius, 2.0 * Radius * w / h, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 5.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, Needle, false);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDirection = new World.Vector3D(0.0, 0.0, -1.0);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateXDirection = new World.Vector3D(1.0, 0.0, 0.0);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateYDirection = World.Cross(Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDirection, Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateXDirection);
 										double c0 = Angle + Math.PI;
 										double c1 = 2.0 * (Math.PI - Angle) / Maximum;
-										Train.Cars[0].Sections[0].Elements[j].RotateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("speedometer abs " + c1.ToString(Culture) + " " + c0.ToString(Culture) + " fma");
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("speedometer abs " + c1.ToString(Culture) + " " + c0.ToString(Culture) + " fma");
 									} else if (Type == 1) {
 										// led
 										if (!NeedleOverridden) Needle = new World.ColorRGBA(0, 0, 0, 255);
-										int j = CreateElement(Train, CenterX - Radius, CenterY + SemiHeight - Radius, 2.0 * Radius, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 5.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, -1, Needle, false);
-										double x0 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[0].Coordinates.X;
-										double y0 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[0].Coordinates.Y;
-										double z0 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[0].Coordinates.Z;
-										double x1 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[1].Coordinates.X;
-										double y1 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[1].Coordinates.Y;
-										double z1 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[1].Coordinates.Z;
-										double x2 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[2].Coordinates.X;
-										double y2 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[2].Coordinates.Y;
-										double z2 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[2].Coordinates.Z;
-										double x3 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[3].Coordinates.X;
-										double y3 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[3].Coordinates.Y;
-										double z3 = Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh.Vertices[3].Coordinates.Z;
+										int j = CreateElement(Train, CenterX - Radius, CenterY + SemiHeight - Radius, 2.0 * Radius, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 5.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, -1, Needle, false);
+										double x0 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[0].Coordinates.X;
+										double y0 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[0].Coordinates.Y;
+										double z0 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[0].Coordinates.Z;
+										double x1 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[1].Coordinates.X;
+										double y1 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[1].Coordinates.Y;
+										double z1 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[1].Coordinates.Z;
+										double x2 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[2].Coordinates.X;
+										double y2 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[2].Coordinates.Y;
+										double z2 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[2].Coordinates.Z;
+										double x3 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[3].Coordinates.X;
+										double y3 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[3].Coordinates.Y;
+										double z3 = Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh.Vertices[3].Coordinates.Z;
 										double cx = 0.25 * (x0 + x1 + x2 + x3);
 										double cy = 0.25 * (y0 + y1 + y2 + y3);
 										double cz = 0.25 * (z0 + z1 + z2 + z3);
@@ -623,11 +623,11 @@ namespace OpenBve {
 											new int[] { 0, 7, 8 },
 											new int[] { 0, 9, 10 }
 										};
-										Train.Cars[0].Sections[0].Elements[j].States[0].Object.Mesh = new World.Mesh(vertices, faces, Needle);
-										Train.Cars[0].Sections[0].Elements[j].LEDClockwiseWinding = true;
-										Train.Cars[0].Sections[0].Elements[j].LEDInitialAngle = Angle - 2.0 * Math.PI;
-										Train.Cars[0].Sections[0].Elements[j].LEDLastAngle = 2.0 * Math.PI - Angle;
-										Train.Cars[0].Sections[0].Elements[j].LEDVectors = new World.Vector3D[] {
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].States[0].Object.Mesh = new World.Mesh(vertices, faces, Needle);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].LEDClockwiseWinding = true;
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].LEDInitialAngle = Angle - 2.0 * Math.PI;
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].LEDLastAngle = 2.0 * Math.PI - Angle;
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].LEDVectors = new World.Vector3D[] {
 											new World.Vector3D(x0, y0, z0),
 											new World.Vector3D(x1, y1, z1),
 											new World.Vector3D(x2, y2, z2),
@@ -636,7 +636,7 @@ namespace OpenBve {
 										};
 										double c0 = Angle;
 										double c1 = 2.0 * (Math.PI - Angle) / Maximum;
-										Train.Cars[0].Sections[0].Elements[j].LEDFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("speedometer abs " + c1.ToString(Culture) + " " + c0.ToString(Culture) + " fma");
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].LEDFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("speedometer abs " + c1.ToString(Culture) + " " + c0.ToString(Culture) + " fma");
 									}
 								} break;
 								// digitalindicator
@@ -729,34 +729,34 @@ namespace OpenBve {
 											int k = -1;
 											for (int j = 0; j < n; j++) {
 												if (j == 0) {
-													k = CreateElement(Train, CornerX, CornerY + SemiHeight, (double)Width, (double)Height, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 7.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t[j], new World.ColorRGBA(255, 255, 255, 255), false);
+													k = CreateElement(Train, CornerX, CornerY + SemiHeight, (double)Width, (double)Height, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 7.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t[j], new World.ColorRGBA(255, 255, 255, 255), false);
 												} else {
-													CreateElement(Train, CornerX, CornerY + SemiHeight, (double)Width, (double)Height, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 7.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t[j], new World.ColorRGBA(255, 255, 255, 255), true);
+													CreateElement(Train, CornerX, CornerY + SemiHeight, (double)Width, (double)Height, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 7.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t[j], new World.ColorRGBA(255, 255, 255, 255), true);
 												}
 											}
-											Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("speedometer abs " + UnitFactor.ToString(Culture) + " * ~ 100 >= <> 100 quotient 10 mod 10 ?");
+											Train.Cars[Train.DriverCar].CarSections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("speedometer abs " + UnitFactor.ToString(Culture) + " * ~ 100 >= <> 100 quotient 10 mod 10 ?");
 										}
 										{ // tens
 											int k = -1;
 											for (int j = 0; j < n; j++) {
 												if (j == 0) {
-													k = CreateElement(Train, CornerX + (double)Width, CornerY + SemiHeight, (double)Width, (double)Height, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 7.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t[j], new World.ColorRGBA(255, 255, 255, 255), false);
+													k = CreateElement(Train, CornerX + (double)Width, CornerY + SemiHeight, (double)Width, (double)Height, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 7.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t[j], new World.ColorRGBA(255, 255, 255, 255), false);
 												} else {
-													CreateElement(Train, CornerX + (double)Width, CornerY + SemiHeight, (double)Width, (double)Height, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 7.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t[j], new World.ColorRGBA(255, 255, 255, 255), true);
+													CreateElement(Train, CornerX + (double)Width, CornerY + SemiHeight, (double)Width, (double)Height, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 7.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t[j], new World.ColorRGBA(255, 255, 255, 255), true);
 												}
 											}
-											Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("speedometer abs " + UnitFactor.ToString(Culture) + " * ~ 10 >= <> 10 quotient 10 mod 10 ?");
+											Train.Cars[Train.DriverCar].CarSections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("speedometer abs " + UnitFactor.ToString(Culture) + " * ~ 10 >= <> 10 quotient 10 mod 10 ?");
 										}
 										{ // ones
 											int k = -1;
 											for (int j = 0; j < n; j++) {
 												if (j == 0) {
-													k = CreateElement(Train, CornerX + 2.0 * (double)Width, CornerY + SemiHeight, (double)Width, (double)Height, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 7.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t[j], new World.ColorRGBA(255, 255, 255, 255), false);
+													k = CreateElement(Train, CornerX + 2.0 * (double)Width, CornerY + SemiHeight, (double)Width, (double)Height, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 7.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t[j], new World.ColorRGBA(255, 255, 255, 255), false);
 												} else {
-													CreateElement(Train, CornerX + 2.0 * (double)Width, CornerY + SemiHeight, (double)Width, (double)Height, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 7.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t[j], new World.ColorRGBA(255, 255, 255, 255), true);
+													CreateElement(Train, CornerX + 2.0 * (double)Width, CornerY + SemiHeight, (double)Width, (double)Height, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 7.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t[j], new World.ColorRGBA(255, 255, 255, 255), true);
 												}
 											}
-											Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("speedometer abs " + UnitFactor.ToString(Culture) + " * floor 10 mod");
+											Train.Cars[Train.DriverCar].CarSections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("speedometer abs " + UnitFactor.ToString(Culture) + " * floor 10 mod");
 										}
 									}
 								} break;
@@ -817,11 +817,11 @@ namespace OpenBve {
 										TextureManager.UseTexture(t1, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t0].ClipWidth;
 										double h = (double)TextureManager.Textures[t0].ClipHeight;
-										int j = CreateElement(Train, CornerX, CornerY + SemiHeight, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 2.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t0, new World.ColorRGBA(255, 255, 255, 255), false);
+										int j = CreateElement(Train, CornerX, CornerY + SemiHeight, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 2.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t0, new World.ColorRGBA(255, 255, 255, 255), false);
 										w = (double)TextureManager.Textures[t1].ClipWidth;
 										h = (double)TextureManager.Textures[t1].ClipHeight;
-										CreateElement(Train, CornerX, CornerY + SemiHeight, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 2.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t1, new World.ColorRGBA(255, 255, 255, 255), true);
-										Train.Cars[0].Sections[0].Elements[j].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("doors 0 !=");
+										CreateElement(Train, CornerX, CornerY + SemiHeight, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 2.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t1, new World.ColorRGBA(255, 255, 255, 255), true);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("doors 0 !=");
 									}
 								} break;
 								// watch
@@ -901,7 +901,7 @@ namespace OpenBve {
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
-										CreateElement(Train, CenterX - 0.5 * w, CenterY + SemiHeight - 0.5 * h, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 3.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
+										CreateElement(Train, CenterX - 0.5 * w, CenterY + SemiHeight - 0.5 * h, w, h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 3.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
 									}
 									string Folder = Program.FileSystem.GetDataFolder("Compatibility");
 									{ // hour
@@ -910,12 +910,12 @@ namespace OpenBve {
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
-										int j = CreateElement(Train, CenterX - Radius * w / h, CenterY + SemiHeight - Radius, 2.0 * Radius * w / h, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 4.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, Needle, false);
-										Train.Cars[0].Sections[0].Elements[j].RotateZDirection = new World.Vector3D(0.0, 0.0, -1.0);
-										Train.Cars[0].Sections[0].Elements[j].RotateXDirection = new World.Vector3D(1.0, 0.0, 0.0);
-										Train.Cars[0].Sections[0].Elements[j].RotateYDirection = World.Cross(Train.Cars[0].Sections[0].Elements[j].RotateZDirection, Train.Cars[0].Sections[0].Elements[j].RotateXDirection);
-										Train.Cars[0].Sections[0].Elements[j].RotateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("time 0.000277777777777778 * floor 0.523598775598298 *");
-										Train.Cars[0].Sections[0].Elements[j].RotateZDamping = new ObjectManager.Damping(20.0, 0.4);
+										int j = CreateElement(Train, CenterX - Radius * w / h, CenterY + SemiHeight - Radius, 2.0 * Radius * w / h, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 4.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, Needle, false);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDirection = new World.Vector3D(0.0, 0.0, -1.0);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateXDirection = new World.Vector3D(1.0, 0.0, 0.0);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateYDirection = World.Cross(Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDirection, Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateXDirection);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("time 0.000277777777777778 * floor 0.523598775598298 *");
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDamping = new ObjectManager.Damping(20.0, 0.4);
 									}
 									{ // minute
 										string File = Interface.GetCombinedFileName(Folder, "needle_minute.png");
@@ -923,12 +923,12 @@ namespace OpenBve {
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
-										int j = CreateElement(Train, CenterX - Radius * w / h, CenterY + SemiHeight - Radius, 2.0 * Radius * w / h, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 5.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, Needle, false);
-										Train.Cars[0].Sections[0].Elements[j].RotateZDirection = new World.Vector3D(0.0, 0.0, -1.0);
-										Train.Cars[0].Sections[0].Elements[j].RotateXDirection = new World.Vector3D(1.0, 0.0, 0.0);
-										Train.Cars[0].Sections[0].Elements[j].RotateYDirection = World.Cross(Train.Cars[0].Sections[0].Elements[j].RotateZDirection, Train.Cars[0].Sections[0].Elements[j].RotateXDirection);
-										Train.Cars[0].Sections[0].Elements[j].RotateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("time 0.0166666666666667 * floor 0.10471975511966 *");
-										Train.Cars[0].Sections[0].Elements[j].RotateZDamping = new ObjectManager.Damping(20.0, 0.4);
+										int j = CreateElement(Train, CenterX - Radius * w / h, CenterY + SemiHeight - Radius, 2.0 * Radius * w / h, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 5.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, Needle, false);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDirection = new World.Vector3D(0.0, 0.0, -1.0);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateXDirection = new World.Vector3D(1.0, 0.0, 0.0);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateYDirection = World.Cross(Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDirection, Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateXDirection);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("time 0.0166666666666667 * floor 0.10471975511966 *");
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDamping = new ObjectManager.Damping(20.0, 0.4);
 									}
 									{ // second
 										string File = Interface.GetCombinedFileName(Folder, "needle_second.png");
@@ -936,12 +936,12 @@ namespace OpenBve {
 										TextureManager.UseTexture(t, TextureManager.UseMode.QueryDimensions);
 										double w = (double)TextureManager.Textures[t].ClipWidth;
 										double h = (double)TextureManager.Textures[t].ClipHeight;
-										int j = CreateElement(Train, CenterX - Radius * w / h, CenterY + SemiHeight - Radius, 2.0 * Radius * w / h, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 6.0 * StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, Needle, false);
-										Train.Cars[0].Sections[0].Elements[j].RotateZDirection = new World.Vector3D(0.0, 0.0, -1.0);
-										Train.Cars[0].Sections[0].Elements[j].RotateXDirection = new World.Vector3D(1.0, 0.0, 0.0);
-										Train.Cars[0].Sections[0].Elements[j].RotateYDirection = World.Cross(Train.Cars[0].Sections[0].Elements[j].RotateZDirection, Train.Cars[0].Sections[0].Elements[j].RotateXDirection);
-										Train.Cars[0].Sections[0].Elements[j].RotateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("time floor 0.10471975511966 *");
-										Train.Cars[0].Sections[0].Elements[j].RotateZDamping = new ObjectManager.Damping(20.0, 0.4);
+										int j = CreateElement(Train, CenterX - Radius * w / h, CenterY + SemiHeight - Radius, 2.0 * Radius * w / h, 2.0 * Radius, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 6.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, Needle, false);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDirection = new World.Vector3D(0.0, 0.0, -1.0);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateXDirection = new World.Vector3D(1.0, 0.0, 0.0);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateYDirection = World.Cross(Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDirection, Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateXDirection);
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("time floor 0.10471975511966 *");
+										Train.Cars[Train.DriverCar].CarSections[0].Elements[j].RotateZDamping = new ObjectManager.Damping(20.0, 0.4);
 									}
 								} break;
 								// brakeindicator
@@ -1001,25 +1001,25 @@ namespace OpenBve {
 											int t = TextureManager.RegisterTexture(Image, new World.ColorRGB(0, 0, 255), 1, TextureManager.TextureLoadMode.Normal, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, true, j * Width, 0, Width, h);
 											TextureManager.UseTexture(t, TextureManager.UseMode.Normal);
 											if (j == 0) {
-												k = CreateElement(Train, CornerX, CornerY + SemiHeight, (double)Width, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
+												k = CreateElement(Train, CornerX, CornerY + SemiHeight, (double)Width, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
 											} else {
-												CreateElement(Train, CornerX, CornerY + SemiHeight, (double)Width, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - StackDistance, Train.Cars[0].DriverX, Train.Cars[0].DriverY, Train.Cars[0].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), true);
+												CreateElement(Train, CornerX, CornerY + SemiHeight, (double)Width, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), true);
 											}
 										}
 										if (Train.Cars[Train.DriverCar].Specs.BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
 											int maxpow = Train.Specs.MaximumPowerNotch;
 											int em = maxpow + 3;
-											Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("emergencyBrake " + em.ToString(Culture) + " brakeNotch 0 > " + maxpow.ToString(Culture) + " BrakeNotch + " + maxpow.ToString(Culture) + " powerNotch - ? ?");
+											Train.Cars[Train.DriverCar].CarSections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("emergencyBrake " + em.ToString(Culture) + " brakeNotch 0 > " + maxpow.ToString(Culture) + " BrakeNotch + " + maxpow.ToString(Culture) + " powerNotch - ? ?");
 										} else {
 											if (Train.Specs.HasHoldBrake) {
 												int em = Train.Specs.MaximumPowerNotch + 2 + Train.Specs.MaximumBrakeNotch;
 												int maxpow = Train.Specs.MaximumPowerNotch;
 												int maxpowp1 = maxpow + 1;
-												Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("emergencyBrake " + em.ToString(Culture) + " holdBrake " + maxpowp1.ToString(Culture) + " brakeNotch 0 > brakeNotch " + maxpowp1.ToString(Culture) + " + " + maxpow.ToString(Culture) + " powerNotch - ? ? ?");
+												Train.Cars[Train.DriverCar].CarSections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("emergencyBrake " + em.ToString(Culture) + " holdBrake " + maxpowp1.ToString(Culture) + " brakeNotch 0 > brakeNotch " + maxpowp1.ToString(Culture) + " + " + maxpow.ToString(Culture) + " powerNotch - ? ? ?");
 											} else {
 												int em = Train.Specs.MaximumPowerNotch + 1 + Train.Specs.MaximumBrakeNotch;
 												int maxpow = Train.Specs.MaximumPowerNotch;
-												Train.Cars[0].Sections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("emergencyBrake " + em.ToString(Culture) + " brakeNotch 0 > brakeNotch " + maxpow.ToString(Culture) + " + " + maxpow.ToString(Culture) + " powerNotch - ? ?");
+												Train.Cars[Train.DriverCar].CarSections[0].Elements[k].StateFunction = FunctionScripts.GetFunctionScriptFromPostfixNotation("emergencyBrake " + em.ToString(Culture) + " brakeNotch 0 > brakeNotch " + maxpow.ToString(Culture) + " + " + maxpow.ToString(Culture) + " powerNotch - ? ?");
 											}
 										}
 									}
@@ -1085,22 +1085,22 @@ namespace OpenBve {
 			o.Z = WorldZ;
 			// add object
 			if (AddStateToLastElement) {
-				int n = Train.Cars[0].Sections[0].Elements.Length - 1;
-				int j = Train.Cars[0].Sections[0].Elements[n].States.Length;
-				Array.Resize<ObjectManager.AnimatedObjectState>(ref Train.Cars[0].Sections[0].Elements[n].States, j + 1);
-				Train.Cars[0].Sections[0].Elements[n].States[j].Position = o;
-				Train.Cars[0].Sections[0].Elements[n].States[j].Object = Object;
+				int n = Train.Cars[Train.DriverCar].CarSections[0].Elements.Length - 1;
+				int j = Train.Cars[Train.DriverCar].CarSections[0].Elements[n].States.Length;
+				Array.Resize<ObjectManager.AnimatedObjectState>(ref Train.Cars[Train.DriverCar].CarSections[0].Elements[n].States, j + 1);
+				Train.Cars[Train.DriverCar].CarSections[0].Elements[n].States[j].Position = o;
+				Train.Cars[Train.DriverCar].CarSections[0].Elements[n].States[j].Object = Object;
 				return n;
 			} else {
-				int n = Train.Cars[0].Sections[0].Elements.Length;
-				Array.Resize<ObjectManager.AnimatedObject>(ref Train.Cars[0].Sections[0].Elements, n + 1);
-				Train.Cars[0].Sections[0].Elements[n] = new ObjectManager.AnimatedObject();
-				Train.Cars[0].Sections[0].Elements[n].States = new ObjectManager.AnimatedObjectState[1];
-				Train.Cars[0].Sections[0].Elements[n].States[0].Position = o;
-				Train.Cars[0].Sections[0].Elements[n].States[0].Object = Object;
-				Train.Cars[0].Sections[0].Elements[n].CurrentState = 0;
-				Train.Cars[0].Sections[0].Elements[n].ObjectIndex = ObjectManager.CreateDynamicObject();
-				ObjectManager.Objects[Train.Cars[0].Sections[0].Elements[n].ObjectIndex] = ObjectManager.CloneObject(Object);
+				int n = Train.Cars[Train.DriverCar].CarSections[0].Elements.Length;
+				Array.Resize<ObjectManager.AnimatedObject>(ref Train.Cars[Train.DriverCar].CarSections[0].Elements, n + 1);
+				Train.Cars[Train.DriverCar].CarSections[0].Elements[n] = new ObjectManager.AnimatedObject();
+				Train.Cars[Train.DriverCar].CarSections[0].Elements[n].States = new ObjectManager.AnimatedObjectState[1];
+				Train.Cars[Train.DriverCar].CarSections[0].Elements[n].States[0].Position = o;
+				Train.Cars[Train.DriverCar].CarSections[0].Elements[n].States[0].Object = Object;
+				Train.Cars[Train.DriverCar].CarSections[0].Elements[n].CurrentState = 0;
+				Train.Cars[Train.DriverCar].CarSections[0].Elements[n].ObjectIndex = ObjectManager.CreateDynamicObject();
+				ObjectManager.Objects[Train.Cars[Train.DriverCar].CarSections[0].Elements[n].ObjectIndex] = ObjectManager.CloneObject(Object);
 				return n;
 			}
 		}

@@ -221,9 +221,9 @@ namespace OpenBve {
 				}
 				// add panel section
 				if (k == TrainManager.PlayerTrain.TrainIndex) {
-					TrainManager.Trains[k].Cars[0].Sections = new TrainManager.Section[1];
-					TrainManager.Trains[k].Cars[0].Sections[0].Elements = new ObjectManager.AnimatedObject[] { };
-					TrainManager.Trains[k].Cars[0].Sections[0].Overlay = true;
+					TrainManager.Trains[k].Cars[TrainManager.Trains[k].DriverCar].CarSections = new TrainManager.CarSection[1];
+					TrainManager.Trains[k].Cars[TrainManager.Trains[k].DriverCar].CarSections[0].Elements = new ObjectManager.AnimatedObject[] { };
+					TrainManager.Trains[k].Cars[TrainManager.Trains[k].DriverCar].CarSections[0].Overlay = true;
 					TrainProgressCurrentWeight = 0.7 / TrainProgressMaximum;
 					TrainManager.ParsePanelConfig(CurrentTrainFolder, CurrentTrainEncoding, TrainManager.Trains[k]);
 					TrainProgressCurrentSum += TrainProgressCurrentWeight;
@@ -251,23 +251,23 @@ namespace OpenBve {
 						}
 						if (CarObjects[i] != null) {
 							// add object
-							int j = TrainManager.Trains[k].Cars[i].Sections.Length;
-							Array.Resize<TrainManager.Section>(ref TrainManager.Trains[k].Cars[i].Sections, j + 1);
+							int j = TrainManager.Trains[k].Cars[i].CarSections.Length;
+							Array.Resize<TrainManager.CarSection>(ref TrainManager.Trains[k].Cars[i].CarSections, j + 1);
 							if (CarObjects[i] is ObjectManager.StaticObject) {
 								ObjectManager.StaticObject s = (ObjectManager.StaticObject)CarObjects[i];
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements = new ObjectManager.AnimatedObject[1];
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements[0] = new ObjectManager.AnimatedObject();
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements[0].States = new ObjectManager.AnimatedObjectState[1];
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements[0].States[0].Position = new World.Vector3D(0.0, 0.0, 0.0);
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements[0].States[0].Object = s;
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements[0].CurrentState = 0;
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements[0].ObjectIndex = ObjectManager.CreateDynamicObject();
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements = new ObjectManager.AnimatedObject[1];
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements[0] = new ObjectManager.AnimatedObject();
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements[0].States = new ObjectManager.AnimatedObjectState[1];
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements[0].States[0].Position = new World.Vector3D(0.0, 0.0, 0.0);
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements[0].States[0].Object = s;
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements[0].CurrentState = 0;
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements[0].ObjectIndex = ObjectManager.CreateDynamicObject();
 							} else if (CarObjects[i] is ObjectManager.AnimatedObjectCollection) {
 								ObjectManager.AnimatedObjectCollection a = (ObjectManager.AnimatedObjectCollection)CarObjects[i];
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements = new ObjectManager.AnimatedObject[a.Objects.Length];
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements = new ObjectManager.AnimatedObject[a.Objects.Length];
 								for (int h = 0; h < a.Objects.Length; h++) {
-									TrainManager.Trains[k].Cars[i].Sections[j].Elements[h] = a.Objects[h];
-									TrainManager.Trains[k].Cars[i].Sections[j].Elements[h].ObjectIndex = ObjectManager.CreateDynamicObject();
+									TrainManager.Trains[k].Cars[i].CarSections[j].Elements[h] = a.Objects[h];
+									TrainManager.Trains[k].Cars[i].CarSections[j].Elements[h].ObjectIndex = ObjectManager.CreateDynamicObject();
 								}
 							}
 						}

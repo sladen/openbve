@@ -192,7 +192,7 @@ namespace Plugin {
 			}
 			// --- eb ---
 			if (this.Train.Eb != null) {
-				if (this.Train.Eb.Counter >= Eb.TimeUntilBell) {
+				if (this.Train.Eb.Counter >= this.Train.Eb.TimeUntilBell) {
 					this.Train.KeyDown(VirtualKeys.A2);
 					data.Response = AIResponse.Long;
 				}

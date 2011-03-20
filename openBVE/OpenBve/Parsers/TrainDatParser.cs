@@ -52,6 +52,7 @@ namespace OpenBve {
 			double AerodynamicDragCoefficient = 1.1;
 			TrainManager.AccelerationCurve[] AccelerationCurves = new TrainManager.AccelerationCurve[] { };
 			double DriverX = 0.0, DriverY = 0.0, DriverZ = 0.0;
+			int DriverCar = 0;
 			double MotorCarMass = 1.0, TrailerCarMass = 1.0;
 			int MotorCars = 0, TrailerCars = 0;
 			double CarLength = 20.0;
@@ -292,6 +293,7 @@ namespace OpenBve {
 										case 0: DriverX = 0.001 * a; break;
 										case 1: DriverY = 0.001 * a; break;
 										case 2: DriverZ = 0.001 * a; break;
+										case 3: DriverCar = (int)Math.Round(a); break;
 								}
 							} i++; n++;
 						} i--; break;
@@ -482,6 +484,10 @@ namespace OpenBve {
 			int Cars = MotorCars + TrailerCars;
 			Train.Cars = new TrainManager.Car[Cars];
 			double DistanceBetweenTheCars = 0.3;
+			if (DriverCar < 0 | DriverCar >= Cars) {
+				Interface.AddMessage(Interface.MessageType.Error, false, "DriverCar must point to an existing car in " + FileName);
+				DriverCar = 0;
+			}
 			// brake system
 			double OperatingPressure;
 			if (BrakePipePressure <= 0.0) {
@@ -672,8 +678,8 @@ namespace OpenBve {
 			// apply other attributes for all cars
 			double AxleDistance = 0.4 * CarLength;
 			for (int i = 0; i < Cars; i++) {
-				Train.Cars[i].Sections = new TrainManager.Section[] { };
-				Train.Cars[i].CurrentSection = -1;
+				Train.Cars[i].CarSections = new TrainManager.CarSection[] { };
+				Train.Cars[i].CurrentCarSection = -1;
 				TrainManager.ChangeCarSection(Train, i, -1);
 				Train.Cars[i].FrontAxle.Follower.TriggerType = i == 0 ? TrackManager.EventTriggerType.FrontCarFrontAxle : TrackManager.EventTriggerType.OtherCarFrontAxle;
 				Train.Cars[i].RearAxle.Follower.TriggerType = i == Cars - 1 ? TrackManager.EventTriggerType.RearCarRearAxle : TrackManager.EventTriggerType.OtherCarRearAxle;
@@ -830,10 +836,10 @@ namespace OpenBve {
 				}
 			}
 			// driver
-			Train.DriverCar = 0;
-			Train.Cars[0].DriverX = DriverX;
-			Train.Cars[0].DriverY = DriverY;
-			Train.Cars[0].DriverZ = 0.5 * CarLength + DriverZ;
+			Train.DriverCar = DriverCar;
+			Train.Cars[Train.DriverCar].DriverX = DriverX;
+			Train.Cars[Train.DriverCar].DriverY = DriverY;
+			Train.Cars[Train.DriverCar].DriverZ = 0.5 * CarLength + DriverZ;
 			// couplers
 			Train.Couplers = new TrainManager.Coupler[Cars - 1];
 			for (int i = 0; i < Train.Couplers.Length; i++) {

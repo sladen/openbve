@@ -239,7 +239,7 @@ namespace Plugin {
 		
 		// --- functions ---
 		
-		/// <summary>Changes to standby mode and continues in ATS-Sx mode.</summary>
+		/// <summary>Changes to standby mode and continues in ATS-Sx.</summary>
 		private void SwitchToSx() {
 			if (this.Train.AtsSx != null) {
 				foreach (Pattern pattern in this.Patterns) {
@@ -505,7 +505,9 @@ namespace Plugin {
 					case 1:
 						// --- P -> S ---
 						if (beacon.Optional == 0) {
-							SwitchToSx();
+							if (this.State == States.Normal | this.State == States.Pattern | this.State == States.Brake) {
+								SwitchToSx();
+							}
 						}
 						break;
 					case 3:

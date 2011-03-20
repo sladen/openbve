@@ -52,13 +52,13 @@ namespace Plugin {
 		// --- parameters ---
 		
 		/// <summary>The duration of the alarm until the emergency brakes are applied.</summary>
-		internal double DurationOfAlarm = 5.0;
+		internal readonly double DurationOfAlarm = 5.0;
 		
 		/// <summary>The duration of the initialization process.</summary>
-		internal double DurationOfInitialization = 3.0;
+		internal readonly double DurationOfInitialization = 3.0;
 		
 		/// <summary>The duration of the Sx speed check.</summary>
-		internal double DurationOfSpeedCheck = 0.5;
+		internal readonly double DurationOfSpeedCheck = 0.5;
 		
 		
 		// --- constructors ---

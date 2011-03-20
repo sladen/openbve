@@ -142,23 +142,27 @@ namespace Plugin {
 					const double blockLength = 100.0;
 					int a = (int)Math.Floor(this.PrecedingTrain.Location / blockLength);
 					int b = (int)Math.Floor(this.Train.State.Location / blockLength);
-					int blocks = b - a;
+					int blocks = a - b;
 					switch (blocks) {
 						case 0:
-							return this.CompatibilitySpeeds[1];
+							return this.CompatibilitySpeeds[0];
 						case 1:
-							return this.CompatibilitySpeeds[4];
+							return this.CompatibilitySpeeds[1];
 						case 2:
-							return this.CompatibilitySpeeds[5];
+							return this.CompatibilitySpeeds[3];
 						case 3:
-							return this.CompatibilitySpeeds[6];
+							return this.CompatibilitySpeeds[4];
 						case 4:
-							return this.CompatibilitySpeeds[7];
+							return this.CompatibilitySpeeds[5];
 						case 5:
-							return this.CompatibilitySpeeds[8];
+							return this.CompatibilitySpeeds[6];
 						case 6:
-							return this.CompatibilitySpeeds[9];
+							return this.CompatibilitySpeeds[7];
 						case 7:
+							return this.CompatibilitySpeeds[8];
+						case 8:
+							return this.CompatibilitySpeeds[9];
+						case 9:
 							return this.CompatibilitySpeeds[10];
 						default:
 							return this.CompatibilitySpeeds[11];
@@ -412,14 +416,8 @@ namespace Plugin {
 		internal override void SetBeacon(BeaconData beacon) {
 			switch (beacon.Type) {
 				case -16777215:
-					if (beacon.Optional == 0) {
-						this.CompatibilityState = CompatibilityStates.Ats;
-					} else if (beacon.Optional == 1) {
-						this.CompatibilityState = CompatibilityStates.ToAtc;
-					} else if (beacon.Optional == 2) {
-						this.CompatibilityState = CompatibilityStates.Atc;
-					} else if (beacon.Optional == 3) {
-						this.CompatibilityState = CompatibilityStates.ToAts;
+					if (beacon.Optional >= 0 & beacon.Optional <= 3) {
+						this.CompatibilityState = (CompatibilityStates)beacon.Optional;
 					}
 					break;
 				case -16777214:

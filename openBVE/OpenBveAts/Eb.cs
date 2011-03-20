@@ -17,13 +17,13 @@ namespace Plugin {
 		// --- constants ---
 		
 		/// <summary>The time after which the bell is sound.</summary>
-		internal const double TimeUntilBell = 60.0;
+		internal readonly double TimeUntilBell = 60.0;
 		
 		/// <summary>The time after which the brakes are applied.</summary>
-		internal const double TimeUntilBrake = 65.0;
+		internal readonly double TimeUntilBrake = 65.0;
 		
 		/// <summary>The speed beyond which the EB is active.</summary>
-		internal const double SpeedThreshold = 5.0 / 3.6;
+		internal readonly double SpeedThreshold = 5.0 / 3.6;
 		
 		
 		// --- constructors ---

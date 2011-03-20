@@ -16,7 +16,7 @@ namespace OpenBve {
 		}
 
 		// sections
-		internal struct Section {
+		internal struct CarSection {
 			internal ObjectManager.AnimatedObject[] Elements;
 			internal bool Overlay;
 		}
@@ -285,8 +285,8 @@ namespace OpenBve {
 			internal double FrontAxlePosition;
 			internal double RearAxlePosition;
 			internal World.Vector3D Up;
-			internal Section[] Sections;
-			internal int CurrentSection;
+			internal CarSection[] CarSections;
+			internal int CurrentCarSection;
 			internal double DriverX;
 			internal double DriverY;
 			internal double DriverZ;
@@ -469,7 +469,7 @@ namespace OpenBve {
 				for (int i = 0; i < a.Objects.Length; i++) {
 					a.Objects[i].ObjectIndex = ObjectManager.CreateDynamicObject();
 				}
-				Train.Cars[Train.DriverCar].Sections[0].Elements = a.Objects;
+				Train.Cars[Train.DriverCar].CarSections[0].Elements = a.Objects;
 				World.CameraRestriction = World.CameraRestrictionMode.NotAvailable;
 			} else {
 				File = Interface.GetCombinedFileName(TrainPath, "panel2.cfg");
@@ -780,7 +780,7 @@ namespace OpenBve {
 				Train.Cars[CarIndex].Up.Z = uz;
 			}
 			// apply pitching
-			if (Train.Cars[CarIndex].CurrentSection >= 0 && Train.Cars[CarIndex].Sections[Train.Cars[CarIndex].CurrentSection].Overlay) {
+			if (Train.Cars[CarIndex].CurrentCarSection >= 0 && Train.Cars[CarIndex].CarSections[Train.Cars[CarIndex].CurrentCarSection].Overlay) {
 				double a = Train.Cars[CarIndex].Specs.CurrentPitchDueToAccelerationAngle;
 				double cosa = Math.Cos(a);
 				double sina = Math.Sin(a);
@@ -966,7 +966,7 @@ namespace OpenBve {
 		// initialize car
 		private static void InitializeCar(Train Train, int CarIndex) {
 			int c = CarIndex;
-			for (int i = 0; i < Train.Cars[c].Sections.Length; i++) {
+			for (int i = 0; i < Train.Cars[c].CarSections.Length; i++) {
 				InitializeCarSection(Train, c, i);
 			}
 			Train.Cars[c].Brightness.PreviousBrightness = 1.0f;
@@ -977,8 +977,8 @@ namespace OpenBve {
 		internal static void InitializeCarSection(Train Train, int CarIndex, int SectionIndex) {
 			int c = CarIndex;
 			int s = SectionIndex;
-			for (int j = 0; j < Train.Cars[c].Sections[s].Elements.Length; j++) {
-				for (int k = 0; k < Train.Cars[c].Sections[s].Elements[j].States.Length; k++) {
+			for (int j = 0; j < Train.Cars[c].CarSections[s].Elements.Length; j++) {
+				for (int k = 0; k < Train.Cars[c].CarSections[s].Elements[j].States.Length; k++) {
 					InitializeCarSectionElement(Train, c, s, j, k);
 				}
 			}
@@ -986,7 +986,7 @@ namespace OpenBve {
 
 		// initialize car section element
 		internal static void InitializeCarSectionElement(Train Train, int CarIndex, int SectionIndex, int ElementIndex, int StateIndex) {
-			ObjectManager.InitializeAnimatedObject(ref Train.Cars[CarIndex].Sections[SectionIndex].Elements[ElementIndex], StateIndex, Train.Cars[CarIndex].Sections[SectionIndex].Overlay, Train.Cars[CarIndex].CurrentlyVisible);
+			ObjectManager.InitializeAnimatedObject(ref Train.Cars[CarIndex].CarSections[SectionIndex].Elements[ElementIndex], StateIndex, Train.Cars[CarIndex].CarSections[SectionIndex].Overlay, Train.Cars[CarIndex].CurrentlyVisible);
 		}
 		
 		// update train objects
@@ -1052,12 +1052,12 @@ namespace OpenBve {
 				dnb = (byte)Math.Round(255.0 * (double)(1.0 - Brightness));
 			}
 			// update current section
-			int s = Train.Cars[c].CurrentSection;
+			int s = Train.Cars[c].CurrentCarSection;
 			if (s >= 0) {
-				for (int i = 0; i < Train.Cars[c].Sections[s].Elements.Length; i++) {
+				for (int i = 0; i < Train.Cars[c].CarSections[s].Elements.Length; i++) {
 					UpdateCarSectionElement(Train, CarIndex, s, i, new World.Vector3D(px, py, pz), new World.Vector3D(dx, dy, dz), new World.Vector3D(ux, uy, uz), new World.Vector3D(sx, sy, sz), Train.Cars[c].CurrentlyVisible, TimeElapsed, ForceUpdate);
 					// brightness change
-					int o = Train.Cars[c].Sections[s].Elements[i].ObjectIndex;
+					int o = Train.Cars[c].CarSections[s].Elements[i].ObjectIndex;
 					if (ObjectManager.Objects[o] != null) {
 						for (int j = 0; j < ObjectManager.Objects[o].Mesh.Materials.Length; j++) {
 							ObjectManager.Objects[o].Mesh.Materials[j].DaytimeNighttimeBlend = dnb;
@@ -1069,55 +1069,55 @@ namespace OpenBve {
 
 		// change car section
 		internal static void ChangeCarSection(Train Train, int CarIndex, int SectionIndex) {
-			for (int i = 0; i < Train.Cars[CarIndex].Sections.Length; i++) {
-				for (int j = 0; j < Train.Cars[CarIndex].Sections[i].Elements.Length; j++) {
-					int o = Train.Cars[CarIndex].Sections[i].Elements[j].ObjectIndex;
+			for (int i = 0; i < Train.Cars[CarIndex].CarSections.Length; i++) {
+				for (int j = 0; j < Train.Cars[CarIndex].CarSections[i].Elements.Length; j++) {
+					int o = Train.Cars[CarIndex].CarSections[i].Elements[j].ObjectIndex;
 					Renderer.HideObject(o);
 				}
 			}
 			if (SectionIndex >= 0) {
 				InitializeCarSection(Train, CarIndex, SectionIndex);
-				for (int j = 0; j < Train.Cars[CarIndex].Sections[SectionIndex].Elements.Length; j++) {
-					int o = Train.Cars[CarIndex].Sections[SectionIndex].Elements[j].ObjectIndex;
-					if (Train.Cars[CarIndex].Sections[SectionIndex].Overlay) {
+				for (int j = 0; j < Train.Cars[CarIndex].CarSections[SectionIndex].Elements.Length; j++) {
+					int o = Train.Cars[CarIndex].CarSections[SectionIndex].Elements[j].ObjectIndex;
+					if (Train.Cars[CarIndex].CarSections[SectionIndex].Overlay) {
 						Renderer.ShowObject(o, Renderer.ObjectType.Overlay);
 					} else {
 						Renderer.ShowObject(o, Renderer.ObjectType.Dynamic);
 					}
 				}
 			}
-			Train.Cars[CarIndex].CurrentSection = SectionIndex;
+			Train.Cars[CarIndex].CurrentCarSection = SectionIndex;
 		}
 
 		// update car section element
 		private static void UpdateCarSectionElement(Train Train, int CarIndex, int SectionIndex, int ElementIndex, World.Vector3D Position, World.Vector3D Direction, World.Vector3D Up, World.Vector3D Side, bool Show, double TimeElapsed, bool ForceUpdate) {
 			World.Vector3D p;
-			if (Train.Cars[CarIndex].Sections[SectionIndex].Overlay & World.CameraRestriction != World.CameraRestrictionMode.NotAvailable) {
+			if (Train.Cars[CarIndex].CarSections[SectionIndex].Overlay & World.CameraRestriction != World.CameraRestrictionMode.NotAvailable) {
 				p = new World.Vector3D(Train.Cars[CarIndex].DriverX, Train.Cars[CarIndex].DriverY, Train.Cars[CarIndex].DriverZ);
 			} else {
 				p = Position;
 			}
 			double timeDelta;
 			bool updatefunctions;
-			if (Train.Cars[CarIndex].Sections[SectionIndex].Elements[ElementIndex].RefreshRate != 0.0) {
-				if (Train.Cars[CarIndex].Sections[SectionIndex].Elements[ElementIndex].SecondsSinceLastUpdate >= Train.Cars[CarIndex].Sections[SectionIndex].Elements[ElementIndex].RefreshRate) {
-					timeDelta = Train.Cars[CarIndex].Sections[SectionIndex].Elements[ElementIndex].SecondsSinceLastUpdate;
-					Train.Cars[CarIndex].Sections[SectionIndex].Elements[ElementIndex].SecondsSinceLastUpdate = TimeElapsed;
+			if (Train.Cars[CarIndex].CarSections[SectionIndex].Elements[ElementIndex].RefreshRate != 0.0) {
+				if (Train.Cars[CarIndex].CarSections[SectionIndex].Elements[ElementIndex].SecondsSinceLastUpdate >= Train.Cars[CarIndex].CarSections[SectionIndex].Elements[ElementIndex].RefreshRate) {
+					timeDelta = Train.Cars[CarIndex].CarSections[SectionIndex].Elements[ElementIndex].SecondsSinceLastUpdate;
+					Train.Cars[CarIndex].CarSections[SectionIndex].Elements[ElementIndex].SecondsSinceLastUpdate = TimeElapsed;
 					updatefunctions = true;
 				} else {
 					timeDelta = TimeElapsed;
-					Train.Cars[CarIndex].Sections[SectionIndex].Elements[ElementIndex].SecondsSinceLastUpdate += TimeElapsed;
+					Train.Cars[CarIndex].CarSections[SectionIndex].Elements[ElementIndex].SecondsSinceLastUpdate += TimeElapsed;
 					updatefunctions = false;
 				}
 			} else {
-				timeDelta = Train.Cars[CarIndex].Sections[SectionIndex].Elements[ElementIndex].SecondsSinceLastUpdate;
-				Train.Cars[CarIndex].Sections[SectionIndex].Elements[ElementIndex].SecondsSinceLastUpdate = TimeElapsed;
+				timeDelta = Train.Cars[CarIndex].CarSections[SectionIndex].Elements[ElementIndex].SecondsSinceLastUpdate;
+				Train.Cars[CarIndex].CarSections[SectionIndex].Elements[ElementIndex].SecondsSinceLastUpdate = TimeElapsed;
 				updatefunctions = true;
 			}
 			if (ForceUpdate) {
 				updatefunctions = true;
 			}
-			ObjectManager.UpdateAnimatedObject(ref Train.Cars[CarIndex].Sections[SectionIndex].Elements[ElementIndex], true, Train, CarIndex, Train.Cars[CarIndex].CurrentSection, Train.Cars[CarIndex].FrontAxle.Follower.TrackPosition - Train.Cars[CarIndex].FrontAxlePosition, p, Direction, Up, Side, Train.Cars[CarIndex].Sections[SectionIndex].Overlay, updatefunctions, Show, timeDelta);
+			ObjectManager.UpdateAnimatedObject(ref Train.Cars[CarIndex].CarSections[SectionIndex].Elements[ElementIndex], true, Train, CarIndex, Train.Cars[CarIndex].CurrentCarSection, Train.Cars[CarIndex].FrontAxle.Follower.TrackPosition - Train.Cars[CarIndex].FrontAxlePosition, p, Direction, Up, Side, Train.Cars[CarIndex].CarSections[SectionIndex].Overlay, updatefunctions, Show, timeDelta);
 		}
 
 		// update train
@@ -1152,8 +1152,8 @@ namespace OpenBve {
 						// train is introduced
 						Train.State = TrainState.Available;
 						for (int j = 0; j < Train.Cars.Length; j++) {
-							if (Train.Cars[j].Sections.Length != 0) {
-								TrainManager.ChangeCarSection(Train, j, j == 0 | Train != PlayerTrain ? 0 : -1);
+							if (Train.Cars[j].CarSections.Length != 0) {
+								TrainManager.ChangeCarSection(Train, j, j <= Train.DriverCar | Train != PlayerTrain ? 0 : -1);
 							}
 							if (Train.Cars[j].Specs.IsMotorCar) {
 								if (Train.Cars[j].Sounds.Loop.SoundBufferIndex >= 0) {
@@ -1417,10 +1417,10 @@ namespace OpenBve {
 		internal static void DisposeTrain(Train Train) {
 			Train.State = TrainState.Disposed;
 			for (int i = 0; i < Train.Cars.Length; i++) {
-				int s = Train.Cars[i].CurrentSection;
+				int s = Train.Cars[i].CurrentCarSection;
 				if (s >= 0) {
-					for (int j = 0; j < Train.Cars[i].Sections[s].Elements.Length; j++) {
-						Renderer.HideObject(Train.Cars[i].Sections[s].Elements[j].ObjectIndex);
+					for (int j = 0; j < Train.Cars[i].CarSections[s].Elements.Length; j++) {
+						Renderer.HideObject(Train.Cars[i].CarSections[s].Elements[j].ObjectIndex);
 					}
 				}
 			}
