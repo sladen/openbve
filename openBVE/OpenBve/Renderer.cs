@@ -105,7 +105,6 @@ namespace OpenBve {
 		/// <summary>Whether to enforce updating all display lists.</summary>
 		internal static bool StaticOpaqueForceUpdate = true;
 		
-		
 		// all other lists
 		/// <summary>The list of dynamic opaque faces to be rendered.</summary>
 		private static ObjectList DynamicOpaque = new ObjectList();
@@ -143,6 +142,9 @@ namespace OpenBve {
 		internal static SpeedDisplayMode OptionSpeed = SpeedDisplayMode.None;
 		internal static bool OptionFrameRates = false;
 		internal static bool OptionBrakeSystems = false;
+		
+		// fade to black
+		private static double FadeToBlackDueToChangeEnds = 0.0;
 
 		// textures
 		private static int TextureLogo = -1;
@@ -193,7 +195,7 @@ namespace OpenBve {
 			Gl.glDisable(Gl.GL_TEXTURE_2D); TexturingEnabled = false;
 			// hud
 			Interface.LoadHUD();
-			string Path = Interface.GetDataFolder("In-game");
+			string Path = Program.FileSystem.GetDataFolder("In-game");
 			TextureLogo = TextureManager.RegisterTexture(Interface.GetCombinedFileName(Path, "logo.png"), new World.ColorRGB(0, 0, 0), 0, TextureManager.TextureWrapMode.ClampToEdge, TextureManager.TextureWrapMode.ClampToEdge, false);
 			TextureManager.ValidateTexture(ref TextureLogo);
 			// opengl
@@ -943,11 +945,12 @@ namespace OpenBve {
 
 		// render fullscreen motion blur
 		private static void RenderFullscreenMotionBlur() {
-			int w = Interface.RoundToPowerOfTwo(ScreenWidth);
-			int h = Interface.RoundToPowerOfTwo(ScreenHeight);
+			int w = Interface.CurrentOptions.NoTextureResize ? Renderer.ScreenWidth : Interface.RoundToPowerOfTwo(ScreenWidth);
+			int h = Interface.CurrentOptions.NoTextureResize ? Renderer.ScreenHeight : Interface.RoundToPowerOfTwo(ScreenHeight);
 			// render
 			if (PixelBufferOpenGlTextureIndex >= 0) {
-				double strength; switch (Interface.CurrentOptions.MotionBlur) {
+				double strength;
+				switch (Interface.CurrentOptions.MotionBlur) {
 						case Interface.MotionBlurMode.Low: strength = 0.0025; break;
 						case Interface.MotionBlurMode.Medium: strength = 0.0040; break;
 						case Interface.MotionBlurMode.High: strength = 0.0064; break;
@@ -1089,12 +1092,16 @@ namespace OpenBve {
 		}
 		private static LampCollection CurrentLampCollection;
 		private static void InitializeLamps() {
+			bool atsSn = (TrainManager.PlayerTrain.Specs.DefaultSafetySystems & TrainManager.DefaultSafetySystems.AtsSn) != 0;
+			bool atsP = (TrainManager.PlayerTrain.Specs.DefaultSafetySystems & TrainManager.DefaultSafetySystems.AtsP) != 0;
+			bool atc = (TrainManager.PlayerTrain.Specs.DefaultSafetySystems & TrainManager.DefaultSafetySystems.Atc) != 0;
+			bool eb = (TrainManager.PlayerTrain.Specs.DefaultSafetySystems & TrainManager.DefaultSafetySystems.Eb) != 0;
 			CurrentLampCollection.Width = 0.0f;
 			CurrentLampCollection.Lamps = new Lamp[17];
 			int Count;
-			if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin) {
+			if (TrainManager.PlayerTrain.Plugin == null || !TrainManager.PlayerTrain.Plugin.IsDefault) {
 				Count = 0;
-			} else if (TrainManager.PlayerTrain.Specs.Safety.Ats.AtsPAvailable & TrainManager.PlayerTrain.Specs.Safety.Atc.Available) {
+			} else if (atsP & atc) {
 				CurrentLampCollection.Lamps[0] = new Lamp(LampType.Ats);
 				CurrentLampCollection.Lamps[1] = new Lamp(LampType.AtsOperation);
 				CurrentLampCollection.Lamps[2] = new Lamp(LampType.None);
@@ -1110,7 +1117,7 @@ namespace OpenBve {
 				CurrentLampCollection.Lamps[12] = new Lamp(LampType.AtcUse);
 				CurrentLampCollection.Lamps[13] = new Lamp(LampType.AtcEmergency);
 				Count = 14;
-			} else if (TrainManager.PlayerTrain.Specs.Safety.Ats.AtsPAvailable) {
+			} else if (atsP) {
 				CurrentLampCollection.Lamps[0] = new Lamp(LampType.Ats);
 				CurrentLampCollection.Lamps[1] = new Lamp(LampType.AtsOperation);
 				CurrentLampCollection.Lamps[2] = new Lamp(LampType.None);
@@ -1121,7 +1128,7 @@ namespace OpenBve {
 				CurrentLampCollection.Lamps[7] = new Lamp(LampType.AtsP);
 				CurrentLampCollection.Lamps[8] = new Lamp(LampType.AtsPFailure);
 				Count = 9;
-			} else if (TrainManager.PlayerTrain.Specs.Safety.Atc.Available & TrainManager.PlayerTrain.Specs.Safety.Ats.AtsAvailable) {
+			} else if (atsSn & atc) {
 				CurrentLampCollection.Lamps[0] = new Lamp(LampType.Ats);
 				CurrentLampCollection.Lamps[1] = new Lamp(LampType.AtsOperation);
 				CurrentLampCollection.Lamps[2] = new Lamp(LampType.None);
@@ -1130,25 +1137,25 @@ namespace OpenBve {
 				CurrentLampCollection.Lamps[5] = new Lamp(LampType.AtcUse);
 				CurrentLampCollection.Lamps[6] = new Lamp(LampType.AtcEmergency);
 				Count = 7;
-			} else if (TrainManager.PlayerTrain.Specs.Safety.Atc.Available) {
+			} else if (atc) {
 				CurrentLampCollection.Lamps[0] = new Lamp(LampType.Atc);
 				CurrentLampCollection.Lamps[1] = new Lamp(LampType.AtcPower);
 				CurrentLampCollection.Lamps[2] = new Lamp(LampType.AtcUse);
 				CurrentLampCollection.Lamps[3] = new Lamp(LampType.AtcEmergency);
 				Count = 4;
-			} else if (TrainManager.PlayerTrain.Specs.Safety.Ats.AtsAvailable) {
+			} else if (atsSn) {
 				CurrentLampCollection.Lamps[0] = new Lamp(LampType.Ats);
 				CurrentLampCollection.Lamps[1] = new Lamp(LampType.AtsOperation);
 				Count = 2;
 			} else {
 				Count = 0;
 			}
-			if (TrainManager.PlayerTrain.Specs.Safety.Mode != TrainManager.SafetySystem.Plugin & World.CameraRestriction != World.CameraRestrictionMode.NotAvailable) {
-				if (TrainManager.PlayerTrain.Specs.Safety.Eb.Available & TrainManager.PlayerTrain.Specs.Safety.Ats.AtsAvailable | TrainManager.PlayerTrain.Specs.HasConstSpeed) {
+			if (TrainManager.PlayerTrain.Plugin != null && TrainManager.PlayerTrain.Plugin.IsDefault) {
+				if (Count != 0 & (eb | TrainManager.PlayerTrain.Specs.HasConstSpeed)) {
 					CurrentLampCollection.Lamps[Count] = new Lamp(LampType.None);
 					Count++;
 				}
-				if (TrainManager.PlayerTrain.Specs.Safety.Eb.Available & TrainManager.PlayerTrain.Specs.Safety.Ats.AtsAvailable) {
+				if (eb) {
 					CurrentLampCollection.Lamps[Count] = new Lamp(LampType.Eb);
 					Count++;
 				}
@@ -1682,7 +1689,9 @@ namespace OpenBve {
 						case "ats":
 							{
 								// ats lamps
-								if (CurrentLampCollection.Lamps == null) InitializeLamps();
+								if (CurrentLampCollection.Lamps == null) {
+									InitializeLamps();
+								}
 								double lcrh = 0.0;
 								/// left width/height
 								double lw = 0.0;
@@ -1790,91 +1799,65 @@ namespace OpenBve {
 										Interface.HudImage Middle = o < 0 ? Interface.CurrentHudElements[i].TopMiddle : o == 0 ? Interface.CurrentHudElements[i].CenterMiddle : Interface.CurrentHudElements[i].BottomMiddle;
 										Interface.HudImage Right = o < 0 ? Interface.CurrentHudElements[i].TopRight : o == 0 ? Interface.CurrentHudElements[i].CenterRight : Interface.CurrentHudElements[i].BottomRight;
 										Game.MessageColor sc = Game.MessageColor.Gray;
-										switch (CurrentLampCollection.Lamps[j].Type) {
-											case LampType.Ats:
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn) {
-													if (TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Normal | TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Initialization) {
+										if (TrainManager.PlayerTrain.Plugin.Panel.Length >= 272) {
+											switch (CurrentLampCollection.Lamps[j].Type) {
+												case LampType.Ats:
+													if (TrainManager.PlayerTrain.Plugin.Panel[256] != 0) {
 														sc = Game.MessageColor.Orange;
-													}
-												} break;
-											case LampType.AtsOperation:
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn) {
-													if (TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Ringing) {
+													} break;
+												case LampType.AtsOperation:
+													if (TrainManager.PlayerTrain.Plugin.Panel[258] != 0) {
 														sc = Game.MessageColor.Red;
-													} else if (TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Emergency | TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Pattern | TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Service) {
-														if (((int)Math.Floor(2.0 * Game.SecondsSinceMidnight) & 1) == 0) {
-															sc = Game.MessageColor.Red;
-														}
-													}
-												} break;
-											case LampType.AtsPPower:
-												if ((TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.AtsSn | TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) & TrainManager.PlayerTrain.Specs.Safety.Ats.AtsPAvailable) {
-													sc = Game.MessageColor.Green;
-												} break;
-											case LampType.AtsPPattern:
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
-													if (TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Pattern | TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Service) {
-														sc = Game.MessageColor.Orange;
-													}
-												} break;
-											case LampType.AtsPBrakeOverride:
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
-													if (TrainManager.PlayerTrain.Specs.Safety.Ats.AtsPOverride) {
-														sc = Game.MessageColor.Orange;
-													}
-												} break;
-											case LampType.AtsPBrakeOperation:
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
-													if (TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Service & !TrainManager.PlayerTrain.Specs.Safety.Ats.AtsPOverride) {
-														sc = Game.MessageColor.Orange;
-													}
-												} break;
-											case LampType.AtsP:
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
-													sc = Game.MessageColor.Green;
-												} break;
-											case LampType.AtsPFailure:
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode != TrainManager.SafetySystem.None) {
-													if (TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Initialization) {
-														sc = Game.MessageColor.Red;
-													} else if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.AtsP) {
-														if (TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Ringing | TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Emergency) {
-															sc = Game.MessageColor.Red;
-														}
-													}
-												} break;
-											case LampType.Atc:
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Atc) {
-													sc = Game.MessageColor.Orange;
-												} break;
-											case LampType.AtcPower:
-												if ((TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Atc | TrainManager.PlayerTrain.Specs.Safety.Mode != TrainManager.SafetySystem.None & TrainManager.PlayerTrain.Specs.Safety.Atc.AutomaticSwitch)) {
-													sc = Game.MessageColor.Orange;
-												} break;
-											case LampType.AtcUse:
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Atc) {
-													if (TrainManager.PlayerTrain.Specs.Safety.State == TrainManager.SafetyState.Service) {
-														sc = Game.MessageColor.Orange;
-													}
-												} break;
-											case LampType.AtcEmergency:
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Atc) {
-													if (!TrainManager.PlayerTrain.Specs.Safety.Atc.Transmitting) {
-														sc = Game.MessageColor.Red;
-													}
-												} break;
-											case LampType.Eb:
-												if (TrainManager.PlayerTrain.Specs.Safety.Mode != TrainManager.SafetySystem.None) {
-													if (TrainManager.PlayerTrain.Specs.Safety.Eb.BellState == TrainManager.SafetyState.Ringing) {
+													} break;
+												case LampType.AtsPPower:
+													if (TrainManager.PlayerTrain.Plugin.Panel[259] != 0) {
 														sc = Game.MessageColor.Green;
-													}
-												} break;
-											case LampType.ConstSpeed:
-												if (TrainManager.PlayerTrain.Specs.HasConstSpeed) {
-													if (TrainManager.PlayerTrain.Specs.CurrentConstSpeed) {
+													} break;
+												case LampType.AtsPPattern:
+													if (TrainManager.PlayerTrain.Plugin.Panel[260] != 0) {
 														sc = Game.MessageColor.Orange;
-													}
-												} break;
+													} break;
+												case LampType.AtsPBrakeOverride:
+													if (TrainManager.PlayerTrain.Plugin.Panel[261] != 0) {
+														sc = Game.MessageColor.Orange;
+													} break;
+												case LampType.AtsPBrakeOperation:
+													if (TrainManager.PlayerTrain.Plugin.Panel[262] != 0) {
+														sc = Game.MessageColor.Orange;
+													} break;
+												case LampType.AtsP:
+													if (TrainManager.PlayerTrain.Plugin.Panel[263] != 0) {
+														sc = Game.MessageColor.Green;
+													} break;
+												case LampType.AtsPFailure:
+													if (TrainManager.PlayerTrain.Plugin.Panel[264] != 0) {
+														sc = Game.MessageColor.Red;
+													} break;
+												case LampType.Atc:
+													if (TrainManager.PlayerTrain.Plugin.Panel[265] != 0) {
+														sc = Game.MessageColor.Orange;
+													} break;
+												case LampType.AtcPower:
+													if (TrainManager.PlayerTrain.Plugin.Panel[266] != 0) {
+														sc = Game.MessageColor.Orange;
+													} break;
+												case LampType.AtcUse:
+													if (TrainManager.PlayerTrain.Plugin.Panel[267] != 0) {
+														sc = Game.MessageColor.Orange;
+													} break;
+												case LampType.AtcEmergency:
+													if (TrainManager.PlayerTrain.Plugin.Panel[268] != 0) {
+														sc = Game.MessageColor.Red;
+													} break;
+												case LampType.Eb:
+													if (TrainManager.PlayerTrain.Plugin.Panel[270] != 0) {
+														sc = Game.MessageColor.Green;
+													} break;
+												case LampType.ConstSpeed:
+													if (TrainManager.PlayerTrain.Plugin.Panel[269] != 0) {
+														sc = Game.MessageColor.Orange;
+													} break;
+											}
 										}
 										/// colors
 										float br, bg, bb, ba;
@@ -2287,8 +2270,8 @@ namespace OpenBve {
 						int h = TextureManager.Textures[tn].ClipHeight;
 						float alpha;
 						if (td >= 0) {
-							double t = (TrainManager.PlayerTrain.Cars[0].FrontAxle.Follower.TrackPosition - TrainManager.PlayerTrain.Cars[0].Brightness.PreviousTrackPosition) / (TrainManager.PlayerTrain.Cars[0].Brightness.NextTrackPosition - TrainManager.PlayerTrain.Cars[0].Brightness.PreviousTrackPosition);
-							alpha = (float)((1.0 - t) * TrainManager.PlayerTrain.Cars[0].Brightness.PreviousBrightness + t * TrainManager.PlayerTrain.Cars[0].Brightness.NextBrightness);
+							double t = (TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].FrontAxle.Follower.TrackPosition - TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].Brightness.PreviousTrackPosition) / (TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].Brightness.NextTrackPosition - TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].Brightness.PreviousTrackPosition);
+							alpha = (float)((1.0 - t) * TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].Brightness.PreviousBrightness + t * TrainManager.PlayerTrain.Cars[TrainManager.PlayerTrain.DriverCar].Brightness.NextBrightness);
 						} else {
 							alpha = 1.0f;
 						}
@@ -2391,12 +2374,11 @@ namespace OpenBve {
 					"speed of sound: " + (Game.GetSpeedOfSound(TrainManager.PlayerTrain.Specs.CurrentAirDensity) * 3.6).ToString("0.00", Culture) + " km/h",
 					"passenger ratio: " + TrainManager.PlayerTrain.Passengers.PassengerRatio.ToString("0.00"),
 					"total mass: " + mass.ToString("0.00", Culture) + " kg",
-					"plugin: " + (TrainManager.PlayerTrain.Specs.Safety.Mode == TrainManager.SafetySystem.Plugin ? ((PluginManager.CurrentPlugin.PluginValid ? "ok" : "error") + ", message: " + (PluginManager.CurrentPlugin.PluginMessage != null ? PluginManager.CurrentPlugin.PluginMessage : "n/a")) : "n/a"),
+					"plugin: " + (TrainManager.PlayerTrain.Plugin != null ? ((TrainManager.PlayerTrain.Plugin.PluginValid ? "ok" : "error") + ", message: " + (TrainManager.PlayerTrain.Plugin.PluginMessage != null ? TrainManager.PlayerTrain.Plugin.PluginMessage : "n/a")) : "n/a"),
 					"",
 					"=route",
 					"track limit: " + (TrainManager.PlayerTrain.CurrentRouteLimit == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.CurrentRouteLimit * 3.6).ToString("0.0", Culture) + " km/h")),
 					"signal limit: " + (TrainManager.PlayerTrain.CurrentSectionLimit == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.CurrentSectionLimit * 3.6).ToString("0.0", Culture) + " km/h")),
-					"atc limit: " + (TrainManager.PlayerTrain.Specs.Safety.Atc.Available ? (TrainManager.PlayerTrain.Specs.Safety.Atc.SpeedRestriction == double.PositiveInfinity ? "unlimited" : ((TrainManager.PlayerTrain.Specs.Safety.Atc.SpeedRestriction * 3.6).ToString("0.0", Culture) + " km/h")) : "n/a"),
 					"total static objects: " + ObjectManager.ObjectsUsed.ToString(Culture),
 					"total static GL_TRIANGLES: " + Game.InfoTotalTriangles.ToString(Culture),
 					"total static GL_TRIANGLE_STRIP: " + Game.InfoTotalTriangleStrip.ToString(Culture),
@@ -2636,6 +2618,27 @@ namespace OpenBve {
 					Game.MenuSubmenu n = m[Game.CurrentMenuSelection[i]] as Game.MenuSubmenu;
 					m = n == null ? null : n.Entries;
 				}
+			}
+			// fade to black on change ends
+			if (TrainManager.PlayerTrain.Station >= 0 && Game.Stations[TrainManager.PlayerTrain.Station].StationType == Game.StationType.ChangeEnds && TrainManager.PlayerTrain.StationState == TrainManager.TrainStopState.Boarding) {
+				double time = TrainManager.PlayerTrain.StationDepartureTime - Game.SecondsSinceMidnight;
+				if (time < 1.0) {
+					FadeToBlackDueToChangeEnds = Math.Max(0.0, 1.0 - time);
+				} else if (FadeToBlackDueToChangeEnds > 0.0) {
+					FadeToBlackDueToChangeEnds -= TimeElapsed;
+					if (FadeToBlackDueToChangeEnds < 0.0) {
+						FadeToBlackDueToChangeEnds = 0.0;
+					}
+				}
+			} else if (FadeToBlackDueToChangeEnds > 0.0) {
+				FadeToBlackDueToChangeEnds -= TimeElapsed;
+				if (FadeToBlackDueToChangeEnds < 0.0) {
+					FadeToBlackDueToChangeEnds = 0.0;
+				}
+			}
+			if (FadeToBlackDueToChangeEnds > 0.0 & (World.CameraMode == World.CameraViewMode.Interior | World.CameraMode == World.CameraViewMode.InteriorLookAhead)) {
+				Gl.glColor4d(0.0, 0.0, 0.0, FadeToBlackDueToChangeEnds);
+				RenderOverlaySolid(0.0, 0.0, (double)ScreenWidth, (double)ScreenHeight);
 			}
 			// finalize
 			Gl.glPopMatrix();

@@ -539,7 +539,9 @@ namespace OpenBve {
 		internal static bool IsPlaying(int SoundSourceIndex) {
 			if (OpenAlContext != IntPtr.Zero) {
 				if (SoundSourceIndex >= 0 && SoundSourceIndex < SoundSources.Length && SoundSources[SoundSourceIndex] != null) {
-					if (SoundSources[SoundSourceIndex].Suppressed) {
+					if (SoundSources[SoundSourceIndex].FinishedPlaying) {
+						return false;
+					} else if (SoundSources[SoundSourceIndex].Suppressed) {
 						return true;
 					} else {
 						if (SoundSources[SoundSourceIndex].OpenAlSourceIndex.Valid) {

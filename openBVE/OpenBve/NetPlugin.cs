@@ -176,6 +176,11 @@ namespace OpenBve {
 		}
 		internal override void SetSignal(SignalData[] signal) {
 			try {
+//				if (this.Train == TrainManager.PlayerTrain) {
+//					for (int i = 0; i < signal.Length; i++) {
+//						Game.AddDebugMessage(i.ToString() + " - " + signal[i].Aspect.ToString(), 3.0);
+//					}
+//				}
 				this.Api.SetSignal(signal);
 			} catch (Exception ex) {
 				base.LastException = ex;
@@ -183,6 +188,10 @@ namespace OpenBve {
 			}
 		}
 		internal override void SetBeacon(BeaconData beacon) {
+//			if (this.Train == TrainManager.PlayerTrain) {
+//				Game.AddDebugMessage("beacon signal aspect " + beacon.Signal.Aspect.ToString(), 3.0);
+//				Game.AddDebugMessage("Beacon, type=" + beacon.Type.ToString() + ", data=" + beacon.Optional.ToString(), 3.0);
+//			}
 			try {
 				this.Api.SetBeacon(beacon);
 			} catch (Exception ex) {

@@ -41,7 +41,6 @@ namespace OpenBve {
 			TrainManager.EletropneumaticBrakeType ElectropneumaticType = TrainManager.EletropneumaticBrakeType.None;
 			double BrakeControlSpeed = 0.0;
 			double BrakeDeceleration = 0.277777777777778;
-			double MotorDeceleration = 0.0;
 			double JerkPowerUp = 10.0;
 			double JerkPowerDown = 10.0;
 			double JerkBrakeUp = 10.0;
@@ -53,6 +52,7 @@ namespace OpenBve {
 			double AerodynamicDragCoefficient = 1.1;
 			TrainManager.AccelerationCurve[] AccelerationCurves = new TrainManager.AccelerationCurve[] { };
 			double DriverX = 0.0, DriverY = 0.0, DriverZ = 0.0;
+			int DriverCar = 0;
 			double MotorCarMass = 1.0, TrailerCarMass = 1.0;
 			int MotorCars = 0, TrailerCars = 0;
 			double CarLength = 20.0;
@@ -293,6 +293,7 @@ namespace OpenBve {
 										case 0: DriverX = 0.001 * a; break;
 										case 1: DriverY = 0.001 * a; break;
 										case 2: DriverZ = 0.001 * a; break;
+										case 3: DriverCar = (int)Math.Round(a); break;
 								}
 							} i++; n++;
 						} i--; break;
@@ -365,27 +366,29 @@ namespace OpenBve {
 							double a; if (Interface.TryParseDoubleVb6(Lines[i], out a)) {
 								switch (n) {
 									case 0:
-										{
-											int b = (int)Math.Round(a);
-											if (a == -1) {
-												Train.Specs.Safety.Ats.AtsAvailable = false;
-												Train.Specs.Safety.Ats.AtsPAvailable = false;
-											} else if (a == 1) {
-												Train.Specs.Safety.Ats.AtsAvailable = true;
-												Train.Specs.Safety.Ats.AtsPAvailable = true;
-											} else {
-												Train.Specs.Safety.Ats.AtsAvailable = true;
-												Train.Specs.Safety.Ats.AtsPAvailable = false;
-											}
-										} break;
-									case 1:
-										Train.Specs.Safety.Atc.Available = a != 0.0;
-										Train.Specs.Safety.Atc.AutomaticSwitch = a == 2.0;
+										if (a == 0.0) {
+											Train.Specs.DefaultSafetySystems |= TrainManager.DefaultSafetySystems.AtsSn;
+										} else if (a == 1.0) {
+											Train.Specs.DefaultSafetySystems |= TrainManager.DefaultSafetySystems.AtsSn;
+											Train.Specs.DefaultSafetySystems |= TrainManager.DefaultSafetySystems.AtsP;
+										}
 										break;
-										case 2: Train.Specs.Safety.Eb.Available = a == 1.0 & Train.Specs.Safety.Ats.AtsAvailable; break;
-										case 3: Train.Specs.HasConstSpeed = a == 1.0; break;
-										case 4: Train.Specs.HasHoldBrake = a == 1.0; break;
-										case 5: ReAdhesionDevice = (int)Math.Round(a); break;
+									case 1:
+										if (a == 1.0 | a == 2.0) {
+											Train.Specs.DefaultSafetySystems |= TrainManager.DefaultSafetySystems.Atc;
+										}
+										break;
+									case 2:
+										if (a == 1.0) {
+											Train.Specs.DefaultSafetySystems |= TrainManager.DefaultSafetySystems.Eb;
+										}
+										break;
+									case 3:
+										Train.Specs.HasConstSpeed = a == 1.0; break;
+									case 4:
+										Train.Specs.HasHoldBrake = a == 1.0; break;
+									case 5:
+										ReAdhesionDevice = (int)Math.Round(a); break;
 									case 7:
 										{
 											int b = (int)Math.Round(a);
@@ -472,7 +475,7 @@ namespace OpenBve {
 				Interface.AddMessage(Interface.MessageType.Error, false, "TrailerCarMass is expected to be positive in " + FileName);
 				TrailerCarMass = 1.0;
 			}
-						if (Train.Specs.MaximumPowerNotch <= 0) Train.Specs.MaximumPowerNotch = 8;
+			if (Train.Specs.MaximumPowerNotch <= 0) Train.Specs.MaximumPowerNotch = 8;
 			if (Train.Specs.MaximumBrakeNotch <= 0) Train.Specs.MaximumBrakeNotch = 8;
 			// apply data
 			Train.Specs.TotalMass = (double)MotorCars * MotorCarMass + (double)TrailerCars * TrailerCarMass;
@@ -481,6 +484,10 @@ namespace OpenBve {
 			int Cars = MotorCars + TrailerCars;
 			Train.Cars = new TrainManager.Car[Cars];
 			double DistanceBetweenTheCars = 0.3;
+			if (DriverCar < 0 | DriverCar >= Cars) {
+				Interface.AddMessage(Interface.MessageType.Error, false, "DriverCar must point to an existing car in " + FileName);
+				DriverCar = 0;
+			}
 			// brake system
 			double OperatingPressure;
 			if (BrakePipePressure <= 0.0) {
@@ -539,9 +546,7 @@ namespace OpenBve {
 					MaximumAcceleration = AccelerationCurves[i].StageOneAcceleration;
 				}
 			}
-			if (MotorDeceleration <= 0.0) {
-				MotorDeceleration = 0.5 * (MaximumAcceleration + BrakeDeceleration);
-			}
+			double MotorDeceleration = Math.Sqrt(MaximumAcceleration * BrakeDeceleration);
 			// apply brake-specific attributes for all cars
 			for (int i = 0; i < Cars; i++) {
 				Train.Cars[i].Specs.BrakeType = BrakeType;
@@ -610,12 +615,6 @@ namespace OpenBve {
 			Train.Specs.CurrentBrakeNotch.Actual = 0;
 			Train.Specs.CurrentBrakeNotch.DelayedChanges = new TrainManager.HandleChange[] { };
 			Train.Specs.CurrentEmergencyBrake.ApplicationTime = double.MaxValue;
-			Train.Specs.Safety.State = TrainManager.SafetyState.Normal;
-			Train.Specs.Safety.PendingTransponders = new TrainManager.TrainPendingTransponder[] { };
-			Train.Specs.Safety.Ats.AtsPDistance = double.PositiveInfinity;
-			Train.Specs.Safety.Ats.AtsPPermanentSpeed = double.PositiveInfinity;
-			Train.Specs.Safety.Ats.AtsPTemporarySpeed = double.PositiveInfinity;
-			Train.Specs.Safety.Ats.AtsPOverrideTime = double.NegativeInfinity;
 			if (BrakeType == TrainManager.CarBrakeType.AutomaticAirBrake) {
 				Train.Specs.SingleHandle = false;
 				Train.Specs.HasHoldBrake = false;
@@ -639,7 +638,6 @@ namespace OpenBve {
 				Train.Specs.CurrentEmergencyBrake.Driver = false;
 				Train.Specs.CurrentEmergencyBrake.Safety = false;
 				Train.Specs.CurrentEmergencyBrake.Actual = false;
-				Train.Specs.Safety.Mode = Train.Specs.Safety.Ats.AtsAvailable ? TrainManager.SafetySystem.AtsSn : Train.Specs.Safety.Atc.Available ? TrainManager.SafetySystem.Atc : TrainManager.SafetySystem.None;
 				Train.Specs.CurrentReverser.Driver = 1;
 				Train.Specs.CurrentReverser.Actual = 1;
 			} else if (Game.TrainStart == Game.TrainStartMode.EmergencyBrakesAts) {
@@ -659,7 +657,6 @@ namespace OpenBve {
 				Train.Specs.CurrentEmergencyBrake.Driver = true;
 				Train.Specs.CurrentEmergencyBrake.Safety = true;
 				Train.Specs.CurrentEmergencyBrake.Actual = true;
-				Train.Specs.Safety.Mode = Train.Specs.Safety.Ats.AtsAvailable ? TrainManager.SafetySystem.AtsSn : Train.Specs.Safety.Atc.Available ? TrainManager.SafetySystem.Atc : TrainManager.SafetySystem.None;
 			} else {
 				for (int i = 0; i < Cars; i++) {
 					Train.Cars[i].Specs.AirBrake.AuxillaryReservoirCurrentPressure = Train.Cars[i].Specs.AirBrake.AuxillaryReservoirMaximumPressure;
@@ -677,14 +674,12 @@ namespace OpenBve {
 				Train.Specs.CurrentEmergencyBrake.Driver = true;
 				Train.Specs.CurrentEmergencyBrake.Safety = true;
 				Train.Specs.CurrentEmergencyBrake.Actual = true;
-				Train.Specs.Safety.Mode = TrainManager.SafetySystem.None;
 			}
-			Train.Specs.Safety.ModeChange = Train.Specs.Safety.Mode;
 			// apply other attributes for all cars
 			double AxleDistance = 0.4 * CarLength;
 			for (int i = 0; i < Cars; i++) {
-				Train.Cars[i].Sections = new TrainManager.Section[] { };
-				Train.Cars[i].CurrentSection = -1;
+				Train.Cars[i].CarSections = new TrainManager.CarSection[] { };
+				Train.Cars[i].CurrentCarSection = -1;
 				TrainManager.ChangeCarSection(Train, i, -1);
 				Train.Cars[i].FrontAxle.Follower.TriggerType = i == 0 ? TrackManager.EventTriggerType.FrontCarFrontAxle : TrackManager.EventTriggerType.OtherCarFrontAxle;
 				Train.Cars[i].RearAxle.Follower.TriggerType = i == Cars - 1 ? TrackManager.EventTriggerType.RearCarRearAxle : TrackManager.EventTriggerType.OtherCarRearAxle;
@@ -841,10 +836,10 @@ namespace OpenBve {
 				}
 			}
 			// driver
-			Train.DriverCar = 0;
-			Train.Cars[0].DriverX = DriverX;
-			Train.Cars[0].DriverY = DriverY;
-			Train.Cars[0].DriverZ = 0.5 * CarLength + DriverZ;
+			Train.DriverCar = DriverCar;
+			Train.Cars[Train.DriverCar].DriverX = DriverX;
+			Train.Cars[Train.DriverCar].DriverY = DriverY;
+			Train.Cars[Train.DriverCar].DriverZ = 0.5 * CarLength + DriverZ;
 			// couplers
 			Train.Couplers = new TrainManager.Coupler[Cars - 1];
 			for (int i = 0; i < Train.Couplers.Length; i++) {

@@ -68,7 +68,7 @@ namespace OpenBve {
 			for (int i = 0; i < TrackManager.CurrentTrack.Elements.Length; i++) {
 				for (int j = 0; j < TrackManager.CurrentTrack.Elements[i].Events.Length; j++) {
 					TrackManager.StationStartEvent sse = TrackManager.CurrentTrack.Elements[i].Events[j] as TrackManager.StationStartEvent;
-					if (sse != null) {
+					if (sse != null && Game.Stations[sse.StationIndex].Name != string.Empty) {
 						if (Limit == -1.0) Limit = LastLimit;
 						// update station
 						if (n == Table.Stations.Length) {
@@ -77,7 +77,7 @@ namespace OpenBve {
 						Table.Stations[n].Name = Game.Stations[sse.StationIndex].Name;
 						Table.Stations[n].NameJapanese = Interface.IsJapanese(Game.Stations[sse.StationIndex].Name);
 						Table.Stations[n].Pass = !Game.PlayerStopsAtStation(sse.StationIndex);
-						Table.Stations[n].Terminal = Game.Stations[sse.StationIndex].IsTerminalStation;
+						Table.Stations[n].Terminal = Game.Stations[sse.StationIndex].StationType != Game.StationType.Normal;
 						double x;
 						if (Game.Stations[sse.StationIndex].ArrivalTime >= 0.0) {
 							x = Game.Stations[sse.StationIndex].ArrivalTime;

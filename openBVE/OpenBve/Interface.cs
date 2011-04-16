@@ -5,50 +5,6 @@ using Tao.Sdl;
 namespace OpenBve {
 	internal static class Interface {
 
-		// special folders
-		internal static string GetSettingsFolder() {
-			if (Program.UseFilesystemHierarchyStandard) {
-				string Folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-				return GetCombinedFolderName(Folder, "OpenBve");
-			} else {
-				return GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Settings");
-			}
-		}
-		internal static string GetDataFolder(params string[] Subfolders) {
-			if (Program.UseFilesystemHierarchyStandard) {
-				string Folder = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-				Folder = GetCombinedFolderName(Folder, "games");
-				Folder = GetCombinedFolderName(Folder, "OpenBve");
-				Folder = GetCombinedFolderName(Folder, "Data");
-				for (int i = 0; i < Subfolders.Length; i++) {
-					Folder = GetCombinedFolderName(Folder, Subfolders[i]);
-				}
-				return Folder;
-			} else {
-				string Folder = GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Data");
-				for (int i = 0; i < Subfolders.Length; i++) {
-					Folder = GetCombinedFolderName(Folder, Subfolders[i]);
-				}
-				return Folder;
-			}
-		}
-		internal static string GetControlsFolder() {
-			if (Program.UseFilesystemHierarchyStandard) {
-				return Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-			} else {
-				return GetCombinedFolderName(GetCombinedFolderName(System.Windows.Forms.Application.StartupPath, "Data"), "Controls");
-			}
-		}
-		internal static string GetPersonalFolder() {
-			if (Program.UseFilesystemHierarchyStandard) {
-				return Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-			} else {
-				return System.Windows.Forms.Application.StartupPath;
-			}
-		}
-
-		// ================================
-
 		// messages
 		internal enum MessageType {
 			Information = 1,
@@ -146,6 +102,7 @@ namespace OpenBve {
 			internal int MainMenuHeight;
 			internal bool DisableDisplayLists;
 			internal bool LoadInAdvance;
+			internal bool NoTextureResize;
 			internal Options() {
 				this.LanguageCode = "en-US";
 				this.FullscreenMode = false;
@@ -188,13 +145,14 @@ namespace OpenBve {
 				this.MainMenuHeight = 0;
 				this.DisableDisplayLists = false;
 				this.LoadInAdvance = false;
+				this.NoTextureResize = false;
 			}
 		}
 		internal static Options CurrentOptions;
 		internal static void LoadOptions() {
 			CurrentOptions = new Options();
 			CultureInfo Culture = CultureInfo.InvariantCulture;
-			string File = Interface.GetCombinedFileName(GetSettingsFolder(), "options.cfg");
+			string File = Interface.GetCombinedFileName(Program.FileSystem.SettingsFolder, "options.cfg");
 			if (System.IO.File.Exists(File)) {
 				// load options
 				string[] Lines = System.IO.File.ReadAllLines(File, new System.Text.UTF8Encoding());
@@ -292,6 +250,9 @@ namespace OpenBve {
 											break;
 										case "loadinadvance":
 											Interface.CurrentOptions.LoadInAdvance = string.Compare(Value, "false", StringComparison.OrdinalIgnoreCase) != 0;
+											break;
+										case "notextureresize":
+											Interface.CurrentOptions.NoTextureResize = string.Compare(Value, "false", StringComparison.OrdinalIgnoreCase) != 0;
 											break;
 									} break;
 								case "quality":
@@ -482,7 +443,7 @@ namespace OpenBve {
 				// file not found
 				string Code = CultureInfo.CurrentUICulture.Name;
 				if (Code == null || Code.Length == 0) Code = "en-US";
-				File = GetCombinedFileName(GetDataFolder("Languages"), Code + ".cfg");
+				File = GetCombinedFileName(Program.FileSystem.GetDataFolder("Languages"), Code + ".cfg");
 				if (System.IO.File.Exists(File)) {
 					CurrentOptions.LanguageCode = Code;
 				} else {
@@ -490,7 +451,7 @@ namespace OpenBve {
 						int i = Code.IndexOf("-", StringComparison.Ordinal);
 						if (i > 0) {
 							Code = Code.Substring(0, i);
-							File = GetCombinedFileName(GetDataFolder("Languages"), Code + ".cfg");
+							File = GetCombinedFileName(Program.FileSystem.GetDataFolder("Languages"), Code + ".cfg");
 							if (System.IO.File.Exists(File)) {
 								CurrentOptions.LanguageCode = Code;
 							}
@@ -526,6 +487,7 @@ namespace OpenBve {
 			Builder.AppendLine("mainmenuHeight = " + CurrentOptions.MainMenuHeight.ToString(Culture));
 			Builder.AppendLine("disableDisplayLists = " + (CurrentOptions.DisableDisplayLists ? "true" : "false"));
 			Builder.AppendLine("loadInAdvance = " + (CurrentOptions.LoadInAdvance ? "true" : "false"));
+			Builder.AppendLine("noTextureResize = " + (CurrentOptions.NoTextureResize ? "true" : "false"));
 			Builder.AppendLine();
 			Builder.AppendLine("[quality]");
 			{
@@ -614,7 +576,7 @@ namespace OpenBve {
 			for (int i = 0; i < CurrentOptions.TrainEncodings.Length; i++) {
 				Builder.AppendLine(CurrentOptions.TrainEncodings[i].Codepage.ToString(Culture) + " = " + CurrentOptions.TrainEncodings[i].Value);
 			}
-			string File = Interface.GetCombinedFileName(GetSettingsFolder(), "options.cfg");
+			string File = Interface.GetCombinedFileName(Program.FileSystem.SettingsFolder, "options.cfg");
 			System.IO.File.WriteAllText(File, Builder.ToString(), new System.Text.UTF8Encoding(true));
 		}
 
@@ -622,7 +584,7 @@ namespace OpenBve {
 
 		// load logs
 		internal static void LoadLogs() {
-			string File = Interface.GetCombinedFileName(GetSettingsFolder(), "logs.bin");
+			string File = Interface.GetCombinedFileName(Program.FileSystem.SettingsFolder, "logs.bin");
 			try {
 				using (System.IO.FileStream Stream = new System.IO.FileStream(File, System.IO.FileMode.Open, System.IO.FileAccess.Read)) {
 					using (System.IO.BinaryReader Reader = new System.IO.BinaryReader(Stream, System.Text.Encoding.UTF8)) {
@@ -685,7 +647,7 @@ namespace OpenBve {
 
 		// save logs
 		internal static void SaveLogs() {
-			string File = Interface.GetCombinedFileName(GetSettingsFolder(), "logs.bin");
+			string File = Interface.GetCombinedFileName(Program.FileSystem.SettingsFolder, "logs.bin");
 			using (System.IO.FileStream Stream = new System.IO.FileStream(File, System.IO.FileMode.Create, System.IO.FileAccess.Write)) {
 				using (System.IO.BinaryWriter Writer = new System.IO.BinaryWriter(Stream, System.Text.Encoding.UTF8)) {
 					byte[] Identifier = new byte[] { 111, 112, 101, 110, 66, 86, 69, 95, 76, 79, 71, 83 };
@@ -1230,7 +1192,7 @@ namespace OpenBve {
 			DoorsLeft, DoorsRight,
 			HornPrimary, HornSecondary, HornMusic,
 			DeviceConstSpeed,
-			SecurityPower, SecurityS, SecurityA1, SecurityA2, SecurityB1, SecurityB2, SecurityC1, SecurityC2,
+			SecurityS, SecurityA1, SecurityA2, SecurityB1, SecurityB2, SecurityC1, SecurityC2,
 			SecurityD, SecurityE, SecurityF, SecurityG, SecurityH, SecurityI, SecurityJ, SecurityK, SecurityL,
 			CameraInterior, CameraExterior, CameraTrack, CameraFlyBy,
 			CameraMoveForward, CameraMoveBackward, CameraMoveLeft, CameraMoveRight, CameraMoveUp, CameraMoveDown,
@@ -1465,7 +1427,6 @@ namespace OpenBve {
 			new CommandInfo(Command.HornSecondary, CommandType.Digital, "HORN_SECONDARY"),
 			new CommandInfo(Command.HornMusic, CommandType.Digital, "HORN_MUSIC"),
 			new CommandInfo(Command.DeviceConstSpeed, CommandType.Digital, "DEVICE_CONSTSPEED"),
-			new CommandInfo(Command.SecurityPower, CommandType.Digital, "SECURITY_POWER"),
 			new CommandInfo(Command.SecurityS, CommandType.Digital, "SECURITY_S"),
 			new CommandInfo(Command.SecurityA1, CommandType.Digital, "SECURITY_A1"),
 			new CommandInfo(Command.SecurityA2, CommandType.Digital, "SECURITY_A2"),
@@ -1589,7 +1550,7 @@ namespace OpenBve {
 			}
 			string File;
 			if (FileOrNull == null) {
-				File = GetCombinedFileName(GetSettingsFolder(), "controls.cfg");
+				File = GetCombinedFileName(Program.FileSystem.SettingsFolder, "controls.cfg");
 			} else {
 				File = FileOrNull;
 			}
@@ -1600,9 +1561,9 @@ namespace OpenBve {
 		internal static void LoadControls(string FileOrNull, out Control[] Controls) {
 			string File;
 			if (FileOrNull == null) {
-				File = Interface.GetCombinedFileName(GetSettingsFolder(), "controls.cfg");
+				File = Interface.GetCombinedFileName(Program.FileSystem.SettingsFolder, "controls.cfg");
 				if (!System.IO.File.Exists(File)) {
-					File = Interface.GetCombinedFileName(GetControlsFolder(), "Default keyboard assignment.controls");
+					File = Interface.GetCombinedFileName(Program.FileSystem.GetDataFolder("Controls"), "Default keyboard assignment.controls");
 				}
 			} else {
 				File = FileOrNull;
@@ -1835,7 +1796,7 @@ namespace OpenBve {
 		// load hud
 		internal static void LoadHUD() {
 			CultureInfo Culture = CultureInfo.InvariantCulture;
-			string Folder = GetDataFolder("In-game", CurrentOptions.UserInterfaceFolder);
+			string Folder = Program.FileSystem.GetDataFolder("In-game", CurrentOptions.UserInterfaceFolder);
 			string File = Interface.GetCombinedFileName(Folder, "interface.cfg");
 			CurrentHudElements = new HudElement[16];
 			int Length = 0;

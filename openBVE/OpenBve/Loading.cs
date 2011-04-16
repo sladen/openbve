@@ -80,11 +80,15 @@ namespace OpenBve {
 			try {
 				LoadEverythingThreaded();
 			} catch (Exception ex) {
-				if (PluginManager.CurrentPlugin != null && PluginManager.CurrentPlugin.LastException != null) {
-					Interface.AddMessage(Interface.MessageType.Critical, false, "The train plugin " + PluginManager.CurrentPlugin.PluginTitle + " caused a critical error in the route and train loader: " + PluginManager.CurrentPlugin.LastException.Message);
-				} else {
-					Interface.AddMessage(Interface.MessageType.Critical, false, "The route and train loader encountered the following critical error: " + ex.Message);
+				for (int i = 0; i < TrainManager.Trains.Length; i++) {
+					if (TrainManager.Trains[i] != null && TrainManager.Trains[i].Plugin != null) {
+						if (TrainManager.Trains[i].Plugin.LastException != null) {
+							Interface.AddMessage(Interface.MessageType.Critical, false, "The train plugin " + TrainManager.Trains[i].Plugin.PluginTitle + " caused a critical error in the route and train loader: " + TrainManager.Trains[i].Plugin.LastException.Message);
+							return;
+						}
+					}
 				}
+				Interface.AddMessage(Interface.MessageType.Critical, false, "The route and train loader encountered the following critical error: " + ex.Message);
 			}
 			#endif
 			Complete = true;
@@ -147,7 +151,7 @@ namespace OpenBve {
 			for (int k = 0; k < TrainManager.Trains.Length; k++) {
 				if (TrainManager.Trains[k].State == TrainManager.TrainState.Bogus) {
 					// bogus train
-					string Folder = Interface.GetDataFolder("Compatibility", "PreTrain");
+					string Folder = Program.FileSystem.GetDataFolder("Compatibility", "PreTrain");
 					TrainDatParser.ParseTrainData(Folder, System.Text.Encoding.UTF8, TrainManager.Trains[k]);
 					System.Threading.Thread.Sleep(1); if (Cancel) return;
 					SoundCfgParser.LoadNoSound(TrainManager.Trains[k]);
@@ -217,9 +221,9 @@ namespace OpenBve {
 				}
 				// add panel section
 				if (k == TrainManager.PlayerTrain.TrainIndex) {
-					TrainManager.Trains[k].Cars[0].Sections = new TrainManager.Section[1];
-					TrainManager.Trains[k].Cars[0].Sections[0].Elements = new ObjectManager.AnimatedObject[] { };
-					TrainManager.Trains[k].Cars[0].Sections[0].Overlay = true;
+					TrainManager.Trains[k].Cars[TrainManager.Trains[k].DriverCar].CarSections = new TrainManager.CarSection[1];
+					TrainManager.Trains[k].Cars[TrainManager.Trains[k].DriverCar].CarSections[0].Elements = new ObjectManager.AnimatedObject[] { };
+					TrainManager.Trains[k].Cars[TrainManager.Trains[k].DriverCar].CarSections[0].Overlay = true;
 					TrainProgressCurrentWeight = 0.7 / TrainProgressMaximum;
 					TrainManager.ParsePanelConfig(CurrentTrainFolder, CurrentTrainEncoding, TrainManager.Trains[k]);
 					TrainProgressCurrentSum += TrainProgressCurrentWeight;
@@ -233,7 +237,7 @@ namespace OpenBve {
 					for (int i = 0; i < TrainManager.Trains[k].Cars.Length; i++) {
 						if (CarObjects[i] == null) {
 							// load default exterior object
-							string file = Interface.GetCombinedFileName(Interface.GetDataFolder("Compatibility"), "exterior.csv");
+							string file = Interface.GetCombinedFileName(Program.FileSystem.GetDataFolder("Compatibility"), "exterior.csv");
 							ObjectManager.StaticObject so = ObjectManager.LoadStaticObject(file, System.Text.Encoding.UTF8, ObjectManager.ObjectLoadMode.Normal, false, false, false);
 							if (so == null) {
 								CarObjects[i] = null;
@@ -247,23 +251,23 @@ namespace OpenBve {
 						}
 						if (CarObjects[i] != null) {
 							// add object
-							int j = TrainManager.Trains[k].Cars[i].Sections.Length;
-							Array.Resize<TrainManager.Section>(ref TrainManager.Trains[k].Cars[i].Sections, j + 1);
+							int j = TrainManager.Trains[k].Cars[i].CarSections.Length;
+							Array.Resize<TrainManager.CarSection>(ref TrainManager.Trains[k].Cars[i].CarSections, j + 1);
 							if (CarObjects[i] is ObjectManager.StaticObject) {
 								ObjectManager.StaticObject s = (ObjectManager.StaticObject)CarObjects[i];
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements = new ObjectManager.AnimatedObject[1];
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements[0] = new ObjectManager.AnimatedObject();
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements[0].States = new ObjectManager.AnimatedObjectState[1];
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements[0].States[0].Position = new World.Vector3D(0.0, 0.0, 0.0);
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements[0].States[0].Object = s;
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements[0].CurrentState = 0;
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements[0].ObjectIndex = ObjectManager.CreateDynamicObject();
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements = new ObjectManager.AnimatedObject[1];
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements[0] = new ObjectManager.AnimatedObject();
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements[0].States = new ObjectManager.AnimatedObjectState[1];
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements[0].States[0].Position = new World.Vector3D(0.0, 0.0, 0.0);
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements[0].States[0].Object = s;
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements[0].CurrentState = 0;
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements[0].ObjectIndex = ObjectManager.CreateDynamicObject();
 							} else if (CarObjects[i] is ObjectManager.AnimatedObjectCollection) {
 								ObjectManager.AnimatedObjectCollection a = (ObjectManager.AnimatedObjectCollection)CarObjects[i];
-								TrainManager.Trains[k].Cars[i].Sections[j].Elements = new ObjectManager.AnimatedObject[a.Objects.Length];
+								TrainManager.Trains[k].Cars[i].CarSections[j].Elements = new ObjectManager.AnimatedObject[a.Objects.Length];
 								for (int h = 0; h < a.Objects.Length; h++) {
-									TrainManager.Trains[k].Cars[i].Sections[j].Elements[h] = a.Objects[h];
-									TrainManager.Trains[k].Cars[i].Sections[j].Elements[h].ObjectIndex = ObjectManager.CreateDynamicObject();
+									TrainManager.Trains[k].Cars[i].CarSections[j].Elements[h] = a.Objects[h];
+									TrainManager.Trains[k].Cars[i].CarSections[j].Elements[h].ObjectIndex = ObjectManager.CreateDynamicObject();
 								}
 							}
 						}
@@ -301,8 +305,16 @@ namespace OpenBve {
 				Game.UpdateSection(Game.Sections.Length - 1);
 			}
 			// load plugin
-			if (TrainManager.PlayerTrain != null) {
-				PluginManager.LoadPlugin(CurrentTrainFolder, CurrentTrainEncoding, TrainManager.PlayerTrain);
+			for (int i = 0; i < TrainManager.Trains.Length; i++) {
+				if (TrainManager.Trains[i].State != TrainManager.TrainState.Bogus) {
+					if (TrainManager.Trains[i] == TrainManager.PlayerTrain) {
+						if (!PluginManager.LoadCustomPlugin(TrainManager.Trains[i], CurrentTrainFolder, CurrentTrainEncoding)) {
+							PluginManager.LoadDefaultPlugin(TrainManager.Trains[i], CurrentTrainFolder);
+						}
+					} else {
+						PluginManager.LoadDefaultPlugin(TrainManager.Trains[i], CurrentTrainFolder);
+					}
+				}
 			}
 			// continue after opengl is initialized
 			/*

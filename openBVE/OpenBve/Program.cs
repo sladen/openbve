@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
-
 using Tao.OpenGl;
 using Tao.Sdl;
 
@@ -14,14 +13,14 @@ namespace OpenBve {
 		internal enum Platform { Windows, Linux, Mac }
 		internal static Platform CurrentPlatform = Platform.Windows;
 		internal static bool CurrentlyRunOnMono = false;
-		internal static bool UseFilesystemHierarchyStandard = false;
+		internal static FileSystem FileSystem = null;
 		internal enum ProgramType { OpenBve, RouteViewer, ObjectViewer, Other };
 		internal const ProgramType CurrentProgramType = ProgramType.OpenBve;
 		private static bool SdlWindowCreated = false;
 
 		// main
 		[STAThread]
-		public static void Main(string[] args) {
+		private static void Main(string[] args) {
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			// platform and mono
@@ -37,20 +36,11 @@ namespace OpenBve {
 				CurrentPlatform = Platform.Windows;
 			}
 			CurrentlyRunOnMono = Type.GetType("Mono.Runtime") != null;
-			// file hierarchy standard
-			if (CurrentPlatform != Platform.Windows) {
-				for (int i = 0; i < args.Length; i++) {
-					if (args[i].Equals("/fhs", StringComparison.OrdinalIgnoreCase)) {
-						UseFilesystemHierarchyStandard = true;
-						break;
-					}
-				}
-			}
-			string f = Interface.GetSettingsFolder();
-			if (!System.IO.Directory.Exists(f)) {
-				try {
-					System.IO.Directory.CreateDirectory(f);
-				} catch { }
+			// file system
+			FileSystem = FileSystem.FromCommandLineArgs(args);
+			FileSystem.CreateFileSystem();
+			if (!System.IO.File.Exists(Interface.GetCombinedFileName(FileSystem.GetDataFolder("Plugins"), "OpenBveAts.dll"))) {
+				MessageBox.Show("Some data files are missing. Please check that your openBVE installation is complete. You can download openBVE from http://openbve.trainsimcentral.co.uk.", "openBVE", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
 			// start
 			#if DEBUG
@@ -59,10 +49,17 @@ namespace OpenBve {
 			try {
 				Start(args);
 			} catch (Exception ex) {
-				if (PluginManager.CurrentPlugin != null && PluginManager.CurrentPlugin.LastException != null) {
-					string text = GetExceptionText(PluginManager.CurrentPlugin.LastException, 5);
-					MessageBox.Show("The train plugin " + PluginManager.CurrentPlugin.PluginTitle + " caused the following exception:\n\n" + text, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-				} else {
+				bool shown = false;
+				for (int i = 0; i < TrainManager.Trains.Length; i++) {
+					if (TrainManager.Trains[i] != null && TrainManager.Trains[i].Plugin != null) {
+						if (TrainManager.Trains[i].Plugin.LastException != null) {
+							string text = GetExceptionText(TrainManager.Trains[i].Plugin.LastException, 5);
+							MessageBox.Show("The train plugin " + TrainManager.Trains[i].Plugin.PluginTitle + " caused the following exception:\n\n" + text, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+							shown = false;
+						}
+					}
+				}
+				if (!shown) {
 					string text = GetExceptionText(ex, 5);
 					MessageBox.Show(text, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
@@ -75,7 +72,11 @@ namespace OpenBve {
 			Renderer.Deinitialize();
 			TextureManager.UnuseAllTextures();
 			Asynchronous.Deinitialize();
-			PluginManager.UnloadPlugin();
+			for (int i = 0; i < TrainManager.Trains.Length; i++) {
+				if (TrainManager.Trains[i] != null && TrainManager.Trains[i].Plugin != null) {
+					PluginManager.UnloadPlugin(TrainManager.Trains[i]);
+				}
+			}
 			SoundManager.Deinitialize();
 			// close sdl
 			for (int i = 0; i < Interface.CurrentJoysticks.Length; i++) {
@@ -85,11 +86,17 @@ namespace OpenBve {
 			Sdl.SDL_Quit();
 			// restart
 			if (RestartProcessArguments != null) {
-				System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-				if (Program.UseFilesystemHierarchyStandard) {
-					RestartProcessArguments += " /fhs";
+				string arguments;
+				if (FileSystem.RestartArguments.Length != 0 & RestartProcessArguments.Length != 0) {
+					arguments = FileSystem.RestartArguments + " " + RestartProcessArguments;
+				} else {
+					arguments = FileSystem.RestartArguments + RestartProcessArguments;
 				}
-				System.Diagnostics.Process.Start(assembly.Location, RestartProcessArguments);
+				try {
+					System.Diagnostics.Process.Start(FileSystem.RestartProcess, arguments);
+				} catch (Exception ex) {
+					MessageBox.Show(ex.Message + "\n\nProcess = " + FileSystem.RestartProcess + "\nArguments = " + arguments, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
 			}
 		}
 
@@ -140,7 +147,7 @@ namespace OpenBve {
 			Interface.LoadOptions();
 			Interface.LoadControls(null, out Interface.CurrentControls);
 			{
-				string f = Interface.GetCombinedFileName(Interface.GetDataFolder("Controls"), "Default keyboard assignment.controls");
+				string f = Interface.GetCombinedFileName(Program.FileSystem.GetDataFolder("Controls"), "Default keyboard assignment.controls");
 				Interface.Control[] c;
 				Interface.LoadControls(f, out c);
 				Interface.AddControls(ref Interface.CurrentControls, c);
@@ -270,7 +277,7 @@ namespace OpenBve {
 			int Bits = Interface.CurrentOptions.FullscreenMode ? Interface.CurrentOptions.FullscreenBits : 32;
 			// icon
 			{
-				string File = Interface.GetCombinedFileName(Interface.GetDataFolder(), "icon.bmp");
+				string File = Interface.GetCombinedFileName(Program.FileSystem.DataFolder, "icon.bmp");
 				if (System.IO.File.Exists(File)) {
 					try {
 						IntPtr Bitmap = Sdl.SDL_LoadBMP(File);

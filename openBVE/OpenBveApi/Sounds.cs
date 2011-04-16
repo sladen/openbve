@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenBveApi.Sound {
+namespace OpenBveApi.Sounds {
 	
 	// --- structures ---
 	
@@ -65,24 +65,27 @@ namespace OpenBveApi.Sound {
 	}
 	
 	
+	// --- handles ---
+	
+	/// <summary>Represents a handle to a sound.</summary>
+	public abstract class SoundHandle { }
+	
+	
 	// --- interfaces ---
 	
-	/// <summary>Represents the interface for loading sounds.</summary>
+	/// <summary>Represents the interface for loading sounds. Plugins must implement this interface if they wish to expose sounds.</summary>
 	public interface ISound {
 		
-		/// <summary>Is called to check whether the plugin can load the specified sound.</summary>
-		/// <param name="file">The file to the sound.</param>
-		/// <param name="optional">Additional information that describes how to process the file, or a null reference.</param>
+		/// <summary>Checks whether the plugin can load the specified sound.</summary>
+		/// <param name="path">The path to the file or folder that contains the texture.</param>
 		/// <returns>Whether the plugin can load the specified sound.</returns>
-		/// <remarks>The plugin should only inspect file extensions, identifiers or headers. It should not perform a full file validation.</remarks>
-		bool CanLoadSound(string file, string optional);
+		bool CanLoadTexture(Path.PathReference path);
 		
-		/// <summary>Is called to let the plugin load the specified sound.</summary>
-		/// <param name="file">The file to the sound.</param>
-		/// <param name="optional">Additional information that describes how to process the file, or a null reference.</param>
-		/// <param name="sound">Receives the sound on success.</param>
-		/// <returns>Whether the plugin succeeded in loading the sound.</returns>
-		bool LoadSound(string file, string optional, out Sound sound);
+		/// <summary>Loads the specified sound.</summary>
+		/// <param name="path">The path to the file or folder that contains the texture.</param>
+		/// <param name="sound">Receives the sound.</param>
+		/// <returns>Whether loading the sound was successful.</returns>
+		bool LoadTexture(Path.PathReference path, out Sound sound);
 		
 	}
 	
