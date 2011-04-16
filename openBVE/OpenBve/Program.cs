@@ -37,11 +37,13 @@ namespace OpenBve {
 			}
 			CurrentlyRunOnMono = Type.GetType("Mono.Runtime") != null;
 			// file system
-			FileSystem = FileSystem.FromCommandLineArgs(args);
-			FileSystem.CreateFileSystem();
-			if (!System.IO.File.Exists(Interface.GetCombinedFileName(FileSystem.GetDataFolder("Plugins"), "OpenBveAts.dll"))) {
-				MessageBox.Show("Some data files are missing. Please check that your openBVE installation is complete. You can download openBVE from http://openbve.trainsimcentral.co.uk.", "openBVE", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			try {
+				FileSystem = FileSystem.FromCommandLineArgs(args);
+			} catch (Exception ex) {
+				MessageBox.Show("The file system configuration could not be accessed or is invalid due to the following reason:\n\n" + ex.Message, "openBVE", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+				return;
 			}
+			FileSystem.CreateFileSystem();
 			// start
 			#if DEBUG
 			Start(args);

@@ -40,6 +40,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <StartAction>Project</StartAction>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <RegisterForComInterop>False</RegisterForComInterop>
@@ -55,16 +56,13 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="Tao.OpenAl">
-      <HintPath>..\Tao.OpenAl.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\..\Tao.OpenAl.dll</HintPath>
     </Reference>
     <Reference Include="Tao.OpenGl">
-      <HintPath>..\Tao.OpenGl.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\..\Tao.OpenGl.dll</HintPath>
     </Reference>
     <Reference Include="Tao.Sdl">
-      <HintPath>..\Tao.Sdl.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\..\Tao.Sdl.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -115,13 +113,6 @@
     <Compile Include="FunctionScripts.cs" />
     <Compile Include="SoundManager.cs" />
     <Compile Include="System\FileSystem.cs" />
-    <None Include="System\ManagedContent.cs" />
-    <None Include="System\Gzip.cs" />
-    <None Include="System\Plugins.cs" />
-    <None Include="System\Tar.cs" />
-    <None Include="System\ManagedContent.Versions.cs">
-      <DependentUpon>ManagedContent.cs</DependentUpon>
-    </None>
     <Compile Include="TextureManager.cs">
     </Compile>
     <Compile Include="Program.cs" />

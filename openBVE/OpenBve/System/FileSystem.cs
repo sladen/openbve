@@ -22,7 +22,7 @@ namespace OpenBve {
 		/// <summary>The location where to save user settings, including settings.cfg and controls.cfg.</summary>
 		internal string SettingsFolder;
 		
-		/// <summary>The initial location of the Railway/Route folder.</summary>
+		/// <summary>The initial location of the Railway\Route folder.</summary>
 		internal string InitialRouteFolder;
 
 		/// <summary>The initial location of the Train folder.</summary>
@@ -41,12 +41,12 @@ namespace OpenBve {
 		internal FileSystem() {
 			string assemblyFile = Assembly.GetExecutingAssembly().Location;
 			string assemblyFolder = Path.GetDirectoryName(assemblyFile);
-			string userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "openBVE");
-			this.DataFolder = Path.Combine(assemblyFolder, "Data");
-			this.ManagedContentFolder = Path.Combine(userDataFolder, "ManagedContent");
-			this.SettingsFolder = Path.Combine(userDataFolder, "Settings");
-			this.InitialRouteFolder = Path.Combine(Path.Combine(Path.Combine(userDataFolder, "LegacyContent"), "Railway"), "Route");
-			this.InitialTrainFolder = Path.Combine(Path.Combine(userDataFolder, "LegacyContent"), "Train");
+			string userDataFolder = OpenBveApi.Path.CombineDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "openBVE");
+			this.DataFolder = OpenBveApi.Path.CombineDirectory(assemblyFolder, "Data");
+			this.ManagedContentFolder = OpenBveApi.Path.CombineDirectory(userDataFolder, "ManagedContent");
+			this.SettingsFolder = OpenBveApi.Path.CombineDirectory(userDataFolder, "Settings");
+			this.InitialRouteFolder = OpenBveApi.Path.CombineDirectory(OpenBveApi.Path.CombineDirectory(OpenBveApi.Path.CombineDirectory(userDataFolder, "LegacyContent"), "Railway"), "Route");
+			this.InitialTrainFolder = OpenBveApi.Path.CombineDirectory(OpenBveApi.Path.CombineDirectory(userDataFolder, "LegacyContent"), "Train");
 			this.RestartProcess = assemblyFile;
 			this.RestartArguments = string.Empty;
 		}
@@ -64,7 +64,7 @@ namespace OpenBve {
 				}
 			}
 			string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-			string configFile = Path.Combine(Path.Combine(Path.Combine(assemblyFolder, "UserData"), "Settings"), "filesystem.cfg");
+			string configFile = OpenBveApi.Path.CombineFile(OpenBveApi.Path.CombineDirectory(OpenBveApi.Path.CombineDirectory(assemblyFolder, "UserData"), "Settings"), "filesystem.cfg");
 			if (File.Exists(configFile)) {
 				return FromConfigurationFile(configFile);
 			} else {
@@ -94,7 +94,7 @@ namespace OpenBve {
 		internal string GetDataFolder(params string[] subfolders) {
 			string folder = this.DataFolder;
 			foreach (string subfolder in subfolders) {
-				folder = Path.Combine(folder, subfolder);
+				folder = OpenBveApi.Path.CombineDirectory(folder, subfolder);
 			}
 			return folder;
 		}
@@ -116,25 +116,25 @@ namespace OpenBve {
 						string value = line.Substring(equals + 1).Trim();
 						switch (key) {
 							case "data":
-								system.DataFolder = GetAbsolutePath(value);
+								system.DataFolder = GetAbsolutePath(value, true);
 								break;
 							case "managedcontent":
-								system.ManagedContentFolder = GetAbsolutePath(value);
+								system.ManagedContentFolder = GetAbsolutePath(value, true);
 								break;
 							case "settings":
-								system.SettingsFolder = GetAbsolutePath(value);
+								system.SettingsFolder = GetAbsolutePath(value, true);
 								break;
 							case "initialroute":
-								system.InitialRouteFolder = GetAbsolutePath(value);
+								system.InitialRouteFolder = GetAbsolutePath(value, true);
 								break;
 							case "initialtrain":
-								system.InitialTrainFolder = GetAbsolutePath(value);
+								system.InitialTrainFolder = GetAbsolutePath(value, true);
 								break;
 							case "restartprocess":
-								system.RestartProcess = GetAbsolutePath(value);
+								system.RestartProcess = GetAbsolutePath(value, true);
 								break;
 							case "restartarguments":
-								system.RestartArguments = GetAbsolutePath(value);
+								system.RestartArguments = GetAbsolutePath(value, false);
 								break;
 						}
 					}
@@ -145,15 +145,22 @@ namespace OpenBve {
 
 		/// <summary>Gets the absolute path from the specified folder.</summary>
 		/// <param name="folder">The folder which may contain special representations of system folders.</param>
+		/// <param name="checkIfRooted">Checks if the resulting path is an absolute path.</param>
 		/// <returns>The absolute path.</returns>
-		private static string GetAbsolutePath(string folder) {
-			folder.Replace('/', Path.DirectorySeparatorChar);
-			folder.Replace('\\', Path.DirectorySeparatorChar);
+		private static string GetAbsolutePath(string folder, bool checkIfRooted) {
+			string originalFolder = folder;
+			if (checkIfRooted) {
+				folder = folder.Replace('/', Path.DirectorySeparatorChar);
+				folder = folder.Replace('\\', Path.DirectorySeparatorChar);
+			}
 			folder = folder.Replace("$[AssemblyFile]", Assembly.GetExecutingAssembly().Location);
 			folder = folder.Replace("$[AssemblyFolder]", Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
 			folder = folder.Replace("$[ApplicationData]", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
 			folder = folder.Replace("$[CommonApplicationData]", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
 			folder = folder.Replace("$[Personal]", Environment.GetFolderPath(Environment.SpecialFolder.Personal));
+			if (checkIfRooted && !Path.IsPathRooted(folder)) {
+				throw new InvalidDataException("The folder " + originalFolder + " does not produce an absolute path.");
+			}
 			return folder;
 		}
 		

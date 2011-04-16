@@ -21,8 +21,13 @@ namespace Plugin {
 			properties.Panel = new int[272];
 			properties.AISupport = AISupport.Basic;
 			this.Train = new Train(properties.Panel, properties.PlaySound);
-			string file = OpenBveApi.Path.CombineFile(properties.TrainFolder, "train.dat");
-			if (!this.Train.LoadTrainDatFile(file)) {
+			try {
+				string file = OpenBveApi.Path.CombineFile(properties.TrainFolder, "train.dat");
+				if (!this.Train.LoadTrainDatFile(file)) {
+					this.Train.AtsSx = new AtsSx(this.Train);
+					this.Train.Devices = new Device[] { this.Train.AtsSx };
+				}
+			} catch {
 				this.Train.AtsSx = new AtsSx(this.Train);
 				this.Train.Devices = new Device[] { this.Train.AtsSx };
 			}
