@@ -22,7 +22,7 @@ namespace OpenBve {
 		/// <summary>The location where to save user settings, including settings.cfg and controls.cfg.</summary>
 		internal string SettingsFolder;
 		
-		/// <summary>The initial location of the Railway\Route folder.</summary>
+		/// <summary>The initial location of the Railway/Route folder.</summary>
 		internal string InitialRouteFolder;
 
 		/// <summary>The initial location of the Train folder.</summary>

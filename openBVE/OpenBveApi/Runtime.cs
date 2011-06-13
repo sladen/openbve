@@ -1,7 +1,12 @@
 ﻿using System;
 
 namespace OpenBveApi.Runtime {
+	
+	/* ------------------------------------------------------------------------------------
+	 * This part of the API is stable. Any modification must retain backward compatibility.
+	 * ------------------------------------------------------------------------------------ */
 
+	
 	// --- load ---
 	
 	/// <summary>Represents the handle to a sound.</summary>

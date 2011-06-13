@@ -7,10 +7,9 @@ namespace OpenBveApi {
 	/// <summary>Provides path-related functions for accessing files and directories in a cross-platform manner.</summary>
 	public static class Path {
 		
-		
 		// --- path references ---
 		
-		/// <summary>Represents a reference to a file or directory.</summary>
+		/// <summary>Represents an abstract reference to a file or directory. Use FileReference or DirectoryReference to create instances.</summary>
 		public abstract class PathReference {
 			// --- operators ---
 			/// <summary>Checks whether two path references are equal.</summary>
@@ -51,7 +50,13 @@ namespace OpenBveApi {
 					return object.ReferenceEquals(this, obj);
 				}
 			}
+			/// <summary>Checks whether this path exists.</summary>
+			/// <returns>Whether this path exists.</returns>
+			public abstract bool Exists();
 		}
+		
+		
+		// --- file reference ---
 		
 		/// <summary>Represents a reference to a file.</summary>
 		public class FileReference : PathReference {
@@ -121,7 +126,16 @@ namespace OpenBveApi {
 				if (this.Encoding != x.Encoding) return true;
 				return false;
 			}
+			// --- functions ---
+			/// <summary>Checks whether the file represented by this reference exists.</summary>
+			/// <returns>Whether the file represented by this reference exists.</returns>
+			public override bool Exists() {
+				return System.IO.File.Exists(this.File);
+			}
 		}
+		
+		
+		// --- directory reference ---
 		
 		/// <summary>Represents a reference to a directory.</summary>
 		public class DirectoryReference : PathReference {
@@ -190,6 +204,12 @@ namespace OpenBveApi {
 				if (this.Data != x.Data) return true;
 				if (this.Encoding != x.Encoding) return true;
 				return false;
+			}
+			// --- functions ---
+			/// <summary>Checks whether the directory represented by this reference exists.</summary>
+			/// <returns>Whether the directory represented by this reference exists.</returns>
+			public override bool Exists() {
+				return System.IO.Directory.Exists(this.Directory);
 			}
 		}
 		

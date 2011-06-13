@@ -65,6 +65,9 @@
     </Compile>
     <Compile Include="Sounds.cs" />
     <Compile Include="Textures.cs" />
+    <Compile Include="Textures.Functions.cs">
+      <DependentUpon>Textures.cs</DependentUpon>
+    </Compile>
     <Compile Include="Vector2.cs">
       <DependentUpon>Geometry.cs</DependentUpon>
     </Compile>

@@ -7,9 +7,9 @@ namespace OpenBveApi.Objects {
 	public class BasicMaterial : AbstractMaterial {
 		// --- members ---
 		/// <summary>The reflective color.</summary>
-		public Color4 ReflectiveColor;
+		public Color32 ReflectiveColor;
 		/// <summary>The emissive color.</summary>
-		public Color3 EmissiveColor;
+		public Color24 EmissiveColor;
 		/// <summary>The daytime texture, or a null reference.</summary>
 		public TextureHandle DaytimeTexture;
 		/// <summary>The nighttime texture, or a null reference.</summary>

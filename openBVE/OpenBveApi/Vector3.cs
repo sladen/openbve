@@ -115,7 +115,7 @@ namespace OpenBveApi.Geometry {
 		/// <param name="a">The first vector.</param>
 		/// <param name="b">The second vector.</param>
 		/// <returns>The quotient of the two vectors.</returns>
-		/// <exception cref="DivideByZeroException">Raised when any member of the second vector is zero.</exception>
+		/// <exception cref="System.DivideByZeroException">Raised when any member of the second vector is zero.</exception>
 		public static Vector3 operator /(Vector3 a, Vector3 b) {
 			if (b.X == 0.0 | b.Y == 0.0 | b.Z == 0.0) {
 				throw new DivideByZeroException();
@@ -128,7 +128,7 @@ namespace OpenBveApi.Geometry {
 		/// <param name="a">The vector.</param>
 		/// <param name="b">The scalar.</param>
 		/// <returns>The quotient of the vector and the scalar.</returns>
-		/// <exception cref="DivideByZeroException">Raised when the scalar is zero.</exception>
+		/// <exception cref="System.DivideByZeroException">Raised when the scalar is zero.</exception>
 		public static Vector3 operator /(Vector3 a, double b) {
 			if (b == 0.0) {
 				throw new DivideByZeroException();
@@ -180,7 +180,7 @@ namespace OpenBveApi.Geometry {
 		// --- instance functions ---
 		
 		/// <summary>Normalizes the vector.</summary>
-		/// <exception cref="DivideByZeroException">Raised when the vector is a null vector.</exception>
+		/// <exception cref="System.DivideByZeroException">Raised when the vector is a null vector.</exception>
 		public void Normalize() {
 			double norm = this.X * this.X + this.Y * this.Y + this.Z * this.Z;
 			if (norm == 0.0) {
@@ -287,7 +287,7 @@ namespace OpenBveApi.Geometry {
 		/// <summary>Normalizes a vector.</summary>
 		/// <param name="vector">The vector.</param>
 		/// <returns>The normalized vector.</returns>
-		/// <exception cref="DivideByZeroException">Raised when the vector is a null vector.</exception>
+		/// <exception cref="System.DivideByZeroException">Raised when the vector is a null vector.</exception>
 		public static Vector3 Normalize(Vector3 vector) {
 			double norm = vector.X * vector.X + vector.Y * vector.Y + vector.Z * vector.Z;
 			if (norm == 0.0) {
