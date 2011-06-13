@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("openBVE API Class Library")]
 [assembly: AssemblyProduct("openBVE")]
-[assembly: AssemblyCopyright("http://openbve.trainsimcentral.co.uk/")]
+[assembly: AssemblyCopyright("(Public Domain) http://trainsimframework.org/")]
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]
 
-[assembly: AssemblyVersion("1.0.1.1")]
+[assembly: AssemblyVersion("1.3.0.5")]

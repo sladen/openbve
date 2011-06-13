@@ -887,7 +887,7 @@ namespace OpenBve {
 
 		// homepage
 		private void linkHomepage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-			const string Url = "http://openbve.trainsimcentral.co.uk";
+			const string Url = "http://trainsimframework.org/";
 			try {
 				System.Diagnostics.Process.Start(Url);
 			} catch (Exception ex) {
@@ -901,7 +901,7 @@ namespace OpenBve {
 			if (CurrentlyCheckingForUpdates) {
 				return;
 			}
-			const string Url = "http://openbve.trainsimcentral.co.uk/common/version.txt";
+			const string Url = "http://trainsimframework.org/common/version.txt";
 			CurrentlyCheckingForUpdates = true;
 			this.Cursor = Cursors.WaitCursor;
 			Application.DoEvents();

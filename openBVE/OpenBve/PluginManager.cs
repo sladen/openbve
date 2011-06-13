@@ -486,7 +486,7 @@ namespace OpenBve {
 			Assembly assembly;
 			try {
 				assembly = Assembly.LoadFile(pluginFile);
-			} catch (Exception ex) {
+			} catch {
 				assembly = null;
 			}
 			if (assembly != null) {

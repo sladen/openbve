@@ -272,36 +272,25 @@ namespace OpenBve {
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_RED_SIZE, 8);
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_GREEN_SIZE, 8);
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_BLUE_SIZE, 8);
-			//Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_ALPHA_SIZE, 8);
 			Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_SWAP_CONTROL, Interface.CurrentOptions.VerticalSynchronization ? 1 : 0);
 			Sdl.SDL_ShowCursor(Sdl.SDL_DISABLE);
 			SdlWindowCreated = true;
 			int Bits = Interface.CurrentOptions.FullscreenMode ? Interface.CurrentOptions.FullscreenBits : 32;
-			// icon
+			// --- window caption and icon ---
+			Sdl.SDL_WM_SetCaption(Application.ProductName, null);
 			{
-				string File = Interface.GetCombinedFileName(Program.FileSystem.DataFolder, "icon.bmp");
-				if (System.IO.File.Exists(File)) {
-					try {
-						IntPtr Bitmap = Sdl.SDL_LoadBMP(File);
-						if (Bitmap != null) {
-							if (CurrentPlatform == Platform.Windows) {
-								Sdl.SDL_Surface Surface = (Sdl.SDL_Surface)System.Runtime.InteropServices.Marshal.PtrToStructure(Bitmap, typeof(Sdl.SDL_Surface));
-								int ColorKey = Sdl.SDL_MapRGB(Surface.format, 0, 0, 255);
-								Sdl.SDL_SetColorKey(Bitmap, Sdl.SDL_SRCCOLORKEY, ColorKey);
-								Sdl.SDL_WM_SetIcon(Bitmap, null);
-							} else {
-								Sdl.SDL_WM_SetIcon(Bitmap, null);
-							}
-						}
-					} catch { }
+				string bitmapFile = OpenBveApi.Path.CombineFile(Program.FileSystem.DataFolder, "icon.bmp");
+				IntPtr bitmap = Sdl.SDL_LoadBMP(bitmapFile);
+				if (bitmap != null) {
+					string maskFile = OpenBveApi.Path.CombineFile(Program.FileSystem.DataFolder, "mask.bin");
+					byte[] mask = System.IO.File.ReadAllBytes(maskFile);
+					Sdl.SDL_WM_SetIcon(bitmap, mask);
 				}
 			}
 			// create window
 			int fullscreen = Interface.CurrentOptions.FullscreenMode ? Sdl.SDL_FULLSCREEN : 0;
 			IntPtr video = Sdl.SDL_SetVideoMode(Width, Height, Bits, Sdl.SDL_OPENGL | Sdl.SDL_DOUBLEBUF | fullscreen);
 			if (video != IntPtr.Zero) {
-				// create window
-				Sdl.SDL_WM_SetCaption(Application.ProductName, null);
 				// anisotropic filtering
 				string[] Extensions = Gl.glGetString(Gl.GL_EXTENSIONS).Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 				Interface.CurrentOptions.AnisotropicFilteringMaximum = 0;

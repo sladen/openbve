@@ -1,5 +1,5 @@
 ﻿using System;
-using OpenBveApi.Geometry;
+using OpenBveApi.Math;
 
 namespace OpenBveApi.Objects {
 	
@@ -59,20 +59,6 @@ namespace OpenBveApi.Objects {
 	}
 	
 	
-	// --- parameters ---
-	
-	/// <summary>Represents the parameters that describe what object to load. This also provides callback functions to the host application.</summary>
-	public class ObjectParameters {
-		// --- members ---
-		/// <summary>The path to the file that contains the object.</summary>
-		public string File;
-		/// <summary>Additional data used to identify which parts of the object to load or how to process it.</summary>
-		public object Data;
-		/// <summary>Represents the host application.</summary>
-		public Hosts.Host Host;
-	}
-	
-	
 	// --- handles ---
 	
 	/// <summary>Represents a handle to an object.</summary>
@@ -82,18 +68,25 @@ namespace OpenBveApi.Objects {
 	// --- interfaces ---
 	
 	/// <summary>Represents the interface for loading objects. Plugins must implement this interface if they wish to expose objects.</summary>
-	public interface IObject {
+	public abstract class ObjectInterface {
+		
+		/// <summary>Called when the plugin is loaded.</summary>
+		/// <param name="host">The host that loaded the plugin.</param>
+		public virtual void Load(Hosts.HostInterface host) { }
+		
+		/// <summary>Called when the plugin is unloaded.</summary>
+		public virtual void Unload() { }
 		
 		/// <summary>Checks whether the plugin can load the specified object.</summary>
-		/// <param name="parameters">The parameters that specify which object to load.</param>
+		/// <param name="path">The path to the file or folder that contains the object.</param>
 		/// <returns>Whether the plugin can load the specified object.</returns>
-		bool CanLoadObject(ObjectParameters parameters);
+		public abstract bool CanLoadObject(Path.PathReference path);
 		
 		/// <summary>Loads the specified object.</summary>
-		/// <param name="parameters">The parameters that specify which object to load.</param>
+		/// <param name="path">The path to the file or folder that contains the object.</param>
 		/// <param name="obj">Receives the object.</param>
 		/// <returns>Whether loading the object was successful.</returns>
-		bool LoadObject(ObjectParameters parameters, out Object obj);
+		public abstract bool LoadObject(Path.PathReference path, out Object obj);
 		
 	}
 	

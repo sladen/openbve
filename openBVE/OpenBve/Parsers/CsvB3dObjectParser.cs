@@ -99,6 +99,9 @@ namespace OpenBve {
 						Arguments[0] = Arguments[0].Substring(j + 1).TrimStart();
 					} else {
 						Command = Arguments[0];
+						if (Arguments.Length != 1) {
+							Interface.AddMessage(Interface.MessageType.Error, false, "Invalid syntax at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+						}
 						Arguments = new string[] { };
 					}
 				} else if (Arguments.Length != 0) {
