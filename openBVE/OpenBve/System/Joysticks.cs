@@ -36,18 +36,31 @@ namespace OpenBve {
 		// --- functions ---
 		
 		/// <summary>Initializes joysticks. A call to SDL_Init must have been made before calling this function. A call to Deinitialize must be made when terminating the program.</summary>
-		/// <returns>Whether initializing the screen was successful.</returns>
+		/// <returns>Whether initializing joysticks was successful.</returns>
 		internal static bool Initialize() {
-			if (Sdl.SDL_InitSubSystem(Sdl.SDL_INIT_JOYSTICK) != 0) {
-				return false;
-			} else {
-				int count = Sdl.SDL_NumJoysticks();
-				AttachedJoysticks = new Joystick[count];
-				for (int i = 0; i < count; i++) {
-					AttachedJoysticks[i].Name = Sdl.SDL_JoystickName(i);
-					AttachedJoysticks[i].SdlHandle = Sdl.SDL_JoystickOpen(i);
+			if (!Initialized) {
+				if (Sdl.SDL_InitSubSystem(Sdl.SDL_INIT_JOYSTICK) != 0) {
+					return false;
+				} else {
+					int count = Sdl.SDL_NumJoysticks();
+					AttachedJoysticks = new Joystick[count];
+					for (int i = 0; i < count; i++) {
+						string name = Sdl.SDL_JoystickName(i);
+						/* Due to an apparent bug in Tao or SDL, the joystick
+						 * name returned is actually ASCII packed in UTF-16. */
+						char[] characters = new char[2 * name.Length];
+						for (int j = 0; j < name.Length; j++) {
+							int value = (int)name[j];
+							characters[2 * j + 0] = (char)(value & 0xFF);
+							characters[2 * j + 1] = (char)(value >> 8);
+						}
+						AttachedJoysticks[i].Name = new string(characters);
+						AttachedJoysticks[i].SdlHandle = Sdl.SDL_JoystickOpen(i);
+					}
+					Initialized = true;
+					return true;
 				}
-				Initialized = true;
+			} else {
 				return true;
 			}
 		}

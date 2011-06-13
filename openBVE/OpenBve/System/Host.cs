@@ -4,22 +4,17 @@ namespace OpenBve {
 	/// <summary>Represents the host application.</summary>
 	internal class Host : OpenBveApi.Hosts.HostInterface {
 		
-		// --- constructors ---
-		
-		/// <summary>Creates a new instance of this class.</summary>
-		internal Host() {
-		}
-		
-		
 		// --- functions ---
 		
 		/// <summary>Reports a problem to the host application.</summary>
 		/// <param name="type">The type of problem that is reported.</param>
 		/// <param name="text">The textual message that describes the problem.</param>
 		public override void ReportProblem(OpenBveApi.Hosts.ProblemType type, string text) {
-			//string file = @"C:\log.txt";
-			//System.IO.File.AppendAllText(file, type.ToString() + ": " + text + "\n");
+			Program.AppendToLogFile(type.ToString() + ": " + text);
 		}
+		
+		
+		// --- texture ---
 		
 		/// <summary>Queries the dimensions of a texture.</summary>
 		/// <param name="path">The path to the file or folder that contains the texture.</param>
@@ -30,17 +25,28 @@ namespace OpenBve {
 			if (path.Exists()) {
 				for (int i = 0; i < Plugins.LoadedPlugins.Length; i++) {
 					if (Plugins.LoadedPlugins[i].Texture != null) {
-						if (Plugins.LoadedPlugins[i].Texture.CanLoadTexture(path)) {
-							if (Plugins.LoadedPlugins[i].Texture.QueryTextureDimensions(path, out width, out height)) {
-								return true;
-							} else {
-								width = 0;
-								height = 0;
-								return false;
+						try {
+							if (Plugins.LoadedPlugins[i].Texture.CanLoadTexture(path)) {
+								try {
+									if (Plugins.LoadedPlugins[i].Texture.QueryTextureDimensions(path, out width, out height)) {
+										return true;
+									} else {
+										width = 0;
+										height = 0;
+										return false;
+									}
+								} catch (Exception ex) {
+									Program.AppendToLogFile("Plugin " + Plugins.LoadedPlugins[i].Title + " raised the following exception at QueryTextureDimensions:" + ex.Message);
+								}
 							}
+						} catch (Exception ex) {
+							Program.AppendToLogFile("Plugin " + Plugins.LoadedPlugins[i].Title + " raised the following exception at CanLoadTexture:" + ex.Message);
 						}
 					}
 				}
+				Program.AppendToLogFile("No plugin found that is capable of loading texture " + path.ToString());
+			} else {
+				ReportProblem(OpenBveApi.Hosts.ProblemType.PathNotFound, path.ToString());
 			}
 			width = 0;
 			height = 0;
@@ -56,21 +62,25 @@ namespace OpenBve {
 			if (path.Exists()) {
 				for (int i = 0; i < Plugins.LoadedPlugins.Length; i++) {
 					if (Plugins.LoadedPlugins[i].Texture != null) {
-						if (Plugins.LoadedPlugins[i].Texture.CanLoadTexture(path)) {
-							if (!Plugins.LoadedPlugins[i].Texture.LoadTexture(path, out texture)) {
-								texture = null;
-								return false;
+						try {
+							if (Plugins.LoadedPlugins[i].Texture.CanLoadTexture(path)) {
+								try {
+									if (!Plugins.LoadedPlugins[i].Texture.LoadTexture(path, out texture)) {
+										texture = null;
+										return false;
+									}
+									texture = OpenBveApi.Textures.Texture.ApplyParameters(texture, parameters);
+									return true;
+								} catch (Exception ex) {
+									Program.AppendToLogFile("Plugin " + Plugins.LoadedPlugins[i].Title + " raised the following exception at LoadTexture:" + ex.Message);
+								}
 							}
-							try {
-								texture = OpenBveApi.Textures.Texture.ApplyParameters(texture, parameters);
-								return true;
-							} catch {
-								texture = null;
-								return false;
-							}
+						} catch (Exception ex) {
+							Program.AppendToLogFile("Plugin " + Plugins.LoadedPlugins[i].Title + " raised the following exception at CanLoadTexture:" + ex.Message);
 						}
 					}
 				}
+				Program.AppendToLogFile("No plugin found that is capable of loading texture " + path.ToString());
 			} else {
 				ReportProblem(OpenBveApi.Hosts.ProblemType.PathNotFound, path.ToString());
 			}
@@ -104,14 +114,68 @@ namespace OpenBve {
 		/// <returns>Whether loading the texture was successful.</returns>
 		public override bool RegisterTexture(OpenBveApi.Textures.Texture texture, OpenBveApi.Textures.TextureParameters parameters, out OpenBveApi.Textures.TextureHandle handle) {
 			texture = OpenBveApi.Textures.Texture.ApplyParameters(texture, parameters);
-			Textures.Texture data;
-			if (Textures.RegisterTexture(texture, out data)) {
-				handle = data;
-				return true;
+			handle = Textures.RegisterTexture(texture);
+			return true;
+		}
+		
+		
+		// --- sound ---
+		
+		/// <summary>Loads a sound and returns the sound data.</summary>
+		/// <param name="path">The path to the file or folder that contains the sound.</param>
+		/// <param name="sound">Receives the sound.</param>
+		/// <returns>Whether loading the sound was successful.</returns>
+		public override bool LoadSound(OpenBveApi.Path.PathReference path, out OpenBveApi.Sounds.Sound sound) {
+			if (path.Exists()) {
+				for (int i = 0; i < Plugins.LoadedPlugins.Length; i++) {
+					if (Plugins.LoadedPlugins[i].Sound != null) {
+						try {
+							if (Plugins.LoadedPlugins[i].Sound.CanLoadSound(path)) {
+								try {
+									if (!Plugins.LoadedPlugins[i].Sound.LoadSound(path, out sound)) {
+										sound = null;
+										return false;
+									}
+									return true;
+								} catch (Exception ex) {
+									Program.AppendToLogFile("Plugin " + Plugins.LoadedPlugins[i].Title + " raised the following exception at LoadSound:" + ex.Message);
+								}
+							}
+						} catch (Exception ex) {
+							Program.AppendToLogFile("Plugin " + Plugins.LoadedPlugins[i].Title + " raised the following exception at CanLoadSound:" + ex.Message);
+						}
+					}
+				}
+				Program.AppendToLogFile("No plugin found that is capable of loading sound " + path.ToString());
 			} else {
-				handle = null;
-				return false;
+				ReportProblem(OpenBveApi.Hosts.ProblemType.PathNotFound, path.ToString());
 			}
+			sound = null;
+			return false;
+		}
+		
+		/// <summary>Registers a sound and returns a handle to the sound.</summary>
+		/// <param name="path">The path to the file or folder that contains the sound.</param>
+		/// <param name="handle">Receives a handle to the sound.</param>
+		/// <returns>Whether loading the sound was successful.</returns>
+		public override bool RegisterSound(OpenBveApi.Path.PathReference path, out OpenBveApi.Sounds.SoundHandle handle) {
+			if (path.Exists()) {
+				Sounds.SoundBuffer data;
+				data = Sounds.RegisterBuffer(path);
+			} else {
+				ReportProblem(OpenBveApi.Hosts.ProblemType.PathNotFound, path.ToString());
+			}
+			handle = null;
+			return false;
+		}
+		
+		/// <summary>Registers a sound and returns a handle to the sound.</summary>
+		/// <param name="sound">The sound data.</param>
+		/// <param name="handle">Receives a handle to the sound.</param>
+		/// <returns>Whether loading the sound was successful.</returns>
+		public override bool RegisterSound(OpenBveApi.Sounds.Sound sound, out OpenBveApi.Sounds.SoundHandle handle) {
+			handle = Sounds.RegisterBuffer(sound);
+			return true;
 		}
 		
 	}

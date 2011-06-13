@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using OpenBveApi.Colors;
 using Tao.OpenGl;
 
 namespace OpenBve {
@@ -72,7 +73,7 @@ namespace OpenBve {
 		/// <param name="orientation">The orientation.</param>
 		/// <param name="color">The color.</param>
 		/// <remarks>This function sets the OpenGL blend function to glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA).</remarks>
-		private static void DrawString(Fonts.OpenGlFont font, string text, Point location, TextAlignment alignment, OpenBveApi.Objects.Color128 color) {
+		private static void DrawString(Fonts.OpenGlFont font, string text, Point location, TextAlignment alignment, Color128 color) {
 			if (text == null) {
 				return;
 			}
@@ -178,9 +179,9 @@ namespace OpenBve {
 		/// <param name="color">The color.</param>
 		/// <param name="shadow">Whether to draw a shadow.</param>
 		/// <remarks>This function sets the OpenGL blend function to glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA).</remarks>
-		private static void DrawString(Fonts.OpenGlFont font, string text, Point location, TextAlignment alignment, OpenBveApi.Objects.Color128 color, bool shadow) {
+		private static void DrawString(Fonts.OpenGlFont font, string text, Point location, TextAlignment alignment, Color128 color, bool shadow) {
 			if (shadow) {
-				DrawString(font, text, new Point(location.X - 1, location.Y + 1), alignment, new OpenBveApi.Objects.Color128(0.0f, 0.0f, 0.0f, 0.5f * color.A));
+				DrawString(font, text, new Point(location.X - 1, location.Y + 1), alignment, new Color128(0.0f, 0.0f, 0.0f, 0.5f * color.A));
 				DrawString(font, text, location, alignment, color);
 			} else {
 				DrawString(font, text, location, alignment, color);

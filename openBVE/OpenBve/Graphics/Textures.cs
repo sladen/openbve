@@ -57,7 +57,7 @@ namespace OpenBve {
 			 * If so, return the existing handle.
 			 * */
 			for (int i = 0; i < RegisteredTexturesCount; i++) {
-				PathSource source = RegisteredTextures[i].Source as PathSource;
+				PathOrigin source = RegisteredTextures[i].Origin as PathOrigin;
 				if (source != null && source.Path == path && source.Parameters == parameters) {
 					handle = RegisteredTextures[i];
 					return true;
@@ -77,9 +77,8 @@ namespace OpenBve {
 		
 		/// <summary>Registeres a texture and returns a handle to the texture.</summary>
 		/// <param name="texture">The texture data.</param>
-		/// <param name="handle">Receives a handle to the texture.</param>
-		/// <returns>Whether registering the texture was successful.</returns>
-		internal static bool RegisterTexture(OpenBveApi.Textures.Texture texture, out Texture handle) {
+		/// <returns>The handle to the texture.</returns>
+		internal static Texture RegisterTexture(OpenBveApi.Textures.Texture texture) {
 			/*
 			 * Register the texture and return the newly created handle.
 			 * */
@@ -88,16 +87,14 @@ namespace OpenBve {
 			}
 			RegisteredTextures[RegisteredTexturesCount] = new Texture(texture);
 			RegisteredTexturesCount++;
-			handle = RegisteredTextures[RegisteredTexturesCount - 1];
-			return true;
+			return RegisteredTextures[RegisteredTexturesCount - 1];
 		}
 		
 		/// <summary>Registeres a texture and returns a handle to the texture.</summary>
 		/// <param name="bitmap">The bitmap that contains the texture.</param>
-		/// <param name="handle">Receives a handle to the texture.</param>
-		/// <returns>Whether registering the texture was successful.</returns>
+		/// <returns>The handle to the texture.</returns>
 		/// <remarks>Be sure not to dispose of the bitmap after calling this function.</remarks>
-		internal static bool RegisterTexture(Bitmap bitmap, out Texture handle) {
+		internal static Texture RegisterTexture(Bitmap bitmap) {
 			/*
 			 * Register the texture and return the newly created handle.
 			 * */
@@ -106,8 +103,7 @@ namespace OpenBve {
 			}
 			RegisteredTextures[RegisteredTexturesCount] = new Texture(bitmap);
 			RegisteredTexturesCount++;
-			handle = RegisteredTextures[RegisteredTexturesCount - 1];
-			return true;
+			return RegisteredTextures[RegisteredTexturesCount - 1];
 		}
 
 		
@@ -123,19 +119,13 @@ namespace OpenBve {
 				return false;
 			} else {
 				OpenBveApi.Textures.Texture texture;
-				if (handle.Source.GetTexture(out texture)) {
-					if (texture.BitsPerPixel == 24 | texture.BitsPerPixel == 32) {
+				if (handle.Origin.GetTexture(out texture)) {
+					if (texture.BitsPerPixel == 32) {
 						int[] names = new int[1];
 						Gl.glGenTextures(1, names);
 						int error = Gl.glGetError();
-						if (error != 0) {
-							int zzz = 0; // TODO //
-						}
 						Gl.glBindTexture(Gl.GL_TEXTURE_2D, names[0]);
 						error = Gl.glGetError();
-						if (error != 0) {
-							int zzz = 0; // TODO //
-						}
 						handle.OpenGlTextureName = names[0];
 						handle.Width = texture.Width;
 						handle.Height = texture.Height;
@@ -168,36 +158,46 @@ namespace OpenBve {
 						}
 						Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_S, Gl.GL_REPEAT);
 						Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_WRAP_T, Gl.GL_REPEAT);
+						if (Interface.CurrentOptions.Interpolation == Interface.InterpolationMode.NearestNeighbor & Interface.CurrentOptions.Interpolation == Interface.InterpolationMode.Bilinear) {
+							Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_FALSE);
+						} else {
+							Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_GENERATE_MIPMAP, Gl.GL_TRUE);
+						}
 						if (Interface.CurrentOptions.Interpolation == Interface.InterpolationMode.AnisotropicFiltering) {
 							Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, Interface.CurrentOptions.AnisotropicFilteringLevel);
 						}
-						if (texture.BitsPerPixel == 24) {
-							if (Interface.CurrentOptions.Interpolation == Interface.InterpolationMode.NearestNeighbor | Interface.CurrentOptions.Interpolation == Interface.InterpolationMode.Bilinear) {
-								Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGB, texture.Width, texture.Height, 0, Gl.GL_RGB, Gl.GL_UNSIGNED_BYTE, texture.Bytes);
-							} else {
-								Glu.gluBuild2DMipmaps(Gl.GL_TEXTURE_2D, Gl.GL_RGB, texture.Width, texture.Height, Gl.GL_RGB, Gl.GL_UNSIGNED_BYTE, texture.Bytes);
-							}
-						} else if (handle.Transparency == OpenBveApi.Textures.TextureTransparencyType.Opaque) {
+						if (handle.Transparency == OpenBveApi.Textures.TextureTransparencyType.Opaque) {
+							/*
+							 * If the texture is fully opaque, the alpha channel is not used.
+							 * If the graphics driver and card support 24-bits per channel,
+							 * it is best to convert the bitmap data to that format in order
+							 * to save memory on the card. If the card does not support the
+							 * format, it will likely be upconverted to 32-bits per channel
+							 * again, and this is wasted effort.
+							 * */
+							int width = texture.Width;
+							int height = texture.Height;
+							int stride = (3 * (width + 1) >> 2) << 2;
 							byte[] oldBytes = texture.Bytes;
-							byte[] newBytes = new byte[3 * texture.Width * texture.Height];
-							int j = 0;
-							for (int i = 0; i < oldBytes.Length; i += 4) {
-								newBytes[j + 0] = oldBytes[i + 0];
-								newBytes[j + 1] = oldBytes[i + 1];
-								newBytes[j + 2] = oldBytes[i + 2];
-								j += 3;
+							byte[] newBytes = new byte[stride * texture.Height];
+							int i = 0, j = 0;
+							for (int y = 0; y < height; y++) {
+								for (int x = 0; x < width; x++) {
+									newBytes[j + 0] = oldBytes[i + 0];
+									newBytes[j + 1] = oldBytes[i + 1];
+									newBytes[j + 2] = oldBytes[i + 2];
+									i += 4;
+									j += 3;
+								}
+								j += stride - 3 * width;
 							}
-							if (Interface.CurrentOptions.Interpolation == Interface.InterpolationMode.NearestNeighbor | Interface.CurrentOptions.Interpolation == Interface.InterpolationMode.Bilinear) {
-								Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGB, texture.Width, texture.Height, 0, Gl.GL_RGB, Gl.GL_UNSIGNED_BYTE, newBytes);
-							} else {
-								Glu.gluBuild2DMipmaps(Gl.GL_TEXTURE_2D, Gl.GL_RGB, texture.Width, texture.Height, Gl.GL_RGB, Gl.GL_UNSIGNED_BYTE, newBytes);
-							}
+							Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGB8, texture.Width, texture.Height, 0, Gl.GL_RGB, Gl.GL_UNSIGNED_BYTE, newBytes);
 						} else {
-							if (Interface.CurrentOptions.Interpolation == Interface.InterpolationMode.NearestNeighbor | Interface.CurrentOptions.Interpolation == Interface.InterpolationMode.Bilinear) {
-								Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGBA, texture.Width, texture.Height, 0, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, texture.Bytes);
-							} else {
-								Glu.gluBuild2DMipmaps(Gl.GL_TEXTURE_2D, Gl.GL_RGBA, texture.Width, texture.Height, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, texture.Bytes);
-							}
+							/*
+							 * The texture uses its alpha channel, so send the bitmap data
+							 * in 32-bits per channel as-is.
+							 * */
+							Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGBA8, texture.Width, texture.Height, 0, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE, texture.Bytes);
 						}
 						handle.Loaded = true;
 						return true;

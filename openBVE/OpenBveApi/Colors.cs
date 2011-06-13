@@ -2,7 +2,7 @@
 
 using System;
 
-namespace OpenBveApi.Objects {
+namespace OpenBveApi.Colors {
 	
 	// --- color 24 ---
 	
@@ -146,6 +146,8 @@ namespace OpenBveApi.Objects {
 		public static readonly Color32 Yellow = new Color32(255, 255, 0);
 		/// <summary>Represents a white color.</summary>
 		public static readonly Color32 White = new Color32(255, 255, 255);
+		/// <summary>Represents a transparent black color.</summary>
+		public static readonly Color32 Transparent = new Color32(0, 0, 0, 0);
 	}
 	
 	
@@ -291,6 +293,8 @@ namespace OpenBveApi.Objects {
 		public static readonly Color128 Yellow = new Color128(1.0f, 1.0f, 0.0f);
 		/// <summary>Represents a white color.</summary>
 		public static readonly Color128 White = new Color128(1.0f, 1.0f, 1.0f);
+		/// <summary>Represents a transparent black color.</summary>
+		public static readonly Color128 Transparent = new Color128(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
 }

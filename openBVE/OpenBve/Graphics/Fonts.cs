@@ -109,7 +109,7 @@ namespace OpenBve {
 					}
 				}
 				graphics.Dispose();
-				Textures.RegisterTexture(bitmap, out this.Texture);
+				this.Texture = Textures.RegisterTexture(bitmap);
 			}
 		}
 		

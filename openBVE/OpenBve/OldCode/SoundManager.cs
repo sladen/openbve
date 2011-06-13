@@ -1,4 +1,6 @@
-﻿using System;
+﻿// === NOT COMPILED ===
+
+using System;
 using Tao.OpenAl;
 
 namespace OpenBve {

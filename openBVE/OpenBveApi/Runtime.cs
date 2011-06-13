@@ -213,7 +213,7 @@ namespace OpenBveApi.Runtime {
 		/// <summary>Gets the index of the brake notch that corresponds to 70% of the available brake notches.</summary>
 		public int B67Notch {
 			get {
-				return (int)Math.Round(0.7 * this.MyBrakeNotches);
+				return (int)System.Math.Round(0.7 * this.MyBrakeNotches);
 			}
 		}
 		/// <summary>Gets the number of cars the train has.</summary>

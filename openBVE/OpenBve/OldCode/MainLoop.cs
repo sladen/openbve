@@ -309,20 +309,12 @@ namespace OpenBve {
 				} else {
 					World.CameraSpeed = 0.0;
 				}
-//				if (UpdateViewportAndViewingDistancesInNextFrame) {
-//					UpdateViewportAndViewingDistancesInNextFrame = false;
-//					World.CameraAlignmentDirection = new World.CameraAlignment();
-//					World.CameraAlignmentSpeed = new World.CameraAlignment();
-//					UpdateViewport(MainLoop.ViewPortChangeMode.NoChange);
-//					World.UpdateAbsoluteCamera(TimeElapsed);
-//					World.UpdateViewingDistances();
-//				}
 				Game.UpdateScore(TimeElapsed);
 				Game.UpdateMessages();
 				Game.UpdateScoreMessages(TimeElapsed);
+				Sounds.Update();
 				Renderer.RenderScene(TimeElapsed);
 				Sdl.SDL_GL_SwapBuffers();
-				SoundManager.Update(TimeElapsed);
 				Game.UpdateBlackBox();
 				// pause/menu
 				while (Game.CurrentInterface != Game.InterfaceType.Normal) {
@@ -599,8 +591,8 @@ namespace OpenBve {
 										Screen.ToggleFullscreen();
 										break;
 									case Interface.Command.MiscMute:
-										SoundManager.Mute = !SoundManager.Mute;
-										SoundManager.Update(0.0);
+										Sounds.GlobalMute = !Sounds.GlobalMute;
+										Sounds.Update();
 										break;
 								}
 							}
@@ -731,8 +723,8 @@ namespace OpenBve {
 										break;
 									case Interface.Command.MiscMute:
 										// mute
-										SoundManager.Mute = !SoundManager.Mute;
-										SoundManager.Update(0.0);
+										Sounds.GlobalMute = !Sounds.GlobalMute;
+										Sounds.Update();
 										break;
 
 								}
@@ -1364,76 +1356,29 @@ namespace OpenBve {
 											TrainManager.ApplyReverser(TrainManager.PlayerTrain, -1, true);
 										} break;
 									case Interface.Command.HornPrimary:
-										// horn: primary
-										{
-											const int j = 0;
-											int d = TrainManager.PlayerTrain.DriverCar;
-											if (TrainManager.PlayerTrain.Cars[d].Sounds.Horns.Length > j) {
-												int snd = TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.SoundBufferIndex;
-												if (snd >= 0) {
-													World.Vector3D pos = TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.Position;
-													int src = TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.SoundSourceIndex;
-													if (TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Loop) {
-														if (SoundManager.IsPlaying(src)) {
-															SoundManager.StopSound(ref TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.SoundSourceIndex);
-														} else {
-															SoundManager.PlaySound(ref TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.SoundSourceIndex, snd, TrainManager.PlayerTrain, TrainManager.PlayerTrain.DriverCar, pos, SoundManager.Importance.DontCare, true);
-														}
-													} else {
-														SoundManager.PlaySound(snd, TrainManager.PlayerTrain, TrainManager.PlayerTrain.DriverCar, pos, SoundManager.Importance.DontCare, false);
-													}
-													if (TrainManager.PlayerTrain.Plugin != null) {
-														TrainManager.PlayerTrain.Plugin.HornBlow(OpenBveApi.Runtime.HornTypes.Primary);
-													}
-												}
-											}
-										} break;
 									case Interface.Command.HornSecondary:
-										// horn: secondary
-										{
-											const int j = 1;
-											int d = TrainManager.PlayerTrain.DriverCar;
-											if (TrainManager.PlayerTrain.Cars[d].Sounds.Horns.Length > j) {
-												int snd = TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.SoundBufferIndex;
-												if (snd >= 0) {
-													World.Vector3D pos = TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.Position;
-													int src = TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.SoundSourceIndex;
-													if (TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Loop) {
-														if (SoundManager.IsPlaying(src)) {
-															SoundManager.StopSound(ref TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.SoundSourceIndex);
-														} else {
-															SoundManager.PlaySound(ref TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.SoundSourceIndex, snd, TrainManager.PlayerTrain, TrainManager.PlayerTrain.DriverCar, pos, SoundManager.Importance.DontCare, true);
-														}
-													} else {
-														SoundManager.PlaySound(snd, TrainManager.PlayerTrain, TrainManager.PlayerTrain.DriverCar, pos, SoundManager.Importance.DontCare, false);
-													}
-													if (TrainManager.PlayerTrain.Plugin != null) {
-														TrainManager.PlayerTrain.Plugin.HornBlow(OpenBveApi.Runtime.HornTypes.Secondary);
-													}
-												}
-											}
-										} break;
 									case Interface.Command.HornMusic:
-										// horn: music
+										// horn
 										{
-											const int j = 2;
+											int j = Interface.CurrentControls[i].Command == Interface.Command.HornPrimary ? 0 : Interface.CurrentControls[i].Command == Interface.Command.HornSecondary ? 1 : 2;
 											int d = TrainManager.PlayerTrain.DriverCar;
 											if (TrainManager.PlayerTrain.Cars[d].Sounds.Horns.Length > j) {
-												int snd = TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.SoundBufferIndex;
-												if (snd >= 0) {
+												Sounds.SoundBuffer buffer = TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.Buffer;
+												if (buffer != null) {
 													World.Vector3D pos = TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.Position;
-													int src = TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.SoundSourceIndex;
 													if (TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Loop) {
-														if (SoundManager.IsPlaying(src)) {
-															SoundManager.StopSound(ref TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.SoundSourceIndex);
+														if (Sounds.IsPlaying(TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.Source)) {
+															Sounds.StopSound(TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.Source);
 														} else {
-															SoundManager.PlaySound(ref TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.SoundSourceIndex, snd, TrainManager.PlayerTrain, TrainManager.PlayerTrain.DriverCar, pos, SoundManager.Importance.DontCare, true);
+															const double power = 1000.0; // TODO
+															TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.Source = Sounds.PlaySound(buffer, power, 1.0, 1.0, pos.GetAPIStructure(), TrainManager.PlayerTrain, TrainManager.PlayerTrain.DriverCar, true);
 														}
 													} else {
-														SoundManager.PlaySound(snd, TrainManager.PlayerTrain, TrainManager.PlayerTrain.DriverCar, pos, SoundManager.Importance.DontCare, false);
+														const double power = 1000.0; // TODO
+														TrainManager.PlayerTrain.Cars[d].Sounds.Horns[j].Sound.Source = Sounds.PlaySound(buffer, power, 1.0, 1.0, pos.GetAPIStructure(), TrainManager.PlayerTrain, TrainManager.PlayerTrain.DriverCar, false);
 													}
 													if (TrainManager.PlayerTrain.Plugin != null) {
-														TrainManager.PlayerTrain.Plugin.HornBlow(OpenBveApi.Runtime.HornTypes.Music);
+														TrainManager.PlayerTrain.Plugin.HornBlow(j == 0 ? OpenBveApi.Runtime.HornTypes.Primary : j == 1 ? OpenBveApi.Runtime.HornTypes.Secondary : OpenBveApi.Runtime.HornTypes.Music);
 													}
 												}
 											}
@@ -1664,7 +1609,8 @@ namespace OpenBve {
 										break;
 									case Interface.Command.MiscMute:
 										// mute
-										SoundManager.Mute = !SoundManager.Mute;
+										Sounds.GlobalMute = !Sounds.GlobalMute;
+										Sounds.Update();
 										break;
 								}
 							} else if (Interface.CurrentControls[i].DigitalState == Interface.DigitalControlState.Released) {

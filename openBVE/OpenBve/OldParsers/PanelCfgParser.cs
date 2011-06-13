@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenBveApi.Colors;
 
 namespace OpenBve {
 	internal static class PanelCfgParser {
@@ -110,7 +111,7 @@ namespace OpenBve {
 					Interface.AddMessage(Interface.MessageType.Error, true, "The panel image could not be found in " + FileName);
 				} else {
 					Textures.Texture t;
-					Textures.RegisterTexture(PanelBackground, new OpenBveApi.Textures.TextureParameters(null, OpenBveApi.Objects.Color24.Blue), out t);
+					Textures.RegisterTexture(PanelBackground, new OpenBveApi.Textures.TextureParameters(null, Color24.Blue), out t);
 					Textures.LoadTexture(t);
 					double w = (double)t.Width;
 					double h = (double)t.Height;
@@ -313,7 +314,7 @@ namespace OpenBve {
 									// background
 									if (Background != null) {
 										Textures.Texture t;
-										Textures.RegisterTexture(Background, new OpenBveApi.Textures.TextureParameters(null, OpenBveApi.Objects.Color24.Blue), out t);
+										Textures.RegisterTexture(Background, new OpenBveApi.Textures.TextureParameters(null, Color24.Blue), out t);
 										Textures.LoadTexture(t);
 										double w = (double)t.Width;
 										double h = (double)t.Height;
@@ -322,7 +323,7 @@ namespace OpenBve {
 									// cover
 									if (Cover != null) {
 										Textures.Texture t;
-										Textures.RegisterTexture(Cover, new OpenBveApi.Textures.TextureParameters(null, OpenBveApi.Objects.Color24.Blue), out t);
+										Textures.RegisterTexture(Cover, new OpenBveApi.Textures.TextureParameters(null, Color24.Blue), out t);
 										Textures.LoadTexture(t);
 										double w = (double)t.Width;
 										double h = (double)t.Height;
@@ -535,7 +536,7 @@ namespace OpenBve {
 									if (Background != null) {
 										// background/led
 										Textures.Texture t;
-										Textures.RegisterTexture(Background, new OpenBveApi.Textures.TextureParameters(null, OpenBveApi.Objects.Color24.Blue), out t);
+										Textures.RegisterTexture(Background, new OpenBveApi.Textures.TextureParameters(null, Color24.Blue), out t);
 										Textures.LoadTexture(t);
 										double w = (double)t.Width;
 										double h = (double)t.Height;
@@ -544,7 +545,7 @@ namespace OpenBve {
 									if (Cover != null) {
 										// cover
 										Textures.Texture t;
-										Textures.RegisterTexture(Cover, new OpenBveApi.Textures.TextureParameters(null, OpenBveApi.Objects.Color24.Blue), out t);
+										Textures.RegisterTexture(Cover, new OpenBveApi.Textures.TextureParameters(null, Color24.Blue), out t);
 										Textures.LoadTexture(t);
 										double w = (double)t.Width;
 										double h = (double)t.Height;
@@ -580,7 +581,7 @@ namespace OpenBve {
 												double x = CenterX - 0.5 * h + Math.Sin(a) * AtcRadius;
 												double y = CenterY - 0.5 * h - Math.Cos(a) * AtcRadius + SemiHeight;
 												Textures.Texture t;
-												Textures.RegisterTexture(Atc, new OpenBveApi.Textures.TextureParameters(new OpenBveApi.Textures.TextureClipRegion(j * h, 0, h, h), OpenBveApi.Objects.Color24.Blue), out t);
+												Textures.RegisterTexture(Atc, new OpenBveApi.Textures.TextureParameters(new OpenBveApi.Textures.TextureClipRegion(j * h, 0, h, h), Color24.Blue), out t);
 												Textures.LoadTexture(t);
 												if (j == 0) {
 													k = CreateElement(Train, x, y, (double)h, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - 4.0 * StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);
@@ -735,7 +736,7 @@ namespace OpenBve {
 											int n = h / Height;
 											Textures.Texture[] t = new Textures.Texture[n];
 											for (int j = 0; j < n; j++) {
-												Textures.RegisterTexture(Number, new OpenBveApi.Textures.TextureParameters(new OpenBveApi.Textures.TextureClipRegion(w - Width, j * Height, Width, Height), OpenBveApi.Objects.Color24.Blue), out t[j]);
+												Textures.RegisterTexture(Number, new OpenBveApi.Textures.TextureParameters(new OpenBveApi.Textures.TextureClipRegion(w - Width, j * Height, Width, Height), Color24.Blue), out t[j]);
 												//TextureManager.UseTexture(t[j], TextureManager.UseMode.Normal);
 											}
 											{ // hundreds
@@ -826,8 +827,8 @@ namespace OpenBve {
 									} i--;
 									if (TurnOn != null & TurnOff != null) {
 										Textures.Texture t0, t1;
-										Textures.RegisterTexture(TurnOn, new OpenBveApi.Textures.TextureParameters(null, OpenBveApi.Objects.Color24.Blue), out t0);
-										Textures.RegisterTexture(TurnOff, new OpenBveApi.Textures.TextureParameters(null, OpenBveApi.Objects.Color24.Blue), out t1);
+										Textures.RegisterTexture(TurnOn, new OpenBveApi.Textures.TextureParameters(null, Color24.Blue), out t0);
+										Textures.RegisterTexture(TurnOff, new OpenBveApi.Textures.TextureParameters(null, Color24.Blue), out t1);
 										Textures.LoadTexture(t0);
 										Textures.LoadTexture(t1);
 										double w = (double)t0.Width;
@@ -913,7 +914,7 @@ namespace OpenBve {
 									} i--;
 									if (Background != null) {
 										Textures.Texture t;
-										Textures.RegisterTexture(Background, new OpenBveApi.Textures.TextureParameters(null, OpenBveApi.Objects.Color24.Blue), out t);
+										Textures.RegisterTexture(Background, new OpenBveApi.Textures.TextureParameters(null, Color24.Blue), out t);
 										Textures.LoadTexture(t);
 										double w = (double)t.Width;
 										double h = (double)t.Height;
@@ -1020,7 +1021,7 @@ namespace OpenBve {
 											int k = -1;
 											for (int j = 0; j < n; j++) {
 												Textures.Texture t;
-												Textures.RegisterTexture(Image, new OpenBveApi.Textures.TextureParameters(null, OpenBveApi.Objects.Color24.Blue), out t);
+												Textures.RegisterTexture(Image, new OpenBveApi.Textures.TextureParameters(null, Color24.Blue), out t);
 												//TextureManager.UseTexture(t, TextureManager.UseMode.Normal);
 												if (j == 0) {
 													k = CreateElement(Train, CornerX, CornerY + SemiHeight, (double)Width, (double)h, FullWidth, FullHeight, WorldLeft, WorldTop, WorldWidth, WorldHeight, WorldZ + EyeDistance - StackDistance, Train.Cars[Train.DriverCar].DriverX, Train.Cars[Train.DriverCar].DriverY, Train.Cars[Train.DriverCar].DriverZ, t, new World.ColorRGBA(255, 255, 255, 255), false);

@@ -149,13 +149,14 @@ namespace OpenBve {
 				if (TriggerType == EventTriggerType.FrontCarFrontAxle) {
 					if (Direction > 0) {
 						int d = Train.DriverCar;
-						int snd = Train.Cars[d].Sounds.Halt.SoundBufferIndex;
-						if (snd >= 0) {
-							World.Vector3D pos = Train.Cars[d].Sounds.Halt.Position;
+						Sounds.SoundBuffer buffer = Train.Cars[d].Sounds.Halt.Buffer;
+						if (buffer != null) {
+							OpenBveApi.Math.Vector3 pos = Train.Cars[d].Sounds.Halt.Position.GetAPIStructure();
+							const double power = 0.001; // TODO
 							if (Train.Specs.PassAlarm == TrainManager.PassAlarmType.Single) {
-								SoundManager.PlaySound(snd, Train, d, pos, SoundManager.Importance.DontCare, false);
+								Train.Cars[d].Sounds.Halt.Source = Sounds.PlaySound(buffer, power, 1.0, 1.0, pos, Train, d, false);
 							} else if (Train.Specs.PassAlarm == TrainManager.PassAlarmType.Loop) {
-								SoundManager.PlaySound(ref Train.Cars[d].Sounds.Halt.SoundSourceIndex, snd, Train, d, pos, SoundManager.Importance.DontCare, true);
+								Train.Cars[d].Sounds.Halt.Source = Sounds.PlaySound(buffer, power, 1.0, 1.0, pos, Train, d, true);
 							}
 						}
 						this.DontTriggerAnymore = true;
@@ -231,9 +232,7 @@ namespace OpenBve {
 							Train.StationRearCar = false;
 							Train.StationState = TrainManager.TrainStopState.Pending;
 							int d = Train.DriverCar;
-							if (Train.Cars[d].Sounds.Halt.SoundBufferIndex >= 0 && SoundManager.IsPlaying(Train.Cars[d].Sounds.Halt.SoundSourceIndex)) {
-								SoundManager.StopSound(ref Train.Cars[d].Sounds.Halt.SoundSourceIndex);
-							}
+							Sounds.StopSound(Train.Cars[d].Sounds.Halt.Source);
 						}
 					}
 				}
@@ -463,16 +462,18 @@ namespace OpenBve {
 		// sound
 		internal static bool SuppressSoundEvents = false;
 		internal class SoundEvent : GeneralEvent {
-			internal int SoundIndex;
+			/// <summary>HACK: Set to a null reference to indicate the train point sound.</summary>
+			internal Sounds.SoundBuffer SoundBuffer;
 			internal bool PlayerTrainOnly;
 			internal bool Once;
 			internal bool Dynamic;
 			internal World.Vector3D Position;
 			internal double Speed;
-			internal SoundEvent(double TrackPositionDelta, int SoundIndex, bool PlayerTrainOnly, bool Once, bool Dynamic, World.Vector3D Position, double Speed) {
+			/// <param name="SoundBuffer">HACK: Set to a null reference to indicate the train point sound.</param>
+			internal SoundEvent(double TrackPositionDelta, Sounds.SoundBuffer SoundBuffer, bool PlayerTrainOnly, bool Once, bool Dynamic, World.Vector3D Position, double Speed) {
 				this.TrackPositionDelta = TrackPositionDelta;
 				this.DontTriggerAnymore = false;
-				this.SoundIndex = SoundIndex;
+				this.SoundBuffer = SoundBuffer;
 				this.PlayerTrainOnly = PlayerTrainOnly;
 				this.Once = Once;
 				this.Dynamic = Dynamic;
@@ -486,30 +487,29 @@ namespace OpenBve {
 						World.Vector3D p = this.Position;
 						double pitch = 1.0;
 						double gain = 1.0;
-						int i = this.SoundIndex;
-						switch (i) {
-							case SoundIndexTrainPoint:
-								if (TriggerType == EventTriggerType.FrontCarFrontAxle | TriggerType == EventTriggerType.OtherCarFrontAxle) {
-									i = Train.Cars[CarIndex].Sounds.PointFrontAxle.SoundBufferIndex;
-									p = Train.Cars[CarIndex].Sounds.PointFrontAxle.Position;
-								} else {
-									i = Train.Cars[CarIndex].Sounds.PointRearAxle.SoundBufferIndex;
-									p = Train.Cars[CarIndex].Sounds.PointRearAxle.Position;
-								} break;
+						Sounds.SoundBuffer buffer = this.SoundBuffer;
+						if (buffer == null) {
+							// HACK: Represents the train point sound
+							if (TriggerType == EventTriggerType.FrontCarFrontAxle | TriggerType == EventTriggerType.OtherCarFrontAxle) {
+								buffer = Train.Cars[CarIndex].Sounds.PointFrontAxle.Buffer;
+								p = Train.Cars[CarIndex].Sounds.PointFrontAxle.Position;
+							} else {
+								buffer = Train.Cars[CarIndex].Sounds.PointRearAxle.Buffer;
+								p = Train.Cars[CarIndex].Sounds.PointRearAxle.Position;
+							}
 						}
-						if (i >= 0) {
-							SoundManager.Importance q;
+						if (buffer != null) {
 							if (this.Dynamic) {
 								double spd = Math.Abs(Train.Specs.CurrentAverageSpeed);
 								pitch = spd / this.Speed;
 								gain = pitch < 0.5 ? 2.0 * pitch : 1.0;
-								if (pitch < 0.2 | gain < 0.2) i = -1;
-								q = SoundManager.Importance.DontCare;
-							} else {
-								q = SoundManager.Importance.AlwaysPlay;
+								if (pitch < 0.2 | gain < 0.2) {
+									buffer = null;
+								}
 							}
-							if (i >= 0) {
-								SoundManager.PlaySound(i, Train, CarIndex, p, q, false, pitch, gain);
+							if (buffer != null) {
+								const double power = 1.0; // TODO
+								Sounds.PlaySound(buffer, power, 1.0, 1.0, p.GetAPIStructure(), Train, CarIndex, false);
 							}
 						}
 						this.DontTriggerAnymore = this.Once;
@@ -779,28 +779,6 @@ namespace OpenBve {
 		
 		// get inaccuracies
 		private static void GetInaccuracies(double position, double inaccuracy, out double x, out double y, out double c) {
-			
-//			double z = position;
-//			if (inaccuracy <= 0.0) {
-//				x = 0.0;
-//				y = 0.0;
-//				c = 0.0;
-//			} else if (inaccuracy < 3.0) {
-//				x = 0.27 * Math.Sin(0.2422 * z) + 0.80 * Math.Sin(0.0623 * z) + 0.54 * Math.Sin(0.0487 * z);
-//				x *= 0.0072 * Game.RouteRailGauge * inaccuracy;
-//				y = 0.34 * Math.Sin(0.2086 * z) + 0.35 * Math.Sin(0.1126 * z) + 0.87 * Math.Sin(0.0578 * z);
-//				y *= 0.0042 * Game.RouteRailGauge * inaccuracy;
-//				c = 0.43 * Math.Sin(0.1066 * z) + 0.50 * Math.Sin(0.2404 * z) + 0.75 * Math.Sin(0.1311 * z);
-//				c *= 0.0020 * Game.RouteRailGauge * Math.Exp(0.4 * inaccuracy);
-//			} else {
-//				x = 0.14 * Math.Sin(0.5843 * z) + 0.82 * Math.Sin(0.2246 * z) + 0.55 * Math.Sin(0.1974 * z);
-//				x *= 0.0035 * Game.RouteRailGauge * inaccuracy;
-//				y = 0.18 * Math.Sin(0.5172 * z) + 0.37 * Math.Sin(0.3251 * z) + 0.91 * Math.Sin(0.2156 * z);
-//				y *= 0.0020 * Game.RouteRailGauge * inaccuracy;
-//				c = 0.23 * Math.Sin(0.3131 * z) + 0.54 * Math.Sin(0.5807 * z) + 0.81 * Math.Sin(0.3621 * z);
-//				c *= 0.0020 * Game.RouteRailGauge * Math.Exp(0.4 * inaccuracy);
-//			}
-			
 			if (inaccuracy <= 0.0) {
 				x = 0.0;
 				y = 0.0;
@@ -809,13 +787,11 @@ namespace OpenBve {
 				double z = Math.Pow(0.25 * inaccuracy, 1.2) * position;
 				x = 0.14 * Math.Sin(0.5843 * z) + 0.82 * Math.Sin(0.2246 * z) + 0.55 * Math.Sin(0.1974 * z);
 				x *= 0.0035 * Game.RouteRailGauge * inaccuracy;
-				//y = 0.18 * Math.Sin(0.5172 * z) + 0.37 * Math.Sin(0.3251 * z) + 0.91 * Math.Sin(0.2156 * z);
 				y = 0.18 * Math.Sin(0.5172 * z) + 0.37 * Math.Sin(0.3251 * z) + 0.91 * Math.Sin(0.3773 * z);
 				y *= 0.0020 * Game.RouteRailGauge * inaccuracy;
 				c = 0.23 * Math.Sin(0.3131 * z) + 0.54 * Math.Sin(0.5807 * z) + 0.81 * Math.Sin(0.3621 * z);
 				c *= 0.0025 * Game.RouteRailGauge * inaccuracy;
 			}
-			
 		}
 
 		// check events

@@ -114,42 +114,6 @@ namespace OpenBveApi.Hosts {
 			obj = null;
 			return false;
 		}
-		
-		/// <summary>Registers an object and returns a handle to the object.</summary>
-		/// <param name="path">The path to the file or folder that contains the object.</param>
-		/// <param name="handle">Receives a handle to the object.</param>
-		/// <returns>Whether loading the object was successful.</returns>
-		public virtual bool RegisterObject(Path.PathReference path, out ObjectHandle handle) {
-			handle = null;
-			return false;
-		}
-		
-		/// <summary>Registers an object and returns a handle to the object.</summary>
-		/// <param name="obj">The object data.</param>
-		/// <param name="handle">Receives a handle to the object.</param>
-		/// <returns>Whether loading the object was successful.</returns>
-		public virtual bool RegisterObject(Objects.AbstractObject obj, out ObjectHandle handle) {
-			handle = null;
-			return false;
-		}
-		
-		/// <summary>Places an object in the world.</summary>
-		/// <param name="handle">The handle to the object.</param>
-		/// <param name="position">The position.</param>
-		/// <param name="orientation">The orientation.</param>
-		/// <returns>Whether the object was placed successfully.</returns>
-		public virtual bool PlaceObject(ObjectHandle handle, Geometry.Vector3 position, Geometry.Orientation3 orientation) {
-			return false;
-		}
-
-		/// <summary>Places an object in the world.</summary>
-		/// <param name="obj">The object data.</param>
-		/// <param name="position">The position.</param>
-		/// <param name="orientation">The orientation.</param>
-		/// <returns>Whether the object was placed successfully.</returns>
-		public virtual bool PlaceObject(Objects.AbstractObject obj, Geometry.Vector3 position, Geometry.Orientation3 orientation) {
-			return false;
-		}
 
 	}
 }

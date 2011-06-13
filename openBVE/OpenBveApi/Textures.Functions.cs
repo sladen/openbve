@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenBveApi.Colors;
 
 namespace OpenBveApi.Textures {
 	/// <summary>Provides functions for manipulating textures.</summary>
@@ -28,7 +29,7 @@ namespace OpenBveApi.Textures {
 		/// <param name="region">The clip region, or a null reference.</param>
 		/// <returns>The texture with the extracted clip region.</returns>
 		/// <exception cref="System.ArgumentException">Raised when the clip region is outside the texture bounds.</exception>
-		/// <exception cref="System.NotSupportedException">Raised when the bits per pixel in the texture is not supported.</exception>
+		/// <exception cref="System.NotSupportedException">Raised when the number of bits per pixel in the texture is not supported.</exception>
 		internal static Texture ExtractClipRegion(Texture texture, TextureClipRegion region) {
 			if (region == null || region.Left == 0 && region.Top == 0 && region.Width == texture.Width && region.Height == texture.Height) {
 				return texture;
@@ -81,8 +82,8 @@ namespace OpenBveApi.Textures {
 		/// <param name="texture">The original texture.</param>
 		/// <param name="color">The transparent color, or a null reference.</param>
 		/// <returns>The texture with the transparent color applied.</returns>
-		/// <exception cref="System.NotSupportedException">Raised when the bits per pixel in the texture is other than 32.</exception>
-		internal static Texture ApplyTransparentColor(Texture texture, Objects.Color24? color) {
+		/// <exception cref="System.NotSupportedException">Raised when the number of bits per pixel in the texture is not supported.</exception>
+		internal static Texture ApplyTransparentColor(Texture texture, Color24? color) {
 			if (color == null) {
 				return texture;
 			} else if (texture.BitsPerPixel == 24) {

@@ -1053,11 +1053,14 @@ namespace OpenBve {
 						string[] Folders = System.IO.Directory.GetDirectories(Folder);
 						Array.Sort<string>(Folders);
 						for (int i = 0; i < Folders.Length; i++) {
-							string Name = System.IO.Path.GetFileName(Folders[i]);
-							if (Name.Length != 0 && Name[0] != '.') {
-								ListViewItem Item = listviewRouteFiles.Items.Add(Name);
-								Item.ImageKey = "folder";
-								Item.Tag = Folders[i];
+							System.IO.DirectoryInfo info = new System.IO.DirectoryInfo(Folders[i]);
+							if ((info.Attributes & System.IO.FileAttributes.Hidden) == 0) {
+								string Name = System.IO.Path.GetFileName(Folders[i]);
+								if (Name.Length != 0 && Name[0] != '.') {
+									ListViewItem Item = listviewRouteFiles.Items.Add(Name);
+									Item.ImageKey = "folder";
+									Item.Tag = Folders[i];
+								}
 							}
 						}
 					} catch { }
@@ -1256,16 +1259,19 @@ namespace OpenBve {
 						Array.Sort<string>(Folders);
 						for (int i = 0; i < Folders.Length; i++) {
 							try {
-								string File = OpenBveApi.Path.CombineFile(Folders[i], "train.dat");
-								string Name = System.IO.Path.GetFileName(Folders[i]);
-								if (Name.Length != 0 && Name[0] != '.') {
-									ListViewItem Item = listviewTrainFolders.Items.Add(Name);
-									if (System.IO.File.Exists(File)) {
-										Item.ImageKey = "train";
-									} else {
-										Item.ImageKey = "folder";
+								System.IO.DirectoryInfo info = new System.IO.DirectoryInfo(Folders[i]);
+								if ((info.Attributes & System.IO.FileAttributes.Hidden) == 0) {
+									string File = OpenBveApi.Path.CombineFile(Folders[i], "train.dat");
+									string Name = System.IO.Path.GetFileName(Folders[i]);
+									if (Name.Length != 0 && Name[0] != '.') {
+										ListViewItem Item = listviewTrainFolders.Items.Add(Name);
+										if (System.IO.File.Exists(File)) {
+											Item.ImageKey = "train";
+										} else {
+											Item.ImageKey = "folder";
+										}
+										Item.Tag = Folders[i];
 									}
-									Item.Tag = Folders[i];
 								}
 							} catch { }
 						}

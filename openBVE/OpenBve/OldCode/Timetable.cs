@@ -398,7 +398,7 @@ namespace OpenBve {
 				} else {
 					// create texture
 					g.Dispose();
-					Textures.RegisterTexture(b, out DefaultTimetableTexture);
+					DefaultTimetableTexture = Textures.RegisterTexture(b);
 				}
 			}
 		}

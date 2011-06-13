@@ -14,6 +14,8 @@ namespace OpenBve {
 			// --- members ---
 			/// <summary>The plugin file.</summary>
 			internal string File;
+			/// <summary>The plugin title.</summary>
+			internal string Title;
 			/// <summary>The ITexture interface exposed by the plugin, or a null reference.</summary>
 			internal OpenBveApi.Textures.TextureInterface Texture;
 			/// <summary>The ISound interface exposed by the plugin, or a null reference.</summary>
@@ -25,6 +27,7 @@ namespace OpenBve {
 			/// <param name="file">The plugin file.</param>
 			internal Plugin(string file) {
 				this.File = file;
+				this.Title = Path.GetFileName(file);
 				this.Texture = null;
 				this.Sound = null;
 				this.Object = null;
@@ -92,7 +95,7 @@ namespace OpenBve {
 							plugin.Load();
 							list.Add(plugin);
 						}
-					} catch (Exception ex) {
+					} catch {
 						// TODO //
 					}
 				}

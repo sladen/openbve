@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenBveApi.Geometry {
+namespace OpenBveApi.Math {
 	/// <summary>Represents an orientation in three-dimensional space.</summary>
 	public struct Orientation3 {
 		

@@ -123,7 +123,24 @@ namespace OpenBve {
 			}
 			// --- show the main menu if necessary ---
 			if (result.RouteFile == null | result.TrainFolder == null) {
+				// begin HACK //
+				if (Sdl.SDL_Init(0) != 0) {
+					MessageBox.Show("SDL failed to initialize", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Hand);
+					return;
+				}
+				if (!Joysticks.Initialize()) {
+					MessageBox.Show("SDL failed to initialize the joystick subsystem.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Hand);
+					return;
+				}
+				// end HACK //
 				result = formMain.ShowMainDialog();
+			} else if (result.Start) {
+				// begin HACK //
+				if (Sdl.SDL_Init(0) != 0) {
+					MessageBox.Show("SDL failed to initialize", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Hand);
+					return;
+				}
+				// end HACK //
 			}
 			// --- start the actual program ---
 			if (result.Start) {
@@ -151,10 +168,10 @@ namespace OpenBve {
 		/// <summary>Initializes the program. A matching call to deinitialize must be made when the program is terminated.</summary>
 		/// <returns>Whether the initialization was successful.</returns>
 		private static bool Initialize() {
-			if (Sdl.SDL_Init(0) != 0) {
-				MessageBox.Show("SDL failed to initialize", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Hand);
-				return false;
-			}
+//			if (Sdl.SDL_Init(0) != 0) {
+//				MessageBox.Show("SDL failed to initialize", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Hand);
+//				return false;
+//			}
 			if (!Screen.Initialize()) {
 				MessageBox.Show("SDL failed to initialize the video subsystem.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Hand);
 				return false;
@@ -163,7 +180,7 @@ namespace OpenBve {
 				MessageBox.Show("SDL failed to initialize the joystick subsystem.", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Hand);
 				return false;
 			}
-			SoundManager.Initialize();
+			Sounds.Initialize();
 			Plugins.LoadPlugins();
 			// begin HACK //
 			const double degrees = 0.0174532925199433;
@@ -175,17 +192,35 @@ namespace OpenBve {
 			World.BackwardViewingDistance = 0.0;
 			World.BackgroundImageDistance = (double)Interface.CurrentOptions.ViewingDistance;
 			// end HACK //
+			ClearLogFile();
 			return true;
 		}
 		
 		/// <summary>Deinitializes the program.</summary>
 		private static void Deinitialize() {
 			Plugins.UnloadPlugins();
-			SoundManager.Deinitialize();
+			Sounds.Deinitialize();
 			Joysticks.Deinitialize();
 			Screen.Deinitialize();
 			Sdl.SDL_Quit();
 		}
 		
+		/// <summary>Clears the log file.</summary>
+		internal static void ClearLogFile() {
+			try {
+				string file = System.IO.Path.Combine(Program.FileSystem.SettingsFolder, "log.txt");
+				System.IO.File.WriteAllText(file, string.Empty, new System.Text.UTF8Encoding(true));
+			} catch { }
+		}
+		
+		/// <summary>Appends the specified text to the log file.</summary>
+		/// <param name="text">The text.</param>
+		internal static void AppendToLogFile(string text) {
+			try {
+				string file = System.IO.Path.Combine(Program.FileSystem.SettingsFolder, "log.txt");
+				System.IO.File.AppendAllText(file, text + "\n", new System.Text.UTF8Encoding(false));
+			} catch { }
+		}
+
 	}
 }

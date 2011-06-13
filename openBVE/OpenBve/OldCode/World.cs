@@ -8,6 +8,7 @@ namespace OpenBve {
 
 		// vectors
 		/// <summary>Represents a 2D vector of System.Double coordinates.</summary>
+		/// <remarks>This structure is outdated. Use OpenBveApi.Math.Vector2 instead.</remarks>
 		internal struct Vector2D {
 			internal double X;
 			internal double Y;
@@ -26,6 +27,7 @@ namespace OpenBve {
 			}
 		}
 		/// <summary>Represents a 3D vector of System.Double coordinates.</summary>
+		/// <remarks>This structure is outdated. Use OpenBveApi.Math.Vector3 instead.</remarks>
 		internal struct Vector3D {
 			internal double X;
 			internal double Y;
@@ -52,6 +54,10 @@ namespace OpenBve {
 			internal static Vector3D Subtract(Vector3D A, Vector3D B) {
 				return new Vector3D(A.X - B.X, A.Y - B.Y, A.Z - B.Z);
 			}
+			/// <summary>Gets a matching OpenBveApi.Math.Vector3 structure.</summary>
+			internal OpenBveApi.Math.Vector3 GetAPIStructure() {
+				return new OpenBveApi.Math.Vector3(this.X, this.Y, this.Z);
+			}
 		}
 		/// <summary>Represents a 3D vector of System.Single coordinates.</summary>
 		internal struct Vector3Df {
@@ -73,6 +79,7 @@ namespace OpenBve {
 
 		// colors
 		/// <summary>Represents an RGB color with 8-bit precision per channel.</summary>
+		/// <remarks>This structure is outdated. Use OpenBveApi.Colors.Color24 instead.</remarks>
 		internal struct ColorRGB {
 			internal byte R;
 			internal byte G;
@@ -84,6 +91,7 @@ namespace OpenBve {
 			}
 		}
 		/// <summary>Represents an RGBA color with 8-bit precision per channel.</summary>
+		/// <remarks>This structure is outdated. Use OpenBveApi.Colors.Color32 instead.</remarks>
 		internal struct ColorRGBA {
 			internal byte R;
 			internal byte G;

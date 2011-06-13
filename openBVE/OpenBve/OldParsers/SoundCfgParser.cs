@@ -84,10 +84,10 @@ namespace OpenBve {
 			World.Vector3D right = new World.Vector3D(1.3, 0.0, 0.0);
 			World.Vector3D cab = new World.Vector3D(-train.Cars[train.DriverCar].DriverX, train.Cars[train.DriverCar].DriverY, train.Cars[train.DriverCar].DriverZ - 0.5);
 			World.Vector3D panel = new World.Vector3D(train.Cars[train.DriverCar].DriverX, train.Cars[train.DriverCar].DriverY, train.Cars[train.DriverCar].DriverZ + 1.0);
-			double large = 30.0;
-			double medium = 10.0;
-			double small = 5.0;
-			double tiny = 2.0;
+			const double large = 30.0;
+			const double medium = 10.0;
+			const double small = 5.0;
+			const double tiny = 2.0;
 			LoadNoSound(train);
 			// load sounds for driver's car
 			train.Cars[train.DriverCar].Sounds.Adjust = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "Adjust.wav"), panel, tiny);
@@ -95,7 +95,7 @@ namespace OpenBve {
 			train.Cars[train.DriverCar].Sounds.Halt = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "Halt.wav"), cab, tiny);
 			train.Cars[train.DriverCar].Sounds.Horns[0].Sound = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "Klaxon0.wav"), front, large);
 			train.Cars[train.DriverCar].Sounds.Horns[0].Loop = false;
-			if (train.Cars[train.DriverCar].Sounds.Horns[0].Sound.SoundBufferIndex == -1) {
+			if (train.Cars[train.DriverCar].Sounds.Horns[0].Sound.Buffer == null) {
 				train.Cars[train.DriverCar].Sounds.Horns[0].Sound = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "Klaxon.wav"), front, large);
 			}
 			train.Cars[train.DriverCar].Sounds.Horns[1].Sound = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "Klaxon1.wav"), front, large);
@@ -121,18 +121,18 @@ namespace OpenBve {
 				train.Cars[i].Sounds.BreakerResumed = false;
 				train.Cars[i].Sounds.DoorCloseL = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "DoorClsL.wav"), left, small);
 				train.Cars[i].Sounds.DoorCloseR = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "DoorClsR.wav"), right, small);
-				if (train.Cars[i].Sounds.DoorCloseL.SoundBufferIndex == -1) {
+				if (train.Cars[i].Sounds.DoorCloseL.Buffer == null) {
 					train.Cars[i].Sounds.DoorCloseL = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "DoorCls.wav"), left, small);
 				}
-				if (train.Cars[i].Sounds.DoorCloseR.SoundBufferIndex == -1) {
+				if (train.Cars[i].Sounds.DoorCloseR.Buffer == null) {
 					train.Cars[i].Sounds.DoorCloseR = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "DoorCls.wav"), right, small);
 				}
 				train.Cars[i].Sounds.DoorOpenL = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "DoorOpnL.wav"), left, small);
 				train.Cars[i].Sounds.DoorOpenR = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "DoorOpnR.wav"), right, small);
-				if (train.Cars[i].Sounds.DoorOpenL.SoundBufferIndex == -1) {
+				if (train.Cars[i].Sounds.DoorOpenL.Buffer == null) {
 					train.Cars[i].Sounds.DoorOpenL = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "DoorOpn.wav"), left, small);
 				}
-				if (train.Cars[i].Sounds.DoorOpenR.SoundBufferIndex == -1) {
+				if (train.Cars[i].Sounds.DoorOpenR.Buffer == null) {
 					train.Cars[i].Sounds.DoorOpenR = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "DoorOpn.wav"), right, small);
 				}
 				train.Cars[i].Sounds.EmrBrake = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "EmrBrake.wav"), center, medium);
@@ -151,18 +151,11 @@ namespace OpenBve {
 					System.Globalization.CultureInfo Culture = System.Globalization.CultureInfo.InvariantCulture;
 					train.Cars[i].Sounds.Motor.Position = center;
 					for (int j = 0; j < train.Cars[i].Sounds.Motor.Tables.Length; j++) {
-						train.Cars[i].Sounds.Motor.Tables[j].SoundBufferIndex = -1;
-						train.Cars[i].Sounds.Motor.Tables[j].SoundSourceIndex = -1;
 						for (int k = 0; k < train.Cars[i].Sounds.Motor.Tables[j].Entries.Length; k++) {
-							int idx = train.Cars[i].Sounds.Motor.Tables[j].Entries[k].SoundBufferIndex;
-							if (idx <= -2) {
-								idx = -2 - idx;
-								if (idx >= 0) {
-									TrainManager.CarSound snd = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "Motor" + idx.ToString(Culture) + ".wav"), center, medium);
-									train.Cars[i].Sounds.Motor.Tables[j].Entries[k].SoundBufferIndex = snd.SoundBufferIndex;
-								} else {
-									train.Cars[i].Sounds.Motor.Tables[j].Entries[k].SoundBufferIndex = -1;
-								}
+							int idx = train.Cars[i].Sounds.Motor.Tables[j].Entries[k].SoundIndex;
+							if (idx >= 0) {
+								TrainManager.CarSound snd = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, "Motor" + idx.ToString(Culture) + ".wav"), center, medium);
+								train.Cars[i].Sounds.Motor.Tables[j].Entries[k].Buffer = snd.Buffer;
 							}
 						}
 					}
@@ -216,8 +209,8 @@ namespace OpenBve {
 								int k;
 								if (!int.TryParse(a, System.Globalization.NumberStyles.Integer, Culture, out k)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid index appeared at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-								} else if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								} else if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									if (k >= 0) {
 										for (int c = 0; c < train.Cars.Length; c++) {
@@ -226,7 +219,6 @@ namespace OpenBve {
 												Array.Resize<TrainManager.CarSound>(ref train.Cars[c].Sounds.Run, k + 1);
 												for (int h = n; h < k; h++) {
 													train.Cars[c].Sounds.Run[h] = TrainManager.CarSound.Empty;
-													train.Cars[c].Sounds.Run[h].SoundSourceIndex = -1;
 												}
 											}
 											train.Cars[c].Sounds.Run[k] = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, b), center, medium);
@@ -246,8 +238,8 @@ namespace OpenBve {
 								int k;
 								if (!int.TryParse(a, System.Globalization.NumberStyles.Integer, Culture, out k)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid index appeared at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-								} else if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								} else if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									if (k >= 0) {
 										for (int c = 0; c < train.Cars.Length; c++) {
@@ -256,7 +248,6 @@ namespace OpenBve {
 												Array.Resize<TrainManager.CarSound>(ref train.Cars[c].Sounds.Flange, k + 1);
 												for (int h = n; h < k; h++) {
 													train.Cars[c].Sounds.Flange[h] = TrainManager.CarSound.Empty;
-													train.Cars[c].Sounds.Flange[h].SoundSourceIndex = -1;
 												}
 											}
 											train.Cars[c].Sounds.Flange[k] = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, b), center, medium);
@@ -276,8 +267,8 @@ namespace OpenBve {
 								int k;
 								if (!int.TryParse(a, System.Globalization.NumberStyles.Integer, Culture, out k)) {
 									Interface.AddMessage(Interface.MessageType.Error, false, "Invalid index appeared at line " + (i + 1).ToString(Culture) + " in file " + FileName);
-								} else if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								} else if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									if (k >= 0) {
 										if (k >= MotorFiles.Length) {
@@ -300,8 +291,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else if (a == "0") {
 									for (int c = 0; c < train.Cars.Length; c++) {
 										World.Vector3D frontaxle = new World.Vector3D(0.0, 0.0, train.Cars[c].FrontAxlePosition);
@@ -320,8 +311,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									switch (a.ToLowerInvariant()) {
 										case "bc release high":
@@ -357,8 +348,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									for (int c = 0; c < train.Cars.Length; c++) {
 										if (train.Cars[c].Specs.AirBrake.Type == TrainManager.AirBrakeType.Main) {
@@ -387,8 +378,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									switch (a.ToLowerInvariant()) {
 										case "left":
@@ -413,8 +404,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									switch (a.ToLowerInvariant()) {
 										case "primary":
@@ -442,8 +433,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									switch (a.ToLowerInvariant()) {
 										case "open left":
@@ -475,8 +466,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									int k;
 									if (!int.TryParse(a, System.Globalization.NumberStyles.Integer, Culture, out k)) {
@@ -488,7 +479,6 @@ namespace OpenBve {
 												Array.Resize<TrainManager.CarSound>(ref train.Cars[train.DriverCar].Sounds.Plugin, k + 1);
 												for (int h = n; h < k; h++) {
 													train.Cars[train.DriverCar].Sounds.Plugin[h] = TrainManager.CarSound.Empty;
-													train.Cars[train.DriverCar].Sounds.Plugin[h].SoundSourceIndex = -1;
 												}
 											}
 											train.Cars[train.DriverCar].Sounds.Plugin[k] = TryLoadSound(OpenBveApi.Path.CombineFile(TrainPath, b), panel, tiny);
@@ -505,8 +495,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									switch (a.ToLowerInvariant()) {
 										case "correct":
@@ -525,8 +515,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									switch (a.ToLowerInvariant()) {
 										case "on":
@@ -548,8 +538,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									switch (a.ToLowerInvariant()) {
 										case "apply":
@@ -577,8 +567,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									switch (a.ToLowerInvariant()) {
 										case "up":
@@ -606,8 +596,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									switch (a.ToLowerInvariant()) {
 										case "on":
@@ -629,8 +619,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									switch (a.ToLowerInvariant()) {
 										case "on":
@@ -652,8 +642,8 @@ namespace OpenBve {
 							if (j >= 0) {
 								string a = Lines[i].Substring(0, j).TrimEnd();
 								string b = Lines[i].Substring(j + 1).TrimStart();
-								if (Interface.ContainsInvalidPathChars(b)) {
-									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters at line " + (i + 1).ToString(Culture) + " in file " + FileName);
+								if (b.Length == 0 || Interface.ContainsInvalidPathChars(b)) {
+									Interface.AddMessage(Interface.MessageType.Error, false, "FileName contains illegal characters or is empty at line " + (i + 1).ToString(Culture) + " in file " + FileName);
 								} else {
 									switch (a.ToLowerInvariant()) {
 										case "noise":
@@ -684,20 +674,20 @@ namespace OpenBve {
 				if (train.Cars[c].Specs.IsMotorCar) {
 					train.Cars[c].Sounds.Motor.Position = center;
 					for (int i = 0; i < train.Cars[c].Sounds.Motor.Tables.Length; i++) {
-						train.Cars[c].Sounds.Motor.Tables[i].SoundBufferIndex = -1;
-						train.Cars[c].Sounds.Motor.Tables[i].SoundSourceIndex = -1;
-						for (int j = 0; j < train.Cars[c].Sounds.Motor.Tables[i].Entries.Length; j++) {
-							int idx = train.Cars[c].Sounds.Motor.Tables[i].Entries[j].SoundBufferIndex;
-							if (idx <= -2) {
-								idx = -2 - idx;
-								if (idx >= 0 && idx < MotorFiles.Length && MotorFiles[idx] != null) {
-									TrainManager.CarSound snd = TryLoadSound(MotorFiles[idx], center, medium);
-									train.Cars[c].Sounds.Motor.Tables[i].Entries[j].SoundBufferIndex = snd.SoundBufferIndex;
-								} else {
-									train.Cars[c].Sounds.Motor.Tables[i].Entries[j].SoundBufferIndex = -1;
-								}
-							}
-						}
+						train.Cars[c].Sounds.Motor.Tables[i].Buffer = null;
+						train.Cars[c].Sounds.Motor.Tables[i].Source = null;
+//						for (int j = 0; j < train.Cars[c].Sounds.Motor.Tables[i].Entries.Length; j++) {
+//							Sounds.SoundBuffer buffer = train.Cars[c].Sounds.Motor.Tables[i].Entries[j].Buffer;
+//							if (idx <= -2) {
+//								idx = -2 - idx;
+//								if (idx >= 0 && idx < MotorFiles.Length && MotorFiles[idx] != null) {
+//									TrainManager.CarSound snd = TryLoadSound(MotorFiles[idx], center, medium);
+//									train.Cars[c].Sounds.Motor.Tables[i].Entries[j].Buffer = snd.Buffer;
+//								} else {
+//									train.Cars[c].Sounds.Motor.Tables[i].Entries[j].Buffer = null;
+//								}
+//							}
+//						}
 					}
 				}
 			}
@@ -708,10 +698,10 @@ namespace OpenBve {
 			TrainManager.CarSound s;
 			s = TrainManager.CarSound.Empty;
 			s.Position = Position;
-			s.SoundSourceIndex = -1;
+			s.Source = null;
 			if (FileName != null) {
 				if (System.IO.File.Exists(FileName)) {
-					s.SoundBufferIndex = SoundManager.LoadSound(FileName, Radius);
+					s.Buffer = Sounds.RegisterBuffer(new OpenBveApi.Path.FileReference(FileName));
 				}
 			}
 			return s;
@@ -732,7 +722,7 @@ namespace OpenBve {
 									Array.Resize<TrainManager.CarSound>(ref Sounds, n + 1);
 									for (int j = m; j < n; j++) {
 										Sounds[j] = TrainManager.CarSound.Empty;
-										Sounds[j].SoundSourceIndex = -1;
+										Sounds[j].Source = null;
 									}
 								}
 								Sounds[n] = TryLoadSound(Files[i], Position, Radius);

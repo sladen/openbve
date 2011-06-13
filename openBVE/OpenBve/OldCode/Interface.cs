@@ -31,6 +31,9 @@ namespace OpenBve {
 			Messages[MessageCount].FileNotFound = FileNotFound;
 			Messages[MessageCount].Text = Text;
 			MessageCount++;
+			
+			Program.AppendToLogFile(Text);
+			
 		}
 		internal static void ClearMessages() {
 			Messages = new Message[] { };

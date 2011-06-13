@@ -2,7 +2,7 @@
 
 using System;
 
-namespace OpenBveApi.Geometry {
+namespace OpenBveApi.Math {
 	/// <summary>Represents a two-dimensional vector.</summary>
 	public struct Vector2 {
 		
@@ -54,16 +54,16 @@ namespace OpenBveApi.Geometry {
 		/// <summary>Represents a null vector.</summary>
 		public static readonly Vector2 Null = new Vector2(0.0, 0.0);
 		
-		/// <summary>Represents vector pointing left.</summary>
+		/// <summary>Represents a vector pointing left.</summary>
 		public static readonly Vector2 Left = new Vector2(-1.0, 0.0);
 		
-		/// <summary>Represents vector pointing right.</summary>
+		/// <summary>Represents a vector pointing right.</summary>
 		public static readonly Vector2 Right = new Vector2(1.0, 0.0);
 		
-		/// <summary>Represents vector pointing up.</summary>
+		/// <summary>Represents a vector pointing up.</summary>
 		public static readonly Vector2 Up = new Vector2(0.0, -1.0);
 		
-		/// <summary>Represents vector pointing down.</summary>
+		/// <summary>Represents a vector pointing down.</summary>
 		public static readonly Vector2 Down = new Vector2(0.0, 1.0);
 		
 	}

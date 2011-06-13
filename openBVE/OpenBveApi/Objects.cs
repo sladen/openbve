@@ -1,5 +1,5 @@
 ﻿using System;
-using OpenBveApi.Geometry;
+using OpenBveApi.Math;
 
 namespace OpenBveApi.Objects {
 	

@@ -1,6 +1,7 @@
 ﻿#pragma warning disable 0659, 0661
 
 using System;
+using OpenBveApi.Colors;
 
 namespace OpenBveApi.Textures {
 	
@@ -23,27 +24,25 @@ namespace OpenBveApi.Textures {
 		private int MyWidth;
 		/// <summary>The height of the texture in pixels.</summary>
 		private int MyHeight;
-		/// <summary>The number of bits per pixel. Must be 24 or 32.</summary>
+		/// <summary>The number of bits per pixel. Must be 32.</summary>
 		private int MyBitsPerPixel;
-		/// <summary>The texture data. Pixels are stored row-based from top to bottom, and within a row from left to right. For 24 bits per pixel, three bytes are used in the order red, green and blue. For 32 bits per pixel, four bytes are used in the order red, green, blue and alpha.</summary>
+		/// <summary>The texture data. Pixels are stored row-based from top to bottom, and within a row from left to right. For 32 bits per pixel, four bytes are used in the order red, green, blue and alpha.</summary>
 		private byte[] MyBytes;
 		// --- constructors ---
 		/// <summary>Creates a new instance of this class.</summary>
 		/// <param name="width">The width of the texture in pixels.</param>
 		/// <param name="height">The height of the texture in pixels.</param>
-		/// <param name="bitsPerPixel">The number of bits per pixel. Must be 24 or 32.</param>
-		/// <param name="bytes">The texture data. Pixels are stored row-based from top to bottom, and within a row from left to right. For 24 bits per pixel, three bytes are used in the order red, green and blue. For 32 bits per pixel, four bytes are used in the order red, green, blue and alpha.</param>
+		/// <param name="bitsPerPixel">The number of bits per pixel. Must be 32.</param>
+		/// <param name="bytes">The texture data. Pixels are stored row-based from top to bottom, and within a row from left to right. For 32 bits per pixel, four bytes are used in the order red, green, blue and alpha.</param>
 		/// <exception cref="System.ArgumentException">Raised when the number of bits per pixel is not 32.</exception>
 		/// <exception cref="System.ArgumentNullException">Raised when the byte array is a null reference.</exception>
 		/// <exception cref="System.ArgumentException">Raised when the byte array is of unexpected length.</exception>
 		public Texture(int width, int height, int bitsPerPixel, byte[] bytes) {
-			if (bitsPerPixel != 24 & bitsPerPixel != 32) {
+			if (bitsPerPixel != 32) {
 				throw new ArgumentException("The number of bits per pixel is supported.");
 			} else if (bytes == null) {
 				throw new ArgumentNullException("The data bytes are a null reference.");
-			} else if (bitsPerPixel == 24 && bytes.Length != 3 * width * height) {
-				throw new ArgumentException("The data bytes are not of the expected length.");
-			} else if (bitsPerPixel == 32 && bytes.Length != 4 * width * height) {
+			} else if (bytes.Length != 4 * width * height) {
 				throw new ArgumentException("The data bytes are not of the expected length.");
 			} else {
 				this.MyWidth = width;
@@ -71,7 +70,7 @@ namespace OpenBveApi.Textures {
 				return this.MyBitsPerPixel;
 			}
 		}
-		/// <summary>Gets the texture data. Pixels are stored row-based from top to bottom, and within a row from left to right. For 32 bits per pixel, four bytes are used in the order red, green, blue, alpha.</summary>
+		/// <summary>Gets the texture data. Pixels are stored row-based from top to bottom, and within a row from left to right. For 32 bits per pixel, four bytes are used in the order red, green, blue and alpha.</summary>
 		public byte[] Bytes {
 			get {
 				return this.MyBytes;
@@ -284,7 +283,7 @@ namespace OpenBveApi.Textures {
 		/// <summary>The region in the texture to be extracted, or a null reference for the entire texture.</summary>
 		private TextureClipRegion MyClipRegion;
 		/// <summary>The color in the texture that should become transparent, or a null reference for no transparent color.</summary>
-		private Nullable<Objects.Color24> MyTransparentColor;
+		private Nullable<Color24> MyTransparentColor;
 		// --- properties ---
 		/// <summary>Gets the region in the texture to be extracted, or a null reference for the entire texture.</summary>
 		public TextureClipRegion ClipRegion {
@@ -293,7 +292,7 @@ namespace OpenBveApi.Textures {
 			}
 		}
 		/// <summary>Gets the color in the texture that should become transparent, or a null reference for no transparent color.</summary>
-		public Objects.Color24? TransparentColor {
+		public Color24? TransparentColor {
 			get {
 				return this.MyTransparentColor;
 			}
@@ -302,7 +301,7 @@ namespace OpenBveApi.Textures {
 		/// <summary>Creates new texture parameters.</summary>
 		/// <param name="clipRegion">The region in the texture to be extracted, or a null reference for the entire texture.</param>
 		/// <param name="transparentColor">The color in the texture that should become transparent, or a null reference for no transparent color.</param>
-		public TextureParameters(TextureClipRegion clipRegion, Nullable<Objects.Color24> transparentColor) {
+		public TextureParameters(TextureClipRegion clipRegion, Nullable<Color24> transparentColor) {
 			this.MyClipRegion = clipRegion;
 			this.MyTransparentColor = transparentColor;
 		}

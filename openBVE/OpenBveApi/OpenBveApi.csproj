@@ -49,13 +49,12 @@
       <DependentUpon>Objects.cs</DependentUpon>
     </Compile>
     <Compile Include="Colors.cs">
-      <DependentUpon>Objects.cs</DependentUpon>
     </Compile>
-    <Compile Include="Geometry.cs" />
+    <Compile Include="Math.cs" />
     <Compile Include="Hosts.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="Orientation3.cs">
-      <DependentUpon>Geometry.cs</DependentUpon>
+      <DependentUpon>Math.cs</DependentUpon>
     </Compile>
     <Compile Include="Path.cs" />
     <Compile Include="Runtime.cs" />
@@ -69,10 +68,10 @@
       <DependentUpon>Textures.cs</DependentUpon>
     </Compile>
     <Compile Include="Vector2.cs">
-      <DependentUpon>Geometry.cs</DependentUpon>
+      <DependentUpon>Math.cs</DependentUpon>
     </Compile>
     <Compile Include="Vector3.cs">
-      <DependentUpon>Geometry.cs</DependentUpon>
+      <DependentUpon>Math.cs</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>

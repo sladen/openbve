@@ -2,7 +2,7 @@
 
 using System;
 
-namespace OpenBveApi.Geometry {
+namespace OpenBveApi.Math {
 	/// <summary>Represents a three-dimensional vector.</summary>
 	public struct Vector3 {
 		
@@ -404,22 +404,22 @@ namespace OpenBveApi.Geometry {
 		/// <summary>Represents a null vector.</summary>
 		public static readonly Vector3 Null = new Vector3(0.0, 0.0, 0.0);
 		
-		/// <summary>Represents vector pointing left.</summary>
+		/// <summary>Represents a vector pointing left.</summary>
 		public static readonly Vector3 Left = new Vector3(-1.0, 0.0, 0.0);
 		
-		/// <summary>Represents vector pointing right.</summary>
+		/// <summary>Represents a vector pointing right.</summary>
 		public static readonly Vector3 Right = new Vector3(1.0, 0.0, 0.0);
 		
-		/// <summary>Represents vector pointing up.</summary>
+		/// <summary>Represents a vector pointing up.</summary>
 		public static readonly Vector3 Up = new Vector3(0.0, -1.0, 0.0);
 		
-		/// <summary>Represents vector pointing down.</summary>
+		/// <summary>Represents a vector pointing down.</summary>
 		public static readonly Vector3 Down = new Vector3(0.0, 1.0, 0.0);
 		
-		/// <summary>Represents vector pointing up.</summary>
+		/// <summary>Represents a vector pointing up.</summary>
 		public static readonly Vector3 Backward = new Vector3(0.0, 0.0, -1.0);
 		
-		/// <summary>Represents vector pointing down.</summary>
+		/// <summary>Represents a vector pointing down.</summary>
 		public static readonly Vector3 Forward = new Vector3(0.0, 0.0, 1.0);
 		
 	}

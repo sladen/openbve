@@ -7,12 +7,12 @@ namespace OpenBve {
 		
 		// sound handle
 		internal class SoundHandleEx : SoundHandle {
-			internal int SoundSourceIndex;
-			internal SoundHandleEx(double volume, double pitch, int soundSourceIndex) {
+			internal Sounds.SoundSource Source;
+			internal SoundHandleEx(double volume, double pitch, Sounds.SoundSource source) {
 				base.MyVolume = volume;
 				base.MyPitch = pitch;
 				base.MyValid = true;
-				this.SoundSourceIndex = soundSourceIndex;
+				this.Source = source;
 			}
 		}
 		
@@ -20,8 +20,8 @@ namespace OpenBve {
 		private string PluginFolder;
 		private string TrainFolder;
 		private IRuntime Api;
-		private SoundHandleEx[] Sounds;
-		private int SoundCount;
+		private SoundHandleEx[] SoundHandles;
+		private int SoundHandlesCount;
 		
 		// --- constructors ---
 		internal NetPlugin(string pluginFile, string trainFolder, IRuntime api, TrainManager.Train train) {
@@ -41,8 +41,8 @@ namespace OpenBve {
 			this.PluginFolder = System.IO.Path.GetDirectoryName(pluginFile);
 			this.TrainFolder = trainFolder;
 			this.Api = api;
-			this.Sounds = new SoundHandleEx[16];
-			this.SoundCount = 0;
+			this.SoundHandles = new SoundHandleEx[16];
+			this.SoundHandlesCount = 0;
 		}
 		
 		// --- functions ---
@@ -97,20 +97,15 @@ namespace OpenBve {
 		internal override void Elapse(ElapseData data) {
 			try {
 				this.Api.Elapse(data);
-				/* 
-				 * Process the sounds.
-				 * */
-				for (int i = 0; i < this.SoundCount; i++) {
-					if (this.Sounds[i].Stopped || !SoundManager.IsPlaying(this.Sounds[i].SoundSourceIndex)) {
-						SoundManager.StopSound(ref this.Sounds[i].SoundSourceIndex);
-						this.Sounds[i].Stop();
-						this.Sounds[i] = this.Sounds[this.SoundCount - 1];
-						this.SoundCount--;
+				for (int i = 0; i < this.SoundHandlesCount; i++) {
+					if (this.SoundHandles[i].Stopped) {
+						this.SoundHandles[i].Stop();
+						this.SoundHandles[i] = this.SoundHandles[this.SoundHandlesCount - 1];
+						this.SoundHandlesCount--;
 						i--;
 					} else {
-						double pitch = Math.Max(0.01, this.Sounds[i].Pitch);
-						double volume = Math.Max(0.0, this.Sounds[i].Volume);
-						SoundManager.ModulateSound(this.Sounds[i].SoundSourceIndex, pitch, volume);
+						this.SoundHandles[i].Source.Pitch = Math.Max(0.01, this.SoundHandles[i].Pitch);
+						this.SoundHandles[i].Source.Volume = Math.Max(0.0, this.SoundHandles[i].Volume);
 					}
 				}
 			} catch (Exception ex) {
@@ -208,15 +203,17 @@ namespace OpenBve {
 			}
 		}
 		internal SoundHandleEx PlaySound(int index, double volume, double pitch, bool looped) {
-			if (index >= 0 && index < this.Train.Cars[this.Train.DriverCar].Sounds.Plugin.Length && this.Train.Cars[this.Train.DriverCar].Sounds.Plugin[index].SoundBufferIndex >= 0) {
-				int soundSourceIndex = -1;
-				SoundManager.PlaySound(ref soundSourceIndex, this.Train.Cars[this.Train.DriverCar].Sounds.Plugin[index].SoundBufferIndex, base.Train, base.Train.DriverCar, this.Train.Cars[this.Train.DriverCar].Sounds.Plugin[index].Position, SoundManager.Importance.DontCare, looped, pitch, volume);
-				if (this.SoundCount == this.Sounds.Length) {
-					Array.Resize<SoundHandleEx>(ref this.Sounds, this.Sounds.Length << 1);
+			if (index >= 0 && index < this.Train.Cars[this.Train.DriverCar].Sounds.Plugin.Length && this.Train.Cars[this.Train.DriverCar].Sounds.Plugin[index].Buffer != null) {
+				Sounds.SoundBuffer buffer = this.Train.Cars[this.Train.DriverCar].Sounds.Plugin[index].Buffer;
+				OpenBveApi.Math.Vector3 position = this.Train.Cars[this.Train.DriverCar].Sounds.Plugin[index].Position.GetAPIStructure();
+				const double power = 0.001; // TODO
+				Sounds.SoundSource source = Sounds.PlaySound(buffer, power, pitch, volume, position, this.Train, this.Train.DriverCar, looped);
+				if (this.SoundHandlesCount == this.SoundHandles.Length) {
+					Array.Resize<SoundHandleEx>(ref this.SoundHandles, this.SoundHandles.Length << 1);
 				}
-				this.Sounds[this.SoundCount] = new SoundHandleEx(volume, pitch, soundSourceIndex);
-				this.SoundCount++;
-				return this.Sounds[this.SoundCount - 1];
+				this.SoundHandles[this.SoundHandlesCount] = new SoundHandleEx(volume, pitch, source);
+				this.SoundHandlesCount++;
+				return this.SoundHandles[this.SoundHandlesCount - 1];
 			} else {
 				return null;
 			}

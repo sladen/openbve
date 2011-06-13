@@ -23,6 +23,7 @@ namespace OpenBveApi.Sounds {
 		/// <exception cref="System.ArgumentException">Raised when the number of samples per second is not positive.</exception>
 		/// <exception cref="System.ArgumentException">Raised when the number of bits per samples is neither 8 nor 16.</exception>
 		/// <exception cref="System.ArgumentNullException">Raised when the bytes array or any of its subarrays is a null reference.</exception>
+		/// <exception cref="System.ArgumentException">Raised when the bytes array does not contain any elements.</exception>
 		/// <exception cref="System.ArgumentException">Raised when the bytes' subarrays are of unequal length.</exception>
 		public Sound(int sampleRate, int bitsPerSample, byte[][] bytes) {
 			if (sampleRate <= 0) {
@@ -34,9 +35,12 @@ namespace OpenBveApi.Sounds {
 			if (bytes == null) {
 				throw new ArgumentNullException("The data bytes are a null reference.");
 			}
+			if (bytes.Length == 0) {
+				throw new ArgumentException("There must be at least one channel.");
+			}
 			for (int i = 0; i < bytes.Length; i++) {
 				if (bytes[i] == null) {
-					throw new ArgumentNullException("The data bytes of a particular channel are a null reference.");
+					throw new ArgumentNullException("The data bytes channel " + i.ToString() + " are a null reference.");
 				}
 			}
 			for (int i = 1; i < bytes.Length; i++) {
@@ -65,6 +69,12 @@ namespace OpenBveApi.Sounds {
 		public byte[][] Bytes {
 			get {
 				return this.MyBytes;
+			}
+		}
+		/// <summary>Gets the duration of the sound in seconds.</summary>
+		public double Duration {
+			get {
+				return (double)(8 * this.MyBytes[0].Length / this.MyBitsPerSample) / (double)this.MySampleRate;
 			}
 		}
 		// --- operators ---

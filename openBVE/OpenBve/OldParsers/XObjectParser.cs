@@ -2,6 +2,8 @@
 using System.IO;
 using System.IO.Compression;
 
+using OpenBveApi.Colors;
+
 namespace OpenBve {
 	internal static class XObjectParser {
 
@@ -1563,7 +1565,7 @@ namespace OpenBve {
 								bool emissive = Materials[j].emissiveColor.R != 0 | Materials[j].emissiveColor.G != 0 | Materials[j].emissiveColor.B != 0;
 								bool transparent;
 								if (Materials[j].TextureFilename != null) {
-									Textures.RegisterTexture(Materials[j].TextureFilename, new OpenBveApi.Textures.TextureParameters(null, OpenBveApi.Objects.Color24.Black), out Object.Mesh.Materials[mm + j].DaytimeTexture);
+									Textures.RegisterTexture(Materials[j].TextureFilename, new OpenBveApi.Textures.TextureParameters(null, Color24.Black), out Object.Mesh.Materials[mm + j].DaytimeTexture);
 									transparent = true;
 								} else {
 									Object.Mesh.Materials[mm + j].DaytimeTexture = null;

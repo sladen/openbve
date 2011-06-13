@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenBveApi.Colors;
 
 namespace OpenBve {
 	internal static class Panel2CfgParser {
@@ -159,14 +160,14 @@ namespace OpenBve {
 					PanelDaytimeImage = null;
 				} else {
 					Textures.Texture tday;
-					Textures.RegisterTexture(PanelDaytimeImage, new OpenBveApi.Textures.TextureParameters(null, new OpenBveApi.Objects.Color24(PanelTransparentColor.R, PanelTransparentColor.G, PanelTransparentColor.B)), out tday);
+					Textures.RegisterTexture(PanelDaytimeImage, new OpenBveApi.Textures.TextureParameters(null, new Color24(PanelTransparentColor.R, PanelTransparentColor.G, PanelTransparentColor.B)), out tday);
 					Textures.Texture tnight = null;
 					if (PanelNighttimeImage != null) {
 						if (!System.IO.File.Exists(PanelNighttimeImage)) {
 							Interface.AddMessage(Interface.MessageType.Error, true, "The nighttime panel bitmap could not be found in " + FileName);
 							PanelNighttimeImage = null;
 						} else {
-							Textures.RegisterTexture(PanelNighttimeImage, new OpenBveApi.Textures.TextureParameters(null, new OpenBveApi.Objects.Color24(PanelTransparentColor.R, PanelTransparentColor.G, PanelTransparentColor.B)), out tnight);
+							Textures.RegisterTexture(PanelNighttimeImage, new OpenBveApi.Textures.TextureParameters(null, new Color24(PanelTransparentColor.R, PanelTransparentColor.G, PanelTransparentColor.B)), out tnight);
 						}
 					}
 					Textures.LoadTexture(tday);
@@ -259,10 +260,10 @@ namespace OpenBve {
 									// create element
 									if (DaytimeImage != null) {
 										Textures.Texture tday;
-										Textures.RegisterTexture(DaytimeImage, new OpenBveApi.Textures.TextureParameters(null, new OpenBveApi.Objects.Color24(TransparentColor.R, TransparentColor.G, TransparentColor.B)), out tday);
+										Textures.RegisterTexture(DaytimeImage, new OpenBveApi.Textures.TextureParameters(null, new Color24(TransparentColor.R, TransparentColor.G, TransparentColor.B)), out tday);
 										Textures.Texture tnight = null;
 										if (NighttimeImage != null) {
-											Textures.RegisterTexture(NighttimeImage, new OpenBveApi.Textures.TextureParameters(null, new OpenBveApi.Objects.Color24(TransparentColor.R, TransparentColor.G, TransparentColor.B)), out tnight);
+											Textures.RegisterTexture(NighttimeImage, new OpenBveApi.Textures.TextureParameters(null, new Color24(TransparentColor.R, TransparentColor.G, TransparentColor.B)), out tnight);
 										}
 										Textures.LoadTexture(tday);
 										int w = tday.Width;
@@ -411,10 +412,10 @@ namespace OpenBve {
 									// create element
 									if (DaytimeImage != null) {
 										Textures.Texture tday;
-										Textures.RegisterTexture(DaytimeImage, new OpenBveApi.Textures.TextureParameters(null, new OpenBveApi.Objects.Color24(TransparentColor.R, TransparentColor.G, TransparentColor.B)), out tday);
+										Textures.RegisterTexture(DaytimeImage, new OpenBveApi.Textures.TextureParameters(null, new Color24(TransparentColor.R, TransparentColor.G, TransparentColor.B)), out tday);
 										Textures.Texture tnight = null;
 										if (NighttimeImage != null) {
-											Textures.RegisterTexture(NighttimeImage, new OpenBveApi.Textures.TextureParameters(null, new OpenBveApi.Objects.Color24(TransparentColor.R, TransparentColor.G, TransparentColor.B)), out tnight);
+											Textures.RegisterTexture(NighttimeImage, new OpenBveApi.Textures.TextureParameters(null, new Color24(TransparentColor.R, TransparentColor.G, TransparentColor.B)), out tnight);
 										}
 										Textures.LoadTexture(tday);
 										double w = (double)tday.Width;
@@ -545,7 +546,7 @@ namespace OpenBve {
 											Textures.Texture[] tday = new Textures.Texture[nday];
 											Textures.Texture[] tnight;
 											for (int k = 0; k < nday; k++) {
-												Textures.RegisterTexture(DaytimeImage, new OpenBveApi.Textures.TextureParameters(new OpenBveApi.Textures.TextureClipRegion(0, k * Interval, wday, Interval), new OpenBveApi.Objects.Color24(TransparentColor.R, TransparentColor.G, TransparentColor.B)), out tday[k]);
+												Textures.RegisterTexture(DaytimeImage, new OpenBveApi.Textures.TextureParameters(new OpenBveApi.Textures.TextureClipRegion(0, k * Interval, wday, Interval), new Color24(TransparentColor.R, TransparentColor.G, TransparentColor.B)), out tday[k]);
 											}
 											if (NighttimeImage != null) {
 												int wnight, hnight;
@@ -554,7 +555,7 @@ namespace OpenBve {
 												if (nnight > nday) nnight = nday;
 												tnight = new Textures.Texture[nday];
 												for (int k = 0; k < nnight; k++) {
-													Textures.RegisterTexture(NighttimeImage, new OpenBveApi.Textures.TextureParameters(new OpenBveApi.Textures.TextureClipRegion(0, k * Interval, wday, Interval), new OpenBveApi.Objects.Color24(TransparentColor.R, TransparentColor.G, TransparentColor.B)), out tnight[k]);
+													Textures.RegisterTexture(NighttimeImage, new OpenBveApi.Textures.TextureParameters(new OpenBveApi.Textures.TextureClipRegion(0, k * Interval, wday, Interval), new Color24(TransparentColor.R, TransparentColor.G, TransparentColor.B)), out tnight[k]);
 												}
 												for (int k = nnight; k < nday; k++) {
 													tnight[k] = null;

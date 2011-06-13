@@ -69,6 +69,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Camera.cs" />
+    <Compile Include="Audio\Sounds.cs" />
+    <Compile Include="Audio\Sounds.SoundBuffer.cs">
+      <DependentUpon>Sounds.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Audio\Sounds.SoundOrigin.cs">
+      <DependentUpon>Sounds.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Audio\Sounds.SoundSource.cs">
+      <DependentUpon>Sounds.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Audio\Sounds.Update.cs">
+      <DependentUpon>Sounds.cs</DependentUpon>
+    </Compile>
     <Compile Include="Graphics\Fonts.cs" />
     <Compile Include="Graphics\Renderer.cs" />
     <Compile Include="Graphics\Renderer.Loading.cs">
@@ -85,7 +98,7 @@
     <Compile Include="Graphics\Textures.Texture.cs">
       <DependentUpon>Textures.cs</DependentUpon>
     </Compile>
-    <Compile Include="Graphics\Textures.TextureSource.cs">
+    <Compile Include="Graphics\Textures.TextureOrigin.cs">
       <DependentUpon>Textures.cs</DependentUpon>
     </Compile>
     <Compile Include="OldCode\formImage.cs">
@@ -116,7 +129,7 @@
     <Compile Include="OldCode\PluginManager.cs" />
     <None Include="OldCode\Program.cs" />
     <Compile Include="OldCode\Renderer.cs" />
-    <Compile Include="OldCode\SoundManager.cs" />
+    <None Include="OldCode\SoundManager.cs" />
     <Compile Include="OldCode\Timers.cs" />
     <Compile Include="OldCode\Timetable.cs" />
     <Compile Include="OldCode\TrackManager.cs" />
@@ -177,6 +190,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Graphics" />
+    <Folder Include="Audio" />
     <Folder Include="OldCode" />
     <Folder Include="System" />
     <ProjectReference Include="..\OpenBveApi\OpenBveApi.csproj">

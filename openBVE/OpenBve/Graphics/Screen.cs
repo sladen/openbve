@@ -34,23 +34,20 @@ namespace OpenBve {
 				Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_GREEN_SIZE, 8);
 				Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_BLUE_SIZE, 8);
 				Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_ALPHA_SIZE, 0);
-				Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_DEPTH_SIZE, 16);
+				Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_DEPTH_SIZE, 32);
 				Sdl.SDL_GL_SetAttribute(Sdl.SDL_GL_SWAP_CONTROL, Interface.CurrentOptions.VerticalSynchronization ? 1 : 0);
 				Sdl.SDL_ShowCursor(Sdl.SDL_DISABLE);
 				// --- window caption and icon ---
 				Sdl.SDL_WM_SetCaption(Application.ProductName, null);
-				try {
-					string file = OpenBveApi.Path.CombineFile(Program.FileSystem.DataFolder, "icon.bmp");
-					if (System.IO.File.Exists(file)) {
-						IntPtr bitmap = Sdl.SDL_LoadBMP(file);
-						if (bitmap != null) {
-							Sdl.SDL_Surface surface = (Sdl.SDL_Surface)System.Runtime.InteropServices.Marshal.PtrToStructure(bitmap, typeof(Sdl.SDL_Surface));
-							int colorKey = Sdl.SDL_MapRGB(surface.format, 0, 0, 255);
-							Sdl.SDL_SetColorKey(bitmap, Sdl.SDL_SRCCOLORKEY, colorKey);
-							Sdl.SDL_WM_SetIcon(bitmap, null);
-						}
+				{
+					string bitmapFile = OpenBveApi.Path.CombineFile(Program.FileSystem.DataFolder, "icon.bmp");
+					IntPtr bitmap = Sdl.SDL_LoadBMP(bitmapFile);
+					if (bitmap != null) {
+						string maskFile = OpenBveApi.Path.CombineFile(Program.FileSystem.DataFolder, "mask.bin");
+						byte[] mask = System.IO.File.ReadAllBytes(maskFile);
+						Sdl.SDL_WM_SetIcon(bitmap, mask);
 					}
-				} catch { }
+				}
 				// --- video mode ---
 				Width = Interface.CurrentOptions.FullscreenMode ? Interface.CurrentOptions.FullscreenWidth : Interface.CurrentOptions.WindowWidth;
 				Height = Interface.CurrentOptions.FullscreenMode ? Interface.CurrentOptions.FullscreenHeight : Interface.CurrentOptions.WindowHeight;
@@ -101,9 +98,9 @@ namespace OpenBve {
 			if (World.MouseGrabEnabled) {
 				Sdl.SDL_WM_GrabInput(Sdl.SDL_GRAB_OFF);
 			}
-			Gl.glDisable(Gl.GL_FOG); 
+			Gl.glDisable(Gl.GL_FOG);
 			Renderer.FogEnabled = false;
-			Gl.glDisable(Gl.GL_LIGHTING); 
+			Gl.glDisable(Gl.GL_LIGHTING);
 			Renderer.LightingEnabled = false;
 			Textures.UnloadAllTextures();
 			if (Interface.CurrentOptions.FullscreenMode) {

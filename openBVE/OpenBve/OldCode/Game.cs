@@ -759,9 +759,9 @@ namespace OpenBve {
 		internal struct Station {
 			internal string Name;
 			internal double ArrivalTime;
-			internal int ArrivalSoundIndex;
+			internal Sounds.SoundBuffer ArrivalSoundBuffer;
 			internal double DepartureTime;
-			internal int DepartureSoundIndex;
+			internal Sounds.SoundBuffer DepartureSoundBuffer;
 			internal double StopTime;
 			internal World.Vector3D SoundOrigin;
 			internal StationStopMode StopMode;

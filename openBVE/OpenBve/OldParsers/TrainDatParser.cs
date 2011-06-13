@@ -68,11 +68,9 @@ namespace OpenBve {
 			Train.Specs.DoorCloseMode = TrainManager.DoorMode.AutomaticManualOverride;
 			TrainManager.MotorSoundTable[] Tables = new TrainManager.MotorSoundTable[4];
 			for (int i = 0; i < 4; i++) {
-				Tables[i].SoundBufferIndex = -1;
-				Tables[i].SoundSourceIndex = -1;
 				Tables[i].Entries = new TrainManager.MotorSoundTableEntry[16];
 				for (int j = 0; j < 16; j++) {
-					Tables[i].Entries[j].SoundBufferIndex = -1;
+					Tables[i].Entries[j].SoundIndex = -1;
 					Tables[i].Entries[j].Pitch = 1.0f;
 					Tables[i].Entries[j].Gain = 1.0f;
 				}
@@ -436,7 +434,7 @@ namespace OpenBve {
 								if (n >= u) {
 									Array.Resize<TrainManager.MotorSoundTableEntry>(ref Tables[msi].Entries, 2 * u);
 									for (int j = u; j < 2 * u; j++) {
-										Tables[msi].Entries[j].SoundBufferIndex = -1;
+										Tables[msi].Entries[j].SoundIndex = -1;
 										Tables[msi].Entries[j].Pitch = 1.0f;
 										Tables[msi].Entries[j].Gain = 1.0f;
 									}
@@ -447,13 +445,12 @@ namespace OpenBve {
 									if (j == -1) break;
 									string s = t.Substring(0, j).Trim();
 									t = t.Substring(j + 1);
-									double a; if (Interface.TryParseDoubleVb6(s, out a)) {
+									double a;
+									if (Interface.TryParseDoubleVb6(s, out a)) {
 										switch (m) {
 											case 0:
-												{
-													int idx = (int)Math.Round(a);
-													Tables[msi].Entries[n].SoundBufferIndex = idx >= 0 ? -2 - idx : -1;
-												} break;
+												Tables[msi].Entries[n].SoundIndex = (int)Math.Round(a);
+												break;
 											case 1:
 												if (a < 0.0) a = 0.0;
 												Tables[msi].Entries[n].Pitch = (float)(0.01 * a);
@@ -814,8 +811,6 @@ namespace OpenBve {
 						for (int k = 0; k < Tables[j].Entries.Length; k++) {
 							Train.Cars[i].Sounds.Motor.Tables[j].Entries[k] = Tables[j].Entries[k];
 						}
-						Train.Cars[i].Sounds.Motor.Tables[j].SoundBufferIndex = -1;
-						Train.Cars[i].Sounds.Motor.Tables[j].SoundSourceIndex = -1;
 					}
 				} else {
 					// trailer car
@@ -830,8 +825,6 @@ namespace OpenBve {
 					Train.Cars[i].Sounds.Motor.Tables = new TrainManager.MotorSoundTable[4];
 					for (int j = 0; j < 4; j++) {
 						Train.Cars[i].Sounds.Motor.Tables[j].Entries = new TrainManager.MotorSoundTableEntry[] { };
-						Train.Cars[i].Sounds.Motor.Tables[j].SoundBufferIndex = -1;
-						Train.Cars[i].Sounds.Motor.Tables[j].SoundSourceIndex = -1;
 					}
 				}
 			}

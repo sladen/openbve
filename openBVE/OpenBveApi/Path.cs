@@ -50,6 +50,7 @@ namespace OpenBveApi {
 					return object.ReferenceEquals(this, obj);
 				}
 			}
+			// --- functions ---
 			/// <summary>Checks whether this path exists.</summary>
 			/// <returns>Whether this path exists.</returns>
 			public abstract bool Exists();
@@ -132,6 +133,11 @@ namespace OpenBveApi {
 			public override bool Exists() {
 				return System.IO.File.Exists(this.File);
 			}
+			/// <summary>Gets a string representation for this path.</summary>
+			/// <returns>The string representation for this path.</returns>
+			public override string ToString() {
+				return this.File;
+			}
 		}
 		
 		
@@ -210,6 +216,11 @@ namespace OpenBveApi {
 			/// <returns>Whether the directory represented by this reference exists.</returns>
 			public override bool Exists() {
 				return System.IO.Directory.Exists(this.Directory);
+			}
+			/// <summary>Gets a string representation for this path.</summary>
+			/// <returns>The string representation for this path.</returns>
+			public override string ToString() {
+				return this.Directory;
 			}
 		}
 		

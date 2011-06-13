@@ -1,4 +1,5 @@
 ﻿using System;
+using OpenBveApi.Colors;
 
 namespace OpenBve {
 	internal static class CsvB3dObjectParser {
@@ -986,7 +987,7 @@ namespace OpenBve {
 					if (Builder.Materials[i].DaytimeTexture != null) {
 						Textures.Texture tday;
 						if (Builder.Materials[i].TransparentColorUsed) {
-							Textures.RegisterTexture(Builder.Materials[i].DaytimeTexture, new OpenBveApi.Textures.TextureParameters(null, new OpenBveApi.Objects.Color24(Builder.Materials[i].TransparentColor.R, Builder.Materials[i].TransparentColor.G, Builder.Materials[i].TransparentColor.B)), out tday);
+							Textures.RegisterTexture(Builder.Materials[i].DaytimeTexture, new OpenBveApi.Textures.TextureParameters(null, new Color24(Builder.Materials[i].TransparentColor.R, Builder.Materials[i].TransparentColor.G, Builder.Materials[i].TransparentColor.B)), out tday);
 						} else {
 							Textures.RegisterTexture(Builder.Materials[i].DaytimeTexture, out tday);
 						}
@@ -998,7 +999,7 @@ namespace OpenBve {
 					if (Builder.Materials[i].NighttimeTexture != null) {
 						Textures.Texture tnight;
 						if (Builder.Materials[i].TransparentColorUsed) {
-							Textures.RegisterTexture(Builder.Materials[i].NighttimeTexture, new OpenBveApi.Textures.TextureParameters(null, new OpenBveApi.Objects.Color24(Builder.Materials[i].TransparentColor.R, Builder.Materials[i].TransparentColor.G, Builder.Materials[i].TransparentColor.B)), out tnight);
+							Textures.RegisterTexture(Builder.Materials[i].NighttimeTexture, new OpenBveApi.Textures.TextureParameters(null, new Color24(Builder.Materials[i].TransparentColor.R, Builder.Materials[i].TransparentColor.G, Builder.Materials[i].TransparentColor.B)), out tnight);
 						} else {
 							Textures.RegisterTexture(Builder.Materials[i].NighttimeTexture, out tnight);
 						}
