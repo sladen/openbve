@@ -1,10 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" href="homepage.css" />
+		<link rel="icon" href="common/favicon.png" />
 		<title>
 			Changelog
 		</title>
-		<link rel="stylesheet" href="homepage.css" />
 	</head>
 	<body>
 		<div class="homepage-body">
@@ -14,13 +17,16 @@
 					<a href="screenshots.html">Screenshots</a>
 				</li>
 				<li>
-					<a href="use/index.html">Play</a>
+					<a href="use/index.html">Install and Play</a>
 				</li>
 				<li>
-					<a href="develop/index.html">Create</a>
+					<a href="develop/index.html">Create Add-ons</a>
 				</li>
 				<li>
 					<a href="roadmap.html">Roadmap</a>
+				</li>
+				<li>
+					<a href="credits.html">Credits</a>
 				</li>
 				<li>
 					<a href="http://openbve.freeforums.org">Discussion Board</a>
@@ -37,24 +43,413 @@
 			</div>
 			<ol class="contents">
 				<li>
-					<a href="#n12series">1.2 series</a>
+					<a href="#n14seriesstable">1.4 series (stable)</a>
 				</li>
 				<li>
-					<a href="#n11series">1.1 series</a>
+					<a href="#n13seriesdevelopment">1.3 series (development)</a>
 				</li>
 				<li>
-					<a href="#n10series">1.0 series</a>
+					<a href="#n12seriesstable">1.2 series (stable)</a>
+				</li>
+				<li>
+					<a href="#n11seriesdevelopment">1.1 series (development)</a>
+				</li>
+				<li>
+					<a href="#n10seriesstable">1.0 series (stable)</a>
 				</li>
 			</ol>
 			<h2>
-				<a id="n12series">1.2 series</a>
+				<a id="n14seriesstable">1.4 series (stable)</a>
 			</h2>
+			<h3>
+				v1.4.0.0 (2012-01-08)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Managed add-ons
+					</dt>
+					<dd>
+						If there are multiple servers available for a package, openBVE now tries to download from them in a random order in order to better even out the load.
+					</dd>
+					<dt>
+						Error report
+					</dt>
+					<dd>
+						The error report screen is not available any longer. All errors are now logged to <a href="use/filesystem.html">UserData</a>/Settings/log.txt.
+					</dd>
+				</dl>
+			</div>
+			<h2>
+				<a id="n13seriesdevelopment">1.3 series (development)</a>
+			</h2>
+			<h3>
+				v1.3.4.2 (2011-12-29)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Some fixes regarding handling of textures in the panel.cfg and regarding path concatenation. Also, resized textures have improved quality.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.3.4.1 (2011-12-27)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						A few things that were temporarily unavailable are back again, including upscaling textures to a power of two, mixing multi-channel audio to mono, and legacy signal glow.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						When an add-on did not have a country assigned to it, the main menu would crash trying to display the add-on.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.3.3.0 (2011-12-21)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Added translation support for everything related to managed content.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.3.2.15 (2011-12-09)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Removed all threading from the game because some OpenGL/SDL-related calls were made in a non-thread-safe way. As a consequence, asynchronous loading of textures and sounds, as well as loading the route and train in the background will not be available in openBVE again until much later in the 1.x development series.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Clamping certain textures to edge is back again, meaning certain textures should not have borders around them any longer.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.3.2.10 (2011-12-04)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Managed content
+					</dt>
+					<dd>
+						Added support for long file names in tar archives ($LongLink). This is critical because some add-ons will not be installed correctly otherwise.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.3.2.5 (2011-12-02)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Managed content
+					</dt>
+					<dd>
+						Some cosmetic changes here and there. In particular, when no keywords are entered in the filter boxes, the country is now always shown in the listboxes, along with its flag.
+					</dd>
+					<dt>
+						Interoperability
+					</dt>
+					<dd>
+						Depth buffer size has been changed back to 24 bits because other values do not seem to work on Linux.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.3.2.0 (2011-11-30)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Managed content
+					</dt>
+					<dd>
+						Managed content has been introduced, allowing users to browse and install add-ons from within the game.
+					</dd>
+					<dt>
+						Sound
+					</dt>
+					<dd>
+						The previous sound model using inner and outer radii has been restored, although is implemented with a different distance attentuation model and thus sounds differently.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.3.1.0 (2011-06-12)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						API (sounds)
+					</dt>
+					<dd>
+						The API for loading sounds has been implemented under the OpenBveApi.Sounds namespace. The WAV sound format is now exposed via the Sound.RiffWave.dll plugin, and the FLAC sound format via the Sound.Flac.dll plugin.
+					</dd>
+					<dt>
+						Sound
+					</dt>
+					<dd>
+						An experimental and yet incomplete sound model based on sound pressure has been introduced.
+					</dd>
+					<dt>
+						Recognizing file formats
+					</dt>
+					<dd>
+						All texture and sound plugins now identify the file formats they support solely via file headers and magic numbers - file extensions are no longer checked against.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.3.0.0 (2011-04-28)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						API (textures)
+					</dt>
+					<dd>
+						The API for loading textures has been implemented under the OpenBveApi.Textures namespace. All texture formats supported so far are now loaded via the Texture.BmpGifJpegPngTiff.dll plugin.
+					</dd>
+					<dt>
+						API (files and directories)
+					</dt>
+					<dd>
+						Methods for combining files and directories platform-independently and case-insensitively have been implemented in the OpenBveApi.Path class. They are intended to supersede System.IO.Path.Combine and are now used throughout the source code. Plugins should use these functions, too, in the future.
+					</dd>
+					<dt>
+						Loading screen
+					</dt>
+					<dd>
+						The Windows Forms loading screen has been removed in favor of an OpenGL loading screen. For the time being, the error report at the end of loading is unavailable.
+					</dd>
+					<dt>
+						Rendering text
+					</dt>
+					<dd>
+						New methods for rendering text have been implemented. Previously, the typographic and physical sizes of characters were not distinguished, leading to incorrect spacing between certain characters.
+					</dd>
+				</dl>
+			</div>
+			<h2>
+				<a id="n12seriesstable">1.2 series (stable)</a>
+			</h2>
+			<h3>
+				v1.2.14.0 (2011-12-02)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Language files were not loaded if the main menu was bypassed via /route and /train command-line arguments.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The rear axle of the last car would trigger the SetSignal call when the train was traveling backward. It is now always the front axle of the first car regardless of travel direction.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Beacons that are engaged to the nearest red signal were not reported correctly to plugins, causing some safety systems (for example ATS-P) to not work correctly on some routes.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.13.0 (2011-05-25)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						The main menu now links to the new homepage. The version checker has been updated accordingly.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						The SDL window should now show the rounded game icon on all platforms.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.12.10 (2011-04-17)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Removed a debug message that showed up when loading a Win32 plugin.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.12.6 (2011-04-15)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						File system
+					</dt>
+					<dd>
+						The program now checks all directories in the configuration file if they are absolute paths. If not, the program will not execute. This should help finding and fixing problems due to malformed configuration files.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.12.2 (2011-04-06)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The file system configuration did not acknowledge the RestartProcess parameter and just used the currently executing assembly.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						Starting the simulation in Arcade mode would produce an instant message about passing a red signal and reduce the score by 100 points.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.11.16 (2011-03-19)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Developing trains
+					</dt>
+					<dd>
+						The train.dat now allows to specify the driver's car via the #CAB section.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The program could crash when pressing the point-of-view keys. Also a few glitches in the OpenBveAts plugin have been fixed.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.11.10 (2011-03-10)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Simulation
+					</dt>
+					<dd>
+						The built-in safety systems ATS and ATC have been outsourced into the OpenBveAts plugin. As a result, the safety systems are a little more realistic than before and can also be individually turned on and off. The CTRL+S key combination has been removed. The new keys are 2 (ATS-SN), 3 (ATS-P) and 4 (ATC).
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>.NET train plugins could receive incorrect signal aspects in the SetBeacon call if an upcoming signal was kept red by a station.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.11.5 (2011-01-23)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						Bugfix
+					</dt>
+					<dd>.NET train plugins could receive incorrect signal aspects in the SetSignal call if an upcoming signal was kept red by a station.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						The sound handles reported to .NET train plugins were sometimes not cleared up correctly, leading to the plugin believing a sound was still playing even when it had already stopped.
+					</dd>
+				</dl>
+			</div>
+			<h3>
+				v1.2.11.0 (2011-01-07)
+			</h3>
+			<div>
+				<dl class="definition-plain">
+					<dt>
+						File system
+					</dt>
+					<dd>
+						The organization of files and folders has changed. By default, userdata is no longer stored in the install directory. Customization of the file system is now fully possible. See <a href="use/index.html">Using openBVE</a>
+						for the details.
+					</dd>
+					<dt>
+						Interface
+					</dt>
+					<dd>
+						Stations without a name assigned to them do not appear any longer in the route map, gradient preview nor in the default timetable unless the player's train is expected to stop at such stations.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						The Track.Sta and Track.Station commands now allow to flag a station as "change ends". At such stations, once the departure time has been reached, the train automatically jumps to the next station.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						The $If/$Else/$EndIf directives have been officially added to the CSV/RW route formats to allow for conditional in-line code.
+					</dd>
+					<dt>
+						Developing routes
+					</dt>
+					<dd>
+						The $Include directive now allows to offset track positions in the included file.
+					</dd>
+					<dt>
+						Bugfix
+					</dt>
+					<dd>
+						If a horn was not assigned in the sound.cfg, it could play any random sound when triggered by the user.
+					</dd>
+				</dl>
+			</div>
 			<h3>
 				v1.2.10.0 (2010-12-19)
 			</h3>
 			<div>
-				This is a summary of what has changed since the last stable version 1.2.8.2.
-				<dl class="definition-plain">
+				This is a summary of what has changed since the last stable version 1.2.8.2. <dl class="definition-plain">
 					<dt>
 						Simulation
 					</dt>
@@ -559,8 +954,7 @@
 						Sound
 					</dt>
 					<dd>
-						The list of
-						<a href="develop/information_soundformats.html">supported sound formats</a>
+						The list of <a href="develop/information_soundformats.html">supported sound formats</a>
 						has changed. Most importantly, all sample rates and numbers of channels are supported now. Aside from PCM, Microsoft ADPCM is supported now, too.
 					</dd>
 					<dt>
@@ -859,7 +1253,7 @@
 				</dl>
 			</div>
 			<h2>
-				<a id="n11series">1.1 series</a>
+				<a id="n11seriesdevelopment">1.1 series (development)</a>
 			</h2>
 			<h3>
 				v1.1.4.0 (2009-07-18)
@@ -1072,7 +1466,7 @@
 				</dl>
 			</div>
 			<h2>
-				<a id="n10series">1.0 series</a>
+				<a id="n10seriesstable">1.0 series (stable)</a>
 			</h2>
 			<h3>
 				v1.0.7.3 (2009-07-08)
@@ -1139,8 +1533,7 @@
 						Interface
 					</dt>
 					<dd>
-						For users who experience long loading times,
-						<a href="use/hidden.html">hidden options</a>
+						For users who experience long loading times, <a href="use/hidden.html">hidden options</a>
 						have been introduced to reduce or disable the object optimization process.
 					</dd>
 					<dt>
