@@ -3,7 +3,12 @@
 using System;
 
 namespace OpenBveApi.Sounds {
-	
+
+	/* ----------------------------------------
+	 * TODO: This part of the API is unstable.
+	 *       Modifications can be made at will.
+	 * ---------------------------------------- */
+
 	// --- structures ---
 	
 	/// <summary>Represents a sound.</summary>
@@ -160,13 +165,13 @@ namespace OpenBveApi.Sounds {
 		/// <summary>Checks whether the plugin can load the specified sound.</summary>
 		/// <param name="path">The path to the file or folder that contains the sound.</param>
 		/// <returns>Whether the plugin can load the specified sound.</returns>
-		public abstract bool CanLoadSound(Path.PathReference path);
+		public abstract bool CanLoadSound(string path);
 		
 		/// <summary>Loads the specified sound.</summary>
 		/// <param name="path">The path to the file or folder that contains the sound.</param>
 		/// <param name="sound">Receives the sound.</param>
 		/// <returns>Whether loading the sound was successful.</returns>
-		public abstract bool LoadSound(Path.PathReference path, out Sound sound);
+		public abstract bool LoadSound(string path, out Sound sound);
 		
 	}
 	

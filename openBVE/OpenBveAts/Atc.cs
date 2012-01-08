@@ -309,7 +309,7 @@ namespace Plugin {
 					}
 					blocking = true;
 				}
-				if (this.State != States.Disabled & this.Train.Doors != DoorStates.None) {
+				if (this.State != States.Disabled & (this.Train.Doors != DoorStates.None | data.Handles.BrakeNotch > 0)) {
 					data.Handles.PowerNotch = 0;
 				}
 			}
@@ -382,15 +382,6 @@ namespace Plugin {
 					if (this.State == States.Ats) {
 						this.State = States.Normal;
 						this.Train.Sounds.ToAtc.Play();
-					}
-					break;
-				case VirtualKeys.F:
-				case VirtualKeys.G:
-					// --- activate or deactivate the system ---
-					if (this.State == States.Disabled) {
-						this.State = States.Suppressed;
-					} else {
-						this.State = States.Disabled;
 					}
 					break;
 			}

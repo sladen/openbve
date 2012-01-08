@@ -2,7 +2,12 @@
 using OpenBveApi.Math;
 
 namespace OpenBveApi.Objects {
-	
+
+	/* ----------------------------------------
+	 * TODO: This part of the API is unstable.
+	 *       Modifications can be made at will.
+	 * ---------------------------------------- */
+
 	// --- objects ---
 	
 	/// <summary>Represents an abstract object. This is the base class from which all objects must inherit.</summary>
@@ -41,6 +46,17 @@ namespace OpenBveApi.Objects {
 	public abstract class AbstractMaterial { }
 	
 	
+	// --- blend modes ---
+	
+	/// <summary>Represents blend modes.</summary>
+	public enum BlendModes {
+		/// <summary>Represents normal blend mode.</summary>
+		Normal = 0,
+		/// <summary>Represents additive blend mode.</summary>
+		Additive = 1
+	}
+	
+	
 	// --- glow ---
 	
 	/// <summary>Represents an abstract glow. This is the base class from which all glows must inherit.</summary>
@@ -56,6 +72,36 @@ namespace OpenBveApi.Objects {
 		/// <param name="objectOrientation">The orientation of the object.</param>
 		/// <returns>The intensity of the glow expressed as a value between 0 and 1.</returns>
 		public abstract double GetIntensity(Vector3 cameraPosition, Orientation3 cameraOrientation, Vector3 objectPosition, Vector3 objectOrientation);
+	}
+	
+	/// <summary>Represents a glow where the intensity is inversely proportional to the distance between the object and the camera.</summary>
+	public class DistanceGlow : OrientationalGlow {
+		// --- members ---
+		/// <summary>The square of the distance at which the intensity is exactly 50%.</summary>
+		private double HalfDistanceSquared;
+		// --- constructors ---
+		/// <summary>Creates a new distance glow.</summary>
+		/// <param name="halfDistance">The distance at which the intensity is exactly 50%.</param>
+		public DistanceGlow(double halfDistance) {
+			this.HalfDistanceSquared = halfDistance * halfDistance;
+		}
+		// --- functions ---
+		/// <summary>Gets the intensity of the glow.</summary>
+		/// <param name="cameraPosition">The position of the camera.</param>
+		/// <param name="cameraOrientation">The orientation of the camera.</param>
+		/// <param name="objectPosition">The position of the object.</param>
+		/// <param name="objectOrientation">The orientation of the object.</param>
+		/// <returns>The intensity of the glow expressed as a value between 0 and 1.</returns>
+		public override double GetIntensity(Vector3 cameraPosition, Orientation3 cameraOrientation, Vector3 objectPosition, Vector3 objectOrientation) {
+			/* The underlying formula for the intensity is
+			 *    i = d^2 / (d^2 + h^2)
+			 * where
+			 *    i = intensity
+			 *    d = distance between object and camera
+			 *    h = distance at which intensity is 50% */
+			double distanceSquared = (objectPosition - cameraPosition).NormSquared();
+			return distanceSquared / (distanceSquared + this.HalfDistanceSquared);
+		}
 	}
 	
 	
@@ -80,13 +126,13 @@ namespace OpenBveApi.Objects {
 		/// <summary>Checks whether the plugin can load the specified object.</summary>
 		/// <param name="path">The path to the file or folder that contains the object.</param>
 		/// <returns>Whether the plugin can load the specified object.</returns>
-		public abstract bool CanLoadObject(Path.PathReference path);
+		public abstract bool CanLoadObject(string path);
 		
 		/// <summary>Loads the specified object.</summary>
 		/// <param name="path">The path to the file or folder that contains the object.</param>
 		/// <param name="obj">Receives the object.</param>
 		/// <returns>Whether loading the object was successful.</returns>
-		public abstract bool LoadObject(Path.PathReference path, out Object obj);
+		public abstract bool LoadObject(string path, out Object obj);
 		
 	}
 	

@@ -3,9 +3,6 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-// TODO: Ensure that parent directory references (../) are processed manually
-//       as System.IO.Path does not handle them correctly on all platforms.
-
 namespace OpenBve {
 	/// <summary>Represents the program's organization of files and folders.</summary>
 	internal class FileSystem {
@@ -16,13 +13,13 @@ namespace OpenBve {
 		/// <summary>The location of the application data, including, among others, Compatibility, Flags and Languages.</summary>
 		internal string DataFolder;
 		
-		/// <summary>The location of managed content, which contains one folder per package.</summary>
-		internal string ManagedContentFolder;
+		/// <summary>The locations of managed content.</summary>
+		internal string[] ManagedContentFolders;
 		
 		/// <summary>The location where to save user settings, including settings.cfg and controls.cfg.</summary>
 		internal string SettingsFolder;
 		
-		/// <summary>The initial location of the Railway\Route folder.</summary>
+		/// <summary>The initial location of the Railway/Route folder.</summary>
 		internal string InitialRouteFolder;
 
 		/// <summary>The initial location of the Train folder.</summary>
@@ -43,7 +40,7 @@ namespace OpenBve {
 			string assemblyFolder = Path.GetDirectoryName(assemblyFile);
 			string userDataFolder = OpenBveApi.Path.CombineDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "openBVE");
 			this.DataFolder = OpenBveApi.Path.CombineDirectory(assemblyFolder, "Data");
-			this.ManagedContentFolder = OpenBveApi.Path.CombineDirectory(userDataFolder, "ManagedContent");
+			this.ManagedContentFolders = new string[] { OpenBveApi.Path.CombineDirectory(userDataFolder, "ManagedContent") };
 			this.SettingsFolder = OpenBveApi.Path.CombineDirectory(userDataFolder, "Settings");
 			this.InitialRouteFolder = OpenBveApi.Path.CombineDirectory(OpenBveApi.Path.CombineDirectory(OpenBveApi.Path.CombineDirectory(userDataFolder, "LegacyContent"), "Railway"), "Route");
 			this.InitialTrainFolder = OpenBveApi.Path.CombineDirectory(OpenBveApi.Path.CombineDirectory(userDataFolder, "LegacyContent"), "Train");
@@ -71,15 +68,17 @@ namespace OpenBve {
 				return new FileSystem();
 			}
 		}
-	
+		
 		/// <summary>Creates all folders in the file system that can later be written to.</summary>
 		internal void CreateFileSystem() {
 			try {
 				Directory.CreateDirectory(this.SettingsFolder);
 			} catch { }
-			try {
-				Directory.CreateDirectory(this.ManagedContentFolder);
-			} catch { }
+			foreach (string folder in this.ManagedContentFolders) {
+				try {
+					Directory.CreateDirectory(folder);
+				} catch { }
+			}
 			try {
 				Directory.CreateDirectory(this.InitialRouteFolder);
 			} catch { }
@@ -119,7 +118,10 @@ namespace OpenBve {
 								system.DataFolder = GetAbsolutePath(value, true);
 								break;
 							case "managedcontent":
-								system.ManagedContentFolder = GetAbsolutePath(value, true);
+								system.ManagedContentFolders = value.Split(',');
+								for (int i = 0; i < system.ManagedContentFolders.Length; i++) {
+									system.ManagedContentFolders[i] = GetAbsolutePath(system.ManagedContentFolders[i].Trim(), true);
+								}
 								break;
 							case "settings":
 								system.SettingsFolder = GetAbsolutePath(value, true);

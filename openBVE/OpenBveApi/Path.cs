@@ -4,245 +4,75 @@ using System;
 using System.Text;
 
 namespace OpenBveApi {
+
+	/* ----------------------------------------
+	 * TODO: This part of the API is unstable.
+	 *       Modifications can be made at will.
+	 * ---------------------------------------- */
+
 	/// <summary>Provides path-related functions for accessing files and directories in a cross-platform manner.</summary>
 	public static class Path {
-		
-		// --- path references ---
-		
-		/// <summary>Represents an abstract reference to a file or directory. Use FileReference or DirectoryReference to create instances.</summary>
-		public abstract class PathReference {
-			// --- operators ---
-			/// <summary>Checks whether two path references are equal.</summary>
-			/// <param name="a">The first path reference.</param>
-			/// <param name="b">The second path reference.</param>
-			/// <returns>Whether the two path references are equal.</returns>
-			public static bool operator ==(PathReference a, PathReference b) {
-				if (a is FileReference & b is FileReference) {
-					return (FileReference)a == (FileReference)b;
-				} else if (a is DirectoryReference & b is DirectoryReference) {
-					return (DirectoryReference)a == (DirectoryReference)b;
-				} else {
-					return object.ReferenceEquals(a, b);
-				}
-			}
-			/// <summary>Checks whether two path references are unequal.</summary>
-			/// <param name="a">The first path reference.</param>
-			/// <param name="b">The second path reference.</param>
-			/// <returns>Whether the two path references are unequal.</returns>
-			public static bool operator !=(PathReference a, PathReference b) {
-				if (a is FileReference & b is FileReference) {
-					return (FileReference)a != (FileReference)b;
-				} else if (a is DirectoryReference & b is DirectoryReference) {
-					return (DirectoryReference)a != (DirectoryReference)b;
-				} else {
-					return !object.ReferenceEquals(a, b);
-				}
-			}
-			/// <summary>Checks whether this instance is equal to the specified object.</summary>
-			/// <param name="obj">The object.</param>
-			/// <returns>Whether this instance is equal to the specified object.</returns>
-			public override bool Equals(object obj) {
-				if (this is FileReference & obj is FileReference) {
-					return (FileReference)this == (FileReference)obj;
-				} else if (this is DirectoryReference & obj is DirectoryReference) {
-					return (DirectoryReference)this == (DirectoryReference)obj;
-				} else {
-					return object.ReferenceEquals(this, obj);
-				}
-			}
-			// --- functions ---
-			/// <summary>Checks whether this path exists.</summary>
-			/// <returns>Whether this path exists.</returns>
-			public abstract bool Exists();
-		}
-		
-		
-		// --- file reference ---
-		
-		/// <summary>Represents a reference to a file.</summary>
-		public class FileReference : PathReference {
-			// --- members ---
-			/// <summary>The absolute path to the file.</summary>
-			public string File;
-			/// <summary>Additional data that describes how to process the file, or a null reference.</summary>
-			public string Data;
-			/// <summary>The encoding that should be used to process textual data if no specific encoding is mandated.</summary>
-			public Encoding Encoding;
-			// --- constructors ---
-			/// <summary>Creates a new file reference.</summary>
-			/// <param name="file">The absolute path to the file.</param>
-			/// <remarks>No optional data is used and the default encoding is UTF-8.</remarks>
-			public FileReference(string file) {
-				this.File = file;
-				this.Data = null;
-				this.Encoding = Encoding.UTF8;
-			}
-			/// <summary>Creates a new file reference.</summary>
-			/// <param name="file">The absolute path to the file.</param>
-			/// <param name="data">Additional data that describes how to process the file, or a null reference.</param>
-			/// <param name="encoding">The encoding that should be used to process textual data if no specific encoding is mandated.</param>
-			public FileReference(string file, string data, Encoding encoding) {
-				this.File = file;
-				this.Data = data;
-				this.Encoding = encoding;
-			}
-			// --- operators ---
-			/// <summary>Checks whether two file references are equal.</summary>
-			/// <param name="a">The first file reference.</param>
-			/// <param name="b">The second file reference.</param>
-			/// <returns>Whether the two file references are equal.</returns>
-			public static bool operator ==(FileReference a, FileReference b) {
-				if (object.ReferenceEquals(a, b)) return true;
-				if (object.ReferenceEquals(a, null)) return false;
-				if (object.ReferenceEquals(b, null)) return false;
-				if (a.File != b.File) return false;
-				if (a.Data != b.Data) return false;
-				if (a.Encoding != b.Encoding) return false;
-				return true;
-			}
-			/// <summary>Checks whether two file references are unequal.</summary>
-			/// <param name="a">The first file reference.</param>
-			/// <param name="b">The second file reference.</param>
-			/// <returns>Whether the two file references are unequal.</returns>
-			public static bool operator !=(FileReference a, FileReference b) {
-				if (object.ReferenceEquals(a, b)) return false;
-				if (object.ReferenceEquals(a, null)) return true;
-				if (object.ReferenceEquals(b, null)) return true;
-				if (a.File != b.File) return true;
-				if (a.Data != b.Data) return true;
-				if (a.Encoding != b.Encoding) return true;
-				return false;
-			}
-			/// <summary>Checks whether this instance is equal to the specified object.</summary>
-			/// <param name="obj">The object.</param>
-			/// <returns>Whether this instance is equal to the specified object.</returns>
-			public override bool Equals(object obj) {
-				if (object.ReferenceEquals(this, obj)) return true;
-				if (object.ReferenceEquals(this, null)) return false;
-				if (object.ReferenceEquals(obj, null)) return false;
-				if (!(obj is FileReference)) return false;
-				FileReference x = (FileReference)obj;
-				if (this.File != x.File) return true;
-				if (this.Data != x.Data) return true;
-				if (this.Encoding != x.Encoding) return true;
-				return false;
-			}
-			// --- functions ---
-			/// <summary>Checks whether the file represented by this reference exists.</summary>
-			/// <returns>Whether the file represented by this reference exists.</returns>
-			public override bool Exists() {
-				return System.IO.File.Exists(this.File);
-			}
-			/// <summary>Gets a string representation for this path.</summary>
-			/// <returns>The string representation for this path.</returns>
-			public override string ToString() {
-				return this.File;
-			}
-		}
-		
-		
-		// --- directory reference ---
-		
-		/// <summary>Represents a reference to a directory.</summary>
-		public class DirectoryReference : PathReference {
-			// --- members ---
-			/// <summary>The absolute path to the directory.</summary>
-			public string Directory;
-			/// <summary>Additional data that describes how to process the directory, or a null reference.</summary>
-			public string Data;
-			/// <summary>The encoding that should be used to process textual data if no specific encoding is mandated.</summary>
-			public Encoding Encoding;
-			// --- constructors ---
-			/// <summary>Creates a new directory reference.</summary>
-			/// <param name="directory">The absolute path to the directory.</param>
-			/// <remarks>No optional data is used and the default encoding is UTF-8.</remarks>
-			public DirectoryReference(string directory) {
-				this.Directory = directory;
-				this.Data = null;
-				this.Encoding = Encoding.UTF8;
-			}
-			/// <summary>Creates a new directory reference.</summary>
-			/// <param name="directory">The absolute path to the directory.</param>
-			/// <param name="data">Additional data that describes how to process the directory, or a null reference.</param>
-			/// <param name="encoding">The encoding that should be used to process textual data if no specific encoding is mandated.</param>
-			public DirectoryReference(string directory, string data, Encoding encoding) {
-				this.Directory = directory;
-				this.Data = data;
-				this.Encoding = encoding;
-			}
-			// --- operators ---
-			/// <summary>Checks whether two directory references are equal.</summary>
-			/// <param name="a">The first directory reference.</param>
-			/// <param name="b">The second directory reference.</param>
-			/// <returns>Whether the two directory references are equal.</returns>
-			public static bool operator ==(DirectoryReference a, DirectoryReference b) {
-				if (object.ReferenceEquals(a, b)) return true;
-				if (object.ReferenceEquals(a, null)) return false;
-				if (object.ReferenceEquals(b, null)) return false;
-				if (a.Directory != b.Directory) return false;
-				if (a.Data != b.Data) return false;
-				if (a.Encoding != b.Encoding) return false;
-				return true;
-			}
-			/// <summary>Checks whether two directory references are unequal.</summary>
-			/// <param name="a">The first directory reference.</param>
-			/// <param name="b">The second directory reference.</param>
-			/// <returns>Whether the two directory references are unequal.</returns>
-			public static bool operator !=(DirectoryReference a, DirectoryReference b) {
-				if (object.ReferenceEquals(a, b)) return false;
-				if (object.ReferenceEquals(a, null)) return true;
-				if (object.ReferenceEquals(b, null)) return true;
-				if (a.Directory != b.Directory) return true;
-				if (a.Data != b.Data) return true;
-				if (a.Encoding != b.Encoding) return true;
-				return false;
-			}
-			/// <summary>Checks whether this instance is equal to the specified object.</summary>
-			/// <param name="obj">The object.</param>
-			/// <returns>Whether this instance is equal to the specified object.</returns>
-			public override bool Equals(object obj) {
-				if (object.ReferenceEquals(this, obj)) return true;
-				if (object.ReferenceEquals(this, null)) return false;
-				if (object.ReferenceEquals(obj, null)) return false;
-				if (!(obj is DirectoryReference)) return false;
-				DirectoryReference x = (DirectoryReference)obj;
-				if (this.Directory != x.Directory) return true;
-				if (this.Data != x.Data) return true;
-				if (this.Encoding != x.Encoding) return true;
-				return false;
-			}
-			// --- functions ---
-			/// <summary>Checks whether the directory represented by this reference exists.</summary>
-			/// <returns>Whether the directory represented by this reference exists.</returns>
-			public override bool Exists() {
-				return System.IO.Directory.Exists(this.Directory);
-			}
-			/// <summary>Gets a string representation for this path.</summary>
-			/// <returns>The string representation for this path.</returns>
-			public override string ToString() {
-				return this.Directory;
-			}
-		}
-		
 		
 		// --- read-only fields ---
 		
 		/// <summary>The list of characters that are invalid in platform-independent relative paths.</summary>
 		private static readonly char[] InvalidPathChars = new char[] { ':', '*', '?', '"', '<', '>', '|' };
 		
+		/// <summary>The list of characters at which relative paths are separated into parts.</summary>
+		private static readonly char[] PathSeparationChars = new char[] { '/', '\\' };
+		
+		
+		// --- managed content ---
+		
+		/// <summary>The list of package names.</summary>
+		private static string[] PackageNames = null;
+		
+		/// <summary>The list of package directories.</summary>
+		private static string[] PackageDirectories = null;
+		
+		/// <summary>The object that serves as an authentication for the SetPackageLookupDirectories call.</summary>
+		private static object SetPackageLookupDirectoriesAuthentication = null;
+		
 		
 		// --- public functions ---
 		
+		/// <summary>Provides a list of package names and associated directories.</summary>
+		/// <param name="names">The list of names.</param>
+		/// <param name="directories">The list of fully qualified directories.</param>
+		/// <param name="authentication">A null reference on the first process-wide call to this function, otherwise the object returned by this function in the previous call.</param>
+		/// <exception cref="System.Security.SecurityException">Raised when the authentication failed.</exception>
+		public static object SetPackageLookupDirectories(string[] names, string[] directories, object authentication) {
+			if (authentication == SetPackageLookupDirectoriesAuthentication) {
+				Array.Sort<string, string>(names, directories);
+				PackageNames = names;
+				PackageDirectories = directories;
+				SetPackageLookupDirectoriesAuthentication = new object();
+				return SetPackageLookupDirectoriesAuthentication;
+			} else {
+				throw new System.Security.SecurityException();
+			}
+		}
+
 		/// <summary>Combines a platform-specific absolute path with a platform-independent relative path that points to a directory.</summary>
 		/// <param name="absolute">The platform-specific absolute path.</param>
 		/// <param name="relative">The platform-independent relative path.</param>
 		/// <returns>A platform-specific absolute path to the specified directory.</returns>
 		/// <exception cref="System.Exception">Raised when combining the paths failed, for example due to malformed paths or due to unauthorized access.</exception>
 		public static string CombineDirectory(string absolute, string relative) {
+			int index = relative.IndexOf("??");
+			if (index >= 0) {
+				string directory = CombineDirectory(absolute, relative.Substring(0, index).TrimEnd());
+				if (System.IO.Directory.Exists(directory)) {
+					return directory;
+				} else {
+					return CombineDirectory(absolute, relative.Substring(index + 2).TrimStart());
+				}
+			}
 			if (relative.IndexOfAny(InvalidPathChars) >= 0) {
 				throw new ArgumentException("The relative path contains invalid characters.");
 			}
-			string[] parts = relative.Split('/', '\\');
+			ResolvePackageReference(ref absolute, ref relative);
+			string[] parts = relative.Split(PathSeparationChars, StringSplitOptions.RemoveEmptyEntries);
 			for (int i = 0; i < parts.Length; i++) {
 				if (parts[i].Length != 0) {
 					/*
@@ -290,17 +120,27 @@ namespace OpenBveApi {
 			}
 			return absolute;
 		}
-
+		
 		/// <summary>Combines a platform-specific absolute path with a platform-independent relative path that points to a file.</summary>
 		/// <param name="absolute">The platform-specific absolute path.</param>
 		/// <param name="relative">The platform-independent relative path.</param>
 		/// <returns>Whether the operation succeeded and the specified file was found.</returns>
 		/// <exception cref="System.Exception">Raised when combining the paths failed, for example due to malformed paths or due to unauthorized access.</exception>
 		public static string CombineFile(string absolute, string relative) {
+			int index = relative.IndexOf("??");
+			if (index >= 0) {
+				string file = CombineFile(absolute, relative.Substring(0, index).TrimEnd());
+				if (System.IO.File.Exists(file)) {
+					return file;
+				} else {
+					return CombineFile(absolute, relative.Substring(index + 2).TrimStart());
+				}
+			}
 			if (relative.IndexOfAny(InvalidPathChars) >= 0) {
 				throw new ArgumentException("The relative path contains invalid characters.");
 			}
-			string[] parts = relative.Split('/', '\\');
+			ResolvePackageReference(ref absolute, ref relative);
+			string[] parts = relative.Split(PathSeparationChars, StringSplitOptions.RemoveEmptyEntries);
 			for (int i = 0; i < parts.Length; i++) {
 				if (parts[i].Length != 0) {
 					/*
@@ -392,6 +232,27 @@ namespace OpenBveApi {
 				}
 			}
 			return true;
+		}
+		
+		/// <summary>Resolves a package reference in the relative path and adjusts the absolute path if found.</summary>
+		/// <param name="absolute">The absolute path.</param>
+		/// <param name="relative">The relative path.</param>
+		private static void ResolvePackageReference(ref string absolute, ref string relative) {
+			if (relative.Length != 0 && relative[0] == '$') {
+				int index = relative.IndexOfAny(new char[] { '/', '\\' });
+				if (index >= 0) {
+					string package = relative.Substring(1, index - 1);
+					relative = relative.Substring(index + 1);
+					if (PackageNames != null) {
+						index = Array.BinarySearch<string>(PackageNames, package);
+						if (index >= 0 & index < PackageNames.Length) {
+							absolute = PackageDirectories[index];
+							return;
+						}
+					}
+					throw new System.IO.DirectoryNotFoundException("The package " + package + " could not be found.");
+				}
+			}
 		}
 		
 	}

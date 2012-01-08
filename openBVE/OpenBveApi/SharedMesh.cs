@@ -2,7 +2,7 @@
 using OpenBveApi.Math;
 
 namespace OpenBveApi.Objects {
-
+	
 	/// <summary>Represents a vertex used in a shared mesh.</summary>
 	public struct SharedVertex {
 		// --- members ---
@@ -28,7 +28,7 @@ namespace OpenBveApi.Objects {
 		}
 	}
 	
-	/// <summary>Represents a mesh with coordinates and colors shared between faces.</summary>
+	/// <summary>Represents a mesh with coordinates shared between faces.</summary>
 	public class SharedMesh : StaticObject {
 		// --- members ---
 		/// <summary>The list of unique spatial coordinates.</summary>
@@ -111,8 +111,155 @@ namespace OpenBveApi.Objects {
 					this.Faces[i].Flip();
 				}
 			}
-			
 		}
+		// --- optimization ---
+		/// <summary>Removes all duplicate and unused coordinates.</summary>
+		public void Optimize() {
+			OptimizeSpatialCoordinates();
+			OptimizeTextureCoordinates();
+			OptimizeNormals();
+		}
+		/// <summary>Removes all duplicate and unused spatial coordinates.</summary>
+		private void OptimizeSpatialCoordinates() {
+			/* Eliminate duplicate references */
+			for (int i = 0; i < this.SpatialCoordinates.Length; i++) {
+				for (int j = 0; j < i; j++) {
+					if (this.SpatialCoordinates[i] == this.SpatialCoordinates[j]) {
+						for (int k = 0; k < this.Faces.Length; k++) {
+							for (int l = 0; l < this.Faces[k].Vertices.Length; l++) {
+								if (this.Faces[k].Vertices[l].SpatialCoordinates == j) {
+									this.Faces[k].Vertices[l].SpatialCoordinates = i;
+								}
+							}
+						}
+						break;
+					}
+				}
+			}
+			/* Eliminate unused elements */
+			int length = this.SpatialCoordinates.Length;
+			for (int i = 0; i < length; i++) {
+				bool remove = true;
+				for (int k = 0; k < this.Faces.Length; k++) {
+					for (int l = 0; l < this.Faces[k].Vertices.Length; l++) {
+						if (this.Faces[k].Vertices[l].SpatialCoordinates == i) {
+							remove = false;
+							break;
+						}
+					}
+					if (!remove) break;
+				}
+				if (remove) {
+					this.SpatialCoordinates[i] = this.SpatialCoordinates[length - 1];
+					for (int k = 0; k < this.Faces.Length; k++) {
+						for (int l = 0; l < this.Faces[k].Vertices.Length; l++) {
+							if (this.Faces[k].Vertices[l].SpatialCoordinates == length - 1) {
+								this.Faces[k].Vertices[l].SpatialCoordinates = i;
+							}
+						}
+					}
+					length--;
+					i--;
+				}
+			}
+			if (length != this.SpatialCoordinates.Length) {
+				Array.Resize<Vector3>(ref this.SpatialCoordinates, length);
+			}
+		}
+		/// <summary>Removes all duplicate and unused texture coordinates.</summary>
+		private void OptimizeTextureCoordinates() {
+			/* Eliminate duplicate references */
+			for (int i = 0; i < this.TextureCoordinates.Length; i++) {
+				for (int j = 0; j < i; j++) {
+					if (this.TextureCoordinates[i] == this.TextureCoordinates[j]) {
+						for (int k = 0; k < this.Faces.Length; k++) {
+							for (int l = 0; l < this.Faces[k].Vertices.Length; l++) {
+								if (this.Faces[k].Vertices[l].TextureCoordinates == j) {
+									this.Faces[k].Vertices[l].TextureCoordinates = i;
+								}
+							}
+						}
+						break;
+					}
+				}
+			}
+			/* Eliminate unused elements */
+			int length = this.TextureCoordinates.Length;
+			for (int i = 0; i < length; i++) {
+				bool remove = true;
+				for (int k = 0; k < this.Faces.Length; k++) {
+					for (int l = 0; l < this.Faces[k].Vertices.Length; l++) {
+						if (this.Faces[k].Vertices[l].TextureCoordinates == i) {
+							remove = false;
+							break;
+						}
+					}
+					if (!remove) break;
+				}
+				if (remove) {
+					this.TextureCoordinates[i] = this.TextureCoordinates[length - 1];
+					for (int k = 0; k < this.Faces.Length; k++) {
+						for (int l = 0; l < this.Faces[k].Vertices.Length; l++) {
+							if (this.Faces[k].Vertices[l].TextureCoordinates == length - 1) {
+								this.Faces[k].Vertices[l].TextureCoordinates = i;
+							}
+						}
+					}
+					length--;
+					i--;
+				}
+			}
+			if (length != this.TextureCoordinates.Length) {
+				Array.Resize<Vector2>(ref this.TextureCoordinates, length);
+			}
+		}
+		/// <summary>Removes all duplicate and unused normals.</summary>
+		private void OptimizeNormals() {
+			/* Eliminate duplicate references */
+			for (int i = 0; i < this.Normals.Length; i++) {
+				for (int j = 0; j < i; j++) {
+					if (this.Normals[i] == this.Normals[j]) {
+						for (int k = 0; k < this.Faces.Length; k++) {
+							for (int l = 0; l < this.Faces[k].Vertices.Length; l++) {
+								if (this.Faces[k].Vertices[l].Normal == j) {
+									this.Faces[k].Vertices[l].Normal = i;
+								}
+							}
+						}
+						break;
+					}
+				}
+			}
+			/* Eliminate unused elements */
+			int length = this.Normals.Length;
+			for (int i = 0; i < length; i++) {
+				bool remove = true;
+				for (int k = 0; k < this.Faces.Length; k++) {
+					for (int l = 0; l < this.Faces[k].Vertices.Length; l++) {
+						if (this.Faces[k].Vertices[l].Normal == i) {
+							remove = false;
+							break;
+						}
+					}
+					if (!remove) break;
+				}
+				if (remove) {
+					this.Normals[i] = this.Normals[length - 1];
+					for (int k = 0; k < this.Faces.Length; k++) {
+						for (int l = 0; l < this.Faces[k].Vertices.Length; l++) {
+							if (this.Faces[k].Vertices[l].Normal == length - 1) {
+								this.Faces[k].Vertices[l].Normal = i;
+							}
+						}
+					}
+					length--;
+					i--;
+				}
+			}
+			if (length != this.Normals.Length) {
+				Array.Resize<Vector3>(ref this.Normals, length);
+			}
+		}
+		
 	}
-	
 }

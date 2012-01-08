@@ -4,7 +4,12 @@ using System;
 using OpenBveApi.Colors;
 
 namespace OpenBveApi.Textures {
-	
+
+	/* ----------------------------------------
+	 * TODO: This part of the API is unstable.
+	 *       Modifications can be made at will.
+	 * ---------------------------------------- */
+
 	// --- structures ---
 	
 	/// <summary>Represents the type of transparency encountered in a texture.</summary>
@@ -32,7 +37,7 @@ namespace OpenBveApi.Textures {
 		/// <summary>Creates a new instance of this class.</summary>
 		/// <param name="width">The width of the texture in pixels.</param>
 		/// <param name="height">The height of the texture in pixels.</param>
-		/// <param name="bitsPerPixel">The number of bits per pixel. Must be 24 or 32.</param>
+		/// <param name="bitsPerPixel">The number of bits per pixel. Must be 32.</param>
 		/// <param name="bytes">The texture data. Pixels are stored row-based from top to bottom, and within a row from left to right. For 32 bits per pixel, four bytes are used in the order red, green, blue and alpha.</param>
 		/// <exception cref="System.ArgumentException">Raised when the number of bits per pixel is not 32.</exception>
 		/// <exception cref="System.ArgumentNullException">Raised when the byte array is a null reference.</exception>
@@ -130,6 +135,14 @@ namespace OpenBveApi.Textures {
 			return true;
 		}
 		// --- functions ---
+		/// <summary>Applies the specified parameters onto this texture.</summary>
+		/// <param name="parameters">The parameters, or a null reference.</param>
+		/// <returns>The texture with the parameters applied.</returns>
+		/// <exception cref="System.ArgumentException">Raised when the clip region is outside the texture bounds.</exception>
+		/// <exception cref="System.NotSupportedException">Raised when the bits per pixel in the texture is not supported.</exception>
+		public Texture ApplyParameters(TextureParameters parameters) {
+			return Functions.ApplyParameters(this, parameters);
+		}
 		/// <summary>Gets the type of transparency encountered in this texture.</summary>
 		/// <returns>The type of transparency encountered in this texture.</returns>
 		/// <exception cref="System.NotSupportedException">Raised when the bits per pixel in the texture is not supported.</exception>
@@ -140,7 +153,7 @@ namespace OpenBveApi.Textures {
 				for (int i = 3; i < this.MyBytes.Length; i += 4) {
 					if (this.MyBytes[i] != 255) {
 						for (int j = i; j < this.MyBytes.Length; j += 4) {
-							if (this.MyBytes[j] != 0) {
+							if (this.MyBytes[j] != 0 & this.MyBytes[j] != 255) {
 								return TextureTransparencyType.Alpha;
 							}
 						}
@@ -151,15 +164,6 @@ namespace OpenBveApi.Textures {
 			} else {
 				throw new NotSupportedException();
 			}
-		}
-		/// <summary>Applies the specified parameters onto a texture.</summary>
-		/// <param name="texture">The original texture.</param>
-		/// <param name="parameters">The parameters, or a null reference.</param>
-		/// <returns>The texture with the parameters applied.</returns>
-		/// <exception cref="System.ArgumentException">Raised when the clip region is outside the texture bounds.</exception>
-		/// <exception cref="System.NotSupportedException">Raised when the bits per pixel in the texture is not supported.</exception>
-		public static Texture ApplyParameters(Texture texture, TextureParameters parameters) {
-			return Functions.ApplyParameters(texture, parameters);
 		}
 	}
 	
@@ -361,20 +365,20 @@ namespace OpenBveApi.Textures {
 		/// <summary>Checks whether the plugin can load the specified texture.</summary>
 		/// <param name="path">The path to the file or folder that contains the texture.</param>
 		/// <returns>Whether the plugin can load the specified texture.</returns>
-		public abstract bool CanLoadTexture(Path.PathReference path);
+		public abstract bool CanLoadTexture(string path);
 
 		/// <summary>Queries the dimensions of a texture.</summary>
 		/// <param name="path">The path to the file or folder that contains the texture.</param>
 		/// <param name="width">Receives the width of the texture.</param>
 		/// <param name="height">Receives the height of the texture.</param>
 		/// <returns>Whether querying the dimensions was successful.</returns>
-		public abstract bool QueryTextureDimensions(Path.PathReference path, out int width, out int height);
+		public abstract bool QueryTextureDimensions(string path, out int width, out int height);
 
 		/// <summary>Loads the specified texture.</summary>
 		/// <param name="path">The path to the file or folder that contains the texture.</param>
 		/// <param name="texture">Receives the texture.</param>
 		/// <returns>Whether loading the texture was successful.</returns>
-		public abstract bool LoadTexture(Path.PathReference path, out Texture texture);
+		public abstract bool LoadTexture(string path, out Texture texture);
 		
 	}
 	

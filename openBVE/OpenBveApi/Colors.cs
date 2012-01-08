@@ -4,6 +4,11 @@ using System;
 
 namespace OpenBveApi.Colors {
 	
+	/* ----------------------------------------
+	 * TODO: This part of the API is unstable.
+	 *       Modifications can be made at will.
+	 * ---------------------------------------- */
+
 	// --- color 24 ---
 	
 	/// <summary>Represents a 24-bit color with red, green and blue channels at 8 bits each.</summary>
@@ -148,6 +153,19 @@ namespace OpenBveApi.Colors {
 		public static readonly Color32 White = new Color32(255, 255, 255);
 		/// <summary>Represents a transparent black color.</summary>
 		public static readonly Color32 Transparent = new Color32(0, 0, 0, 0);
+		// --- conversions ---
+		/// <summary>Performs a widening conversion from Color24 to Color32.</summary>
+		/// <param name="value">The Color24 value.</param>
+		/// <returns>The Color32 value.</returns>
+		public static implicit operator Color32(Color24 value) {
+			return new Color32(value.R, value.G, value.B);
+		}
+		/// <summary>Performs a narrowing conversion from Color32 to Color24.</summary>
+		/// <param name="value">The Color32 value.</param>
+		/// <returns>The Color24 value.</returns>
+		public static explicit operator Color24(Color32 value) {
+			return new Color24(value.R, value.G, value.B);
+		}
 	}
 	
 	
@@ -295,6 +313,19 @@ namespace OpenBveApi.Colors {
 		public static readonly Color128 White = new Color128(1.0f, 1.0f, 1.0f);
 		/// <summary>Represents a transparent black color.</summary>
 		public static readonly Color128 Transparent = new Color128(0.0f, 0.0f, 0.0f, 0.0f);
+		// --- conversions ---
+		/// <summary>Performs a widening conversion from Color96 to Color128.</summary>
+		/// <param name="value">The Color96 value.</param>
+		/// <returns>The Color128 value.</returns>
+		public static implicit operator Color128(Color24 value) {
+			return new Color128(value.R, value.G, value.B);
+		}
+		/// <summary>Performs a narrowing conversion from Color128 to Color96.</summary>
+		/// <param name="value">The Color128 value.</param>
+		/// <returns>The Color96 value.</returns>
+		public static explicit operator Color96(Color128 value) {
+			return new Color96(value.R, value.G, value.B);
+		}
 	}
 
 }

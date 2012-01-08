@@ -341,10 +341,10 @@ namespace Plugin {
 					this.Train.Sounds.AtsPBell.Play();
 				}
 			}
-			if (BrakeRelease) {
-				BrakeReleaseCountdown -= data.ElapsedTime.Seconds;
-				if (BrakeReleaseCountdown <= 0.0) {
-					BrakeRelease = false;
+			if (this.BrakeRelease) {
+				this.BrakeReleaseCountdown -= data.ElapsedTime.Seconds;
+				if (this.BrakeReleaseCountdown <= 0.0) {
+					this.BrakeRelease = false;
 					this.Train.Sounds.AtsPBell.Play();
 				}
 			}
@@ -397,7 +397,7 @@ namespace Plugin {
 					data.Handles.BrakeNotch = this.Train.Specs.BrakeNotches + 1;
 					blocking = true;
 				}
-				if (this.State != States.Disabled & this.Train.Doors != DoorStates.None) {
+				if (this.State != States.Disabled & (this.Train.Doors != DoorStates.None | data.Handles.BrakeNotch > 0)) {
 					data.Handles.PowerNotch = 0;
 				}
 			}
@@ -468,14 +468,6 @@ namespace Plugin {
 						BrakeRelease = true;
 						BrakeReleaseCountdown = DurationOfBrakeRelease;
 						this.Train.Sounds.AtsPBell.Play();
-					}
-					break;
-				case VirtualKeys.E:
-					// --- activate or deactivate the system ---
-					if (this.State == States.Disabled) {
-						this.State = States.Suppressed;
-					} else {
-						this.State = States.Disabled;
 					}
 					break;
 			}

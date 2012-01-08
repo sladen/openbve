@@ -259,8 +259,45 @@ namespace Plugin {
 		/// <summary>Is called when a key is pressed.</summary>
 		/// <param name="key">The key.</param>
 		internal void KeyDown(VirtualKeys key) {
-			foreach (Device device in this.Devices) {
-				device.KeyDown(key);
+			if (key == VirtualKeys.D) {
+				// --- enable safety systems ---
+				if (this.AtsSx != null) {
+					if (this.AtsSx.State == AtsSx.States.Disabled) {
+						this.AtsSx.State = AtsSx.States.Suppressed;
+					}
+				}
+				if (this.AtsP != null) {
+					if (this.AtsP.State == AtsP.States.Disabled) {
+						this.AtsP.State = AtsP.States.Suppressed;
+					}
+				}
+				if (this.Atc != null) {
+					if (this.Atc.State == Atc.States.Disabled) {
+						this.Atc.State = Atc.States.Suppressed;
+					}
+				}
+			} else if (key == VirtualKeys.E) {
+				// --- disable safety systems ---
+				if (this.AtsSx != null) {
+					if (this.AtsSx.State != AtsSx.States.Disabled) {
+						this.AtsSx.State = AtsSx.States.Disabled;
+					}
+				}
+				if (this.AtsP != null) {
+					if (this.AtsP.State != AtsP.States.Disabled) {
+						this.AtsP.State = AtsP.States.Disabled;
+					}
+				}
+				if (this.Atc != null) {
+					if (this.Atc.State != Atc.States.Disabled) {
+						this.Atc.State = Atc.States.Disabled;
+					}
+				}
+			} else {
+				// --- other functions ---
+				foreach (Device device in this.Devices) {
+					device.KeyDown(key);
+				}
 			}
 		}
 		

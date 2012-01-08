@@ -98,10 +98,12 @@ namespace Plugin {
 				}
 			}
 			if (this.State == States.Initializing) {
-				this.Train.Sounds.AtsBell.Play();
 				this.AlarmCountdown -= data.ElapsedTime.Seconds;
 				if (this.AlarmCountdown <= 0.0) {
 					this.State = States.Chime;
+				} else {
+					data.Handles.BrakeNotch = this.Train.Specs.BrakeNotches + 1;
+					this.Train.Sounds.AtsBell.Play();
 				}
 			}
 			if (blocking) {
@@ -130,7 +132,7 @@ namespace Plugin {
 						this.CompatibilityDistanceAccumulator = 0.0;
 					}
 				}
-				if (this.State != States.Disabled & this.Train.Doors != DoorStates.None) {
+				if (this.State != States.Disabled & (this.Train.Doors != DoorStates.None | data.Handles.BrakeNotch > 0)) {
 					data.Handles.PowerNotch = 0;
 				}
 			}
@@ -183,14 +185,6 @@ namespace Plugin {
 					// --- reset the system ---
 					if (this.State == States.Emergency & this.Train.Handles.Reverser == 0 & this.Train.Handles.PowerNotch == 0 & this.Train.Handles.BrakeNotch == this.Train.Specs.BrakeNotches + 1) {
 						this.State = States.Chime;
-					}
-					break;
-				case VirtualKeys.D:
-					// --- activate or deactivate the system ---
-					if (this.State == States.Disabled) {
-						this.State = States.Suppressed;
-					} else {
-						this.State = States.Disabled;
 					}
 					break;
 			}

@@ -152,7 +152,7 @@ namespace OpenBveApi.Math {
 		}
 
 		
-		// --- comparison operators ---
+		// --- comparisons ---
 		
 		/// <summary>Checks whether the two specified vectors are equal.</summary>
 		/// <param name="a">The first vector.</param>
@@ -259,10 +259,16 @@ namespace OpenBveApi.Math {
 			return true;
 		}
 		
-		/// <summary>Gets the vector norm of this instance.</summary>
-		/// <returns>The vector norm.</returns>
+		/// <summary>Gets the euclidean norm.</summary>
+		/// <returns>The euclidean norm.</returns>
 		public double Norm() {
 			return System.Math.Sqrt(this.X * this.X + this.Y * this.Y + this.Z * this.Z);
+		}
+		
+		/// <summary>Gets the square of the euclidean norm.</summary>
+		/// <returns>The square of the euclidean norm.</returns>
+		public double NormSquared() {
+			return this.X * this.X + this.Y * this.Y + this.Z * this.Z;
 		}
 
 		
@@ -391,11 +397,18 @@ namespace OpenBveApi.Math {
 			return vector.X == 0.0 & vector.Y == 0.0 & vector.Z == 0.0;
 		}
 		
-		/// <summary>Gets the vector norm of a specified vector.</summary>
+		/// <summary>Gets the euclidean norm of the specified vector.</summary>
 		/// <param name="vector">The vector.</param>
-		/// <returns>The vector norm.</returns>
+		/// <returns>The euclidean norm.</returns>
 		public static double Norm(Vector3 vector) {
 			return System.Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y + vector.Z * vector.Z);
+		}
+		
+		/// <summary>Gets the square of the euclidean norm of the specified vector.</summary>
+		/// <param name="vector">The vector.</param>
+		/// <returns>The square of the euclidean norm.</returns>
+		public static double NormSquared(Vector3 vector) {
+			return vector.X * vector.X + vector.Y * vector.Y + vector.Z * vector.Z;
 		}
 
 		

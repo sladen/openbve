@@ -14,6 +14,8 @@ namespace OpenBveApi.Objects {
 		public TextureHandle DaytimeTexture;
 		/// <summary>The nighttime texture, or a null reference.</summary>
 		public TextureHandle NighttimeTexture;
+		/// <summary>The blend mode.</summary>
+		public BlendModes BlendMode;
 		/// <summary>The glow, or a null reference.</summary>
 		public AbstractGlow Glow;
 	}
