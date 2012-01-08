@@ -1,3 +1,24 @@
+openbve (1.2.10.0-0ubuntu3) precise; urgency=low
+
+  * debian/control: Add missing dependency (libmono-i18n4.0-all) and remove
+    dependency on libmono-i18n4.0-cil as the latter is a dependency of the
+    first. Thanks to Paul Childs for the fix and to Paul Sladen for finding a
+    dependency simplification. (LP: #877776)
+    Adding also ${misc:Depends} to the Depends field and bumping the
+    Standards-Version to 3.9.2 (current version).
+  * debian/rules: Add build-arch and build-indep recommended targets.
+
+ -- Alessandro Menti <alessandro.menti@hotmail.it>  Sat, 29 Oct 2011 19:40:10 +0200
+
+openbve (1.2.10.0-0ubuntu2) oneiric; urgency=low
+
+  * debian/rules: Skip AtsPluginProxy.dll modulrefs, these are Win32 only.
+  * openBVE/OpenBveApi/OpenBveApi.csproj,
+    openBVE/OpenBve/OpenBve.csproj: set TargetFrameworkVersion to v4.0.
+  * debian/control: Tweak dependencies and build-dependencies for 4.0.
+
+ -- Jo Shields <directhex@apebox.org>  Sat, 02 Jul 2011 22:11:00 +0100
+
 openbve (1.2.10.0-0ubuntu1) natty; urgency=low
 
   * New upstream stable version (1.2.10.0)

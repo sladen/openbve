@@ -1,17 +1,18 @@
 Source: openbve
 Section: games
 Priority: optional
-Maintainer: Paul Sladen <ubuntu@paul.sladen.org>
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+XSBC-Original-Maintainer: Paul Sladen <ubuntu@paul.sladen.org>
 Build-Depends: debhelper (>= 5), mono-xbuild, lynx
-Build-Depends-Indep: cli-common-dev (>= 0.7), mono-devel (>= 2.0.1), libmono-i18n2.0-cil, libtaoframework-openal-cil-dev, libtaoframework-opengl-cil-dev, libtaoframework-sdl-cil-dev, libmono-winforms2.0-cil
+Build-Depends-Indep: cli-common-dev (>= 0.8~), mono-devel (>= 2.10), libtaoframework-openal-cil-dev, libtaoframework-opengl-cil-dev, libtaoframework-sdl-cil-dev
 Vcs-Browser: http://github.com/sladen/openbve/tree/debian
 Vcs-Git: git://github.com/sladen/openbve.git
-Standards-Version: 3.9.1
+Standards-Version: 3.9.2
 Homepage: http://openbve.trainsimcentral.co.uk/
 
 Package: openbve
 Architecture: all
-Depends: ${cli:Depends}, libmono-i18n2.0-cil, openbve-data (>= 1.2.7.0+dfsg)
+Depends: ${cli:Depends}, libmono-i18n4.0-all, openbve-data (>= 1.2.7.0+dfsg), ${misc:Depends}
 Recommends: bve-route, bve-train
 Provides: bve-engine
 Description: realistic 3D train/railway simulator (main program)
