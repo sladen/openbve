@@ -37,7 +37,7 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 	install -m 755 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe $(TARGET)/usr/lib/openbve/
-	install -m 644 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe.mdb $(TARGET)/usr/lib/openbve/
+	#install -m 644 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe.mdb $(TARGET)/usr/lib/openbve/
 	install -m 755 $(CURDIR)/openBVE/OpenBveApi/bin/$(DEBUG_CONFIGURATION)/OpenBveApi.dll $(TARGET)/usr/lib/openbve/
 	install -m 644 $(CURDIR)/openBVE/OpenBveApi/bin/$(DEBUG_CONFIGURATION)/OpenBveApi.dll.mdb $(TARGET)/usr/lib/openbve/
 	install -m 755 -T $(CURDIR)/debian/openbve.wrapper $(TARGET)/usr/games/openbve
