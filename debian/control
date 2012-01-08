@@ -8,7 +8,7 @@ Build-Depends-Indep: cli-common-dev (>= 0.8~), mono-devel (>= 2.10), libtaoframe
 Vcs-Browser: http://github.com/sladen/openbve/tree/debian
 Vcs-Git: git://github.com/sladen/openbve.git
 Standards-Version: 3.9.2
-Homepage: http://openbve.trainsimcentral.co.uk/
+Homepage: http://trainsimframework.org/
 
 Package: openbve
 Architecture: all

@@ -103,7 +103,7 @@ In addition to the source code, full reverse-engineered documentation
 from analysising the original free-as-in-beer BVE Trainsim program
 is available in English at:
 
-  http://openbve.trainsimcentral.co.uk/develop/
+  http://trainsimframework.org/develop/
 
 Some documentation of the formats is available in Japanese at:
 
