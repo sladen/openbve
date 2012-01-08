@@ -455,6 +455,14 @@ namespace OpenBve {
 		/// <returns>Whether the plugin was loaded successfully.</returns>
 		internal static bool LoadDefaultPlugin(TrainManager.Train train, string trainFolder) {
 			string file = OpenBveApi.Path.CombineFile(Program.FileSystem.GetDataFolder("Plugins"), "OpenBveAts.dll");
+			// Executable data (== .dlls) may need to live somewhere else, so such an
+			// option probably may need adding to 'filesystem.cfg' in the future. -sladen
+			// Note that should path determination logic may want to be shared with
+			// the similiar statement in System/Plugins.cs
+			if(!System.IO.File.Exists(file))
+				file = OpenBveApi.Path.CombineFile(OpenBveApi.Path.CombineDirectory(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Plugins"), "OpenBveAts.dll");
+			// Or ... just hard code it as a massive kludge -sladen
+			//file = "/usr/lib/openbve/Plugins/OpenBveAts.dll";
 			bool success = LoadPlugin(train, file, trainFolder);
 			if (success) {
 				train.Plugin.IsDefault = true;

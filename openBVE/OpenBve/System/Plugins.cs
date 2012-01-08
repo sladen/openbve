@@ -72,6 +72,13 @@ namespace OpenBve {
 		internal static void LoadPlugins() {
 			UnloadPlugins();
 			string folder = Program.FileSystem.GetDataFolder("Plugins");
+			// Executable data (== .dlls) may need to live somewhere else, so such an
+			// option probably may need adding to 'filesystem.cfg' in the future. -sladen
+			if(!System.IO.Directory.Exists(folder))
+				folder = OpenBveApi.Path.CombineDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Plugins");
+			// And if that doesn't work, just hard code it. -sladen
+			//if(!System.IO.Directory.Exists(folder))
+			//  folder = "/usr/lib/openbve/Plugins";
 			string[] files = Directory.GetFiles(folder);
 			List<Plugin> list = new List<Plugin>();
 			foreach (string file in files) {

@@ -1,7 +1,12 @@
 #!/usr/bin/make -f
 export DH_VERBOSE=15
-BUILDDIRS = openBVE/OpenBve openBVE/OpenBveApi
+BUILDDIRS = openBVE/OpenBve openBVE/OpenBveApi \
+ openBVE/OpenBveAts \
+ openBVE/Sound.Flac openBVE/Sound.RiffWave \
+ openBVE/Texture.Ace openBVE/Texture.BmpGifJpegPngTiff
 TARGET = $(CURDIR)/debian/openbve
+EXEC_TARGET = $(TARGET)/usr/lib/openbve
+EXEC_PLUGIN_TARGET = $(EXEC_TARGET)/Plugins
 #DEBUG_CONFIGURATION=Debug
 DEBUG_CONFIGURATION=Release
 
@@ -36,11 +41,16 @@ install: build
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
-	install -m 755 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe $(TARGET)/usr/lib/openbve/
-	#install -m 644 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe.mdb $(TARGET)/usr/lib/openbve/
-	install -m 755 $(CURDIR)/openBVE/OpenBveApi/bin/$(DEBUG_CONFIGURATION)/OpenBveApi.dll $(TARGET)/usr/lib/openbve/
-	install -m 644 $(CURDIR)/openBVE/OpenBveApi/bin/$(DEBUG_CONFIGURATION)/OpenBveApi.dll.mdb $(TARGET)/usr/lib/openbve/
+	install -m 755 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe $(EXEC_TARGET)
+	#install -m 644 $(CURDIR)/openBVE/OpenBve/bin/$(DEBUG_CONFIGURATION)/OpenBve.exe.mdb $(EXEC_TARGET)
+	install -m 755 $(CURDIR)/openBVE/OpenBveApi/bin/$(DEBUG_CONFIGURATION)/OpenBveApi.dll $(EXEC_TARGET)
+	install -m 644 $(CURDIR)/openBVE/OpenBveApi/bin/$(DEBUG_CONFIGURATION)/OpenBveApi.dll.mdb $(EXEC_TARGET)
 	install -m 755 -T $(CURDIR)/debian/openbve.wrapper $(TARGET)/usr/games/openbve
+	install -m 755 $(CURDIR)/openBVE/OpenBveAts/bin/$(DEBUG_CONFIGURATION)/OpenBveAts.dll $(EXEC_PLUGIN_TARGET)
+	install -m 755 $(CURDIR)/openBVE/Sound.Flac/bin/$(DEBUG_CONFIGURATION)/Sound.Flac.dll $(EXEC_PLUGIN_TARGET)
+	install -m 755 $(CURDIR)/openBVE/Sound.RiffWave/bin/$(DEBUG_CONFIGURATION)/Sound.RiffWave.dll $(EXEC_PLUGIN_TARGET)
+	install -m 755 $(CURDIR)/openBVE/Texture.Ace/bin/$(DEBUG_CONFIGURATION)/Texture.Ace.dll $(EXEC_PLUGIN_TARGET)
+	install -m 755 $(CURDIR)/openBVE/Texture.BmpGifJpegPngTiff/bin/$(DEBUG_CONFIGURATION)/Texture.BmpGifJpegPngTiff.dll $(EXEC_PLUGIN_TARGET)
 	lynx -dump -nolist $(CURDIR)/debian/changelog.html > $(TARGET)/usr/share/doc/openbve/changelog
 
 binary-arch:
