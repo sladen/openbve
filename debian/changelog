@@ -5,6 +5,7 @@ openbve (1.4.0.0-0ubuntu1) UNRELEASED; urgency=low
     + credits file as part of docs too
     + update 'changelog.html' and 'credits.html'
     + install new modular plugins to '/usr/lib/openbve/Plugins'
+    + bump openbve-data (>= 1.4.0.0) hard dependency
 
  -- Paul Sladen <sladen@ubuntu.com>  Sun, 08 Jan 2012 12:00:00 +0100
 
