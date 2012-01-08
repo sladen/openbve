@@ -5,15 +5,15 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("openBVE")]
 [assembly: AssemblyProduct("openBVE")]
-[assembly: AssemblyCopyright("(AntiCopyright) 2008-2010 openBVE Project")]
+[assembly: AssemblyCopyright("(Public Domain) http://trainsimframework.org/")]
 [assembly: ComVisible(false)]
-[assembly: Guid("bd68500e-8db6-4394-8fec-6adcde64c213")]
-[assembly: AssemblyVersion("1.2.10.0")]
-[assembly: AssemblyFileVersion("1.2.10.0")]
+[assembly: AssemblyVersion("1.4.0.0")]
+[assembly: AssemblyFileVersion("1.4.0.0")]
 [assembly: CLSCompliant(true)]
 
 namespace OpenBve {
-	public static partial class Program {
+	internal static partial class Program {
+		/// <summary>Whether this is a development version. Affects the main menu design and the version checking.</summary>
 		internal const bool IsDevelopmentVersion = false;
 	}
 }

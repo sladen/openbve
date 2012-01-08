@@ -8,7 +8,7 @@ Links
 -----
 
 Official homepage:
-http://openbve.trainsimcentral.co.uk/
+http://trainsimframework.org/
 
 Official discussion board:
 http://openbve.freeforums.org/
