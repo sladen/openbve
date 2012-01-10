@@ -1,0 +1,64 @@
+Braindump, Paul Sladen 2012-01-10
+
+Go to:
+
+  http://trainsimframework.org/downloads.html
+
+Latest Version number N.N.N.N is displayed on that page.
+The version number is not copied into the .zip paths.
+
+The .zip links do not change and so are to unversioned .zips.
+Unfortunately it's not possible to write a 'watch' rule for this
+particular arrangemet[1].
+
+Note:
+
+  http://trainsimframework.org/common/openbve_stable_source.zip (-> openbve_*.orig.tar.gz)
+  http://trainsimframework.org/common/openbve_stable.zip (-> openbve-data_*+dfsg.orig.tar.gz)
+
+(ie, they 'appear' to be wrong way around.  The reason for this is
+that the data files and icons are only distributed in the precompiled
+distribution, and not also in the source bundle.  However, sometimes
+this is to our advantage as the data files (eg. translations) rev at a
+different rate to the main program.  Both downloads are always
+rebuilt, but you may find after unpacking that one or the other is
+zero-change, and so it's possible to skip re-uploading to the archive).
+
+Rarely does a bump of the program itself introduce a hard Depends: break
+upon the data, but do check, and bump up if it actually breaks.
+
+DFSGifyng:
+
+The 'openbve_stable.zip' contains pre-compiled '.exe', '.dll' and
+debugging maps that need deleting before creating the upstream
+tarball (for the 'openbve-data' package).
+
+  find -name \*.exe -o -name \*.dll -o -name \*.mdb | xargs rm
+
+Check using 'git status' that you haven't introduced anything non-DFSG
+into the 'upstream' branch when unpacking.
+
+Extra Note: the zip files are created manually by upstream (michelle)
+and sometimes have included off-by-one errors in the pathnames levels.
+Use 'git status' or similar and if there is an obvious typo don't use
+it and it'll just cause churn in the diffs, instead email michelle and
+get it fixed in the upstream tarball (this will help other people too,
+not just yourself when packaging).
+
+Commit changelog:
+
+  git checkout -f upstream
+  git commit --author michelle
+
+  import openbve_stable.zip N.N.N.N+dfsg (YYYY-mm-dd)
+
+Main commit message comes from a nicely wordwrapped/plain-text version
+of the upstream changelog at:
+
+  http://trainsimframework.org/changelog.html
+
+this is linked from the site top-level of the site (not downloads).
+
+
+[1] "watch file syntax, version separate to .zip" (2009-02-17)
+http://www.mail-archive.com/pkg-devscripts@teams.debian.net/msg02553.html
