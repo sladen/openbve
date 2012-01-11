@@ -5,8 +5,8 @@ Maintainer: Debian CLI Applications Team <pkg-cli-apps-team@lists.alioth.debian.
 Uploaders: Paul Sladen <ubuntu@paul.sladen.org>
 Build-Depends: debhelper (>= 5), mono-xbuild, lynx
 Build-Depends-Indep: cli-common-dev (>= 0.8~), mono-devel (>= 2.10), libtaoframework-openal-cil-dev, libtaoframework-opengl-cil-dev, libtaoframework-sdl-cil-dev
-Vcs-Browser: http://github.com/sladen/openbve/tree/debian
-Vcs-Git: git://github.com/sladen/openbve.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-cli-apps/packages/openbve.git
+Vcs-Git: git://git.debian.org/git/pkg-cli-apps/packages/openbve.git
 Standards-Version: 3.9.2
 Homepage: http://trainsimframework.org/
 
