@@ -1,5 +1,6 @@
-openbve (1.4.0.0-1) UNRELEASED; urgency=low
+openbve (1.4.0.0-1) unstable; urgency=low
 
+  * Initial Debian upload
   * New upstream stable release (1.4.0.0)
     + update upstream URL to 'trainsimframework.org/*'
     + credits file as part of docs too
@@ -7,7 +8,7 @@ openbve (1.4.0.0-1) UNRELEASED; urgency=low
     + install new modular plugins to '/usr/lib/openbve/Plugins'
     + bump openbve-data (>= 1.4.0.0) hard dependency
 
- -- Paul Sladen <debian@paul.sladen.org>  Sun, 08 Jan 2012 12:00:00 +0100
+ -- Paul Sladen <debian@paul.sladen.org>  Wed, 11 Jan 2012 23:00:00 +0100
 
 openbve (1.2.10.0-0ubuntu3) precise; urgency=low
 
